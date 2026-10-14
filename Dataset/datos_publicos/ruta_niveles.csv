@@ -1,0 +1,10 @@
+nivel,nombre_nivel,edad_min_meses,edad_max_meses,dominios,descripcion
+1,Atención y regulación inicial,0,2,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Responde brevemente a estímulos, rostros, voces y contacto; comienza a organizar movimientos y estados de calma."
+2,Interacción y control emergente,2,4,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Aumenta el control de cabeza, la atención compartida y el intercambio de sonidos y expresiones."
+3,Alcance y exploración corporal,4,6,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Alcanza, manipula, vocaliza y cambia de postura para explorar personas y objetos cercanos."
+4,Sedestación y comunicación intencional,6,9,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Se sostiene sentado, coordina manos, balbucea e inicia acciones para mantener intercambios o buscar objetos."
+5,Movilidad y propósito,9,12,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Se desplaza con mayor autonomía, usa gestos y acciones dirigidas a una meta y comprende rutinas sencillas."
+6,Autonomía funcional inicial,12,18,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Camina o practica marcha autónoma, usa objetos de forma funcional, comprende consignas simples y emplea palabras o aproximaciones consistentes."
+7,Representación y combinación inicial,18,21,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Amplía movilidad, vocabulario, imitación y juego representacional; resuelve problemas cotidianos sencillos."
+8,Combinación y participación,21,27,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Combina palabras y acciones, participa junto a pares, clasifica o empareja y ejecuta secuencias breves."
+9,Secuencias y autonomía creciente,27,36,motor_grueso|motor_fino|lenguaje_comunicacion|socioemocional|cognitivo,"Coordina movimientos más complejos, conversa con combinaciones breves, coopera por turnos y desarrolla juego y resolución de problemas en secuencia."

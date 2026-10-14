@@ -1,0 +1,21 @@
+id_jardin,nombre_fantasia,comuna,region,numero_salas,numero_educadoras
+JAR-0001,Jardín Sintético Sendero Azul,Arica,Arica y Parinacota,2,2
+JAR-0002,Jardín Sintético Ronda del Viento,Iquique,Tarapacá,4,3
+JAR-0003,Jardín Sintético Brotes del Sur,Antofagasta,Antofagasta,2,3
+JAR-0004,Jardín Sintético Nido de Estrellas,Copiapó,Atacama,4,4
+JAR-0005,Jardín Sintético Juego del Valle,La Serena,Coquimbo,5,4
+JAR-0006,Jardín Sintético Luz de Colores,Valparaíso,Valparaíso,4,5
+JAR-0007,Jardín Sintético Pequeño Horizonte,Santiago,Metropolitana de Santiago,5,5
+JAR-0008,Jardín Sintético Rincón del Sol,Rancagua,Libertador General Bernardo O'Higgins,7,6
+JAR-0009,Jardín Sintético Brotes del Mar,Talca,Maule,1,2
+JAR-0010,Jardín Sintético Bosque de Papel,Chillán,Ñuble,3,3
+JAR-0011,Jardín Sintético Travesía Alegre,Concepción,Biobío,4,3
+JAR-0012,Jardín Sintético Patio de Nubes,Temuco,La Araucanía,3,4
+JAR-0013,Jardín Sintético Puertas del Río,Valdivia,Los Ríos,4,4
+JAR-0014,Jardín Sintético Círculo del Norte,Puerto Montt,Los Lagos,6,5
+JAR-0015,Jardín Sintético Manos del Lago,Coyhaique,Aysén del General Carlos Ibáñez del Campo,4,5
+JAR-0016,Jardín Sintético Voces del Jardín,Punta Arenas,Magallanes y de la Antártica Chilena,6,6
+JAR-0017,Jardín Sintético Pasos de Luna,San Felipe,Valparaíso,4,3
+JAR-0018,Jardín Sintético Taller del Alba,Curicó,Maule,3,4
+JAR-0019,Jardín Sintético Encuentro de Lluvia,Osorno,Los Lagos,4,4
+JAR-0020,Jardín Sintético Casa del Juego,Calama,Antofagasta,6,5
