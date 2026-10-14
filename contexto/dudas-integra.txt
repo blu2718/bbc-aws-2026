@@ -1,0 +1,42 @@
+﻿Recolección de datos:
+* Observan comportamiento.
+* 8 niveles de educación a lo largo de 2 años.
+* El sistema tiene cortes, está en desarrollo.
+* Cada nivel representa el nivel de aprendizaje esperado.
+* Se asocia nivel con una fecha o periodo de tiempo en que se espere que llegue.
+* Notificar sí hay rezago respecto al nivel.
+* Se espera notificar y actualizar al docente del nivel del niño y ver si está al día.
+* Suelen ir anotando observaciones, usualmente en papel. Asociando acciones con niños. Estas observaciones son diarias y son un dolor de procesar e interpretar.
+* Entradas de audio o imágenes son esperadas.
+* La gracia es automatizar el proceso de organizar las observaciones, de entradas de datos “raw” a datos estructurados, que puedan ser revisados por el docente.
+* Fotos o videos como entrada, del comportamiento de los niños, son parte de las entradas esperadas.
+* La documentación se realiza en la sala de clases.
+* Cosas a observar suelen ser acciones, participación en clases, comportamiento, etc.
+* Notificar ausencia de datos.
+* El proyecto ha de acatarse a la ley de datos personales. Pero al mismo tiempo ha de estar expuesto y disponible para cualquier institución.
+* Siempre van a haber datos sensibles de los niños.
+* La toma de decisiones la toma el equipo de educación.
+* La gracia es mantener información actualizada y notificar cuando los datos se añejan.
+* El poder de decisión final, en cuanto al nivel de educación de un cabro, está en las manos del equipo de integra.
+
+
+
+
+
+
+* 2 años
+* 8 niveles para 2 años, parte desde nivel 1 hasta el 8
+* 8 nucleos (en desarrollo) a evaluar y 8 niveles por cada uno
+* nivel 1 bajo al ingreso esperado, nivel 2 esperado al ingreso, nivel 8 es porque ingresa por sobre lo esperado
+
+
+* Si se espera que el niño este en nivel 7 para entonces pero está en nivel 4, se debe hacer algo como derivar al pediatria.
+
+
+* 1 educadora de parvulo, 2 técnicas por sala de clases. Se quiere que constantemente este el telefono grabando, sacando fotos, procesando información durante la clase para que las profesoras no dediquen tiempo a transcribir al final de la jornada.
+
+
+* Tiene que ser fundacion super protegida, la idea es que vaya a cualquier jardin de chile y hacerla disponible para el publico. Se espera información de hasta 80.000 niños. Puede ser material que vaya a jardines privados pero debe ser super confidencial pues es super sensible.
+
+
+* Quien toma la decision final de mover a los niños de nivel es de las profesorxs del jardín, puede tal vez orientar pero no debe reemplazar este fin.
