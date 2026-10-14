@@ -1,606 +1,328 @@
-aws
+# AWS Breaking Barriers Chile 2026 · Desafíos Fundación Integra
 
-BREAKING BARRIERS · CHILE 2026
+> Texto limpio de `presentacion.pptx`. El texto de las diapositivas se tomó del propio PPTX; las notas manuscritas (diapositiva 5) se transcribieron desde las fotos. Las palabras dudosas van marcadas con `[?]` y las ilegibles con `[ilegible]`.
 
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
+---
 
-HACKATON DE LA GENERATIVA · DESAFIO
+## Diapositiva 1 · Portada
 
-![img-0.jpeg](img-0.jpeg)
+**BREAKING BARRIERS · CHILE 2026**
+HACKATON DE IA GENERATIVA · DESAFÍO
 
-3 desafíos de Integra
+**3 desafíos de Integra**
 
-¿Qué se
-juega
-en la primera
-infancia?
+¿Qué se juega en la primera infancia?
 
-Fundación Integra
+- Fundación Integra
+- Vertical: Educación / Ciudadanía
+- Público: Niño/as y sus familias / equipo educativo
+- 14 - 16 de octubre de 2026 · Universidad de Chile, Beauchef 851, Santiago
 
-Vertical: Educación / Ciudadanía
+---
 
-Niño/as y sus familias / equipo educativo
+## Diapositiva 2 · Presentación de la institución
 
-14 - 16 de octubre de 2026 · Universidad de Chile, Beaucheff 851, Santiago
+### Quiénes somos
 
-![img-1.jpeg](img-1.jpeg)
+**Nuestra misión:** Construimos oportunidades para toda la vida, educando con calidad y cuidando a la primera infancia.
 
-PRESENTACION DE LA INSTITUCION
+| Cifra | Descripción |
+|---|---|
+| +1.200 | Jardines y Salas Cuna a lo largo de Chile |
+| +27.500 | Trabajador/es, del cual 98% somos mujeres |
+| 60% | De la población más vulnerable |
+| 36 | Años de trayectoria |
+| 320 (95%) | Comunas |
+| +85.000 | Niño/as y sus familias al año |
+| 25% | Matrícula educ. parvularia pública |
 
-# Quiénes somos
+---
 
-![Logo of the National Center for Health and Social Welfare (CNHS) and the National Center for Health and Social Welfare (NHS).]()
+## Diapositiva 3 · Video
 
-![Logo of INTEGRA Red de Salas Cuna y Jardines Infantiles]()
+Video testimonial ([YouTube](https://www.youtube.com/watch?v=sYFsaV2bueU)).
 
-## Nuestra misión
+**Simón** · Jardín Infantil Agualuna, Dalcahue, Región de Los Lagos
+Subtítulo visible: "…y con animales."
 
-Construimos oportunidades para toda la vida, educando con calidad y cuidando a la primera infancia.
+---
 
-**+1.200**
+# Desafío 1 · IA para el Desarrollo Infantil: de la Observación a la Acción
 
-Jardines y Salas Cuna a lo largo de Chile
-
-**+27.500**
-
-Trabajador/es, del cual 98% somos mujeres
-
-**60%**
-
-De la población más vulnerable
-
-**36**
-
-Años de trayectoria
-
-**320 (95%)**
-
-Comunas
-
-**+ 85.000**
-
-Niño/as y sus familias al año
-
-**25%**
-
-Matrícula educ. parvularia pública
-
-![img-2.jpeg](img-2.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-# Simón
-
-Jardín Infantil Agueluna
-Colombia, Región de Los Lagos
-
-y con animales.
-
-aws
-
-BREAKING BARRIERS · CHILE 2026
-
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
-
-![img-3.jpeg](img-3.jpeg)
-
-# IA para el Desarrollo Infantil:
-de la Observación a la Acción
+## Diapositiva 4 · Portada del desafío
 
 Más tiempo para interacciones significativas
 
-![img-4.jpeg](img-4.jpeg)
+## Diapositiva 5 · Ejemplos de registros de las tías (fotos de notas manuscritas)
 
-[{"box_2d": [0, 0, 999, 436], "label": "text", "caption": "M/06/2026\nLos niños durante esta semana han tenido un cambio en su etapa emoción, conductas decepcionantes, mutándose entre ellos (desregulación en emociones). Se conreoso como equipo, buscando estrategias.\n\nM/06/\nHoy bajo la asistencia, niños comenzaron a repasse y han estado con mucha tos.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\nMuyera: 25-Mayo 2026\nCuando Salta del Barro se da cuenta que a la tía le caen los individuales ella se aquella y recoge los individuales los ordena y se les pasa a la tía.\n\n25 de mayo\nHafica al Mostrada los\n\n
+### Foto 1: cuaderno con post-its
 
-ACTO 1 · CONTEXTO Y PROBLEMA
+**Núcleo:** Identidad y autonomía
+**Indicador:** Colaboración frente a necesidades de sus pares.
 
-# El dolor real
+- **Naiara:** "Tía, mira, la Pascal tiene moco", ya que Pascal estornuda por la nariz. La tía le facilitó pañuelo y ayuda.
+- **Nayara (25-mayo-2026):** Cuando salía del baño se da cuenta que a la tía se le caen los individuales; ella se agacha y recoge los individuales, los ordena y se los pasa a la tía.
 
-![LOGO]
+**Núcleo:** Lenguaje verbal
+**Indicador:** Expresión oral.
 
-![LOGO]
+- **25 de mayo:** Sofía, al mostrarle las fotos de sus compañeros, reconoce a cada uno y los nombra, en el perchero de las mochilas.
 
-## La historia de una persona
+### Foto 2: cuaderno abierto (20/04/2026)
 
-La tía Mecedes del Jardín Caracolitos de Chillán, no puede estar en la sala con Maite y Simón, apoyándolos en su desarrollo.
+**Zona:** "Conciencia corporal"
+**Núcleo:** Corporalidad y movimiento
 
-La razón es porque está en su oficina muy concentrada haciendo tareas de sistematización y procesamiento de datos, para poder entender en que nivel de desarrollo están y cómo apoyarlos.
+- **Rubi (20-04-26):** Hoy Rubi… Se observa que la primera semana tenía más dificultades para hacer actividades de equilibrio, pero al pasar el tiempo, aprox. un mes, se ve un gran avance ya que logra pasar por circuitos de obstáculos sin ayuda de adulto.
+
+**Zona:** "Explorando el otoño"
+**Núcleo:** Pensamiento matemático, exploración del entorno natural, lenguaje verbal, comprensión del entorno sociocultural
+
+- **Pedro (20-04-26):** Clasificó hojas por sus formas y tamaños.
+- **Emilio (20-04-26):** Clasificó las hojas en 3 colores, grandes y pequeñas.
+- **Esperanza (20-04-26):** Separa las hojas verdes, café y amarillas.
+- **Ruby (20-04-26):** Clasifica y diferencia los erizos [?] y los conos [?] y nombra sus colores.
+- **Sofía (20 de abril):** Observa por la ventana y dice "viene el [ilegible]", refiriéndose a su papá.
+- **Abel (25-abril):** Durante la exp. de zona identifica las tortugas pequeñas, medianas y grandes; selecciona cantidades de peces ordenando por colores y tamaños, identificando cantidades.
+- **Sofía (25-abril):** Sigue instrucciones; reconoce colores.
+
+### Foto 3: post-its en diario mural
+
+- **11/06/2026:** Los niños durante esta semana han tenido un cambio en su etapa emocional, conductas desafiantes, imitándose entre ellos (desregulaciones emocionales). Se conversó como equipo, buscando estrategias.
+- **10/06:** Hoy bajó la asistencia, niños comenzaron a resfriarse y han estado con mucha tos.
+
+## Diapositiva 6 · Acto 1 · Contexto y problema: El dolor real
+
+### La historia de una persona
+
+La tía Mercedes del Jardín Caracolitos de Chillán no puede estar en la sala con Maite y Simón, apoyándolos en su desarrollo.
+
+La razón es porque está en su oficina muy concentrada haciendo tareas de sistematización y procesamiento de datos, para poder entender en qué nivel de desarrollo están y cómo apoyarlos.
 
 ### El problema de fondo
 
-Nuestras tías, están dedicando más tiempo en “tareas de escritorio” que en estar en la sala teniendo interacciones de calidad para potenciando el desarrollo de los niño/as.
-
-![img-5.jpeg](img-5.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
+Nuestras tías están dedicando más tiempo a "tareas de escritorio" que a estar en la sala teniendo interacciones de calidad para potenciar el desarrollo de los niño/as.
 
 ### Dimensiona el problema
 
-Dato duro #1 — Una tía demora en promedio 4 horas a la semana en documentar la información de su grupo de curso.
+- **Dato duro #1:** Una tía demora en promedio 4 horas a la semana en documentar la información de su grupo de curso.
+- **Dato duro #2:** Son más de 11 mil horas semanales a nivel institucional, solo en esta tarea.
+- **Dato duro #3:** 10% del tiempo efectivo de trabajo semanal de una tía, solo en documentar.
 
-Dato duro #2 — Son más de 11 mil horas semanales a nivel institucional, solo esta tarea.
+**Desafío:** Crear una herramienta tecnológica que, usando recursos diversos de los niño/as generados por las tías (textos, fotos de notas que ellas ya realizan como parte de su rutina, notas de audio, videos, etc.), pueda sistematizar y evaluar a cada niño/a (resguardando la integridad de la información sensible de cada niño/a).
 
-Dato duro #3 — 10% del tiempo efectivo de trabajo semanal de una tía, solo en documentar.
+## Diapositiva 7 · Acto 1 · Rúbrica para medir el desarrollo de los niño/as
 
-**Desafío:** crear una herramienta tecnológica que, usando recursos diversos de los niño/as, generados por las tías (textos, fotos de notas que ellas ya realizan como parte de su rutina, notas de audios, videos, etc.), pueda sistematizar y evaluar a cada niño/a (resguardando la integridad de la información sensible de cada niño/a).
+- **10 núcleos de aprendizaje.** Ej.: Identidad y Autonomía.
+- **8 niveles de desarrollo en cada núcleo:** contienen el nivel de desarrollo esperado y las conductas observables para medirlo.
+- **3 niveles educativos:** sala cuna, nivel medio y transición.
 
-ACTO 1 · CONTEXTO Y PROBLEMA
+| Nivel | Nombre |
+|---|---|
+| 1 | Comenzando |
+| 2 | Explorando |
+| 3 | Desarrollando |
+| 4 | Afianzando |
+| 5 | Integrando |
+| 6 | Ampliando |
+| 7 | Consolidando |
+| 8 | Profundizando |
 
-![Logo of the Ministry of Education and Training of the Republic of Colombia]()
+## Diapositiva 8 · Acto 1 · Por qué importa
 
-![Logo of INTEGRA Red de Salas Cuna y Jardines Infantiles]()
+- Los primeros 1.000 días de vida.
+- Un millón de conexiones neuronales por segundo.
+- Es una ventana de oportunidad que no vuelve a repetirse con la misma intensidad.
 
-# Rúbrica para medir el desarrollo de los niño/as
+| Relevante para el sector | Qué problema resuelve | Impacto en el beneficiario |
+|---|---|---|
+| Identifica rezagos de forma eficiente | Tiempo en sala | Potencia el desarrollo |
 
-10 núcleos de aprendizaje: Ej Identidad y Autonomía
+**+85.000 niño/as** en 1.200 jardines a nivel nacional.
 
-8 niveles de desarrollo en cada núcleo: que contienen el nivel de desarrollo esperado y las conductas observables para medirlo
+## Diapositiva 9 · Acto 2 · Impacto y escalabilidad
 
-3 niveles educativos: sala cuna, nivel medio y transición
+### Qué resolvemos AHORA
 
-![img-6.jpeg](img-6.jpeg)
+- Identificar el rezago de los niño/as en menos tiempo.
+- Las tías estarán más tiempo en sala.
+- Potenciar de mejor forma a cada niño/a.
 
-![img-7.jpeg](img-7.jpeg)
+### Hasta dónde PUEDE llegar
 
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
+- Es replicable en cualquier institución de educación parvularia en Chile y en el primer ciclo de la educación escolar.
+- Es escalable a instituciones de educación parvularia en Latinoamérica o en países en vías de desarrollo.
+- Su efecto multiplicador es que cambia el futuro de nuestros niño/as entregándoles el máximo potencial de su desarrollo; significa cambiar una generación completa y, en el largo plazo, cambiar una sociedad.
 
-ACTO 1 · CONTEXTO Y PROBLEMA
+## Diapositiva 10 · Acto 3 · KPIs y métricas de éxito
 
-# Por qué importa
+**KPI estrella:** "Reducir el tiempo de documentación de las tías, desde 4 horas promedio a la semana, a 0 horas."
 
-![LOGO](Gobierno del Estado de México)
+| Métrica | Línea base | Meta |
+|---|---|---|
+| Horas de escritorio ahorradas semanalmente | 4 horas | 0 horas |
 
-![LOGO](INTEGRA Red de Salas Cuna y Jardines Infantiles)
+## Diapositiva 11 · Súmate a resolver esto
 
-![img-8.jpeg](img-8.jpeg)
+### Ayúdanos a construir el futuro de nuestros niños/as
 
-Los primeros 1.000 días de vida
+Te invitamos a desarrollar una herramienta para que "nuestras tías del jardín" estén más tiempo en la sala fortaleciendo el desarrollo de los niño/as y menos tiempo en el escritorio documentando y evaluando datos.
 
-Un millón de conexiones neuronales por segundo
+**Contacto del referente:** Lissette Saavedra · Dirección Ejecutiva · lsaavedrag@integra.cl · +56 9 95984508
 
-Es una ventana de oportunidad que no vuelve a repetirse con la misma intensidad
+---
 
-**Relevante para el sector**
+# Desafío 2 · IA para la Escucha Organizacional
 
-*Identifica rezagos de forma eficiente*
-
-**Que problema resuelve**
-
-*Tiempo en sala*
-
-**Impacto en el beneficiario**
-
-*Potencia el desarrollo*
-
-**Niño/as**
-**+85.000**
-
-*85.000 niño/as en 1.200 jardines a nivel nacional*
-
-![img-9.jpeg](img-9.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-ACTO 2 · QUE SE RESUELVE Y HASTA DONDE CRECE
-
-# Impacto y escalabilidad
-
-![LOGO](Ministry of Education)
-
-![LOGO](INTEGRA Red de Salas Cuna y Jardines Infantiles)
-
-## Que resolvemos AHORA
-
-- Identificar el rezago de los niño/as en menos tiempo
-- Las tías estarán más tiempo en sala
-- Potenciar de mejor forma a cada niño/a
-
-## Hasta donde PUEDE llegar
-
-Es replicable en cualquier institución de educación parvularia en Chile y en el primero ciclo de la educación escolar.
-
-Es escalable a instituciones de educación parvularia en Latinoamérica o en países en vías de desarrollo.
-
-Su efecto multiplicador es que cambia el futuro de nuestros niño/as entregándoles el máximo potencial de su desarrollo, significa cambiar una generación completa y en el largo plazo cambiar una sociedad.
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-ACTO 3 · COMO LO MEDIMOS
-
-# KPIs y métricas de éxito
-
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
-
-KPI ESTRELLA
-
-"reducir el tiempo de documentación de las tías, desde 4 horas promedio a la semana, a 0 horas"
-
-0 horas
-
-Métrica:
-
-Horas de escritorio ahorradas semanalmente
-
-Línea base
-4 horas
-
-Meta
-0 horas
-
-![img-10.jpeg](img-10.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
-
-SUMATE A RESOLVER ESTO
-
-# Ayúdanos a construir el futuro de nuestros niños/as
-
-Te invitamos a desarrollar una herramienta para que “nuestras tías del jardín” estén más tiempo en la sala fortaleciendo el desarrollo de los niño/as y menos tiempo en el escritorio documentando y evaluando datos.
-
-Contacto del referente
-
-Lissette Saavedra · Dirección Ejecutiva
-
-lsaavedrag@integra.cl · +56 9 95984508
-
-aws + Universidad de Chile + Fundación INTEGRA
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-aws
-
-BREAKING BARRIERS · CHILE 2026
-
-![Logo of the International Association for the Promotion of the World (IA) and the International Association for the Promotion of the World.]()
-
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
-
-![img-11.jpeg](img-11.jpeg)
-
-## 2 IA para la Escucha Organizacional
+## Diapositiva 12 · Portada del desafío
 
 27.000 voces para activar soluciones hoy
 
-![img-12.jpeg](img-12.jpeg)
+## Diapositiva 13 · Acto 1 · Contexto y problema: El dolor real
 
-ACTO 1 · CONTEXTO Y PROBLEMA
+### La historia de una persona
 
-# El dolor real
+La "tía Mercedes" del jardín Caracolito de Chillán tiene problemas con los materiales que llegan a su jardín, y le es muy difícil encontrar un canal donde pueda solicitar apoyo para resolver su problema.
 
-![Logo of the National Center for Mental Health and Mental Health (NCHM) with the text 'NCHM' and 'Mental Health and Mental Health' around it.]()
-
-![Logo of INTEGRA Red de Salas Cuna y Jardines Infantiles]()
-
-## La historia de una persona
-
-La “tía Mercedes” del jardín Caracolito de Chillán tiene problemas con los materiales que llegan a su jardín, y le es muy difícil encontrar un canal donde pueda solicitar apoyo para resolver su problema.
-
-Conocer cuales son las necesidades reales de las +27 mil “tía Mercedes” de los +1.200 jardines infantiles y salas cuna, es un gran desafío institucional. Poder saberlo, ya es un gran avance, pero poder saberlo en tiempo real, para llegar con soluciones oportunas es impagable.
+Conocer cuáles son las necesidades reales de las +27 mil "tía Mercedes" de los +1.200 jardines infantiles y salas cuna es un gran desafío institucional. Poder saberlo ya es un gran avance, pero poder saberlo en tiempo real, para llegar con soluciones oportunas, es impagable.
 
 ### El problema de fondo
 
 Dada la magnitud y la dispersión geográfica de la institución, poder entender los reales problemas de los trabajadores en tiempo real es un desafío muy complejo, más aún entregar soluciones.
 
-![img-13.jpeg](img-13.jpeg)
+### Dimensiona el problema
 
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-## Dimensiona el problema
-
-Dato duro #1 — No tenemos información sistematizada de los tipos de problemas que aquejan a nuestras trabajadoras.
-
-Dato duro #2 — No tenemos un canal inmediato, formal, para escucharlas.
-
-Dato duro #3 — Cuando nos llega información, no tenemos como identificar la magnitud del problema, categorizarlo, o saber si este se está replicando en otros lados.
+- **Dato duro #1:** No tenemos información sistematizada de los tipos de problemas que aquejan a nuestras trabajadoras.
+- **Dato duro #2:** No tenemos un canal inmediato, formal, para escucharlas.
+- **Dato duro #3:** Cuando nos llega información, no tenemos cómo identificar la magnitud del problema, categorizarlo o saber si se está replicando en otros lados.
 
 **Desafío:** Crear una herramienta tecnológica que nos permita saber en tiempo real las necesidades diarias de las tías (no denuncias), clasificarlas según tipo de necesidad, frecuencia y relevancia, para así ofrecer soluciones oportunas. Es importante que sea accesible en distintas plataformas (como celular o tablet), a lo largo del diverso territorio nacional.
 
-ACTO 1 · CONTEXTO Y PROBLEMA
+## Diapositiva 14 · Acto 1 · Por qué importa
 
-# Por qué importa
+- Estamos en deuda con nuestras trabajadoras; necesitamos escucharlas constantemente.
 
-![Logo of the Ministry of Education and Training of the Republic of Mexico]()
+| Relevante para el sector | Qué problema resuelve | Impacto en el beneficiario |
+|---|---|---|
+| Son el principal activo de nuestra institución; sin ellas no podemos entregar educación y cuidado de calidad a nuestros niño/as | Resolvemos sus necesidades y las de sus jardines | Cuidamos a quienes cuidan |
 
-![Logo of INTEGRA Red de Salas Cuna y Jardines Infantiles]()
+**+27.500 trabajadoras** que atienden a 85.000 niño/as en 1.200 jardines a nivel nacional.
 
-☑ Estamos en deuda con nuestras trabajadoras, necesitamos escucharlas constantemente
+## Diapositiva 15 · Acto 2 · Impacto y escalabilidad
 
-## Relevante para el sector
+### Qué resolvemos AHORA
 
-Porque son el principal activo de nuestra institución, sin ellas no podemos entregar educación y cuidado de calidad a nuestros niños
+- Tener un canal para escuchar las necesidades.
+- Identificar la magnitud de estas.
+- Buscar soluciones.
+- Enfocar recursos para resolver los principales dolores.
 
-## Que problema resuelve
+### Hasta dónde PUEDE llegar
 
-Resolvemos sus necesidades y las de sus jardines
+- Se puede replicar en cualquier tipo de institución, en particular en aquellas con gran cantidad de trabajadores y dispersión geográfica.
+- Es escalable a cualquier institución que requiera levantar necesidades de algún público objetivo.
+- El efecto multiplicador es que si un trabajador está feliz, hace su trabajo de mejor forma y, por lo tanto, el resultado de su trabajo va a ser de alto impacto.
 
-## Impacto en el beneficiario
+## Diapositiva 16 · Acto 3 · KPIs y métricas de éxito
 
-Cuidamos a quienes cuidan
+**KPI estrella:** "Identificar las 3 necesidades más importantes de nuestras trabajadoras."
 
-## Trabajadoras
+| Métrica | Línea base | Meta |
+|---|---|---|
+| #1: Identificar las 3 necesidades más importantes de nuestras trabajadoras | 0 identificadas | 3 identificadas |
+| #2: Resolver las 3 necesidades más importantes de nuestras trabajadoras | 0 resueltas | 3 resueltas |
 
-**+27.500**
+## Diapositiva 17 · Súmate a resolver esto
 
-27.500 trabajadoras que atienden a 85.000 niños en 1.200 jardines a nivel nacional
+### Ayúdanos a cuidar a quienes cuidan
 
-![img-14.jpeg](img-14.jpeg)
+Te invitamos a desarrollar una herramienta para que "nuestras tías del jardín" tengan un canal para plantear sus reales necesidades, porque de ellas depende el desarrollo de nuestros niño/as.
 
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
+**Contacto del referente:** Lissette Saavedra · Dirección Ejecutiva · lsaavedrag@integra.cl · +56 9 95984508
 
-ACTO 2 · QUE SE RESUELVE Y HASTA DONDE CRECE
+---
 
-# Impacto y escalabilidad
+# Desafío 3 · Apoyo Inteligente para Familias
 
-![LOGO](Ministry of Education)
-
-![LOGO](INTEGRA Red de Salas Cuna y Jardines Infantiles)
-
-## Que resolvemos AHORA
-
-- Tener un canal para escuchar las necesidades
-- Identificar la magnitud de estas
-- Buscar soluciones
-- Enforcar recursos para resolver los principales dolores
-
-## Hasta donde PUEDE llegar
-
-- Se puede replicar en cualquier tipo de institución, en particular en aquellas de grande magnitudes de trabajadores y dispersión geográfica
-- Es escalable a cualquier institución que requiera levantar necesidades de algún público objetivo
-- El efecto multiplicador es que si un trabajador está feliz, hace su trabajo de mejor forma y por lo tanto el resultado de su trabajo va a ser de alto impacto.
-
-![img-15.jpeg](img-15.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-ACTO 3 · COMO LO MEDIMOS
-
-# KPIs y métricas de éxito
-
-![Logo of the Ministry of Education and Training of the Republic of Mexico]()
-
-![Logo of INTEGRA Red de Salas Cuna y Jardines Infantiles]()
-
-KPI ESTRELLA
-
-"Identificar las 3 necesidades más importantes de nuestras trabajadoras"
-
-3 necesidades
-
-Métrica #1:
-
-Identificar las 3 necesidades más importantes de nuestras trabajadoras
-
-Línea base Meta
-0 identificadas 3 identificadas
-
-Métrica #2
-
-Resolver las 3 necesidades más importantes de nuestras trabajadoras
-
-Línea base Meta
-0 resueltas 3 resueltas
-
-![img-16.jpeg](img-16.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
-
-SUMATE A RESOLVER ESTO
-
-# Ayúdanos a cuidar a quienes cuidan
-
-Te invitamos a desarrollar una herramienta para “nuestras tías del jardín” tengan un canal para plantear sus reales necesidades, porque de ellas depende el desarrollo de nuestros niños/as.
-
-Contacto del referente
-
-Lissette Saavedra · Dirección Ejecutiva
-
-lsaavedrag@integra.cl · +56 9 95984508
-
-aws + Universidad de Chile + Fundación INTEGRA
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-aws
-
-BREAKING BARRIERS · CHILE 2026
-
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
-
-![img-17.jpeg](img-17.jpeg)
-
-## Apoyo Inteligente para Familias
+## Diapositiva 18 · Portada del desafío
 
 Conectando a familias con beneficios clave
 
-![img-18.jpeg](img-18.jpeg)
+## Diapositiva 19 · Video
 
-![img-19.jpeg](img-19.jpeg)
+Video ([YouTube](https://www.youtube.com/watch?v=iIUnbpdgdcQ)): una tía jugando con una niña en sala cuna.
 
-T MEGRA
+## Diapositiva 20 · Acto 1 · Contexto y problema: El dolor real
 
-ACTO 1 · CONTEXTO Y PROBLEMA
+### La historia de una persona
 
-# El dolor real
+Cuando Don Julio llegó por primera vez a nuestro jardín Agualuna de Dalcahue, no conocía los beneficios que el Estado ofrece, los cuales podrían mejorar la calidad de vida de su familia.
 
-![Logo of the National Center for Mental Health and Mental Health (NCHM) with the text 'NCHM' and 'Mental Health and Mental Health' around it.]()
-
-![Logo of INTEGRA Red de Salas Cuna y Jardines Infantiles]()
-
-## La historia de una persona
-
-Cuando Don Julio llegó por primera vez a nuestro jardín Agualuna de Dolcahue, no conocía los beneficios que el Estado ofrece, lo cual podría mejorar la calidad de vida de su familia.
-
-La tía Ana, directora del jardín, lo orientó con la información que ella había recolectado en el CESFAM. Gracias a eso Don Julio pudo acceder al programa “Más adulto Mayor Autovalente” para estimulación motora y cognitiva en la tercera edad. Y así mantenerse con toda la vitalidad para jugar con su nieto Benjamín y apoyarlo en su desarrollo-
+La tía Ana, directora del jardín, lo orientó con la información que ella había recolectado en el CESFAM. Gracias a eso, Don Julio pudo acceder al programa "Más Adultos Mayores Autovalentes" para estimulación motora y cognitiva en la tercera edad, y así mantenerse con toda la vitalidad para jugar con su nieto Benjamín y apoyarlo en su desarrollo.
 
 ### El problema de fondo
 
-Existe asimetría de información en las familias, para conocer los beneficios que el Estado entrega y que podrían acceder. Y altos costos de transacción para que una familia individualmente pueda informarse de ellos en cada institución que los otorga.
+Existe asimetría de información en las familias para conocer los beneficios que el Estado entrega y a los que podrían acceder, y altos costos de transacción para que una familia individualmente pueda informarse de ellos en cada institución que los otorga.
 
-![img-20.jpeg](img-20.jpeg)
+### Dimensiona el problema
 
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
+- **Dato duro #1:** El boca a boca es la manera más común en que las familias se enteran de ciertos beneficios del Estado a nivel local.
+- **Dato duro #2:** Hay una brecha en la entrega de los beneficios para las familias que más lo necesitan.
+- **Dato duro #3:** Podemos llegar a 85 mil familias con información a través de nuestros jardines infantiles y salas cuna.
 
-## Dimensiona el problema
+**Desafío:** Crear una herramienta tecnológica que esté constantemente mapeando y clasificando los beneficios del Estado en cada territorio. Una puerta de entrada única, amigable y cercana, que ayude a navegar un sistema complejo.
 
-Dato duro #1 — El boca a boca es la manera más común en que las familias se enteran de ciertos beneficios del Estado a nivel local
+## Diapositiva 21 · Acto 1 · Por qué importa
 
-Dato duro #2 — Hay una brecha en la entrega de los beneficios para las familias que más lo necesitan
+- Como institución somos una de las puertas de entrada de información para las familias.
+- Si ayudamos a las familias a acceder a la información de los beneficios, ellas podrán mejorar su calidad de vida y la de sus niño/as.
+- No solo somos comunidad, también hacemos comunidad.
 
-Dato duro #3 — Podemos llegar a 85 mil familias con información a través de nuestros jardines infantiles y salas cuna
+| Relevante para el sector | Qué problema resuelve | Impacto en el beneficiario |
+|---|---|---|
+| No solo nos preocupamos del desarrollo de nuestros niño/as dentro del jardín, también fuera del jardín, en su entorno familiar | Asimetrías de información para conocer los beneficios del Estado | Mejorar la calidad de vida de las familias de nuestros niño/as |
 
-**Desafío:** Crear una herramienta tecnológica que esté constantemente mapeando y clasificando los beneficios del Estado en cada territorio. Una puerta de entrada, única, amigable y cercana, que ayude a navegar un sistema complejo.
+**+85.000 familias anualmente:** 85.000 niño/as atendidos y sus familias cada año en 1.200 jardines a nivel nacional.
 
-ACTO 1 · CONTEXTO Y PROBLEMA
+## Diapositiva 22 · Acto 2 · Impacto y escalabilidad
 
-Ministerio de Educación
-Gobierno de Chile
+### Qué resolvemos AHORA
 
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
+- Rompemos la asimetría de información de los beneficios del Estado.
+- Las familias pueden acceder a mayores apoyos que mejoren su calidad de vida.
+- Nuestros niño/as reciben mejores apoyos de sus familias para su desarrollo fuera del jardín.
 
-# Por qué importa
+### Hasta dónde PUEDE llegar
 
-☑ Como institución somos una de las puertas de entrada de información para las familias
+- Se puede replicar en cualquier institución que entregue un beneficio del Estado, es decir, que represente una puerta de entrada a la información (ChileAtiende, CESFAM, municipalidades, etc.).
+- Es escalable a cualquier organización que tenga oficinas de atención ciudadana de instituciones que entreguen beneficios.
+- El efecto multiplicador es que mejora la calidad de vida de los ciudadanos, que acceden a la mayor cantidad de beneficios que ofrece el Estado.
 
-☑ Si ayudamos a las familias a acceder a la información de los beneficios, ellos podrán mejorar su calidad de vida y las de sus niñas
+## Diapositiva 23 · Acto 3 · KPIs y métricas de éxito
 
-☑ No solo somos comunidad, también hacemos comunidad
+**KPI estrella:** "Informar a todas nuestras familias de los beneficios que el Estado les puede ofrecer." (85 mil familias)
 
-Relevante para el sector
+| Métrica | Línea base | Meta |
+|---|---|---|
+| #1: Informar a todas nuestras familias del set de beneficios del Estado | 0 informadas | 100% informadas |
+| #2: Informar a todas las nuevas familias que ingresen a nuestros jardines cada año | 0 informadas | 100% informadas |
 
-No solo nos preocupamos del desarrollo de nuestros niños/as dentro del jardín, también fuera del jardín en su entorno familiar
+## Diapositiva 24 · Súmate a resolver esto
 
-Qué problema resuelve
+### Ayúdanos a ser y hacer comunidad
 
-Asimetrías de información para conocer los beneficios del Estado
+Te invitamos a desarrollar una herramienta para que nuestras familias tengan información sobre todos los beneficios que el Estado les puede ofrecer para mejorar su calidad de vida y la de sus hijo/as.
 
-Impacto en el beneficiario
+**Contacto del referente:** Lissette Saavedra · Dirección Ejecutiva · lsaavedrag@integra.cl · +56 9 95984508
 
-Mejorar la calidad de vida de las familias de nuestros niños/as
+---
 
-![img-21.jpeg](img-21.jpeg)
+## Diapositiva 25 · Cierre
 
-Familias anualmente
+### ¿Qué se juega en la primera infancia?
 
-+85.000
-
-85.000 niños/as atendidos y sus familias cada año en 1.200 jardines a nivel nacional
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-ACTO 2 · QUE SE RESUELVE Y HASTA DONDE CRECE
-
-# Impacto y escalabilidad
-
-![LOGO](Ministry of Education)
-
-![LOGO](INTEGRA Red de Salas Cuna y Jardines Infantiles)
-
-## Que resolvemos AHORA
-
-- Rompemos la asimetría de información de los beneficios del Estado
-- Las familias pueden acceder a mayores apoyos que mejoren su calidad de vida
-- Nuestros niño/as reciben mejores apoyos de sus familias para su desarrollo fuera del jardín
-
-## Hasta donde PUEDE llegar
-
-- Se pude replicar en cualquier institución que entregue un beneficio del Estado, es decir, que represente una puerta de entrada a la información (Chileatiende, CESFAM, municipalidades, etc)
-- Es escalable a cualquier organización que tenga oficinas de atención ciudadana de instituciones que entregue beneficios
-- El efecto multiplicador es que mejora la calidad de vida, de los ciudadanos que accedan a la mayor cantidad de beneficios que ofrece el Estado
-
-![img-22.jpeg](img-22.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-ACTO 3 · COMO LO MEDIMOS
-
-# KPIs y métricas de éxito
-
-![LOGO](Ministerio de Educación)
-
-![LOGO](INTEGRA Red de Salas Cuna y Jardines Infantiles)
-
-KPI ESTRELLA
-
-"Informar a todas nuestras familias, de los beneficios que el Estado les puede ofrecer"
-
-85 mil familias
-
-Métrica #1:
-
-Informar a todas nuestras familias del set de beneficios del Estado
-
-Línea base Meta
-0 informadas 100% informadas
-
-Métrica #2
-
-Informar a todas nuestras nuevas familias que ingresen a nuestros jardines cada año
-
-Línea base Meta
-0 informadas 100% informadas
-
-![img-23.jpeg](img-23.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-INTEGRA
-Red de Salas Cuna y Jardines Infantiles
-
-SUMATE A RESOLVER ESTO
-
-# Ayúdanos a ser y hacer comunidad
-
-Te invitamos a desarrollar una herramienta para que nuestras familias, tengan información sobre todos los beneficios que el Estado les puede ofrecer para mejorar su calidad de vida y la de sus hijo/as.
-
-Contacto del referente
-
-Lissette Saavedra · Dirección Ejecutiva
-
-lsaavedrag@integra.cl · +56 9 95984508
-
-aws + Universidad de Chile + Fundación INTEGRA
-
-![img-24.jpeg](img-24.jpeg)
-
-AWS Breaking Barriers Chile 2026 | Desafíos Fundación Integra
-
-![Logo of the Ministry of Education and Training of the Republic of Mexico]()
-
-![Logo of INTEGRA Red de Salas Cuna y Jardines Infantiles]()
-
-SUMATE A RESOLVER ESTO
-
-# ¿Qué se juega en la primera infancia?
-
-Nos jugamos la vida
-
-![img-25.jpeg](img-25.jpeg)
+**Nos jugamos la vida.**
 
 AWS Breaking Barriers Chile 2026 · 14 - 16 de octubre · Universidad de Chile
 
-![img-26.jpeg](img-26.jpeg)
-
-![img-27.jpeg](img-27.jpeg)
-
-VETION
-
-![img-28.jpeg](img-28.jpeg)
-
-![img-29.jpeg](img-29.jpeg)
-
-www.integra.cl
-
-![img-30.jpeg](img-30.jpeg)
+Organizan: AWS + Universidad de Chile + Fundación INTEGRA · www.integra.cl
