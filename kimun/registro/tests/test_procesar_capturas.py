@@ -292,15 +292,15 @@ def test_tomar_siguiente_salta_la_que_otro_proceso_acaba_de_tomar(curso, educado
     assert _estado(primera) == PROCESANDO and primera.intentos == 1
 
 
-def test_fotos_y_audios_quedan_pendientes_sin_fallar(curso, educadora, ninos, oas):
+def test_las_fotos_quedan_pendientes_sin_fallar(curso, educadora, ninos, oas):
+    # Los audios sí se procesan desde la Task 9 (ver test_captura_audio.py).
     foto = _captura(curso, educadora, "", tipo=Captura.Tipo.FOTO)
-    audio = _captura(curso, educadora, "", tipo=Captura.Tipo.AUDIO)
     texto = _captura(curso, educadora)
 
     _procesar(_respuesta(_obs("Pedro")))
 
-    assert (_estado(foto), _estado(audio), _estado(texto)) == (PENDIENTE, PENDIENTE, PROCESADA)
-    assert foto.intentos == audio.intentos == 0
+    assert (_estado(foto), _estado(texto)) == (PENDIENTE, PROCESADA)
+    assert foto.intentos == 0
 
 
 def test_procesar_una_captura_ya_tomada(curso, educadora, ninos, oas):
