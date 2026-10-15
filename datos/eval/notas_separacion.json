@@ -1,5 +1,5 @@
 {
-  "_nota": "Notas 100% ficticias para evaluar la separación de notas en observaciones (Task 5). Escritas como las escribiría una educadora o una asistente, a partir de conductas de NT1 y NT2 de datos/curriculo_transicion.json (ver conductas_referencia). 'esperado' trae una entrada por observación; nombre_detectado va tal como está escrito en la nota. 'nivel_rubrica_referencia' es solo un metadato para la Task 7 (nivel de la rúbrica de Integra de datos/rubrica_integra.json, transición, IA); la separación no lo produce ni se compara.",
+  "_nota": "Notas 100% ficticias para evaluar la separación de notas en observaciones (Task 5). Escritas como las escribiría una educadora o una asistente, a partir de conductas de NT1 y NT2 de datos/curriculo_transicion.json (ver conductas_referencia). 'esperado' trae una entrada por observación; nombre_detectado va tal como está escrito en la nota. 'nino' es el niño del curso (datos/demo_curso.json) que debe quedar asignado, o null si debe quedar sin asignar para que decida la educadora (nombre ambiguo o desconocido); lo mide `manage.py evaluar` (Task 10). 'nivel_rubrica_referencia' es solo un metadato para la Task 7 (nivel de la rúbrica de Integra de datos/rubrica_integra.json, transición, IA); la separación no lo produce ni se compara.",
   "nombres_curso": [
     "Pedro Salinas",
     "Emilio Vargas",
@@ -25,7 +25,7 @@
       "texto": "25-mayo Nayara armó una torre con los bloques y los contó solita hasta el 14 sin saltarse ninguno. Después la comparó con la torre de la tía y dijo \"la mía tiene más\".",
       "conductas_referencia": [{"oa": "OA 6 PM", "nt": "NT1"}, {"oa": "OA 4 PM", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Nayara", "fecha": "2026-05-25", "nucleos": ["PM"], "oas": ["OA 6 PM", "OA 4 PM"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Nayara", "nino": "Naiara Fuentes", "fecha": "2026-05-25", "nucleos": ["PM"], "oas": ["OA 6 PM", "OA 4 PM"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -35,7 +35,7 @@
       "texto": "Sofía en el saludo de la mañana reconoció la S en el cartel de los nombres y dijo \"esa es la mía, de Sofía\". Le mostré las otras del cartel y nombró la O también.",
       "conductas_referencia": [{"oa": "OA 7 LV", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Sofía", "nucleos": ["LV"], "oas": ["OA 7 LV"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Sofía", "nino": null, "nucleos": ["LV"], "oas": ["OA 7 LV"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -45,7 +45,7 @@
       "texto": "Abel en la zona de juego separó los porotos de los garbanzos en dos potes y dijo q en el de porotos había más. Después los separó también por grandes y chicos.",
       "conductas_referencia": [{"oa": "OA 2 PM", "nt": "NT1"}, {"oa": "OA 4 PM", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Abel", "nucleos": ["PM"], "oas": ["OA 2 PM", "OA 4 PM"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Abel", "nino": null, "nucleos": ["PM"], "oas": ["OA 2 PM", "OA 4 PM"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -55,9 +55,9 @@
       "texto": "Explorando el patio juntamos piedras y conchitas. Pedro las ordenó de la más grande a la más chica. Emilio hizo grupos por color y por tamaño a la vez (blancas grandes, blancas chicas, grises grandes...). La Rubi al principio las tiraba todas juntas, le mostré con las dos primeras y después siguió sola separando por color.",
       "conductas_referencia": [{"oa": "OA 2 PM", "nt": "NT1"}, {"oa": "OA 2 PM", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Pedro", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "autonomo", "grupal": false},
-        {"nombre_detectado": "Emilio", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "autonomo", "grupal": false},
-        {"nombre_detectado": "Rubi", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "con_ayuda", "grupal": false}
+        {"nombre_detectado": "Pedro", "nino": "Pedro Salinas", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "autonomo", "grupal": false},
+        {"nombre_detectado": "Emilio", "nino": "Emilio Vargas", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "autonomo", "grupal": false},
+        {"nombre_detectado": "Rubi", "nino": "Rubí Contreras", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "con_ayuda", "grupal": false}
       ]
     },
     {
@@ -78,7 +78,7 @@
       "texto": "En la ronda de canciones, el Benja mientras esperaba su turno contó a todos los compañeros de la ronda uno por uno tocándoles la cabeza y me dijo \"somos 12 tía\". Lo volvió a contar y le dio igual.",
       "conductas_referencia": [{"oa": "OA 6 PM", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Benja", "nucleos": ["PM"], "oas": ["OA 6 PM"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Benja", "nino": "Benjamín Soto", "nucleos": ["PM"], "oas": ["OA 6 PM"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -88,7 +88,7 @@
       "texto": "Ayer en el circuito del patio el Tomi pasó por la viga de equilibrio sin caerse y después caminó en zigzag entre los conos sin ayuda. Antes le costaba harto.",
       "conductas_referencia": [{"oa": "OA 7 CM", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Tomi", "fecha": "2026-04-20", "nucleos": ["CM"], "oas": ["OA 7 CM"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Tomi", "nino": "Tomás Herrera", "fecha": "2026-04-20", "nucleos": ["CM"], "oas": ["OA 7 CM"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -98,7 +98,7 @@
       "texto": "En la colación la Isi le convidó la mitad de su manzana a una compañera que no trajo nada, le dijo \"toma, compartamos\". Yo creo que está mucho más empática que al principio del semestre.",
       "conductas_referencia": [{"oa": "OA 3 CC", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Isi", "tiene_interpretacion": true, "nucleos": ["CC"], "oas": ["OA 3 CC"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Isi", "nino": "Isidora Reyes", "tiene_interpretacion": true, "nucleos": ["CC"], "oas": ["OA 3 CC"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -108,7 +108,7 @@
       "texto": "Mati recortó el círculo pa la máscara pero le tuve q tomar la mano con la tijera porque se le iba pa cualquier lado. Con ayuda lo terminó.",
       "conductas_referencia": [{"oa": "OA 6 CM", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Mati", "nucleos": ["CM"], "oas": ["OA 6 CM"], "apoyo": "con_ayuda", "grupal": false}
+        {"nombre_detectado": "Mati", "nino": "Matías Lagos", "nucleos": ["CM"], "oas": ["OA 6 CM"], "apoyo": "con_ayuda", "grupal": false}
       ]
     },
     {
@@ -118,7 +118,7 @@
       "texto": "Jose en la actividad del patrón con cubos (rojo-azul-rojo-azul) no lo logró, ponía los colores al lote aunque le mostré varias veces cómo seguía.",
       "conductas_referencia": [{"oa": "OA 1 PM", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Jose", "nucleos": ["PM"], "oas": ["OA 1 PM"], "apoyo": "no_lo_realiza", "grupal": false}
+        {"nombre_detectado": "Jose", "nino": "Josefa Morales", "nucleos": ["PM"], "oas": ["OA 1 PM"], "apoyo": "no_lo_realiza", "grupal": false}
       ]
     },
     {
@@ -128,7 +128,7 @@
       "texto": "Emilio escribió su nombre en el dibujo: la E y la M le salieron bien solo, el resto de las letras se las hice con puntitos pa q las repasara.",
       "conductas_referencia": [{"oa": "OA 8 LV", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Emilio", "nucleos": ["LV"], "oas": ["OA 8 LV"], "apoyo": "parcial", "grupal": false}
+        {"nombre_detectado": "Emilio", "nino": "Emilio Vargas", "nucleos": ["LV"], "oas": ["OA 8 LV"], "apoyo": "parcial", "grupal": false}
       ]
     },
     {
@@ -138,7 +138,7 @@
       "texto": "Lectura del cuento de la gallinita roja. El Benja después respondió que nadie la quiso ayudar a hacer el pan y se acordó de todos los animales (el pato, el gato y el perro).",
       "conductas_referencia": [{"oa": "OA 6 LV", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Benja", "nucleos": ["LV"], "oas": ["OA 6 LV"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Benja", "nino": "Benjamín Soto", "nucleos": ["LV"], "oas": ["OA 6 LV"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -148,7 +148,7 @@
       "texto": "Sofi R contó en el círculo q su mamá es enfermera y cuida a los enfermitos en el consultorio, y q su papá maneja micro y lleva a la gente al trabajo.",
       "conductas_referencia": [{"oa": "OA 1 CES", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Sofi R", "nucleos": ["CES"], "oas": ["OA 1 CES"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Sofi R", "nino": "Sofía Rojas", "nucleos": ["CES"], "oas": ["OA 1 CES"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -158,7 +158,7 @@
       "texto": "Después de la lluvia salimos a ver los caracoles al patio. Pedro preguntó por qué salen cuando llueve y él mismo dijo \"a lo mejor tienen sed\". Los estuvo mirando con la lupa harto rato.",
       "conductas_referencia": [{"oa": "OA 2 EEN", "nt": "NT1"}, {"oa": "OA 1 EEN", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Pedro", "nucleos": ["EEN"], "oas": ["OA 2 EEN", "OA 1 EEN"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Pedro", "nino": "Pedro Salinas", "nucleos": ["EEN"], "oas": ["OA 2 EEN", "OA 1 EEN"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -168,8 +168,8 @@
       "texto": "Anto y Gaspar se pelearon por el columpio. La Anto vino a decirme \"tía, el Gaspar no me quiere prestar\". Les ayudé a ponerse de acuerdo y quedaron en turnos contando hasta 10 cada uno, y lo cumplieron.",
       "conductas_referencia": [{"oa": "OA 5 CC", "nt": "NT1"}, {"oa": "OA 5 CC", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Anto", "nucleos": ["CC"], "oas": ["OA 5 CC"], "apoyo": "con_ayuda", "grupal": false},
-        {"nombre_detectado": "Gaspar", "nucleos": ["CC"], "oas": ["OA 5 CC"], "apoyo": "con_ayuda", "grupal": false}
+        {"nombre_detectado": "Anto", "nino": "Antonella Castro", "nucleos": ["CC"], "oas": ["OA 5 CC"], "apoyo": "con_ayuda", "grupal": false},
+        {"nombre_detectado": "Gaspar", "nino": "Gaspar Núñez", "nucleos": ["CC"], "oas": ["OA 5 CC"], "apoyo": "con_ayuda", "grupal": false}
       ]
     },
     {
@@ -179,7 +179,7 @@
       "texto": "20-04 Matías midió el [ilegible] con las manos y dijo q era más largo que la mesa, contó 5 manos.",
       "conductas_referencia": [{"oa": "OA 11 PM", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Matías", "fecha": "2026-04-20", "nucleos": ["PM"], "oas": ["OA 11 PM"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Matías", "nino": "Matías Lagos", "fecha": "2026-04-20", "nucleos": ["PM"], "oas": ["OA 11 PM"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -190,7 +190,7 @@
       "texto": "Después del cuento de la tortuga que perdió su casa le pregunté al Agus cómo se sintió y dijo \"mal, porque no tenía dónde dormir\". Solito no lo comentó, hubo que preguntarle. Cuando fuimos por primera vez a la biblioteca del jardín se quedó en la puerta y entró recién cuando la tía Vale entró con él.",
       "conductas_referencia": [{"oa": "OA 1 IA", "nt": "NT1"}],
       "esperado": [
-        {"nombre_detectado": "Agus", "nucleos": ["IA"], "oas": ["OA 1 IA"], "apoyo": "con_ayuda", "grupal": false}
+        {"nombre_detectado": "Agus", "nino": "Agustín Pérez", "nucleos": ["IA"], "oas": ["OA 1 IA"], "apoyo": "con_ayuda", "grupal": false}
       ]
     },
     {
@@ -201,7 +201,7 @@
       "texto": "Marti hoy probó la masa de sal por primera vez, al principio la miró de lejos pero después metió las manos y siguió amasando contenta, dijo que se sentía \"como barro frío\". Antes de la colación fue sola a lavarse las manos y le dijo a la tía que hay que hacerlo \"pa no enfermarse de la guata\".",
       "conductas_referencia": [{"oa": "OA 9 IA", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Marti", "nucleos": ["IA"], "oas": ["OA 9 IA"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Marti", "nino": "Martina Díaz", "nucleos": ["IA"], "oas": ["OA 9 IA"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -212,7 +212,7 @@
       "texto": "Proyecto maqueta del barrio: se acabó la cinta y la Rubí propuso sola usar plasticina pa pegar las casitas de cartón, y fue probando hasta que quedaron firmes. En la hora de descanso pidió poner música suave y ella misma apagó la mitad de las luces \"pa que estemos tranquilos\".",
       "conductas_referencia": [{"oa": "OA 6 IA", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Rubí", "nucleos": ["IA"], "oas": ["OA 6 IA"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Rubí", "nino": "Rubí Contreras", "nucleos": ["IA"], "oas": ["OA 6 IA"], "apoyo": "autonomo", "grupal": false}
       ]
     },
     {
@@ -222,7 +222,7 @@
       "texto": "12-sept Naiara en el ensayo de la cueca hizo las vueltas con el pañuelo y zapateó siguiendo la música, sin mirar a la tía.",
       "conductas_referencia": [{"oa": "OA 4 LA", "nt": "NT2"}],
       "esperado": [
-        {"nombre_detectado": "Naiara", "fecha": "2026-09-12", "nucleos": ["LA"], "oas": ["OA 4 LA"], "apoyo": "autonomo", "grupal": false}
+        {"nombre_detectado": "Naiara", "nino": "Naiara Fuentes", "fecha": "2026-09-12", "nucleos": ["LA"], "oas": ["OA 4 LA"], "apoyo": "autonomo", "grupal": false}
       ]
     }
   ]
