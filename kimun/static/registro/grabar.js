@@ -8,7 +8,20 @@
   const soportado =
     window.MediaRecorder && navigator.mediaDevices && navigator.mediaDevices.getUserMedia &&
     typeof DataTransfer === "function";
-  if (!campo || !soportado) return;
+  if (!campo) return;
+  if (!soportado) {
+    // El navegador solo da el micrófono en HTTPS (o en localhost). Si la página se abre por
+    // http://<ip>:8000 desde el teléfono, la grabadora no aparece: se avisa en vez de callar.
+    if (!window.isSecureContext) {
+      const ayuda = document.getElementById("id_audio-ayuda");
+      if (ayuda) {
+        ayuda.textContent +=
+          " Para grabar aquí mismo, abre la página con https:// (la dirección de CloudFront);" +
+          " con http:// solo se puede elegir un audio ya grabado.";
+      }
+    }
+    return;
+  }
 
   const MAX_SEGUNDOS = 120;
   // Android y escritorio graban WebM/Opus; Safari en iPhone, MP4. Transcribe acepta ambos.

@@ -1,5 +1,5 @@
 {
-  "_nota": "Notas 100% ficticias para evaluar la separación de notas en observaciones (Task 5). Escritas como las escribiría una educadora o una asistente, a partir de conductas de NT1 y NT2 de datos/curriculo_transicion.json (ver conductas_referencia). 'esperado' trae una entrada por observación; nombre_detectado va tal como está escrito en la nota. 'nino' es el niño del curso (datos/demo_curso.json) que debe quedar asignado, o null si debe quedar sin asignar para que decida la educadora (nombre ambiguo o desconocido); lo mide `manage.py evaluar` (Task 10). 'nivel_rubrica_referencia' es solo un metadato para la Task 7 (nivel de la rúbrica de Integra de datos/rubrica_integra.json, transición, IA); la separación no lo produce ni se compara.",
+  "_nota": "Notas 100% ficticias para evaluar la separación de notas en observaciones (Task 5). Escritas como las escribiría una educadora o una asistente, a partir de conductas de NT1 y NT2 de datos/curriculo_transicion.json (ver conductas_referencia). 'esperado' trae una entrada por observación; nombre_detectado va tal como está escrito en la nota. 'nino' es el niño del curso (datos/demo_curso.json) que debe quedar asignado, o null si debe quedar sin asignar para que decida la educadora (nombre ambiguo o desconocido); lo mide `manage.py evaluar` (Task 10). 'texto_audio', cuando está, es la misma nota como se dictaría (sin abreviaturas como 'q', con la fecha dicha y sin marcas como [ilegible]); `manage.py generar_audios` lo usa en vez de 'texto' para generar el audio con Polly. 'nivel_rubrica_referencia' es solo un metadato para la Task 7 (nivel de la rúbrica de Integra de datos/rubrica_integra.json, transición, IA); la separación no lo produce ni se compara.",
   "nombres_curso": [
     "Pedro Salinas",
     "Emilio Vargas",
@@ -23,6 +23,7 @@
       "caso": "Naiara escrita 'Nayara'; fecha escrita en la nota ('25-mayo') distinta de la de captura.",
       "fecha_captura": "2026-05-26",
       "texto": "25-mayo Nayara armó una torre con los bloques y los contó solita hasta el 14 sin saltarse ninguno. Después la comparó con la torre de la tía y dijo \"la mía tiene más\".",
+      "texto_audio": "25 de mayo. Nayara armó una torre con los bloques y los contó solita hasta el 14 sin saltarse ninguno. Después la comparó con la torre de la tía y dijo: la mía tiene más.",
       "conductas_referencia": [{"oa": "OA 6 PM", "nt": "NT1"}, {"oa": "OA 4 PM", "nt": "NT1"}],
       "esperado": [
         {"nombre_detectado": "Nayara", "nino": "Naiara Fuentes", "fecha": "2026-05-25", "nucleos": ["PM"], "oas": ["OA 6 PM", "OA 4 PM"], "apoyo": "autonomo", "grupal": false}
@@ -43,6 +44,7 @@
       "caso": "Nombre que no está en el curso (Abel): igual genera su observación.",
       "fecha_captura": "2026-04-29",
       "texto": "Abel en la zona de juego separó los porotos de los garbanzos en dos potes y dijo q en el de porotos había más. Después los separó también por grandes y chicos.",
+      "texto_audio": "Abel en la zona de juego separó los porotos de los garbanzos en dos potes y dijo que en el de porotos había más. Después los separó también por grandes y chicos.",
       "conductas_referencia": [{"oa": "OA 2 PM", "nt": "NT1"}, {"oa": "OA 4 PM", "nt": "NT1"}],
       "esperado": [
         {"nombre_detectado": "Abel", "nino": null, "nucleos": ["PM"], "oas": ["OA 2 PM", "OA 4 PM"], "apoyo": "autonomo", "grupal": false}
@@ -106,6 +108,7 @@
       "caso": "Apoyo con_ayuda.",
       "fecha_captura": "2026-06-17",
       "texto": "Mati recortó el círculo pa la máscara pero le tuve q tomar la mano con la tijera porque se le iba pa cualquier lado. Con ayuda lo terminó.",
+      "texto_audio": "Mati recortó el círculo para la máscara pero le tuve que tomar la mano con la tijera porque se le iba para cualquier lado. Con ayuda lo terminó.",
       "conductas_referencia": [{"oa": "OA 6 CM", "nt": "NT2"}],
       "esperado": [
         {"nombre_detectado": "Mati", "nino": "Matías Lagos", "nucleos": ["CM"], "oas": ["OA 6 CM"], "apoyo": "con_ayuda", "grupal": false}
@@ -126,6 +129,7 @@
       "caso": "Apoyo parcial: logra una parte y el resto con ayuda.",
       "fecha_captura": "2026-09-09",
       "texto": "Emilio escribió su nombre en el dibujo: la E y la M le salieron bien solo, el resto de las letras se las hice con puntitos pa q las repasara.",
+      "texto_audio": "Emilio escribió su nombre en el dibujo: la E y la M le salieron bien solo, el resto de las letras se las hice con puntitos para que las repasara.",
       "conductas_referencia": [{"oa": "OA 8 LV", "nt": "NT2"}],
       "esperado": [
         {"nombre_detectado": "Emilio", "nino": "Emilio Vargas", "nucleos": ["LV"], "oas": ["OA 8 LV"], "apoyo": "parcial", "grupal": false}
@@ -146,6 +150,7 @@
       "caso": "Apodo con inicial ('Sofi R') que distingue a una de las dos Sofías; se mantiene tal cual.",
       "fecha_captura": "2026-06-24",
       "texto": "Sofi R contó en el círculo q su mamá es enfermera y cuida a los enfermitos en el consultorio, y q su papá maneja micro y lleva a la gente al trabajo.",
+      "texto_audio": "Sofi R contó en el círculo que su mamá es enfermera y cuida a los enfermitos en el consultorio, y que su papá maneja micro y lleva a la gente al trabajo.",
       "conductas_referencia": [{"oa": "OA 1 CES", "nt": "NT1"}],
       "esperado": [
         {"nombre_detectado": "Sofi R", "nino": "Sofía Rojas", "nucleos": ["CES"], "oas": ["OA 1 CES"], "apoyo": "autonomo", "grupal": false}
@@ -177,6 +182,7 @@
       "caso": "Nota leída de una foto con [ilegible]: la marca se respeta en la cita; fecha numérica sin año.",
       "fecha_captura": "2026-04-22",
       "texto": "20-04 Matías midió el [ilegible] con las manos y dijo q era más largo que la mesa, contó 5 manos.",
+      "texto_audio": "20 de abril. Matías midió el mueble con las manos y dijo que era más largo que la mesa, contó 5 manos.",
       "conductas_referencia": [{"oa": "OA 11 PM", "nt": "NT1"}],
       "esperado": [
         {"nombre_detectado": "Matías", "nino": "Matías Lagos", "fecha": "2026-04-20", "nucleos": ["PM"], "oas": ["OA 11 PM"], "apoyo": "autonomo", "grupal": false}
@@ -220,6 +226,7 @@
       "caso": "Nombre bien escrito (Naiara) y fecha con mes abreviado ('12-sept') sin año.",
       "fecha_captura": "2026-09-14",
       "texto": "12-sept Naiara en el ensayo de la cueca hizo las vueltas con el pañuelo y zapateó siguiendo la música, sin mirar a la tía.",
+      "texto_audio": "12 de septiembre. Naiara en el ensayo de la cueca hizo las vueltas con el pañuelo y zapateó siguiendo la música, sin mirar a la tía.",
       "conductas_referencia": [{"oa": "OA 4 LA", "nt": "NT2"}],
       "esperado": [
         {"nombre_detectado": "Naiara", "nino": "Naiara Fuentes", "fecha": "2026-09-12", "nucleos": ["LA"], "oas": ["OA 4 LA"], "apoyo": "autonomo", "grupal": false}
