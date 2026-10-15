@@ -1,0 +1,95 @@
+{% load static kimun %}
+{% comment %}
+Menú lateral (diseno-interfaz.jpg, pantalla III). Lo dibuja la etiqueta {% menu_lateral %} de base.html.
+Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar" o un toque fuera lo cierran.
+{% endcomment %}
+<dialog id="menu-lateral" class="menu-lateral" aria-labelledby="menu-lateral-titulo">
+  <article>
+    <header class="menu-cabecera">
+      <img src="{% static 'registro/img/logo.svg' %}" alt="" width="52" height="52">
+      <div>
+        {% if curso %}
+          <p id="menu-lateral-titulo" class="menu-curso"><strong>{{ curso.nombre }}</strong></p>
+          <p class="menu-jardin">{{ curso.jardin.nombre }}</p>
+        {% else %}
+          <p id="menu-lateral-titulo" class="menu-curso"><strong>Kimün</strong></p>
+        {% endif %}
+      </div>
+      <button type="button" class="boton-icono secondary outline" data-cerrar-menu>
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="visualmente-oculto">Cerrar el menú</span>
+      </button>
+    </header>
+
+    {% if curso %}
+      <nav aria-label="Secciones del curso">
+        <ul class="menu-secciones">
+          {% if puede_registrar %}<li><a href="{% url 'registrar' curso.pk %}">Registrar un suceso</a></li>{% endif %}
+          <li><a href="{% url 'curso' curso.pk %}">Tabla del curso</a></li>
+          {% if puede_validar %}
+            <li><a href="{% url 'revision' curso.pk %}">Revisar observaciones{% for c in cursos_por_revisar %}{% if c.pk == curso.pk and c.pendientes %} ({{ c.pendientes }}){% endif %}{% endfor %}</a></li>
+            <li><a href="{% url 'metas' curso.pk %}">Metas del curso</a></li>
+          {% endif %}
+        </ul>
+      </nav>
+
+      {% if presentes %}
+        <section class="menu-seccion" aria-labelledby="titulo-presentes">
+          <h2 id="titulo-presentes">Para tener presentes</h2>
+          <p class="menu-ayuda">Con más señales de revisión en la tabla del curso. Son sugerencias, no diagnósticos.</p>
+          <ul class="lista-ninos">
+            {% for p in presentes %}
+              <li>
+                <a href="{% url 'ficha' p.nino.pk %}">
+                  <span class="avatar avatar-chico" aria-hidden="true" style="--fondo-avatar: {{ p.nino.nombre|color_avatar }}">{{ p.nino.nombre|iniciales }}</span>
+                  <span>
+                    {{ p.nino.nombre }}
+                    <small class="senales-menu">
+                      {% if p.revisar %}<span class="senal-menu senal-menu-alerta">Revisar en {% for n in p.revisar %}{{ n.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+                      {% if p.observar %}<span class="senal-menu senal-menu-aviso">Observar en {% for n in p.observar %}{{ n.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
+                    </small>
+                  </span>
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
+
+      <section class="menu-seccion" aria-labelledby="titulo-ninos">
+        <h2 id="titulo-ninos">Niños y niñas ({{ ninos|length }})</h2>
+        <label for="buscar-nino" class="visualmente-oculto">Buscar un niño o niña</label>
+        <input type="search" id="buscar-nino" placeholder="Buscar por nombre" autocomplete="off"
+               aria-controls="lista-ninos" aria-describedby="resultado-busqueda" data-buscador>
+        <p id="resultado-busqueda" class="visualmente-oculto" aria-live="polite" data-resultado-busqueda></p>
+        <ul id="lista-ninos" class="lista-ninos" data-lista-ninos>
+          {% for nino in ninos %}
+            <li data-nombre="{{ nino.nombre }} {{ nino.alias|join:' ' }}">
+              <a href="{% url 'ficha' nino.pk %}">
+                <span class="avatar avatar-chico" aria-hidden="true" style="--fondo-avatar: {{ nino.nombre|color_avatar }}">{{ nino.nombre|iniciales }}</span>
+                <span>{{ nino.nombre }}</span>
+              </a>
+            </li>
+          {% empty %}
+            <li>Este curso todavía no tiene niños ni niñas.</li>
+          {% endfor %}
+        </ul>
+        <p class="menu-ayuda" data-sin-resultados hidden>No hay niños ni niñas con ese nombre.</p>
+      </section>
+    {% elif cursos %}
+      <nav aria-label="Mis cursos">
+        <ul class="menu-secciones">
+          {% for c in cursos %}<li><a href="{% url 'curso' c.pk %}">{{ c.nombre }}<small> · {{ c.jardin.nombre }}</small></a></li>{% endfor %}
+        </ul>
+      </nav>
+    {% endif %}
+
+    <footer class="menu-pie">
+      <p>{{ user.get_full_name|default:user.username }}</p>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="secondary outline">Cerrar sesión</button>
+      </form>
+    </footer>
+  </article>
+</dialog>

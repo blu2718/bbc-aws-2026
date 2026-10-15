@@ -22,6 +22,8 @@ RUTA_PROMPT = Path(__file__).resolve().parent / "prompts" / "separacion.md"
 NOMBRE_HERRAMIENTA = "registrar_observaciones"
 # Escala de apoyo del Programa Pedagógico de Transición (igual que `registro.models.Apoyo`).
 ESCALA_APOYO = ("autonomo", "con_ayuda", "parcial", "no_lo_realiza", "sin_dato")
+# Qué muestra lo observado sobre sus OA (igual que `registro.models.Efecto`).
+ESCALA_EFECTO = ("avance", "por_reforzar", "sin_dato")
 SIN_DATO = "sin_dato"
 
 # "OA", número y sigla (empieza con letra; puede traer dígitos si el catálogo los usa).
@@ -174,9 +176,16 @@ def construir_herramienta(catalogo):
                 "description": "Códigos de OA exactamente como aparecen en el catálogo.",
             },
             "apoyo": {"type": "string", "enum": list(ESCALA_APOYO)},
+            "efecto": {
+                "type": "string",
+                "enum": list(ESCALA_EFECTO),
+                "description": "Si lo observado muestra un avance o algo por reforzar en sus OA; sin_dato si no se sabe.",
+            },
             "grupal": {"type": "boolean", "description": "true si la nota es sobre el grupo completo."},
         },
-        "required": ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "grupal"],
+        "required": [
+            "nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "efecto", "grupal",
+        ],
     }
     return {
         "name": NOMBRE_HERRAMIENTA,
@@ -228,6 +237,16 @@ def _apoyo(valor, posicion):
         if normalizado in ESCALA_APOYO:
             return normalizado
     logger.info("Observación %s: apoyo %r fuera de la escala, se usa %s", posicion, valor, SIN_DATO)
+    return SIN_DATO
+
+
+def _efecto(valor, posicion):
+    if isinstance(valor, str):
+        normalizado = _sin_tildes(valor).strip().lower().replace(" ", "_")
+        if normalizado in ESCALA_EFECTO:
+            return normalizado
+    if valor is not None:
+        logger.info("Observación %s: efecto %r fuera de la escala, se usa %s", posicion, valor, SIN_DATO)
     return SIN_DATO
 
 
@@ -311,11 +330,12 @@ def _normalizar(cruda, posicion, nucleos_catalogo, oas_catalogo, fecha_captura):
         "nucleos": nucleos,
         "oas": oas,
         "apoyo": _apoyo(cruda.get("apoyo"), posicion),
+        "efecto": _efecto(cruda.get("efecto"), posicion),
         "grupal": grupal,
     }
     if grupal:
         # Contexto del curso: no se asigna a un niño ni se usa para evaluar.
-        observacion.update(nombre_detectado=None, oas=[], apoyo=SIN_DATO)
+        observacion.update(nombre_detectado=None, oas=[], apoyo=SIN_DATO, efecto=SIN_DATO)
     return observacion
 
 

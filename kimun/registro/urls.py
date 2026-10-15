@@ -1,10 +1,16 @@
 from django.urls import path
 
-from . import views, views_captura, views_revision
+from . import views, views_captura, views_registro, views_revision
 
 urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("cursos/<int:curso_id>/", views.curso, name="curso"),
+    # Registrar un suceso y ver cómo quedó ordenado (pantallas I y II de diseno-interfaz.jpg)
+    path("cursos/<int:curso_id>/registrar/", views_registro.registrar, name="registrar"),
+    path("capturas/<int:captura_id>/", views_registro.captura, name="captura"),
+    path("capturas/<int:captura_id>/procesar/", views_registro.procesar, name="captura_procesar"),
+    path("capturas/<int:captura_id>/procesar/reintentar/", views_registro.reintentar, name="captura_reintentar_suceso"),
+    path("capturas/<int:captura_id>/original/", views_registro.original, name="captura_original"),
     # Registro de notas escritas (Task 5)
     path("cursos/<int:curso_id>/capturar/", views_captura.capturar, name="capturar"),
     path("cursos/<int:curso_id>/capturar/recientes/", views_captura.capturas_recientes, name="capturas_recientes"),

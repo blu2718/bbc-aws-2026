@@ -1,0 +1,39 @@
+{% comment %}
+Barra para registrar (diseno-interfaz.jpg, pantalla I): "+" adjunta una foto, el micrófono graba un audio
+y la flecha envía. Sin JavaScript se puede escribir y adjuntar la foto; kimun.js achica la foto, graba el
+audio y agranda el cuadro de texto. Recibe `curso` y `form` (RegistroForm).
+{% endcomment %}
+<form class="composer" method="post" action="{% url 'registrar' curso.pk %}" enctype="multipart/form-data" data-composer>
+  {% csrf_token %}
+  {% if form.errors %}
+    <div class="error" role="alert">
+      {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      {% for campo in form %}{% for error in campo.errors %}<p>{{ campo.label }}: {{ error }}</p>{% endfor %}{% endfor %}
+    </div>
+  {% endif %}
+  <div class="composer-adjunto" data-adjunto hidden>
+    <img alt="Vista previa de la foto adjunta" data-vista-previa hidden>
+    <audio controls data-escuchar hidden></audio>
+    <span data-adjunto-texto></span>
+    <button type="button" class="secondary outline" data-quitar-adjunto>Quitar</button>
+  </div>
+  <p class="composer-estado" role="status" aria-live="polite" data-estado></p>
+  <div class="composer-barra">
+    <input type="file" id="registro-foto" name="foto" accept="image/*" class="visualmente-oculto" data-foto>
+    <label for="registro-foto" class="boton-icono boton-adjuntar" title="Adjuntar foto">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span class="visualmente-oculto">Adjuntar la foto de un cuaderno o post-it</span>
+    </label>
+    <label for="registro-texto" class="visualmente-oculto">Lo que pasó</label>
+    <textarea id="registro-texto" name="texto" rows="1" maxlength="4000" placeholder="Escribe lo que pasó…" data-texto>{{ form.texto.value|default_if_none:"" }}</textarea>
+    <input type="file" name="audio" accept="audio/*" class="visualmente-oculto" tabindex="-1" aria-hidden="true" data-audio>
+    <button type="button" class="boton-icono boton-microfono" aria-pressed="false" data-microfono hidden>
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <span class="visualmente-oculto" data-microfono-texto>Grabar un audio</span>
+    </button>
+    <button type="submit" class="boton-icono boton-enviar">
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span class="visualmente-oculto">Enviar</span>
+    </button>
+  </div>
+</form>

@@ -1,0 +1,75 @@
+{% comment %}
+Resultado de una captura (diseno-interfaz.jpg, pantalla II): una tarjeta por niño o niña y las notas sobre el curso.
+Mientras está pendiente, HTMX pide `captura_procesar` al cargar y reemplaza este bloque con el resultado.
+Con `esperar` (otro proceso la está ordenando) vuelve a preguntar en 2 segundos.
+{% endcomment %}
+<div id="estado-captura" class="estado-captura">
+  {% if captura.estado == "procesada" %}
+    {% if tarjetas or grupales %}
+      <p class="resumen-captura" role="status">
+        {% with n=tarjetas|length %}
+          {% if n %}{{ n }} suceso{{ n|pluralize }} por niño o niña{% endif %}{% if n and grupales %} y {% endif %}{% if grupales %}{{ grupales|length }} nota{{ grupales|length|pluralize }} sobre el curso{% endif %}.
+        {% endwith %}
+        {% if puede_validar %}Revísalos antes de que cuenten en la ficha.{% else %}La educadora los revisará antes de que cuenten en la ficha.{% endif %}
+      </p>
+      {% for t in tarjetas %}{% include "registro/_tarjeta_suceso.html" with obs=t.obs oob=False %}{% endfor %}
+      {% if grupales %}
+        <section aria-labelledby="titulo-grupales-{{ captura.pk }}">
+          <h2 id="titulo-grupales-{{ captura.pk }}" class="titulo-seccion">Sobre todo el curso</h2>
+          <p class="ayuda">Queda como contexto del curso y no se usa para evaluar.</p>
+          {% for t in grupales %}{% include "registro/_tarjeta_suceso.html" with obs=t.obs oob=False %}{% endfor %}
+        </section>
+      {% endif %}
+    {% elif captura.tipo == "foto" and not captura.texto_extraido %}
+      <p class="aviso" role="status">No se pudo leer texto en la foto. Prueba con otra foto, con más luz y más cerca, o escribe la nota.</p>
+    {% else %}
+      <p class="aviso" role="status">No encontré sucesos de niños o niñas en este registro. Prueba contando qué hizo o dijo cada uno.</p>
+    {% endif %}
+
+  {% elif captura.estado == "error" or atascada %}
+    {# El detalle del error queda en el log y en el panel de administración (como en views_captura.py). #}
+    <div class="aviso-error" role="alert">
+      {% if sin_conexion_ia %}
+        <p>
+          <strong>Kimün no está conectado a la IA en este servidor.</strong>
+          Faltan las credenciales de AWS para usar Bedrock, así que no se pudo separar la nota por niño ni relacionarla con sus OA.
+          Lo que registraste quedó guardado y se puede ordenar cuando la conexión esté lista.
+        </p>
+      {% else %}
+        <p>
+          <strong>{% if atascada %}El registro se demoró demasiado.{% else %}No se pudo ordenar el registro.{% endif %}</strong>
+          Lo que registraste quedó guardado; puedes volver a intentarlo.
+        </p>
+      {% endif %}
+      {% if puede_registrar %}
+        <form method="post" action="{% url 'captura_reintentar_suceso' captura.pk %}"
+              hx-post="{% url 'captura_reintentar_suceso' captura.pk %}" hx-target="#estado-captura" hx-swap="outerHTML">
+          {% csrf_token %}
+          <button type="submit">Reintentar</button>
+        </form>
+      {% endif %}
+    </div>
+
+  {% elif captura.tipo == "audio" %}
+    <p class="aviso" role="status">
+      El audio quedó guardado. La transcripción automática (Amazon Transcribe) todavía no está conectada:
+      cuando lo esté, este registro se ordenará solo.
+    </p>
+
+  {% else %}
+    <div class="procesando" role="status" aria-live="polite"
+         {% if puede_registrar %}hx-post="{% url 'captura_procesar' captura.pk %}" hx-trigger="load{% if esperar %} delay:2s{% endif %}" hx-target="#estado-captura" hx-swap="outerHTML"{% endif %}>
+      <p aria-busy="true">Ordenando el registro: separo lo que pasó con cada niño y lo relaciono con sus OA…</p>
+    </div>
+    {% if puede_registrar %}
+      <noscript>
+        <form method="post" action="{% url 'captura_procesar' captura.pk %}">
+          {% csrf_token %}
+          <button type="submit">Ordenar ahora</button>
+        </form>
+      </noscript>
+    {% endif %}
+  {% endif %}
+  {% include "registro/_perfiles_mencionados.html" %}
+</div>
+{% if oob %}{% include "registro/_contador_pendientes.html" %}{% endif %}

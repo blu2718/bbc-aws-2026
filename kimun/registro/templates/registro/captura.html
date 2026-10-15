@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Registro · {{ curso.nombre }}{% endblock %}
+{% block clase_pagina %}pagina-conversacion{% endblock %}
+{% block contenido %}
+<section class="conversacion" aria-labelledby="titulo-captura">
+  <h1 id="titulo-captura" class="visualmente-oculto">Registro del {{ captura.creada|date:"j \d\e F, H:i" }}</h1>
+  {% if puede_registrar %}<p class="volver"><a href="{% url 'registrar' curso.pk %}">← Nuevo registro</a></p>{% endif %}
+
+  <div class="burbuja">
+    {% if captura.archivo and captura.tipo == "foto" %}
+      <a href="{% url 'captura_original' captura.pk %}" target="_blank" rel="noopener">
+        <img src="{% url 'captura_original' captura.pk %}" alt="Foto del registro (se abre en otra pestaña)" loading="lazy">
+      </a>
+    {% elif captura.archivo and captura.tipo == "audio" %}
+      <audio controls preload="none" src="{% url 'captura_original' captura.pk %}">Tu navegador no puede reproducir el audio.</audio>
+    {% endif %}
+    {% if captura.texto_original %}<p>«{{ captura.texto_original|linebreaksbr }}»</p>{% endif %}
+    {% if captura.texto_extraido %}
+      <details>
+        <summary>Texto leído de la foto</summary>
+        <p>{{ captura.texto_extraido|linebreaksbr }}</p>
+      </details>
+    {% endif %}
+    <p class="burbuja-pie">{{ captura.autora.get_full_name|default:captura.autora.username }} · {{ captura.creada|date:"j \d\e F, H:i" }}</p>
+  </div>
+
+  {% include "registro/_estado_captura.html" %}
+
+  {% if puede_registrar %}{% include "registro/_composer.html" %}{% endif %}
+</section>
+{% endblock %}

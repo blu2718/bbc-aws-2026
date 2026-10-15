@@ -322,6 +322,9 @@ class Nino(models.Model):
         help_text="Seudónimo que se envía a Bedrock en lugar del nombre.",
     )
     fecha_ingreso = models.DateField()
+    fecha_nacimiento = models.DateField(
+        null=True, blank=True, help_text="Para mostrar la edad en el perfil. No se envía a Bedrock."
+    )
 
     class Meta:
         ordering = ["curso", "nombre"]
@@ -408,6 +411,18 @@ class Apoyo(models.TextChoices):
     SIN_DATO = "sin_dato", "Sin dato"
 
 
+class Efecto(models.TextChoices):
+    """Qué muestra el suceso sobre el aprendizaje del niño en sus OA.
+
+    Describe lo observado, no al niño: por eso "por reforzar" y no "negativo",
+    "sin juicios perentorios" (Bases Curriculares).
+    """
+
+    AVANCE = "avance", "Muestra avance"
+    POR_REFORZAR = "por_reforzar", "Por reforzar"
+    SIN_DATO = "sin_dato", "Sin dato"
+
+
 class Observacion(models.Model):
     class Estado(models.TextChoices):
         PENDIENTE = "pendiente", "Pendiente de revisión"
@@ -426,6 +441,10 @@ class Observacion(models.Model):
     nucleos = models.ManyToManyField(Nucleo, blank=True, related_name="observaciones")
     oas = models.ManyToManyField(ObjetivoAprendizaje, blank=True, related_name="observaciones")
     apoyo = models.CharField(max_length=14, choices=Apoyo.choices, default=Apoyo.SIN_DATO)
+    efecto = models.CharField(
+        max_length=12, choices=Efecto.choices, default=Efecto.SIN_DATO,
+        help_text="Si el suceso muestra un avance o algo por reforzar en sus OA. Lo propone Claude y lo corrige la educadora.",
+    )
     grupal = models.BooleanField(default=False, help_text="Contexto del curso; no se usa para evaluar.")
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
     creada = models.DateTimeField(auto_now_add=True)

@@ -1,30 +1,91 @@
 {% extends "base.html" %}
-{% load static %}
+{% load kimun %}
 {% block titulo %}{{ ficha.nino.nombre }}{% endblock %}
 {% block contenido %}
-<p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
-<h1>{{ ficha.nino.nombre }}</h1>
-<p>{{ curso.nombre }} · {{ curso.jardin.nombre }} · Ingreso: <time datetime="{{ ficha.nino.fecha_ingreso|date:'Y-m-d' }}">{{ ficha.nino.fecha_ingreso|date:"d-m-Y" }}</time></p>
-{% if ficha.puede_validar %}<p><a href="{% url 'metas' curso.pk %}">Editar metas del curso</a></p>{% endif %}
+{# Perfil del niño o niña (diseno-interfaz.jpg, pantalla IV): nivel en cada núcleo, historial y detalle por núcleo. #}
+<p class="volver"><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
 
-<nav aria-label="Núcleos">
-  <div class="overflow-auto">
-    <table>
-      <caption>Resumen por núcleo</caption>
-      <thead><tr><th scope="col">Núcleo</th><th scope="col">Nivel actual</th></tr></thead>
-      <tbody>
-        {% for nf in ficha.nucleos %}
-          <tr>
-            <th scope="row"><a href="#nucleo-{{ nf.nucleo.sigla }}">{{ nf.nucleo.nombre }}</a></th>
-            <td>{{ nf.texto_actual }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</nav>
+<header class="perfil-cabecera">
+  <span class="avatar avatar-grande" aria-hidden="true" style="--fondo-avatar: {{ ficha.nino.nombre|color_avatar }}">{{ ficha.nino.nombre|iniciales }}</span>
+  <h1>{{ ficha.nino.nombre }}</h1>
+  <p>
+    {% if edad %}{{ edad }} · {% endif %}{{ curso.nombre }} · {{ curso.jardin.nombre }}
+    <br>Ingreso: <time datetime="{{ ficha.nino.fecha_ingreso|date:'Y-m-d' }}">{{ ficha.nino.fecha_ingreso|date:"d-m-Y" }}</time>
+  </p>
+  <p class="perfil-acciones">
+    {% if puede_registrar %}<a role="button" href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
+    {% if ficha.puede_validar %}<a role="button" class="secondary outline" href="{% url 'metas' curso.pk %}">Editar metas del curso</a>{% endif %}
+  </p>
+</header>
 
-{% for nf in ficha.nucleos %}
-  {% include "registro/_nucleo_ficha.html" with nf=nf %}
-{% endfor %}
+<section class="perfil-seccion" aria-labelledby="titulo-habilidades">
+  <h2 id="titulo-habilidades">Nivel en cada núcleo ({{ ficha.nucleos|length }})</h2>
+  {% if radar %}
+    <figure class="radar-figura">
+      {{ radar }}
+      <figcaption>
+        <span class="leyenda leyenda-nino">Cada pétalo es un núcleo: más largo, más alto el nivel de {{ ficha.nino.nombre.split.0 }}</span>
+        <span class="leyenda leyenda-mediana">Mediana del curso</span>
+        {% if esperado %}<span class="leyenda leyenda-esperado">Nivel esperado ({{ esperado }})</span>{% endif %}
+      </figcaption>
+    </figure>
+  {% endif %}
+  <nav aria-label="Núcleos">
+    <div class="overflow-auto">
+      <table>
+        <caption>Resumen por núcleo</caption>
+        <thead>
+          <tr><th scope="col">Núcleo</th><th scope="col">Nivel actual</th><th scope="col">Mediana del curso</th></tr>
+        </thead>
+        <tbody>
+          {% for nf in ficha.nucleos %}
+            <tr>
+              <th scope="row"><a href="#nucleo-{{ nf.nucleo.sigla }}" data-abrir-detalle="{{ nf.nucleo.sigla }}">{{ nf.nucleo.nombre }}</a></th>
+              <td>{{ nf.texto_actual }}</td>
+              <td>{{ nf.situacion.texto_mediana|default:"–" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </nav>
+</section>
+
+<section class="perfil-seccion" aria-labelledby="titulo-historial">
+  <h2 id="titulo-historial">Historial</h2>
+  {% if historial %}
+    <ol class="historial">
+      {% for e in historial %}
+        <li class="evento evento-{{ e.tipo }}">
+          <time datetime="{{ e.fecha|date:'Y-m-d' }}">{{ e.fecha|date:"j M Y" }}</time>
+          {% if e.tipo == "suceso" %}
+            <p>{{ e.texto }}</p>
+            {% if e.detalle %}<p class="evento-detalle">Interpretación: {{ e.detalle }}</p>{% endif %}
+            <p class="evento-etiquetas">
+              {% if e.efecto != "sin_dato" %}<span class="efecto efecto-{{ e.efecto }}">{{ e.efecto_texto }}</span>{% endif %}
+              {% for n in e.nucleos %}{{ n.nombre }}{% if not forloop.last %} · {% endif %}{% endfor %}
+              · <a href="{% url 'captura' e.captura_id %}">Ver registro</a>
+            </p>
+          {% else %}
+            <p><strong>Niveles validados</strong>{% if e.autora %} por {{ e.autora }}{% endif %}{% if e.detalle %}: {{ e.detalle }}{% endif %}</p>
+            <p class="evento-etiquetas">{% for nucleo, texto in e.niveles %}<span class="nivel-validado">{{ nucleo.nombre }}: <strong>{{ texto }}</strong></span>{% endfor %}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ol>
+  {% else %}
+    <p>Todavía no hay sucesos aceptados ni niveles validados.</p>
+  {% endif %}
+</section>
+
+<section class="perfil-seccion" aria-labelledby="titulo-detalle">
+  <h2 id="titulo-detalle">Detalle por núcleo</h2>
+  <p class="ayuda">La rúbrica del nivel actual y del siguiente, la evolución, la evidencia por OA y las observaciones{% if ficha.puede_validar %}, y el formulario para fijar el nivel{% endif %}.</p>
+  {% for nf in ficha.nucleos %}
+    <details class="detalle-nucleo" data-detalle="{{ nf.nucleo.sigla }}"{% if nf.form.is_bound %} open{% endif %}>
+      <summary>{{ nf.nucleo.nombre }} · {{ nf.texto_actual }}</summary>
+      {% include "registro/_nucleo_ficha.html" with nf=nf %}
+    </details>
+  {% endfor %}
+</section>
 {% endblock %}

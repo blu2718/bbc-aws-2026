@@ -33,6 +33,7 @@ from registro.models import (
     Apoyo,
     Captura,
     Curso,
+    Efecto,
     Jardin,
     MetaSemestre,
     NivelValidado,
@@ -102,16 +103,18 @@ class Command(BaseCommand):
         ninos = {}
         for n in demo["ninos"]:
             nino = Nino.objects.filter(curso=curso, nombre=n["nombre"]).first()
+            nacimiento = date.fromisoformat(n["fecha_nacimiento"]) if n.get("fecha_nacimiento") else None
             if nino is None:
                 # save() crea el nivel 1 en todos los núcleos.
                 nino = Nino.objects.create(
                     curso=curso, nombre=n["nombre"], alias=n["alias"],
-                    fecha_ingreso=date.fromisoformat(n["fecha_ingreso"]),
+                    fecha_ingreso=date.fromisoformat(n["fecha_ingreso"]), fecha_nacimiento=nacimiento,
                 )
             else:
                 nino.alias = n["alias"]
                 nino.fecha_ingreso = date.fromisoformat(n["fecha_ingreso"])
-                nino.save(update_fields=["alias", "fecha_ingreso"])
+                nino.fecha_nacimiento = nacimiento
+                nino.save(update_fields=["alias", "fecha_ingreso", "fecha_nacimiento"])
             ninos[nino.nombre] = nino
             self._niveles(nino, n.get("niveles", {}), demo.get("revisiones", {}), educadora)
 
@@ -183,6 +186,10 @@ class Command(BaseCommand):
                 raise CommandError(f"Núcleo desconocido en la demo: {error}.") from error
             if o.get("apoyo", "sin_dato") not in Apoyo.values:
                 raise CommandError(f"Nivel de apoyo desconocido en la demo: «{o['apoyo']}».")
+            # Sin "efecto" en el JSON: lo hecho de forma autónoma cuenta como avance; lo demás, sin dato.
+            efecto = o.get("efecto") or (Efecto.AVANCE if o.get("apoyo") == Apoyo.AUTONOMO else Efecto.SIN_DATO)
+            if efecto not in Efecto.values or (grupal and efecto != Efecto.SIN_DATO):
+                raise CommandError(f"Efecto inválido en la demo: «{efecto}» en «{o['cita'][:40]}».")
             if "autora" in o and o["autora"] not in usuarias:
                 raise CommandError(f"Autora desconocida en la demo: «{o['autora']}».")
             # Un OA implica su núcleo.
@@ -204,6 +211,7 @@ class Command(BaseCommand):
                     "cita": o["cita"],
                     "interpretacion": o.get("interpretacion", ""),
                     "apoyo": o.get("apoyo", "sin_dato"),
+                    "efecto": efecto,
                     "grupal": grupal,
                     "estado": Observacion.Estado.ACEPTADA,
                 },

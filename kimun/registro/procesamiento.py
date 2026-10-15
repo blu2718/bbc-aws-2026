@@ -12,7 +12,14 @@ Lo usa `manage.py procesar_capturas`:
    devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
    recupera las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA).
 
-Las fotos (Task 8) y los audios (Task 9) todavía no se procesan: no se toman y siguen pendientes.
+Las fotos (Task 8) primero se transcriben con Claude (`ia.lectura.leer_foto`, con
+`[ilegible]` en vez de adivinar) y después pasan por la misma separación, junto con
+lo que se escribió al adjuntarlas. Los audios (Task 9) todavía no se procesan: no se
+toman y siguen pendientes.
+
+Además del proceso de fondo, la página de cada captura (pantalla II de
+diseno-interfaz.jpg) la procesa al abrirse con `procesar_si_pendiente()`. La
+actualización condicional de `tomar()` evita que los dos procesen la misma.
 """
 import logging
 from datetime import date, timedelta
@@ -23,13 +30,14 @@ from django.utils import timezone
 
 from .coincidencia import emparejar
 from .curriculo import leer_curriculo
-from .ia import ErrorSeparacion, separar
+from .ia import ClienteBedrock, ErrorSeparacion, separar
+from .ia.lectura import ErrorLectura, leer_foto
 from .ia.separacion import normalizar_codigo_oa
-from .models import Captura, Nucleo, ObjetivoAprendizaje, Observacion
+from .models import Captura, Efecto, Nucleo, ObjetivoAprendizaje, Observacion
 
 logger = logging.getLogger(__name__)
 
-TIPOS_PROCESABLES = (Captura.Tipo.TEXTO,)
+TIPOS_PROCESABLES = (Captura.Tipo.TEXTO, Captura.Tipo.FOTO)
 LARGO_NOMBRE_DETECTADO = Observacion._meta.get_field("nombre_detectado").max_length
 # Una captura que lleva más que esto en "procesando" quedó atascada (el proceso murió a mitad).
 # Holgado frente al tiempo máximo de una llamada a Bedrock (90 s por defecto).
@@ -121,6 +129,7 @@ def _crear_observacion(captura, separada, ninos, nucleos, oas):
         cita=separada["cita_literal"],
         interpretacion=separada["interpretacion"] or "",
         apoyo=separada["apoyo"],
+        efecto=separada.get("efecto") or Efecto.SIN_DATO,
         grupal=grupal,
         estado=Observacion.Estado.PENDIENTE,
     )
@@ -136,6 +145,24 @@ def _crear_observacion(captura, separada, ninos, nucleos, oas):
     return obs
 
 
+def _texto_a_separar(captura, cliente):
+    """El texto escrito o, en una foto, lo que se leyó de ella más lo que se escribió al adjuntarla.
+
+    La foto se lee una sola vez: si la separación falla y se reintenta, se reusa `texto_extraido`.
+    """
+    if captura.tipo != Captura.Tipo.FOTO:
+        return captura.texto_original or captura.texto_extraido
+    if not captura.texto_extraido:
+        if not captura.archivo:
+            raise ErrorLectura("La captura de foto no tiene archivo.")
+        with captura.archivo.open("rb") as archivo:
+            imagen = archivo.read()
+        captura.texto_extraido = leer_foto(imagen, cliente=cliente)
+        captura.save(update_fields=["texto_extraido", "actualizada"])
+    partes = (captura.texto_extraido, captura.texto_original)
+    return "\n\n".join(p.strip() for p in partes if p and p.strip())
+
+
 def procesar(captura, cliente=None, catalogo=None):
     """Separa una captura ya tomada y crea sus observaciones pendientes.
 
@@ -144,8 +171,8 @@ def procesar(captura, cliente=None, catalogo=None):
     """
     curso = captura.curso
     ninos = list(curso.ninos.all())
-    texto = captura.texto_original or captura.texto_extraido
     try:
+        texto = _texto_a_separar(captura, cliente)
         separadas = separar(
             texto,
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
@@ -164,7 +191,7 @@ def procesar(captura, cliente=None, catalogo=None):
             captura.estado = Captura.Estado.PROCESADA
             captura.error = ""
             captura.save(update_fields=["estado", "error", "actualizada"])
-    except ErrorSeparacion as error:
+    except (ErrorSeparacion, ErrorLectura) as error:
         logger.warning("Captura %s quedó con error: %s", captura.pk, error)
         _marcar_error(captura, str(error))
         return None
@@ -182,3 +209,24 @@ def procesar_pendientes(cliente=None, catalogo=None):
         catalogo = leer_curriculo()
     while (captura := tomar_siguiente()) is not None:
         yield captura, procesar(captura, cliente=cliente, catalogo=catalogo)
+
+
+def procesar_si_pendiente(captura, cliente=None):
+    """Toma y procesa la captura si está pendiente y nadie más la tomó. True si la procesó esta llamada.
+
+    La usa la página de la captura, que espera ahí el resultado de Bedrock.
+    """
+    if not tomar(captura.pk):
+        return False
+    captura.refresh_from_db()
+    procesar(captura, cliente=cliente or ClienteBedrock())
+    return True
+
+
+def reintentar_desde_la_pagina(captura):
+    """Devuelve a pendiente una captura con error o atascada en procesando. True si cambió."""
+    if esta_atascada(captura):
+        return _procesables().filter(pk=captura.pk, estado=Captura.Estado.PROCESANDO).update(
+            estado=Captura.Estado.PENDIENTE, actualizada=timezone.now()
+        ) == 1
+    return reintentar(captura)

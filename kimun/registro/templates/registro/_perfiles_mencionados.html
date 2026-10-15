@@ -1,0 +1,22 @@
+{% load kimun %}
+{% comment %}
+Perfil breve de los niños nombrados en la nota (pantallas.ninos_mencionados), para cuando todavía no hay
+tarjetas: mientras se ordena, si quedó con error o si es un audio sin transcribir.
+{% endcomment %}
+{% if mencionados %}
+  <section class="mencionados" aria-labelledby="titulo-mencionados-{{ captura.pk }}">
+    <h2 id="titulo-mencionados-{{ captura.pk }}" class="titulo-seccion">Nombrados en la nota</h2>
+    {% for p in mencionados %}
+      <article class="suceso perfil-breve">
+        <header class="suceso-cabecera">
+          <span class="avatar" aria-hidden="true" style="--fondo-avatar: {{ p.nino.nombre|color_avatar }}">{{ p.nino.nombre|iniciales }}</span>
+          <div class="suceso-quien">
+            <h3><a href="{% url 'ficha' p.nino.pk %}">{{ p.nino.nombre }}</a></h3>
+            <p>{% if p.edad %}Edad: {{ p.edad }}{% else %}Edad: sin fecha de nacimiento{% endif %}</p>
+          </div>
+          <a role="button" class="secondary outline" href="{% url 'ficha' p.nino.pk %}">Ver perfil</a>
+        </header>
+      </article>
+    {% endfor %}
+  </section>
+{% endif %}

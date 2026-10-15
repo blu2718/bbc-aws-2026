@@ -71,7 +71,8 @@ def test_una_nota_vacia_no_se_guarda(client, curso, educadora):
 
 
 def test_la_tabla_del_curso_enlaza_al_formulario_solo_a_quien_registra(client, curso, asistente_del_curso, directora_del_jardin):
-    enlace = f'href="{_url("capturar", curso)}"'
+    # El enlace lleva a "¿Qué quieres registrar?" (diseno-interfaz.jpg), que también acepta fotos y audios.
+    enlace = f'href="{_url("registrar", curso)}"'
     client.force_login(asistente_del_curso)
     assert enlace in client.get(_url("curso", curso)).content.decode()
     client.force_login(directora_del_jardin)
