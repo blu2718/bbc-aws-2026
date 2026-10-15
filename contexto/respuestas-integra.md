@@ -48,7 +48,7 @@ Transcripción de un correo con nuestras preguntas al equipo de Integra. Las res
 | Propuesta de nivel | La herramienta propone y la educadora decide | Confirmado | Sin cambios |
 | Núcleos | 8, los de las Bases Curriculares | Serán 10 | La cantidad de núcleos es un dato de la rúbrica. La demo sigue con los 8 de las Bases, los únicos con OA oficiales, hasta tener la lista de Integra |
 | Niveles | 8 fijos | 8 hoy, quizás 9 | La cantidad de niveles es un parámetro de la rúbrica. Nada en el código asume 8 |
-| Rúbrica real | La pedíamos completa | Está en ajuste; solo nos pasaron el ejemplo de un núcleo | Seguimos con la rúbrica provisoria. Falta ubicar ese ejemplo en el repo |
+| Rúbrica real | La pedíamos completa | Está en ajuste; solo nos pasaron el ejemplo de un núcleo | El ejemplo es IA y está en `datos/rubrica_integra.json`. Los demás núcleos siguen con la rúbrica provisoria |
 | Dataset E-1 (9 niveles, 5 dominios) | Posible catálogo alternativo | Hay que pensar en 10 núcleos | No se usa como rúbrica |
 | Cómo se decide el nivel | Evidencia citada, sin umbral de cantidad | Por la conducta observable y los avances, no por cantidad de observaciones | Confirma no usar un mínimo de observaciones |
 | Quién observa | Solo la educadora | Educadora (1 por sala) y asistentes (1 cada 7 niños) | Las asistentes también registran. Revisar y validar niveles queda en la educadora (decisión nuestra, por confirmar) |
@@ -59,8 +59,4 @@ Transcripción de un correo con nuestras preguntas al equipo de Integra. Las res
 
 ## Pendiente con Integra
 
-- Ubicar el ejemplo de rúbrica de un núcleo que dicen habernos pasado.
-- Pedir por WhatsApp el audio con el ejemplo de cómo deciden el nivel.
-- La lista de los 10 núcleos.
-- Si las asistentes también pueden revisar observaciones o validar niveles.
-- No respondieron si el nivel se asigna por núcleo o de forma global. La rúbrica por núcleo sugiere que es por núcleo.
+Ver "Preguntas pendientes para Integra" en `PLAN.md`.

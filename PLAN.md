@@ -55,7 +55,7 @@ La educadora siempre decide el nivel.
 - Dentro si alcanza el tiempo (Task 12; si no, va en el pitch): vista del jardín para la directora, con un segundo curso de Transición en los datos de demo.
 - Fuera del MVP (se mencionan en el pitch): vista nacional, generar pasos a seguir o actividades con IA, informes a familias, video, modo sin conexión, carga masiva de niños y otros niveles educativos.
 - Descartado por el equipo: un registro propio de la voz del niño (sus intereses, preferencias o autoevaluación).
-- Descartado por el equipo: usar como rúbrica el catálogo del dataset sintético E-1 de la organización (`dataset-publico/`: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad). Integra pidió pensar la herramienta en 10 núcleos y la demo usa solo Transición; E-1 solo sirve como dato sintético. `contexto/PLAN_PIPELINE_IA_obsoleto.md`, que se basaba en ese catálogo, quedó obsoleto. Si más adelante se amplía a sala cuna y medio, sus OA oficiales están en las Bases Curriculares.
+- Descartado por el equipo: usar el dataset sintético E-1 de la organización (0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad), como rúbrica o como datos de demo. Integra pidió pensar la herramienta en 10 núcleos y la demo usa solo Transición. Se sacó del repo. Si más adelante se amplía a sala cuna y medio, sus OA oficiales están en las Bases Curriculares.
 
 ### Equipo
 
@@ -68,6 +68,7 @@ La educadora siempre decide el nivel.
 - El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra y solo se usa en los núcleos sin rúbrica de Integra (hoy, todos menos IA).
 - La rúbrica de Integra está en `datos/rubrica_integra.json`, pero solo cubre IA y sin orientaciones. Su fuente dice "borrador entregado el 15-10-2026", así que los textos pueden cambiar. Faltan los otros núcleos, la lista de sus 10 núcleos y una referencia institucional del nivel esperado.
 - Que los niveles 1 a 8 de Integra abarcan los 2 años del nivel educativo (NT1 y NT2 en Transición) y que el 8 es lo esperado al egresar. La rúbrica no lo dice; lo suponemos porque cada nivel educativo parte de nuevo en 1.
+- Que todo niño entra en nivel 1. En la primera reunión, la mentora dijo otra cosa: "nivel 1 bajo lo esperado al ingreso, nivel 2 lo esperado al ingreso, nivel 8 por sobre lo esperado". Si se confirma, cambian el nivel inicial y la meta del semestre 1.
 - Qué OA retoma cada nivel de IA (por ejemplo, nivel 1 ≈ OA 1 IA, nivel 2 ≈ OA 3 IA, nivel 5 ≈ OA 12 IA) es una lectura nuestra de los textos.
 - Los umbrales de rezago (2 niveles bajo la mediana del curso; un curso 2 niveles bajo los demás del jardín) son nuestros.
 - Las asistentes registran, pero no revisan ni validan.
@@ -75,6 +76,8 @@ La educadora siempre decide el nivel.
 ## Contexto
 
 ### Cuenta AWS (revisada el 14 de octubre)
+
+Detalle de modelos, límites, formatos y precios en `docs/investigacion_servicios.md`.
 
 - Rol `WSParticipantRole` en una cuenta de workshop, que puede borrarse al terminar el evento. Por eso la infraestructura va en una plantilla que se puede volver a ejecutar, y el código en git.
 - Bedrock: el workshop solo permite algunos modelos. Sonnet 5.5 y Haiku 5.5 están bloqueados. `us.anthropic.claude-sonnet-5` fue probado y funciona. Haiku 4.5 (`us.anthropic.claude-haiku-4-5-20251001-v1:0`) está permitido como opción más barata.
@@ -108,6 +111,8 @@ Archivo `datos/rubrica_integra.json`. Es la rúbrica oficial de progresión, en 
 - No indica a qué semestre corresponde cada nivel, ni cómo se reparte entre NT1 y NT2.
 
 ### Referente Curricular Integra 2025 (pp. 80–101)
+
+El PDF no se versiona; estos son sus puntos relevantes.
 
 - La evaluación tiene tres pasos: recoger información (observación y registro), juicio valorativo del equipo y toma de decisiones. La herramienta automatiza el primero y prepara el segundo.
 - La documentación pedagógica oficial ya es multimodal: notas, fotos, audio, video, transcripción de lo que dicen los niños y sus trabajos.
@@ -367,6 +372,7 @@ flowchart LR
 - Guía:
   - Volver a cargar los datos de demo en producción.
   - Guion: nota, foto y audio → revisión → propuesta → validación → tabla, mostrando el tiempo que toma.
+  - Criterios del jurado, para repartir el tiempo del pitch: innovación técnica 25%, impacto social 25%, factibilidad y sustentabilidad 20%, escalabilidad 15% y calidad de la presentación 15%.
   - Láminas:
     - problema (4 h semanales por educadora);
     - solución y cómo encaja en el sistema de evaluación de Integra: registra la movilidad de los aprendizajes que mide el IEA y apunta a su definición de calidad (bienestar, aprendizaje oportuno y pertinente, protagonismo);
@@ -415,7 +421,7 @@ Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden traba
 
 Las respuestas recibidas por correo están en `contexto/respuestas-integra.md`.
 
-1. Sobre la rúbrica de IA que nos pasaron (`datos/rubrica_integra.json`): ¿los niveles 1 a 8 abarcan los 2 años del nivel educativo (NT1 y NT2) y el 8 es lo esperado al egresar? ¿Hay un nivel esperado por semestre? ¿Cuándo llegan las orientaciones (pasos a seguir) y los otros núcleos? ¿Podemos mostrar sus ejemplos al modelo como referencia?
+1. Sobre la rúbrica de IA que nos pasaron (`datos/rubrica_integra.json`): ¿los niveles 1 a 8 abarcan los 2 años del nivel educativo (NT1 y NT2) y el 8 es lo esperado al egresar? ¿Un niño que ingresa con lo esperado parte en el nivel 1 o en el 2 (como dijo la mentora)? ¿Hay un nivel esperado por semestre? ¿Cuándo llegan las orientaciones (pasos a seguir) y los otros núcleos? ¿Podemos mostrar sus ejemplos al modelo como referencia?
 2. ¿Cuáles son los 10 núcleos?
 3. Pedir por WhatsApp el audio con el ejemplo de cómo deciden el nivel.
 4. ¿El nivel se asigna por núcleo o de forma global? (No lo respondieron; la rúbrica por núcleo sugiere que es por núcleo.)
