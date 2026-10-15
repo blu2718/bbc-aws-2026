@@ -50,16 +50,15 @@ Con `esperar` (otro proceso la está ordenando) vuelve a preguntar en 2 segundos
       {% endif %}
     </div>
 
-  {% elif captura.tipo == "audio" %}
-    <p class="aviso" role="status">
-      El audio quedó guardado. La transcripción automática (Amazon Transcribe) todavía no está conectada:
-      cuando lo esté, este registro se ordenará solo.
-    </p>
-
   {% else %}
+    {# Un audio lo transcribe el proceso de fondo (Transcribe tarda más que el timeout de la página): aquí solo se espera y se vuelve a preguntar. #}
     <div class="procesando" role="status" aria-live="polite"
-         {% if puede_registrar %}hx-post="{% url 'captura_procesar' captura.pk %}" hx-trigger="load{% if esperar %} delay:2s{% endif %}" hx-target="#estado-captura" hx-swap="outerHTML"{% endif %}>
-      <p aria-busy="true">Ordenando el registro: separo lo que pasó con cada niño y lo relaciono con sus OA…</p>
+         {% if puede_registrar %}hx-post="{% url 'captura_procesar' captura.pk %}" hx-trigger="load{% if esperar %} delay:{% if captura.tipo == 'audio' %}3{% else %}2{% endif %}s{% endif %}" hx-target="#estado-captura" hx-swap="outerHTML"{% endif %}>
+      {% if captura.tipo == "audio" %}
+        <p aria-busy="true">Transcribiendo el audio y ordenando el registro. Suele tardar entre 15 y 30 segundos…</p>
+      {% else %}
+        <p aria-busy="true">Ordenando el registro: separo lo que pasó con cada niño y lo relaciono con sus OA…</p>
+      {% endif %}
     </div>
     {% if puede_registrar %}
       <noscript>
