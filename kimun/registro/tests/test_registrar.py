@@ -207,3 +207,61 @@ def test_otro_error_de_bedrock_muestra_el_mensaje_general(client, curso, educado
 
     html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
     assert "No se pudo ordenar el registro." in html and "no está conectado a la IA" not in html
+
+
+# --- Todo el curso y la pregunta de contexto ---------------------------------------------------------
+
+
+def test_todo_el_curso_se_muestra_en_una_tarjeta_y_se_acepta_de_una_vez(client, curso, educadora, pedro, nucleos,
+                                                                       con_bedrock_falso):
+    Nino.objects.create(curso=curso, nombre="Rubí Contreras", fecha_ingreso=date(2026, 3, 2))
+    con_bedrock_falso({"observaciones": [cruda(None, "Todos bailaron.", nucleos=["PM"], todo_el_curso=True)],
+                       "pregunta": None})
+    client.force_login(educadora)
+    _registrar(client, curso, texto="Todos bailaron.")
+    captura = Captura.objects.get()
+
+    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    assert "Todo el curso" in html and "Queda en la ficha de 2 niños" in html
+    assert html.count('class="suceso suceso-curso"') == 1 and "Aceptar para todo el curso" in html
+
+    respuesta = client.post(reverse("captura_aceptar_todas", args=[captura.pk]), {"vista": "suceso"})
+    assert respuesta["Location"] == reverse("captura", args=[captura.pk])
+    assert captura.observaciones.filter(estado=Observacion.Estado.ACEPTADA).count() == 2
+
+
+def test_responder_la_pregunta_vuelve_a_ordenar_la_nota(client, curso, educadora, pedro, con_bedrock_falso):
+    cliente = con_bedrock_falso(
+        {"observaciones": [cruda("Pedro", "Pedro se peleó.", efecto="por_reforzar")], "pregunta": "¿Con quién se peleó?"},
+        {"observaciones": [cruda("Pedro", "Pedro se peleó con Rubí y después le pidió perdón.", efecto="avance")],
+         "pregunta": None},
+    )
+    client.force_login(educadora)
+    _registrar(client, curso, texto="Pedro se peleó.")
+    captura = Captura.objects.get()
+    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    assert "Kimün necesita un dato más:" in html and "¿Con quién se peleó?" in html
+
+    client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "Con Rubí; después le pidió perdón."})
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PENDIENTE and captura.pregunta == ""
+    assert captura.texto_original.endswith("Contexto agregado: Con Rubí; después le pidió perdón.")
+    assert not captura.observaciones.exists()
+
+    client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX)
+    assert "Contexto agregado" in cliente.llamadas[-1]["mensaje"]
+    assert captura.observaciones.get().efecto == "avance"
+
+
+def test_no_se_agrega_contexto_si_ya_hay_observaciones_aceptadas(client, curso, educadora, pedro, con_bedrock_falso):
+    con_bedrock_falso({"observaciones": [cruda("Pedro")], "pregunta": "¿Dónde fue?"})
+    client.force_login(educadora)
+    _registrar(client, curso, texto="Pedro clasificó hojas.")
+    captura = Captura.objects.get()
+    client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX)
+    captura.observaciones.update(estado=Observacion.Estado.ACEPTADA)
+
+    client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "En el patio."})
+
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PROCESADA and "Contexto agregado" not in captura.texto_original

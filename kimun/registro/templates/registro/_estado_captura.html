@@ -5,17 +5,33 @@ Con `esperar` (otro proceso la está ordenando) vuelve a preguntar en 2 segundos
 {% endcomment %}
 <div id="estado-captura" class="estado-captura">
   {% if captura.estado == "procesada" %}
-    {% if tarjetas or grupales %}
+    {% if captura.pregunta %}
+      <div class="pregunta-kimun" role="status">
+        <p><strong>Kimün necesita un dato más:</strong> {{ captura.pregunta }}</p>
+        {% if puede_registrar and puede_agregar_contexto %}
+          <form method="post" action="{% url 'captura_contexto' captura.pk %}">
+            {% csrf_token %}
+            <label for="contexto-{{ captura.pk }}" class="visualmente-oculto">Tu respuesta</label>
+            <textarea id="contexto-{{ captura.pk }}" name="contexto" rows="2" maxlength="1000" required
+                      placeholder="Por ejemplo: Maxi empujó primero y después se calmaron conversando"></textarea>
+            <button type="submit">Agregar y volver a ordenar</button>
+          </form>
+          <p class="ayuda">Se reemplazan las observaciones pendientes de esta nota por las nuevas.</p>
+        {% endif %}
+      </div>
+    {% endif %}
+    {% if tarjetas or grupales or del_curso %}
       <p class="resumen-captura" role="status">
         {% with n=tarjetas|length %}
-          {% if n %}{{ n }} suceso{{ n|pluralize }} por niño o niña{% endif %}{% if n and grupales %} y {% endif %}{% if grupales %}{{ grupales|length }} nota{{ grupales|length|pluralize }} sobre el curso{% endif %}.
+          {% if del_curso %}Lo que hizo todo el curso queda en la ficha de {{ del_curso|length }} niño{{ del_curso|length|pluralize:"s" }}{% if n or grupales %}; {% endif %}{% endif %}{% if n %}{{ n }} suceso{{ n|pluralize }} por niño o niña{% endif %}{% if n and grupales %} y {% endif %}{% if grupales %}{{ grupales|length }} nota{{ grupales|length|pluralize }} de contexto{% endif %}.
         {% endwith %}
         {% if puede_validar %}Revísalos antes de que cuenten en la ficha.{% else %}La educadora los revisará antes de que cuenten en la ficha.{% endif %}
       </p>
+      {% if del_curso %}{% include "registro/_tarjeta_curso.html" %}{% endif %}
       {% for t in tarjetas %}{% include "registro/_tarjeta_suceso.html" with obs=t.obs oob=False %}{% endfor %}
       {% if grupales %}
         <section aria-labelledby="titulo-grupales-{{ captura.pk }}">
-          <h2 id="titulo-grupales-{{ captura.pk }}" class="titulo-seccion">Sobre todo el curso</h2>
+          <h2 id="titulo-grupales-{{ captura.pk }}" class="titulo-seccion">Contexto del curso</h2>
           <p class="ayuda">Queda como contexto del curso y no se usa para evaluar.</p>
           {% for t in grupales %}{% include "registro/_tarjeta_suceso.html" with obs=t.obs oob=False %}{% endfor %}
         </section>

@@ -29,7 +29,7 @@ from django.utils import timezone
 
 from .coincidencia import emparejar
 from .curriculo import leer_curriculo, leer_curriculo_de
-from .ia import ClienteBedrock, ErrorSeparacion, ErrorTranscripcion, separar
+from .ia import ClienteBedrock, ErrorSeparacion, ErrorTranscripcion, separar_con_pregunta
 from .ia.separacion import normalizar_codigo_oa
 # frases_del_curso y prefijo_vocabulario se usan también en `preparar_vocabularios`.
 from .lectura import ArchivoInvalido, frases_del_curso, prefijo_vocabulario, texto_para_separar  # noqa: F401
@@ -39,6 +39,9 @@ logger = logging.getLogger(__name__)
 
 TIPOS_PROCESABLES = (Captura.Tipo.TEXTO, Captura.Tipo.FOTO, Captura.Tipo.AUDIO)
 LARGO_NOMBRE_DETECTADO = Observacion._meta.get_field("nombre_detectado").max_length
+LARGO_PREGUNTA = 500
+# Así queda `nombre_detectado` en las observaciones de algo que hizo todo el curso.
+NOMBRE_TODO_EL_CURSO = "todo el curso"
 # Una captura que lleva más que esto en "procesando" quedó atascada (el proceso murió a mitad).
 # Holgado frente al tiempo máximo de una llamada a Bedrock (90 s por defecto).
 UMBRAL_PROCESANDO_ATASCADA = timedelta(minutes=5)
@@ -111,11 +114,24 @@ def _marcar_error(captura, motivo):
     captura.save(update_fields=["estado", "error", "actualizada"])
 
 
-def _crear_observacion(captura, separada, ninos, nucleos, oas):
+def _crear_observaciones(captura, separada, ninos, nucleos, oas):
+    """Las observaciones de una observación separada: una, o una por niño si fue todo el curso.
+
+    "Todos bailaron" cuenta en la ficha de cada niño del curso, con la misma cita.
+    Las notas grupales de contexto ("bajó la asistencia") quedan como una sola, sin niño.
+    """
+    if not separada.get("todo_el_curso"):
+        return [_crear_observacion(captura, separada, ninos, nucleos, oas)]
+    return [
+        _crear_observacion(captura, separada | {"nombre_detectado": NOMBRE_TODO_EL_CURSO}, ninos, nucleos, oas, nino=nino)
+        for nino in ninos
+    ]
+
+
+def _crear_observacion(captura, separada, ninos, nucleos, oas, nino=None):
     grupal = separada["grupal"]
     nombre = (separada["nombre_detectado"] or "")[:LARGO_NOMBRE_DETECTADO]
-    nino = None
-    if not grupal:
+    if not grupal and nino is None:
         # Las notas grupales son contexto del curso: nunca se asignan a un niño.
         coincidencia = emparejar(nombre, ninos)
         nino = coincidencia.nino
@@ -170,7 +186,7 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
     try:
         # La foto o el audio se leen aquí (el texto se guarda y el archivo se borra); una nota se usa tal cual.
         texto = texto_para_separar(captura, cliente=cliente, transcriptor=transcriptor, ninos=ninos)
-        separadas = separar(
+        separadas, pregunta = separar_con_pregunta(
             texto,
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
             timezone.localdate(captura.creada),
@@ -184,10 +200,11 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
             for oa in ObjetivoAprendizaje.objects.filter(nivel_educativo=curso.nivel_educativo).select_related("nucleo")
         }
         with transaction.atomic():
-            creadas = [_crear_observacion(captura, s, ninos, nucleos, oas) for s in separadas]
+            creadas = [obs for s in separadas for obs in _crear_observaciones(captura, s, ninos, nucleos, oas)]
             captura.estado = Captura.Estado.PROCESADA
             captura.error = ""
-            captura.save(update_fields=["estado", "error", "actualizada"])
+            captura.pregunta = (pregunta or "")[:LARGO_PREGUNTA]
+            captura.save(update_fields=["estado", "error", "pregunta", "actualizada"])
     except (ErrorSeparacion, ErrorTranscripcion) as error:
         logger.warning("Captura %s quedó con error: %s", captura.pk, error)
         _marcar_error(captura, str(error))

@@ -2,7 +2,7 @@
 
 from .bedrock import ClienteBedrock, ErrorBedrock
 from .foto import ImagenInvalida, transcribir_foto, validar_imagen
-from .separacion import ErrorSeparacion, separar
+from .separacion import ErrorSeparacion, separar, separar_con_pregunta
 from .transcripcion import ClienteTranscribe, ErrorTranscripcion
 
 __all__ = [
@@ -13,6 +13,7 @@ __all__ = [
     "ErrorTranscripcion",
     "ImagenInvalida",
     "separar",
+    "separar_con_pregunta",
     "transcribir_foto",
     "validar_imagen",
 ]

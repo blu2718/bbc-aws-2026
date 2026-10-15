@@ -116,3 +116,37 @@ def test_el_audio_espera_la_transcripcion(curso_con_ninos, educadora, settings, 
     assert not procesar_si_pendiente(captura, ClienteFalso())
     captura.refresh_from_db()
     assert captura.estado == Captura.Estado.PENDIENTE
+
+
+# --- Varios niños y todo el curso ------------------------------------------------------------------
+
+
+def test_lo_que_hizo_todo_el_curso_queda_en_la_ficha_de_cada_nino(curso_con_ninos, educadora):
+    captura = _captura(curso_con_ninos, educadora, "Hoy todos bailaron cueca en el patio.")
+    cliente = ClienteFalso({"observaciones": [
+        cruda(None, "Hoy todos bailaron cueca en el patio.", nucleos=["PM"], efecto="avance", todo_el_curso=True),
+    ], "pregunta": None})
+
+    procesar_si_pendiente(captura, cliente)
+
+    obs = captura.observaciones.all()
+    assert sorted(o.nino.nombre for o in obs) == sorted(n.nombre for n in curso_con_ninos.ninos.all())
+    assert {(o.grupal, o.efecto, o.nombre_detectado) for o in obs} == {(False, "avance", "todo el curso")}
+    assert all([n.sigla for n in o.nucleos.all()] == ["PM"] for o in obs)
+
+
+def test_una_pelea_queda_por_reforzar_para_ambos_y_guarda_la_pregunta(curso_con_ninos, educadora):
+    captura = _captura(curso_con_ninos, educadora, "Pedro y Nayara se pelearon por la pala.")
+    cita = "Pedro y Nayara se pelearon por la pala."
+    cliente = ClienteFalso({"observaciones": [
+        cruda("Pedro", cita, nucleos=["CC"], efecto="por_reforzar"),
+        cruda("Nayara", cita, nucleos=["CC"], efecto="por_reforzar"),
+    ], "pregunta": "¿Cómo terminó la pelea?"})
+
+    procesar_si_pendiente(captura, cliente)
+
+    captura.refresh_from_db()
+    assert captura.pregunta == "¿Cómo terminó la pelea?"
+    assert sorted((o.nino.nombre, o.efecto) for o in captura.observaciones.all()) == [
+        ("Naiara Fuentes", "por_reforzar"), ("Pedro Salinas", "por_reforzar"),
+    ]

@@ -16,7 +16,7 @@ from registro.ia.separacion import (
     normalizar_codigo_oa,
 )
 
-CAMPOS = ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "efecto", "grupal"]
+CAMPOS = ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "efecto", "grupal", "todo_el_curso"]
 
 
 def _separar(respuesta, catalogo, cliente_falso, fecha="2026-05-25", nombres=("Pedro Salinas",), texto="nota"):
@@ -38,6 +38,7 @@ def test_json_valido_produce_observaciones_normalizadas(catalogo, cliente_falso,
             "apoyo": "autonomo",
             "efecto": "avance",
             "grupal": False,
+            "todo_el_curso": False,
         }
     ]
     assert list(resultado[0]) == CAMPOS
@@ -162,6 +163,7 @@ def test_nota_grupal_queda_como_contexto(catalogo, cliente_falso, obs):
             "apoyo": "sin_dato",
             "efecto": "sin_dato",
             "grupal": True,
+            "todo_el_curso": False,
         }
     ]
 
@@ -349,3 +351,30 @@ def test_la_herramienta_pide_el_efecto_con_su_escala(catalogo):
     items = construir_herramienta(catalogo)["inputSchema"]["json"]["properties"]["observaciones"]["items"]
     assert items["properties"]["efecto"]["enum"] == list(ESCALA_EFECTO)
     assert "efecto" in items["required"]
+
+
+# --- Varios niños, todo el curso y la pregunta de contexto ---------------------------------------
+
+
+def test_algo_que_hizo_todo_el_curso_no_es_una_nota_grupal(catalogo, cliente_falso, obs):
+    respuesta = {"observaciones": [obs(nombre_detectado="todos", cita_literal="Todos bailaron la cueca",
+                                       nucleos=["LA"], oas=["OA 1 LA"], grupal=True, todo_el_curso=True)]}
+    resultado, _ = _separar(respuesta, catalogo, cliente_falso)
+    assert resultado[0]["todo_el_curso"] is True and resultado[0]["grupal"] is False
+    assert resultado[0]["nombre_detectado"] is None and resultado[0]["oas"] == ["OA 1 LA"]
+
+
+def test_la_pregunta_de_contexto_se_devuelve_aparte(catalogo, cliente_falso, obs):
+    from registro.ia import separar_con_pregunta
+
+    cliente = cliente_falso({"observaciones": [obs()], "pregunta": "  ¿Quién empezó la pelea?  "})
+    observaciones, pregunta = separar_con_pregunta("nota", "2026-05-25", ["Pedro"], catalogo, cliente=cliente)
+    assert len(observaciones) == 1 and pregunta == "¿Quién empezó la pelea?"
+    sin = cliente_falso({"observaciones": [obs()], "pregunta": None})
+    assert separar_con_pregunta("nota", "2026-05-25", ["Pedro"], catalogo, cliente=sin)[1] is None
+
+
+def test_la_herramienta_pide_todo_el_curso_y_la_pregunta(catalogo):
+    esquema = construir_herramienta(catalogo)["inputSchema"]["json"]
+    assert "pregunta" in esquema["required"]
+    assert "todo_el_curso" in esquema["properties"]["observaciones"]["items"]["required"]

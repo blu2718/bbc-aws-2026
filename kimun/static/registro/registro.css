@@ -465,6 +465,14 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .efecto-avance { background: #d3f0dc; color: #1e6b35; }          /* 5,4:1 */
 .efecto-por_reforzar { background: #ffe3b0; color: #7a4a00; }    /* 6,0:1 */
 .efecto-sin_dato { background: #eef2f5; color: #333d47; }
+.pregunta-kimun { padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-suave); color: var(--kimun-tinta); }
+.pregunta-kimun p { margin-bottom: .5rem; }
+.pregunta-kimun textarea { margin-bottom: .5rem; background: #fff; }
+.pregunta-kimun button { margin: 0; }
+.ninos-del-curso { display: flex; flex-wrap: wrap; gap: .35rem; margin: .25rem 0 0; padding: 0; }
+.ninos-del-curso li { list-style: none; margin: 0; }
+.ninos-del-curso a { display: inline-flex; align-items: center; gap: .35rem; padding: .15rem .55rem .15rem .2rem; border-radius: 999px; background: var(--kimun-celeste-suave); color: var(--kimun-tinta); font-size: .85rem; text-decoration: none; }
+.ninos-del-curso .avatar-chico { width: 1.6rem; height: 1.6rem; font-size: .65rem; border-width: 1px; }
 .mencionados { display: grid; gap: .6rem; }
 .mencionados .titulo-seccion { margin: .25rem 0 0; }
 .perfil-breve { padding-block: .75rem; }

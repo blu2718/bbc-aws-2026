@@ -12,7 +12,9 @@
 
 Un curso o una captura ajenos responden 404, como en el resto de la app.
 """
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -25,6 +27,7 @@ from .pantallas import ninos_mencionados, observaciones_para_tarjetas, tarjetas_
 from .permisos import cursos_de, cursos_donde_registra, puede_validar
 
 RECIENTES = 3
+LARGO_CONTEXTO = 1000
 # Errores que indican que este servidor no está conectado a Bedrock (no un problema de la nota).
 PISTAS_SIN_CONEXION = (
     "Unable to locate credentials", "No module named 'boto3'", "ExpiredToken", "security token",
@@ -70,11 +73,16 @@ def _contexto_captura(request, captura):
         captura.observaciones.exclude(estado=Observacion.Estado.DESCARTADA)
     ).order_by("grupal", "nino__nombre", "fecha", "id")
     tarjetas = tarjetas_suceso(observaciones, timezone.localdate())
+    del_curso = [t for t in tarjetas if t.obs.nombre_detectado == procesamiento.NOMBRE_TODO_EL_CURSO and not t.obs.grupal]
     return {
         "captura": captura,
         "curso": curso,
-        "tarjetas": [t for t in tarjetas if not t.obs.grupal],
+        "tarjetas": [t for t in tarjetas if not t.obs.grupal and t not in del_curso],
+        # Lo que hizo todo el curso: una observación por niño, que se muestra junta en una sola tarjeta.
+        "del_curso": del_curso,
+        "del_curso_pendientes": sum(1 for t in del_curso if t.obs.estado == Observacion.Estado.PENDIENTE),
         "grupales": [t for t in tarjetas if t.obs.grupal],
+        "puede_agregar_contexto": puede_agregar_contexto(captura),
         "puede_validar": puede_validar(request.user, curso),
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=curso.pk).exists(),
         "ninos": list(curso.ninos.all()),
@@ -130,3 +138,34 @@ def reintentar(request, captura_id):
     if not _es_htmx(request):
         return redirect("captura", captura_id=captura.pk)
     return render(request, "registro/_estado_captura.html", _contexto_captura(request, captura))
+
+
+def puede_agregar_contexto(captura):
+    """Se puede responder la pregunta de Claude mientras ninguna observación de la captura se aceptó."""
+    return captura.estado == Captura.Estado.PROCESADA and not captura.observaciones.filter(
+        estado=Observacion.Estado.ACEPTADA
+    ).exists()
+
+
+@login_required
+@require_POST
+def agregar_contexto(request, captura_id):
+    """Responde la pregunta de Claude: suma el contexto a la nota y la vuelve a ordenar.
+
+    Las observaciones pendientes de la captura se reemplazan por las nuevas. Si alguna
+    ya se aceptó, no se toca nada: el contexto se registra como una nota nueva.
+    """
+    captura = _captura(request.user, captura_id, cursos_donde_registra)
+    contexto = " ".join((request.POST.get("contexto") or "").split())[:LARGO_CONTEXTO]
+    if not contexto:
+        messages.error(request, "Escribe el contexto que falta antes de enviarlo.")
+    elif not puede_agregar_contexto(captura):
+        messages.error(request, "Esta nota ya tiene observaciones aceptadas: registra el contexto como una nota nueva.")
+    else:
+        with transaction.atomic():
+            captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE).delete()
+            captura.texto_original = f"{captura.texto_original}\n\nContexto agregado: {contexto}".strip()
+            captura.pregunta = ""
+            captura.estado = Captura.Estado.PENDIENTE
+            captura.save(update_fields=["texto_original", "pregunta", "estado", "actualizada"])
+    return redirect("captura", captura_id=captura.pk)
