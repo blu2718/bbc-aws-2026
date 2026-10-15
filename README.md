@@ -63,7 +63,8 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
 | `kimun/static/registro/registro.css` | Estilos de toda la app: paleta del logo (celeste `#5cbde6`) sobre Pico y colores de las señales con contraste ≥ 4,5:1 |
-| `kimun/static/registro/img/` | Logo (`logo.svg`, `logo-512.png`) y favicons |
+| `kimun/static/registro/img/` | Logo (`logo.svg`, `logo-512.png`) y favicons, sacados de `docs/marca/logo-kimun.pdf` |
+| `docs/marca/logo-kimun.pdf` | Logo original de la app (Canva): la referencia para cualquier versión nueva del logo |
 | `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json` |
 | `scripts/extraer_curriculo.py` | Regenera el currículo desde el PDF, que no se versiona: descargarlo desde <https://www.curriculumnacional.cl/614/articles-210511_programa.pdf> a `contexto/programa-pedagogico-transicion-mineduc.pdf` y correr `python -X utf8 scripts/extraer_curriculo.py --todos` (requiere `pdftotext` de Poppler; en Windows, `winget install oschwartz10612.Poppler`) |
 
