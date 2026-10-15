@@ -5,7 +5,7 @@
 {% block contenido %}
 <p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
 <h1>¿Qué quieres registrar?</h1>
-{# El audio (Task 9) se suma a esta misma pantalla. #}
+<p>Las fotos y los audios no se guardan: se borran apenas se leen y solo queda el texto, que revisas antes de que cuente.</p>
 
 <section aria-labelledby="titulo-nota">
   <h2 id="titulo-nota">Una nota escrita</h2>
@@ -37,5 +37,26 @@
   </form>
 </section>
 
+<section aria-labelledby="titulo-audio">
+  <h2 id="titulo-audio">Dictar una nota</h2>
+  {# Sin JavaScript queda el campo de archivo (en Android abre la grabadora del teléfono). grabar.js agrega los botones. #}
+  <form id="form-audio" method="post" action="{% url 'capturar_audio' curso.pk %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div id="grabadora" hidden>
+      <button type="button" id="grabar">Grabar</button>
+      <button type="button" id="detener" class="secondary" disabled>Detener</button>
+      <p><span id="estado-grabacion" role="status">Presiona «Grabar» y cuenta lo que observaste. Máximo 2 minutos.</span>
+        <span id="tiempo-grabacion" role="timer"></span></p>
+      <audio id="vista-previa" controls hidden aria-label="Escuchar la grabación antes de guardarla"></audio>
+    </div>
+    <label for="{{ form_audio.audio.id_for_label }}">{{ form_audio.audio.label }}</label>
+    {{ form_audio.audio }}
+    <small id="id_audio-ayuda">{{ form_audio.audio.help_text }} El audio no se guarda: se borra apenas se transcribe y solo queda el texto.</small>
+    {% if form_audio.audio.errors %}<div role="alert">{{ form_audio.audio.errors }}</div>{% endif %}
+    <button type="submit">Guardar audio</button>
+  </form>
+</section>
+
 {% include "registro/_capturas_recientes.html" %}
+<script src="{% static 'registro/grabar.js' %}" defer></script>
 {% endblock %}

@@ -119,17 +119,17 @@ STATIC_URL = "static/"
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# Fotos subidas (Task 8). Solo se guardan mientras esperan a que el proceso de
-# fondo las lea; apenas se leen, se borran y queda solo el texto
+# Fotos y audios subidos (Tasks 8 y 9). Solo se guardan mientras esperan a que el
+# proceso de fondo los lea; apenas se leen, se borran y queda solo el texto
 # (`registro/lectura.py`). Nunca se publican ni se muestran en la app.
 # Con KIMUN_BUCKET definido van al bucket S3 privado (lo define
 # infra/remoto/instalar.sh en la EC2); si no, a disco en MEDIA_ROOT.
 MEDIA_URL = "media/"
 MEDIA_ROOT = Path(os.environ.get("DJANGO_MEDIA_ROOT", BASE_DIR / "media"))
 KIMUN_BUCKET = os.environ.get("KIMUN_BUCKET", "").strip()
-# La subida queda en memoria hasta este tamaño (por encima del máximo de foto, 3,75 MB),
-# así Django no escribe copias temporales de la foto en el disco del servidor.
-FILE_UPLOAD_MAX_MEMORY_SIZE = 4 * 1024 * 1024
+# La subida queda en memoria hasta este tamaño (sobre el máximo de foto, 3,75 MB, y de
+# audio, 15 MB), así Django no escribe copias temporales del archivo en el disco del servidor.
+FILE_UPLOAD_MAX_MEMORY_SIZE = 16 * 1024 * 1024
 
 if KIMUN_BUCKET:
     # Credenciales: las del rol de la instancia (cadena por defecto de boto3).

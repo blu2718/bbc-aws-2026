@@ -93,7 +93,9 @@ def test_la_educadora_sube_una_foto_y_queda_pendiente(client, curso, educadora):
 
 def test_la_subida_no_deja_copias_temporales_en_disco():
     """Django guarda en memoria las subidas hasta FILE_UPLOAD_MAX_MEMORY_SIZE; por sobre eso, en /tmp."""
-    assert ajustes.FILE_UPLOAD_MAX_MEMORY_SIZE >= TAMANO_MAXIMO
+    from registro.forms import MAX_BYTES_AUDIO
+
+    assert ajustes.FILE_UPLOAD_MAX_MEMORY_SIZE >= max(TAMANO_MAXIMO, MAX_BYTES_AUDIO)
 
 
 def test_la_extension_sale_del_contenido_y_no_del_nombre(client, curso, educadora):
@@ -217,7 +219,7 @@ def test_la_lista_de_capturas_muestra_lo_leido_sin_enlace_a_la_foto(client, curs
 
     html = client.get(reverse("capturas_recientes", args=[curso.pk])).content.decode()
 
-    assert "Foto ·" in html and LEIDO[:40] in html
+    assert f"Foto: «{LEIDO[:40]}" in html
     assert "original" not in html.lower() and ajustes.MEDIA_URL not in html
 
 

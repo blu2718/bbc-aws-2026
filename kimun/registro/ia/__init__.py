@@ -1,11 +1,13 @@
-"""Integración con Bedrock: funciones puras, sin dependencia de Django."""
+"""Integración con Bedrock y Transcribe: funciones puras, sin dependencia de Django."""
 
 from .bedrock import ClienteBedrock, ErrorBedrock
-from .foto import ErrorTranscripcion, ImagenInvalida, transcribir_foto, validar_imagen
+from .foto import ImagenInvalida, transcribir_foto, validar_imagen
 from .separacion import ErrorSeparacion, separar
+from .transcripcion import ClienteTranscribe, ErrorTranscripcion
 
 __all__ = [
     "ClienteBedrock",
+    "ClienteTranscribe",
     "ErrorBedrock",
     "ErrorSeparacion",
     "ErrorTranscripcion",

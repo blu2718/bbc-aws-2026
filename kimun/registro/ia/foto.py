@@ -13,6 +13,8 @@ import logging
 from pathlib import Path
 
 from .bedrock import ClienteBedrock, ErrorBedrock
+# El mismo error que el de los audios (Task 9): la captura queda con error y se puede reintentar.
+from .transcripcion import ErrorTranscripcion
 
 logger = logging.getLogger(__name__)
 
@@ -26,9 +28,6 @@ TAMANO_MAXIMO = 3_750_000
 # Formatos que acepta Converse, con la extensión con que se guardan.
 EXTENSIONES = {"jpeg": "jpg", "png": "png", "gif": "gif", "webp": "webp"}
 
-
-class ErrorTranscripcion(Exception):
-    """La foto no se pudo leer. La captura debe quedar con error y poder reintentarse."""
 
 
 class ImagenInvalida(ValueError):

@@ -16,8 +16,8 @@
         </h2>
         {% if captura.texto_original or captura.texto_extraido %}
           <details>
-            {# La foto se borra apenas se lee (Task 8): de ella solo queda el texto. #}
-            <summary>{% if captura.tipo == "foto" %}Ver lo leído de la foto{% else %}Ver lo registrado{% endif %}</summary>
+            {# La foto y el audio se borran apenas se leen (Tasks 8 y 9): de ellos solo queda el texto. #}
+            <summary>{% if captura.tipo == "foto" %}Ver lo leído de la foto{% elif captura.tipo == "audio" %}Ver la transcripción{% else %}Ver lo registrado{% endif %}</summary>
             <p>{{ captura.texto_original|default:captura.texto_extraido|linebreaksbr }}</p>
           </details>
         {% endif %}
