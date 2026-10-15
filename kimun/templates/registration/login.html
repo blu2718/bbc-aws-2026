@@ -1,17 +1,25 @@
 {% extends "base.html" %}
 {% block titulo %}Iniciar sesión{% endblock %}
 {% block contenido %}
-<h1>Iniciar sesión</h1>
-{% if form.errors %}
-  <p role="alert">Usuario o contraseña incorrectos.</p>
-{% endif %}
-<form method="post" action="{% url 'login' %}">
-  {% csrf_token %}
-  <label for="{{ form.username.id_for_label }}">Usuario</label>
-  {{ form.username }}
-  <label for="{{ form.password.id_for_label }}">Contraseña</label>
-  {{ form.password }}
-  <input type="hidden" name="next" value="{{ next }}">
-  <button type="submit">Entrar</button>
-</form>
+<div class="acceso">
+  <div class="acceso-tarjeta">
+    <p class="marca">
+      <span class="marca-logo" aria-hidden="true">K</span>
+      <span class="marca-texto">Kimün <small>Registro pedagógico</small></span>
+    </p>
+    <h1>Iniciar sesión</h1>
+    {% if form.errors %}
+      <p role="alert" class="error">Usuario o contraseña incorrectos.</p>
+    {% endif %}
+    <form method="post" action="{% url 'login' %}">
+      {% csrf_token %}
+      <label for="{{ form.username.id_for_label }}">Usuario</label>
+      {{ form.username }}
+      <label for="{{ form.password.id_for_label }}">Contraseña</label>
+      {{ form.password }}
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit">Entrar</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

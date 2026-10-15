@@ -8,6 +8,7 @@ from datetime import date
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -28,7 +29,11 @@ def _es_htmx(request):
 
 @login_required
 def inicio(request):
-    cursos = cursos_de(request.user).select_related("jardin")
+    # distinct=True: cursos_de cruza con asistentes y jardín, y sin él los niños se contarían de más.
+    cursos = (
+        cursos_de(request.user).select_related("jardin")
+        .annotate(cantidad_ninos=Count("ninos", distinct=True)).order_by("nombre")
+    )
     if len(cursos) == 1:
         return redirect("curso", curso_id=cursos[0].pk)
     return render(request, "registro/inicio.html", {"cursos": cursos})

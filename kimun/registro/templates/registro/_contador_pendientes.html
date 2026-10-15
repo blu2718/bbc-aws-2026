@@ -1,12 +1,13 @@
 {% comment %}
-Contador de observaciones por revisar en la barra de navegación (Task 6). Solo para la educadora:
+Contador de observaciones por revisar en el menú lateral (Task 6). Solo para la educadora:
 `cursos_por_revisar` viene de registro.contexto.revision y está vacío para asistentes y directoras.
-Con `oob`, las respuestas de HTMX de la revisión lo actualizan fuera de banda.
+Con `oob`, las respuestas de HTMX de la revisión lo actualizan fuera de banda; `menu_seccion`
+(registro.contexto.navegacion) también llega a esas respuestas, así que el enlace sigue marcado.
 {% endcomment %}
 {% if cursos_por_revisar %}
   <li id="contador-pendientes"{% if oob %} hx-swap-oob="true"{% endif %}>
     {% for c in cursos_por_revisar %}
-      <a href="{% url 'revision' c.pk %}">Por revisar{% if cursos_por_revisar|length > 1 %} en {{ c.nombre }}{% endif %}: <strong>{{ c.pendientes }}</strong></a>
+      <a class="menu-enlace{% if not c.pendientes %} sin-pendientes{% endif %}"{% if menu_seccion == "revision" and curso.pk == c.pk %} aria-current="page"{% endif %} href="{% url 'revision' c.pk %}">Por revisar{% if cursos_por_revisar|length > 1 %} en {{ c.nombre }}{% endif %}: <strong>{{ c.pendientes }}</strong></a>
     {% endfor %}
   </li>
 {% endif %}

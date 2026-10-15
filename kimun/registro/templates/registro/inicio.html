@@ -1,14 +1,23 @@
 {% extends "base.html" %}
 {% block titulo %}Mis cursos{% endblock %}
 {% block contenido %}
-<h1>Mis cursos</h1>
+<header class="encabezado-pagina">
+  <hgroup>
+    <h1>Mis cursos</h1>
+    <p>Elige un curso para ver su panel: niveles, señales y cobertura de la quincena.</p>
+  </hgroup>
+</header>
 {% if cursos %}
-  <ul>
+  <ul class="tarjetas-cursos">
     {% for curso in cursos %}
-      <li><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a>, {{ curso.jardin.nombre }}</li>
+      <li class="tarjeta-curso">
+        <h2><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a></h2>
+        <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }}</p>
+        <p class="tarjeta-dato"><strong>{{ curso.cantidad_ninos }}</strong> niño{{ curso.cantidad_ninos|pluralize:" o niña,s y niñas" }}</p>
+      </li>
     {% endfor %}
   </ul>
 {% else %}
-  <p>No tienes cursos asignados.</p>
+  <p class="nota">No tienes cursos asignados.</p>
 {% endif %}
 {% endblock %}

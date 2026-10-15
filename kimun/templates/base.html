@@ -1,42 +1,41 @@
 {% load static %}<!doctype html>
-<html lang="es">
+{# Tema claro fijo: data-theme="light" evita que Pico cambie a oscuro según el sistema. #}
+<html lang="es" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}Registro pedagógico{% endblock %}</title>
+  <meta name="color-scheme" content="light">
+  <title>{% block titulo %}Registro pedagógico{% endblock %} · Kimün</title>
   {# Pico.css y HTMX con versión fija en static/vendor/ (sin CDN). Para actualizar, reemplazar el archivo y la ruta. #}
   <link rel="stylesheet" href="{% static 'vendor/pico-2.1.1.min.css' %}">
+  <link rel="stylesheet" href="{% static 'registro/registro.css' %}">
+  {# Sin defer: marca <html> con .menu-js antes de dibujar, para que el menú del teléfono no parpadee. #}
+  <script src="{% static 'registro/menu.js' %}"></script>
   <script src="{% static 'vendor/htmx-2.0.11.min.js' %}" defer></script>
   {% block head %}{% endblock %}
 </head>
 {# HTMX envía el token CSRF en todas sus peticiones. #}
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-  <header class="container">
-    <nav aria-label="Principal">
-      <ul>
-        <li><a href="{% url 'inicio' %}"><strong>Registro pedagógico</strong></a></li>
-      </ul>
-      {% if user.is_authenticated %}
-        <ul>
-          {% include "registro/_contador_pendientes.html" %}
-          <li>{{ user.get_full_name|default:user.username }}</li>
-          <li>
-            <form method="post" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button type="submit" class="secondary">Cerrar sesión</button>
-            </form>
-          </li>
-        </ul>
-      {% endif %}
-    </nav>
-  </header>
-  <main id="contenido" class="container">
-    {% if messages %}
-      <ul role="status">
-        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-      </ul>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <div class="app{% if user.is_authenticated %} app-con-menu{% endif %}">
+    {% if user.is_authenticated %}
+      <header class="barra-movil">
+        <button type="button" class="secondary outline boton-menu" data-menu-boton
+                aria-controls="menu-lateral" aria-expanded="false">
+          <span class="icono-menu" aria-hidden="true"></span> Menú
+        </button>
+        <a class="marca" href="{% url 'inicio' %}">
+          <span class="marca-logo" aria-hidden="true">K</span>
+          <span class="marca-texto">Kimün</span>
+        </a>
+      </header>
+      {% include "_menu_lateral.html" %}
+      <div class="velo" data-menu-velo hidden></div>
     {% endif %}
-    {% block contenido %}{% endblock %}
-  </main>
+    <main id="contenido" class="contenido{% if not user.is_authenticated %} contenido-sin-menu{% endif %}" tabindex="-1">
+      {% include "_mensajes.html" %}
+      {% block contenido %}{% endblock %}
+    </main>
+  </div>
 </body>
 </html>

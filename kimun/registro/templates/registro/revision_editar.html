@@ -2,6 +2,14 @@
 {% block titulo %}Editar observación · {{ curso.nombre }}{% endblock %}
 {# Sin JavaScript, la edición se abre en su propia página. #}
 {% block contenido %}
-<p><a href="{% url 'revision' curso.pk %}#obs-{{ obs.pk }}">← Volver a la revisión</a></p>
+<header class="encabezado-pagina">
+  <nav class="migas" aria-label="Ruta de navegación">
+    <ol>
+      <li><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a></li>
+      <li><a href="{% url 'revision' curso.pk %}#obs-{{ obs.pk }}">Volver a la revisión</a></li>
+      <li><span aria-current="page">Editar observación</span></li>
+    </ol>
+  </nav>
+</header>
 {% include "registro/_form_observacion.html" %}
 {% endblock %}

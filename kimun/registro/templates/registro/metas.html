@@ -1,19 +1,47 @@
 {% extends "base.html" %}
 {% block titulo %}Metas de {{ curso.nombre }}{% endblock %}
 {% block contenido %}
-<p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
-<h1>Metas del curso</h1>
-<p>Nivel esperado según el semestre de permanencia del niño o niña en el curso. Es una referencia, no un requisito: el avance no tiene por qué ser lineal.</p>
+<header class="encabezado-pagina">
+  <nav class="migas" aria-label="Ruta de navegación">
+    <ol>
+      <li><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a></li>
+      <li><span aria-current="page">Metas del curso</span></li>
+    </ol>
+  </nav>
+  <hgroup>
+    <h1>Metas del curso</h1>
+    <p>Nivel esperado según el semestre de permanencia del niño o niña en el curso. Es una referencia, no un requisito: el avance no tiene por qué ser lineal.</p>
+  </hgroup>
+</header>
 
-<form method="post">
-  {% csrf_token %}
-  {% if form.non_field_errors %}<div role="alert">{{ form.non_field_errors }}</div>{% endif %}
-  {% for campo in form %}
-    <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-    {{ campo }}
-    {% if campo.errors %}<div role="alert">{{ campo.errors }}</div>{% endif %}
-  {% endfor %}
-  <p>Desde el semestre {{ semestre_siguiente }} de permanencia se espera el nivel máximo de la rúbrica ({{ texto_maximo }}).</p>
-  <button type="submit">Guardar metas</button>
-</form>
+<section class="panel panel-angosto" aria-label="Tabla de metas">
+  <form method="post" class="formulario-metas">
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div role="alert" class="error">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="tabla-contenedor">
+      <table>
+        <caption class="visualmente-oculto">Nivel esperado por semestre de permanencia</caption>
+        <thead>
+          <tr><th scope="col">Semestre de permanencia</th><th scope="col">Nivel esperado</th></tr>
+        </thead>
+        <tbody>
+          {% for campo in form %}
+            <tr>
+              <th scope="row"><label for="{{ campo.id_for_label }}">{{ campo.label }}</label></th>
+              <td>
+                {{ campo }}
+                {% if campo.errors %}<div role="alert" class="error">{{ campo.errors }}</div>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    <p class="panel-ayuda">Desde el semestre {{ semestre_siguiente }} de permanencia se espera el nivel máximo de la rúbrica ({{ texto_maximo }}).</p>
+    <div class="acciones">
+      <button type="submit">Guardar metas</button>
+      <a role="button" class="secondary outline" href="{% url 'curso' curso.pk %}">Cancelar</a>
+    </div>
+  </form>
+</section>
 {% endblock %}

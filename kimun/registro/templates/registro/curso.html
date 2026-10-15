@@ -1,56 +1,82 @@
 {% extends "base.html" %}
 {% block titulo %}{{ curso.nombre }}{% endblock %}
-{% block head %}
-<style>
-  /* Las señales llevan color y también texto, por accesibilidad: el color nunca es la única pista. */
-  .senal { display: block; margin-top: .25rem; padding: .1rem .35rem; border-radius: .25rem; font-size: .8rem; line-height: 1.3; }
-  .senal-aviso { background: #fff3cd; color: #4d3800; border-left: .25rem solid #b38600; }
-  .senal-alerta { background: #f8d7da; color: #5c0f17; border-left: .25rem solid #b02a37; font-weight: 600; }
-  .datos { display: block; margin-top: .25rem; font-size: .75rem; color: var(--pico-muted-color); }
-  .tabla-curso th[scope="row"] { position: sticky; left: 0; background: var(--pico-background-color); z-index: 1; }
-  .tabla-curso td, .tabla-curso th { vertical-align: top; min-width: 7rem; }
-  .tabla-curso th[scope="row"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
-  .sin-observaciones th, .sin-observaciones td { background: #fff3cd; color: #4d3800; }
-  .distribucion td.mayoria { font-weight: 700; text-decoration: underline; }
-  .navegacion-quincena { display: flex; gap: 1rem; flex-wrap: wrap; }
-</style>
-{% endblock %}
 {% block contenido %}
-<hgroup>
-  <h1>{{ curso.nombre }}</h1>
-  <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ tabla.filas|length }} niños y niñas</p>
-</hgroup>
-{% if puede_validar %}
-  <p>
-    <a href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a>
-    · <a href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
-  </p>
-{% endif %}
+{# Las señales llevan color y también texto, por accesibilidad: el color nunca es la única pista. #}
+{% with total=tabla.filas|length|default:1 %}
+<header class="encabezado-pagina">
+  <div class="encabezado-fila">
+    <hgroup>
+      <h1>{{ curso.nombre }}</h1>
+      <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ tabla.filas|length }} niños y niñas</p>
+    </hgroup>
+    {% if puede_validar %}
+      <div class="acciones-pagina">
+        <span class="principal"><a href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a></span>
+        <a href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
+      </div>
+    {% endif %}
+  </div>
+</header>
+
+{# --- Indicadores --- #}
+<section class="indicadores" aria-labelledby="titulo-indicadores">
+  <h2 id="titulo-indicadores" class="visualmente-oculto">Indicadores del curso</h2>
+  <dl>
+    <div class="indicador{% if tabla.alertas %} indicador-alerta{% endif %}">
+      <dt>Señales «Revisar» <small>Más de 2 niveles bajo la referencia</small></dt>
+      <dd>{{ tabla.alertas }}</dd>
+    </div>
+    <div class="indicador{% if tabla.avisos %} indicador-aviso{% endif %}">
+      <dt>Señales «Observar» <small>2 niveles bajo la referencia</small></dt>
+      <dd>{{ tabla.avisos }}</dd>
+    </div>
+    <div class="indicador">
+      <dt>Niños y niñas con señales</dt>
+      <dd>{{ tabla.ninos_con_senales }} <small>de {{ tabla.filas|length }}</small></dd>
+    </div>
+    <div class="indicador{% if tabla.sin_datos_recientes %} indicador-aviso{% endif %}">
+      <dt>Sin datos recientes <small>Niño y núcleo sin observaciones en {{ dias_datos_recientes }} días</small></dt>
+      <dd>{{ tabla.sin_datos_recientes }} <small>de {{ tabla.total_celdas }}</small></dd>
+    </div>
+    <div class="indicador{% if nucleos_sin_observaciones %} indicador-aviso{% endif %}">
+      <dt>Núcleos sin observaciones <small>En la quincena que se muestra</small></dt>
+      <dd>{{ nucleos_sin_observaciones|length }} <small>de {{ cobertura_quincena|length }}</small></dd>
+    </div>
+    {% if puede_validar %}
+      <div class="indicador{% if pendientes_por_revisar %} indicador-destacado{% endif %}">
+        <dt>Observaciones por revisar</dt>
+        <dd>{{ pendientes_por_revisar }}</dd>
+      </div>
+    {% endif %}
+  </dl>
+</section>
 
 {# --- Resumen de la quincena --- #}
-<section aria-labelledby="titulo-quincena">
-  <h2 id="titulo-quincena">
-    Quincena del {{ quincena.inicio|date:"j" }} al {{ quincena.fin|date:"j \d\e F \d\e Y" }}{% if es_quincena_actual %} (actual){% endif %}
-  </h2>
-  <nav class="navegacion-quincena" aria-label="Quincenas">
-    <a href="?quincena={{ quincena_anterior.inicio|date:'Y-m-d' }}">← Quincena anterior ({{ quincena_anterior.inicio|date:"j" }} al {{ quincena_anterior.fin|date:"j \d\e F" }})</a>
-    {% if quincena_siguiente %}
-      <a href="?quincena={{ quincena_siguiente.inicio|date:'Y-m-d' }}">Quincena siguiente ({{ quincena_siguiente.inicio|date:"j" }} al {{ quincena_siguiente.fin|date:"j \d\e F" }}) →</a>
-      <a href="{{ request.path }}">Volver a la quincena actual</a>
-    {% endif %}
-  </nav>
+<section id="quincena" class="panel" aria-labelledby="titulo-quincena">
+  <div class="panel-encabezado">
+    <h2 id="titulo-quincena">
+      Quincena del {{ quincena.inicio|date:"j" }} al {{ quincena.fin|date:"j \d\e F \d\e Y" }}{% if es_quincena_actual %} (actual){% endif %}
+    </h2>
+    <nav class="navegacion-quincena" aria-label="Quincenas">
+      <a href="?quincena={{ quincena_anterior.inicio|date:'Y-m-d' }}#quincena">← Quincena anterior ({{ quincena_anterior.inicio|date:"j" }} al {{ quincena_anterior.fin|date:"j \d\e F" }})</a>
+      {% if quincena_siguiente %}
+        <a href="?quincena={{ quincena_siguiente.inicio|date:'Y-m-d' }}#quincena">Quincena siguiente ({{ quincena_siguiente.inicio|date:"j" }} al {{ quincena_siguiente.fin|date:"j \d\e F" }}) →</a>
+        <a href="{{ request.path }}#quincena">Volver a la quincena actual</a>
+      {% endif %}
+    </nav>
+  </div>
   {% if nucleos_sin_observaciones %}
-    <p role="status">
+    <p role="status" class="nota nota-aviso">
       <strong>{{ nucleos_sin_observaciones|length }} de {{ cobertura_quincena|length }} núcleos sin observaciones en esta quincena:</strong>
       {% for n in nucleos_sin_observaciones %}{{ n.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}.
       Sugerencia: considerarlos al planificar las experiencias.
     </p>
   {% else %}
-    <p role="status">Todos los núcleos tienen observaciones en esta quincena.</p>
+    <p role="status" class="nota nota-ok">Todos los núcleos tienen observaciones en esta quincena.</p>
   {% endif %}
-  <div class="overflow-auto">
-    <table>
-      <caption>Observaciones aceptadas por núcleo en la quincena</caption>
+  <div class="tabla-contenedor">
+    <table class="tabla-quincena">
+      <caption class="visualmente-oculto">Observaciones aceptadas por núcleo en la quincena</caption>
       <thead>
         <tr>
           <th scope="col">Núcleo</th>
@@ -63,7 +89,12 @@
           <tr{% if c.sin_observaciones %} class="sin-observaciones"{% endif %}>
             <th scope="row">{{ c.nucleo.nombre }} ({{ c.nucleo.sigla }})</th>
             <td>{{ c.observaciones }}{% if c.sin_observaciones %} · Sin observaciones{% endif %}</td>
-            <td>{{ c.ninos }} de {{ tabla.filas|length }}</td>
+            <td>
+              <span class="cobertura">
+                <span>{{ c.ninos }} de {{ tabla.filas|length }}</span>
+                <span class="barra" style="--valor: {{ c.ninos }}; --total: {{ total }}" aria-hidden="true"></span>
+              </span>
+            </td>
           </tr>
         {% endfor %}
       </tbody>
@@ -72,17 +103,27 @@
 </section>
 
 {# --- Tabla del curso --- #}
-<section aria-labelledby="titulo-tabla">
-  <h2 id="titulo-tabla">Niveles por núcleo</h2>
-  <p>
-    Cada celda muestra el nivel actual validado. Las señales son sugerencias de revisión, no diagnósticos:
-    «Observar» cuando el niño o niña está 2 niveles bajo la referencia y «Revisar» cuando está más de 2 niveles bajo ella.
-    La referencia principal es la mediana del curso; la otra es el nivel esperado según su semestre en el curso.
-    «Sin datos» o «Datos de hace N días» indican que conviene registrar observaciones recientes (más de {{ dias_datos_recientes }} días sin observaciones aceptadas).
-  </p>
-  <div class="overflow-auto">
+<section id="niveles" class="panel" aria-labelledby="titulo-tabla">
+  <div class="panel-encabezado">
+    <h2 id="titulo-tabla">Niveles por núcleo</h2>
+    <ul class="leyenda" aria-label="Leyenda de señales">
+      <li><span class="muestra muestra-aviso">Observar</span> 2 niveles bajo la referencia</li>
+      <li><span class="muestra muestra-alerta">Revisar</span> más de 2 niveles bajo la referencia</li>
+    </ul>
+  </div>
+  <p class="panel-ayuda">Nivel actual validado de cada niño o niña. Las señales son sugerencias de revisión, no diagnósticos.</p>
+  <details class="ayuda">
+    <summary>Cómo leer la tabla</summary>
+    <p>
+      Cada celda muestra el nivel actual validado. Las señales son sugerencias de revisión, no diagnósticos:
+      «Observar» cuando el niño o niña está 2 niveles bajo la referencia y «Revisar» cuando está más de 2 niveles bajo ella.
+      La referencia principal es la mediana del curso; la otra es el nivel esperado según su semestre en el curso.
+      «Sin datos» o «Datos de hace N días» indican que conviene registrar observaciones recientes (más de {{ dias_datos_recientes }} días sin observaciones aceptadas).
+    </p>
+  </details>
+  <div class="tabla-contenedor tabla-alta">
     <table class="tabla-curso">
-      <caption>Nivel actual validado, comparación con el curso y nivel esperado, por núcleo</caption>
+      <caption class="visualmente-oculto">Nivel actual validado, comparación con el curso y nivel esperado, por núcleo</caption>
       <thead>
         <tr>
           <th scope="col">Niño o niña</th>
@@ -99,8 +140,8 @@
               </small>
             </th>
             {% for celda in fila.celdas %}
-              <td>
-                {{ celda.texto_nivel }}
+              <td class="celda-{{ celda.gravedad.value }}">
+                <span class="nivel">{{ celda.texto_nivel }}</span>
                 {% for brecha in celda.senales %}
                   <span class="senal senal-{{ brecha.gravedad.value }}">{{ brecha.texto }}</span>
                 {% endfor %}
@@ -117,12 +158,14 @@
 </section>
 
 {# --- Distribución del curso --- #}
-<section aria-labelledby="titulo-distribucion">
-  <h2 id="titulo-distribucion">Distribución del curso</h2>
-  <p>Cuántos niños y niñas hay en cada nivel de la rúbrica ({{ tabla.nivel_maximo }} niveles), por núcleo. El nivel con más niños va subrayado.</p>
-  <div class="overflow-auto">
-    <table class="distribucion">
-      <caption>Niños y niñas por nivel en cada núcleo</caption>
+<section id="distribucion" class="panel" aria-labelledby="titulo-distribucion">
+  <div class="panel-encabezado">
+    <h2 id="titulo-distribucion">Distribución del curso</h2>
+  </div>
+  <p class="panel-ayuda">Cuántos niños y niñas hay en cada nivel de la rúbrica ({{ tabla.nivel_maximo }} niveles), por núcleo. El color es más intenso donde hay más niños y el nivel con más niños va subrayado.</p>
+  <div class="tabla-contenedor">
+    <table class="distribucion" style="--total: {{ total }}">
+      <caption class="visualmente-oculto">Niños y niñas por nivel en cada núcleo</caption>
       <thead>
         <tr>
           <th scope="col">Núcleo</th>
@@ -136,7 +179,7 @@
           <tr>
             <th scope="row"><abbr title="{{ d.nucleo.nombre }}">{{ d.nucleo.sigla }}</abbr></th>
             {% for nivel, cantidad in d.conteos %}
-              <td{% if nivel in d.mas_frecuentes %} class="mayoria"{% endif %}>{{ cantidad }}</td>
+              <td class="conteo{% if nivel in d.mas_frecuentes %} mayoria{% endif %}" style="--cantidad: {{ cantidad }}">{{ cantidad }}</td>
             {% endfor %}
             <td>{{ d.texto_mas_frecuentes }}</td>
             <td>{{ d.texto_mediana }}</td>
@@ -146,4 +189,5 @@
     </table>
   </div>
 </section>
+{% endwith %}
 {% endblock %}

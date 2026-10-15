@@ -1,0 +1,8 @@
+{# Mensajes de django.contrib.messages. Lo usan base.html y las respuestas parciales de HTMX. #}
+{% if messages %}
+  <ul class="mensajes" role="status">
+    {% for message in messages %}
+      <li class="mensaje{% if message.tags %} mensaje-{{ message.tags }}{% endif %}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}

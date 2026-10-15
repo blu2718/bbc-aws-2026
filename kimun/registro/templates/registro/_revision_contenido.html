@@ -1,15 +1,11 @@
 {# Todo lo que se vuelve a dibujar con "Aceptar todas". En la página completa, base.html ya muestra los mensajes. #}
 <div id="revision-contenido">
-  {% if parcial and messages %}
-    <ul role="status">
-      {% for message in messages %}<li>{{ message }}</li>{% endfor %}
-    </ul>
-  {% endif %}
+  {% if parcial %}{% include "_mensajes.html" %}{% endif %}
   {% include "registro/_resumen_revision.html" %}
 
   {% for grupo in revision.grupos_con_individuales %}
     {% with captura=grupo.captura %}
-      <section id="captura-{{ captura.pk }}" aria-labelledby="titulo-captura-{{ captura.pk }}">
+      <section id="captura-{{ captura.pk }}" class="captura" aria-labelledby="titulo-captura-{{ captura.pk }}">
         <h2 id="titulo-captura-{{ captura.pk }}">
           {{ captura.get_tipo_display }} de {{ captura.autora.get_full_name|default:captura.autora.username }}
           <small>· {{ captura.creada|date:"j \d\e F, H:i" }} · {{ grupo.total }} observaci{{ grupo.total|pluralize:"ón,ones" }}</small>
@@ -20,7 +16,7 @@
             <p>{{ captura.texto_original|default:captura.texto_extraido|linebreaksbr }}</p>
           </details>
         {% endif %}
-        <form method="post" action="{% url 'captura_aceptar_todas' captura.pk %}"
+        <form class="aceptar-todas" method="post" action="{% url 'captura_aceptar_todas' captura.pk %}"
               hx-post="{% url 'captura_aceptar_todas' captura.pk %}" hx-target="#revision-contenido" hx-swap="outerHTML">
           {% csrf_token %}
           <button type="submit"{% if grupo.sin_nino %} aria-describedby="aviso-captura-{{ captura.pk }}"{% endif %}>Aceptar todas las de esta captura</button>
@@ -36,7 +32,7 @@
   {% endfor %}
 
   {% if revision.grupales %}
-    <section aria-labelledby="titulo-contexto">
+    <section class="captura captura-contexto" aria-labelledby="titulo-contexto">
       <h2 id="titulo-contexto">Contexto del curso</h2>
       <p>Notas sobre el grupo completo. Al aceptarlas quedan como contexto del curso y no se usan para evaluar.</p>
       {% for captura, obs in revision.grupales %}

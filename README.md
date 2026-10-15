@@ -54,13 +54,14 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/registro/ficha.py` | Datos de la ficha del niño por núcleo: rúbrica del nivel actual y del siguiente, evolución, cobertura por OA, observaciones y situación frente al curso (sale de `alertas.tabla_del_curso`) |
 | `kimun/registro/forms.py` | `FijarNivelForm` (niveles del 1 al máximo de la rúbrica) y `MetasForm` (nivel esperado por semestre de permanencia) |
 | `kimun/registro/revision.py`, `kimun/registro/views_revision.py` | Revisión de observaciones pendientes (Task 6): agrupar por captura, aceptar, editar, descartar, asignar niño y "aceptar todas". Solo la educadora del curso; las vistas responden a HTMX y también sin JavaScript |
-| `kimun/registro/contexto.py` | Context processor con el contador de pendientes de la barra de navegación (solo para quien revisa) |
+| `kimun/registro/contexto.py` | Context processors del menú lateral: `revision` (contador de pendientes, solo para quien revisa) y `navegacion` (cursos que el usuario ve, filtrados con `cursos_de`, su rol y la sección actual) |
 | `kimun/registro/grafico.py` | SVG de la evolución de niveles por núcleo, con tabla equivalente en `_evolucion.html` |
 | `kimun/registro/permisos.py` | `cursos_de(usuario)` para ver, `cursos_donde_registra` para capturar y `cursos_que_valida` para revisar y validar: filtro obligatorio en toda vista con datos de un curso. `ninos_de` y `ninos_que_valida` hacen lo mismo para la ficha |
 | `kimun/registro/management/commands/cargar_demo.py` | Currículo, semestres y curso de demo con 15 niños ficticios, niveles históricos y unas 40 observaciones aceptadas (fechas contadas desde el día de la carga, o desde `--hoy AAAA-MM-DD`) |
-| `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
+| `kimun/templates/`, `kimun/registro/templates/` | Plantillas base (con el menú lateral `_menu_lateral.html` y los mensajes `_mensajes.html`), login, panel del curso, ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
-| `kimun/static/registro/registro.css` | Estilos de la ficha y de la revisión (colores de las señales con contraste ≥ 4,5:1) |
+| `kimun/static/registro/registro.css` | Tema claro sobre Pico para todas las páginas: menú lateral, indicadores, paneles, tablas con encabezado fijo y señales (colores con contraste ≥ 4,5:1, siempre con texto) |
+| `kimun/static/registro/menu.js` | Menú hamburguesa en pantallas de menos de 1024 px: abrir y cerrar, velo, Escape y foco. Sin JavaScript, el menú se muestra sobre el contenido |
 | `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json` |
 | `scripts/extraer_curriculo.py` | Regenera el currículo desde el PDF, que no se versiona: descargarlo desde <https://www.curriculumnacional.cl/614/articles-210511_programa.pdf> a `contexto/programa-pedagogico-transicion-mineduc.pdf` y correr `python -X utf8 scripts/extraer_curriculo.py --todos` (requiere `pdftotext` de Poppler; en Windows, `winget install oschwartz10612.Poppler`) |
 

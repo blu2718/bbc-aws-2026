@@ -1,29 +1,65 @@
 {% extends "base.html" %}
-{% load static %}
 {% block titulo %}{{ ficha.nino.nombre }}{% endblock %}
-{% block head %}<link rel="stylesheet" href="{% static 'registro/registro.css' %}">{% endblock %}
 {% block contenido %}
-<p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
-<h1>{{ ficha.nino.nombre }}</h1>
-<p>{{ curso.nombre }} · {{ curso.jardin.nombre }} · Ingreso: <time datetime="{{ ficha.nino.fecha_ingreso|date:'Y-m-d' }}">{{ ficha.nino.fecha_ingreso|date:"d-m-Y" }}</time></p>
-{% if ficha.puede_validar %}<p><a href="{% url 'metas' curso.pk %}">Editar metas del curso</a></p>{% endif %}
-
-<nav aria-label="Núcleos">
-  <div class="overflow-auto">
-    <table>
-      <caption>Resumen por núcleo</caption>
-      <thead><tr><th scope="col">Núcleo</th><th scope="col">Nivel actual</th></tr></thead>
-      <tbody>
-        {% for nf in ficha.nucleos %}
-          <tr>
-            <th scope="row"><a href="#nucleo-{{ nf.nucleo.sigla }}">{{ nf.nucleo.nombre }}</a></th>
-            <td>{{ nf.texto_actual }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+<header class="encabezado-pagina">
+  <nav class="migas" aria-label="Ruta de navegación">
+    <ol>
+      <li><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a></li>
+      <li><span aria-current="page">{{ ficha.nino.nombre }}</span></li>
+    </ol>
+  </nav>
+  <div class="encabezado-fila">
+    <hgroup>
+      <h1>{{ ficha.nino.nombre }}</h1>
+      <p>{{ curso.nombre }} · {{ curso.jardin.nombre }} · Ingreso: <time datetime="{{ ficha.nino.fecha_ingreso|date:'Y-m-d' }}">{{ ficha.nino.fecha_ingreso|date:"d-m-Y" }}</time></p>
+    </hgroup>
+    {% if ficha.puede_validar %}
+      <div class="acciones-pagina"><a href="{% url 'metas' curso.pk %}">Editar metas del curso</a></div>
+    {% endif %}
   </div>
-</nav>
+</header>
+
+<section class="panel" aria-labelledby="titulo-resumen">
+  <div class="panel-encabezado">
+    <h2 id="titulo-resumen">Resumen por núcleo</h2>
+  </div>
+  <nav aria-label="Núcleos">
+    <div class="tabla-contenedor">
+      <table class="tabla-resumen">
+        <caption class="visualmente-oculto">Nivel actual, nivel esperado, mediana del curso y señales por núcleo</caption>
+        <thead>
+          <tr>
+            <th scope="col">Núcleo</th>
+            <th scope="col">Nivel actual</th>
+            <th scope="col">Esperado</th>
+            <th scope="col">Mediana del curso</th>
+            <th scope="col">Señales y datos</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for nf in ficha.nucleos %}
+            <tr>
+              <th scope="row"><a href="#nucleo-{{ nf.nucleo.sigla }}">{{ nf.nucleo.nombre }}</a></th>
+              <td>
+                <span class="nivel">{{ nf.texto_actual }}</span>
+                {% if nf.provisorio %}<span class="etiqueta-provisoria">Provisoria</span>{% endif %}
+              </td>
+              <td>{{ nf.situacion.esperado|default:"–" }}</td>
+              <td>{{ nf.situacion.texto_mediana|default:"–" }}</td>
+              <td>
+                {% for senal in nf.situacion.senales %}
+                  <span class="senal senal-{{ senal.gravedad.value }}">{{ senal.texto }}</span>
+                {% endfor %}
+                {% if nf.aviso_datos %}<span class="datos">{{ nf.aviso_datos }}</span>{% endif %}
+                {% if not nf.situacion.senales and not nf.aviso_datos %}<span class="datos">Sin señales</span>{% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </nav>
+</section>
 
 {% for nf in ficha.nucleos %}
   {% include "registro/_nucleo_ficha.html" with nf=nf %}

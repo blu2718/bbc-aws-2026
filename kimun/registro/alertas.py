@@ -269,6 +269,31 @@ class TablaCurso:
     nivel_maximo: int
     hoy: date
 
+    # Totales para los indicadores sobre la tabla del curso.
+
+    @property
+    def alertas(self):
+        """Celdas (niño × núcleo) con señal «Revisar»."""
+        return sum(f.alertas for f in self.filas)
+
+    @property
+    def avisos(self):
+        """Celdas (niño × núcleo) con señal «Observar»."""
+        return sum(f.avisos for f in self.filas)
+
+    @property
+    def ninos_con_senales(self):
+        return sum(1 for f in self.filas if f.alertas or f.avisos)
+
+    @property
+    def total_celdas(self):
+        return len(self.filas) * len(self.nucleos)
+
+    @property
+    def sin_datos_recientes(self):
+        """Celdas sin observaciones aceptadas o con datos de más de DIAS_DATOS_RECIENTES días."""
+        return sum(1 for f in self.filas for c in f.celdas if c.datos != EstadoDatos.AL_DIA)
+
 
 def calcular_tabla(ninos, nucleos, niveles, ultimas_fechas, metas, semestres, nivel_maximo, hoy, nombres=None):
     """Arma la tabla del curso. Pura: no consulta la base.

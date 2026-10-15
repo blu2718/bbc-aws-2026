@@ -1,0 +1,87 @@
+{% comment %}
+Menú lateral. En pantallas de 1024 px o más queda fijo a la izquierda; en el teléfono se abre con el
+botón «Menú» de la barra superior (static/registro/menu.js). Sin JavaScript se muestra sobre el contenido.
+
+- Los cursos salen de registro.contexto.navegacion, filtrados con `cursos_de`: nunca enlaza a un curso ajeno.
+- «Metas del curso» y el contador de pendientes son solo para la educadora del curso. Las asistentes y la
+  directora no ven enlaces a la revisión (test_la_barra_no_muestra_el_contador_a_quien_no_revisa).
+- `menu_seccion` marca la página actual con aria-current="page".
+{% endcomment %}
+<aside id="menu-lateral" class="menu-lateral" aria-label="Menú">
+  <div class="menu-marca">
+    <a class="marca" href="{% url 'inicio' %}">
+      <span class="marca-logo" aria-hidden="true">K</span>
+      <span class="marca-texto">Kimün <small>Registro pedagógico</small></span>
+    </a>
+  </div>
+
+  <nav class="menu-nav" aria-label="Principal">
+    <ul>
+      <li>
+        <a class="menu-enlace" href="{% url 'inicio' %}"{% if menu_seccion == "inicio" %} aria-current="page"{% endif %}>Mis cursos</a>
+      </li>
+    </ul>
+
+    {% for item in menu_cursos %}
+      {% with c=item.curso %}
+        <p class="menu-grupo" id="menu-curso-{{ c.pk }}">{{ c.nombre }}</p>
+        <ul aria-labelledby="menu-curso-{{ c.pk }}">
+          <li>
+            <a class="menu-enlace" href="{% url 'curso' c.pk %}"{% if menu_seccion == "curso" and curso.pk == c.pk %} aria-current="page"{% endif %}>Panel del curso</a>
+          </li>
+          <li><a class="menu-enlace menu-subenlace" href="{% url 'curso' c.pk %}#quincena">Quincena</a></li>
+          <li><a class="menu-enlace menu-subenlace" href="{% url 'curso' c.pk %}#niveles">Niveles por núcleo</a></li>
+          <li><a class="menu-enlace menu-subenlace" href="{% url 'curso' c.pk %}#distribucion">Distribución</a></li>
+          {% if item.valida %}
+            <li>
+              <a class="menu-enlace" href="{% url 'metas' c.pk %}"{% if menu_seccion == "metas" and curso.pk == c.pk %} aria-current="page"{% endif %}>Metas del curso</a>
+            </li>
+          {% endif %}
+          {# Task 5: «Registrar observación» va aquí, para la educadora y las asistentes (cursos_donde_registra). #}
+          <li>
+            <details class="menu-ninos"{% if menu_seccion == "ficha" and curso.pk == c.pk %} open{% endif %}>
+              <summary>Niños y niñas <span class="menu-cuenta">{{ item.ninos|length }}</span></summary>
+              <ul>
+                {% for n in item.ninos %}
+                  <li>
+                    <a class="menu-enlace menu-subenlace" href="{% url 'ficha' n.pk %}"{% if menu_seccion == "ficha" and ficha.nino.pk == n.pk %} aria-current="page"{% endif %}>{{ n.nombre }}</a>
+                  </li>
+                {% empty %}
+                  <li class="menu-vacio">Sin niños ni niñas todavía</li>
+                {% endfor %}
+              </ul>
+            </details>
+          </li>
+        </ul>
+      {% endwith %}
+    {% endfor %}
+
+    {% if cursos_por_revisar %}
+      <p class="menu-grupo" id="menu-gestion">Gestión</p>
+      <ul aria-labelledby="menu-gestion">
+        {% include "registro/_contador_pendientes.html" %}
+      </ul>
+    {% endif %}
+
+    {% if user.is_staff %}
+      <p class="menu-grupo" id="menu-sistema">Sistema</p>
+      <ul aria-labelledby="menu-sistema">
+        <li><a class="menu-enlace" href="{% url 'admin:index' %}">Administración</a></li>
+      </ul>
+    {% endif %}
+  </nav>
+
+  <div class="menu-usuario">
+    <div class="usuario">
+      <span class="avatar" aria-hidden="true">{% firstof user.first_name|slice:":1" user.username|slice:":1" %}{{ user.last_name|slice:":1" }}</span>
+      <span class="usuario-datos">
+        <span class="usuario-nombre">{{ user.get_full_name|default:user.username }}</span>
+        {% if menu_rol %}<span class="usuario-rol">{{ menu_rol }}</span>{% endif %}
+      </span>
+    </div>
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit" class="secondary outline">Cerrar sesión</button>
+    </form>
+  </div>
+</aside>
