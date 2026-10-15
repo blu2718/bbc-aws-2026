@@ -3,9 +3,10 @@
 {% block contenido %}
 <h1>{{ curso.nombre }}</h1>
 <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ filas|length }} niños y niñas</p>
+{% if puede_validar %}<p><a href="{% url 'metas' curso.pk %}">Editar metas del curso</a></p>{% endif %}
 
-{# Esqueleto: solo nivel actual. Nivel esperado, brechas y quincena llegan en la Task 2. #}
-<div style="overflow-x: auto">
+{# Nivel esperado, brechas, distribución y quincena llegan en la Task 2. #}
+<div class="overflow-auto">
 <table>
   <caption>Nivel actual validado por núcleo</caption>
   <thead>
@@ -17,8 +18,8 @@
   <tbody>
     {% for fila in filas %}
       <tr>
-        <th scope="row">{{ fila.nino.nombre }}</th>
-        {% for nv in fila.niveles %}<td>{{ nv.nivel|default:"–" }}</td>{% endfor %}
+        <th scope="row"><a href="{% url 'ficha' fila.nino.pk %}">{{ fila.nino.nombre }}</a></th>
+        {% for texto in fila.niveles %}<td>{{ texto|default:"–" }}</td>{% endfor %}
       </tr>
     {% endfor %}
   </tbody>

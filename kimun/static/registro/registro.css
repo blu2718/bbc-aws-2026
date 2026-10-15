@@ -1,0 +1,55 @@
+/* Ajustes mínimos sobre Pico.css para la ficha (spec task3-ficha-nino, sección 6).
+   Los colores de las señales tienen contraste de al menos 4,5:1 con el fondo
+   de Pico en modo claro (#fff) y oscuro (#13171f). El color siempre va
+   acompañado de texto. */
+
+:root {
+  --kimun-aviso: #7a4a00;      /* 7,4:1 sobre blanco */
+  --kimun-alerta: #a3122a;     /* 7,3:1 sobre blanco */
+  --kimun-ok: #1e6b35;         /* 6,5:1 sobre blanco */
+  --kimun-provisoria: #4a5160; /* 8,0:1 sobre blanco */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --kimun-aviso: #ffc66d;
+    --kimun-alerta: #ff9aa8;
+    --kimun-ok: #8fe0a6;
+    --kimun-provisoria: #c2c8d4;
+  }
+}
+
+[data-theme="dark"] {
+  --kimun-aviso: #ffc66d;
+  --kimun-alerta: #ff9aa8;
+  --kimun-ok: #8fe0a6;
+  --kimun-provisoria: #c2c8d4;
+}
+
+.nucleo-ficha {
+  border-top: 1px solid var(--pico-muted-border-color);
+  padding-top: var(--pico-spacing);
+  scroll-margin-top: var(--pico-spacing);
+}
+
+.etiqueta-provisoria {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0 0.4rem;
+  border: 1px solid currentColor;
+  border-radius: var(--pico-border-radius);
+  color: var(--kimun-provisoria);
+  font-size: 0.85em;
+}
+
+.situacion { padding-left: 1rem; }
+
+.senal { font-weight: 600; }
+.senal-aviso { color: var(--kimun-aviso); }
+.senal-alerta { color: var(--kimun-alerta); }
+
+.mensaje-ok { color: var(--kimun-ok); font-weight: 600; }
+
+.sin-evidencia td:last-child { color: var(--kimun-aviso); }
+
+.evolucion { margin: 0 0 0.5rem; }
