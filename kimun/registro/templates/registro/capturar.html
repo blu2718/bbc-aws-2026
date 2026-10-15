@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Registrar una nota · {{ curso.nombre }}{% endblock %}
+{% block contenido %}
+<p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
+<h1>Registrar una nota</h1>
+
+<form method="post">
+  {% csrf_token %}
+  <label for="{{ form.texto.id_for_label }}">{{ form.texto.label }}</label>
+  {{ form.texto }}
+  <small id="id_texto-ayuda">{{ form.texto.help_text }}</small>
+  {% if form.texto.errors %}<div role="alert">{{ form.texto.errors }}</div>{% endif %}
+  <button type="submit">Guardar nota</button>
+</form>
+
+{% include "registro/_capturas_recientes.html" %}
+{% endblock %}

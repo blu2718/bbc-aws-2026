@@ -20,10 +20,14 @@
   <h1>{{ curso.nombre }}</h1>
   <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ tabla.filas|length }} niños y niñas</p>
 </hgroup>
-{% if puede_validar %}
+{% if puede_registrar or puede_validar %}
   <p>
-    <a href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a>
-    · <a href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
+    {% if puede_registrar %}<a href="{% url 'capturar' curso.pk %}">Registrar una nota</a>{% endif %}
+    {% if puede_validar %}
+      {% if puede_registrar %}·{% endif %}
+      <a href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a>
+      · <a href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
+    {% endif %}
   </p>
 {% endif %}
 

@@ -107,6 +107,7 @@ class ObservacionInline(admin.TabularInline):
 class CapturaAdmin(admin.ModelAdmin):
     list_display = ["id", "tipo", "curso", "autora", "estado", "creada"]
     list_filter = ["tipo", "estado", "curso"]
+    readonly_fields = ["error"]
     inlines = [ObservacionInline]
 
 

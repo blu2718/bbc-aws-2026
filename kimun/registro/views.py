@@ -18,7 +18,14 @@ from .cobertura import cobertura_quincena_del_curso, quincena_de
 from .ficha import armar_ficha, descriptores_del_nucleo
 from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, etiqueta_nivel, nombres_comunes
 from .models import DescriptorNivel, Nucleo, Rubrica, texto_nivel
-from .permisos import cursos_de, cursos_que_valida, ninos_de, ninos_que_valida, puede_validar
+from .permisos import (
+    cursos_de,
+    cursos_donde_registra,
+    cursos_que_valida,
+    ninos_de,
+    ninos_que_valida,
+    puede_validar,
+)
 from .revision import resumen_pendientes
 
 
@@ -65,6 +72,7 @@ def curso(request, curso_id):
         "nucleos_sin_observaciones": [c.nucleo for c in cobertura if c.sin_observaciones],
         "dias_datos_recientes": DIAS_DATOS_RECIENTES,
         "puede_validar": valida,
+        "puede_registrar": cursos_donde_registra(request.user).filter(pk=curso.pk).exists(),
         "pendientes_por_revisar": resumen_pendientes(curso)["individuales"] if valida else 0,
     })
 
