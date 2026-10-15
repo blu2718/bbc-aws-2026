@@ -50,7 +50,9 @@ def test_la_demo_de_sala_cuna_se_carga_aparte(db, settings):
     call_command("cargar_demo", stdout=salida)
     call_command("cargar_demo", "--demo", str(settings.DATOS_DIR / "demo_sala_cuna.json"), stdout=salida)
 
-    principal = Curso.objects.get(nivel_educativo=NivelEducativo.TRANSICION)
+    # La demo principal trae tres salas de Transición (A, B y C, Task 12); la sala de la educadora es la A.
+    principal = Curso.objects.get(nivel_educativo=NivelEducativo.TRANSICION, nombre="Transición Mayor A")
+    assert Curso.objects.filter(nivel_educativo=NivelEducativo.TRANSICION).count() == 3
     sala_cuna = Curso.objects.get(nivel_educativo=NivelEducativo.SALA_CUNA)
     assert principal.educadora.username == "educadora" and principal.ninos.count() == 15
     assert sala_cuna.educadora.username == "educadora.salacuna" and sala_cuna.ninos.count() == 6

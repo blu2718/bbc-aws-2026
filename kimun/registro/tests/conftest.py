@@ -107,6 +107,13 @@ def directora_del_jardin(jardin, directora):
 
 
 @pytest.fixture
+def directora_de_otro_jardin(directora):
+    """Dirige otro jardín: no ve ni registra en los cursos del jardín de prueba."""
+    Jardin.objects.create(nombre="Otro jardín", directora=directora)
+    return directora
+
+
+@pytest.fixture
 def observar_en(curso, educadora):
     """Crea observaciones del niño etiquetadas con núcleos (y OA, si se pasan)."""
     captura = Captura.objects.create(curso=curso, autora=educadora, tipo=Captura.Tipo.TEXTO, texto_original="x")

@@ -113,7 +113,7 @@ def test_el_umbral_se_puede_configurar(settings):
 
 
 def test_en_la_demo_nayara_es_naiara_y_sofia_es_ambigua(cargada):
-    ninos = list(Curso.objects.get().ninos.all())
+    ninos = list(Curso.objects.get(nombre="Transición Mayor A").ninos.all())
     assert _nombre("Nayara", ninos) == ("Naiara Fuentes", EXACTA)
     assert _nombre("Naiara", ninos) == ("Naiara Fuentes", EXACTA)
     assert _nombre("Sofía", ninos) == (None, AMBIGUO)

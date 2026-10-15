@@ -2,6 +2,9 @@
 {% block titulo %}Mis cursos{% endblock %}
 {% block contenido %}
 <h1>Mis cursos</h1>
+{% for j in jardines %}
+  <p><a href="{% url 'jardin' j.pk %}">Resumen de {{ j.nombre }}</a>: compara las salas de tu jardín.</p>
+{% endfor %}
 {% if cursos %}
   <ul class="lista-cursos">
     {% for curso in cursos %}

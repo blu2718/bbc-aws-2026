@@ -26,13 +26,14 @@ def test_con_un_solo_curso_va_directo_a_registrar(client, curso, educadora, asis
         assert respuesta["Location"] == reverse("registrar", args=[curso.pk])
 
 
-def test_la_directora_con_un_solo_curso_va_a_la_tabla(client, curso, directora, jardin):
+def test_la_directora_con_un_solo_curso_va_al_resumen_de_su_jardin(client, curso, directora, jardin):
+    """Aunque registra en ese curso (Task 12), la directora parte en el resumen de su jardín."""
     jardin.directora = directora
     jardin.save()
     client.force_login(directora)
     respuesta = client.get(reverse("inicio"))
     assert respuesta.status_code == 302
-    assert respuesta["Location"] == reverse("curso", args=[curso.pk])
+    assert respuesta["Location"] == reverse("jardin", args=[jardin.pk])
 
 
 def test_curso_muestra_ninos_y_niveles(client, curso, educadora, nucleos):
