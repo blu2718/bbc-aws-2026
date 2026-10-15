@@ -260,6 +260,9 @@ def _extraer_observaciones(entrada):
             observaciones = json.loads(observaciones)
         except ValueError as error:
             raise ErrorSeparacion(f"'observaciones' no es JSON válido: {error}") from error
+    # Y a veces ese texto trae el objeto completo, {"observaciones": [...]}, en vez de solo la lista.
+    if isinstance(observaciones, dict) and "observaciones" in observaciones:
+        observaciones = observaciones["observaciones"]
     if not isinstance(observaciones, list):
         raise ErrorSeparacion("La respuesta no trae la lista 'observaciones'.")
     return observaciones

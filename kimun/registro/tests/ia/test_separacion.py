@@ -56,6 +56,13 @@ def test_acepta_respuesta_serializada_como_texto(catalogo, cliente_falso):
     assert [o["nombre_detectado"] for o in resultado] == ["Pedro"]
 
 
+def test_acepta_el_objeto_completo_serializado_dentro_de_observaciones(catalogo, cliente_falso):
+    """Visto con Sonnet 5 en la Task 10: el texto de 'observaciones' traía {"observaciones": [...]}."""
+    respuesta = {"observaciones": '{"observaciones":[{"nombre_detectado":"Isi","cita_literal":"convidó su manzana"}]}'}
+    resultado, _ = _separar(respuesta, catalogo, cliente_falso)
+    assert [o["nombre_detectado"] for o in resultado] == ["Isi"]
+
+
 @pytest.mark.parametrize(
     "respuesta",
     [

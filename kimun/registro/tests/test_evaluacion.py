@@ -1,6 +1,6 @@
 """Métricas de la Task 10 sobre resultados conocidos, y `manage.py evaluar` con cliente falso."""
 import json
-from io import StringIO
+from io import BytesIO, StringIO
 from pathlib import Path
 
 import pytest
@@ -10,8 +10,9 @@ from django.core.management import CommandError, call_command
 from registro.coincidencia import emparejar
 from registro.evaluacion import (
     INDICE_EJEMPLO_RESERVADO, ResultadoNota, asignar_ninos, casos_propuesta_ia, costo_usd, diferencias,
-    emparejar_observaciones, metricas_propuestas, metricas_separacion, ninos_del_curso,
+    emparejar_observaciones, errores_palabras, metricas_propuestas, metricas_separacion, ninos_del_curso,
 )
+from registro.ia import ErrorTranscripcion
 from registro.tests.ia.conftest import ClienteFalso
 
 DATOS = Path(settings.DATOS_DIR)
@@ -250,8 +251,10 @@ def test_evaluar_con_respuestas_perfectas_da_100_por_ciento_en_todo_el_set():
                      "Nivel de apoyo correcto", "Fecha correcta", "Interpretación separada"):
         assert _valor(salida, etiqueta).endswith("(100 %)"), etiqueta
     # 9.500 tokens de entrada y 400 de salida con Sonnet 5: 0,0209 + 0,0044 USD.
-    assert _valor(salida, "USD por nota") == "0,0253"
-    assert _valor(salida, "USD por 1.000 notas") == "25,30"
+    assert _valor(salida, "USD de Bedrock por nota") == "0,0253"
+    assert _valor(salida, "USD de Bedrock por 1.000 notas") == "25,30"
+    # Con notas de texto no aparecen las filas de Transcribe.
+    assert "Error de palabras" not in salida
 
 
 def test_evaluar_compara_modelos_y_acepta_alias():
@@ -304,3 +307,128 @@ def test_evaluar_falla_si_todas_las_notas_fallan():
 def test_evaluar_rechaza_ids_que_no_existen():
     with pytest.raises(CommandError, match="n99"):
         _evaluar(ids=["n01", "n99"])
+
+
+# --- Audios: tasa de error de palabras, generar_audios y evaluar --fuente audio ---
+
+def test_errores_de_palabras_sin_tildes_ni_puntuacion():
+    assert errores_palabras("Rubí cruzó el circuito, sin ayuda.", "rubi cruzo el circuito sin ayuda") == (0, 6)
+    # Una palabra cambiada, una que falta y una de más.
+    assert errores_palabras("Pedro ordenó las piedras", "Pedro ordeno piedras grandes") == (2, 4)
+    assert errores_palabras("Pedro ordenó las piedras", "Pedro las ordenó piedras") == (2, 4)
+    assert errores_palabras("", "algo") == (1, 0)
+
+
+def test_metricas_de_audio_suman_palabras_de_todas_las_notas():
+    resultados = [
+        ResultadoNota("n1", [], [], texto_dictado="uno dos tres cuatro", transcripcion="uno dos tres", segundos_transcripcion=10.0),
+        ResultadoNota("n2", [], [], texto_dictado="cinco seis", transcripcion="cinco seis", segundos_transcripcion=20.0),
+    ]
+    m = metricas_separacion(resultados)
+    assert m["errores_palabras"] == {"ediciones": 1, "palabras": 6, "tasa_error": pytest.approx(1 / 6)}
+    assert m["segundos_transcripcion"]["mediana"] == 15.0
+    assert metricas_separacion([ResultadoNota("n1", [], [])])["errores_palabras"] is None
+
+
+class _PollyFalso:
+    def __init__(self):
+        self.pedidos = []
+
+    def synthesize_speech(self, **pedido):
+        self.pedidos.append(pedido)
+        return {"AudioStream": BytesIO(b"ID3" + pedido["Text"].encode("utf-8"))}
+
+
+def test_generar_audios_usa_texto_audio_y_reparte_voces(tmp_path):
+    polly = _PollyFalso()
+    call_command("generar_audios", carpeta=str(tmp_path), polly=polly, stdout=StringIO())
+    assert sorted(p.name for p in tmp_path.iterdir()) == [f"{n['id']}.mp3" for n in SET["notas"]]
+    por_id = dict(zip([n["id"] for n in SET["notas"]], polly.pedidos))
+    n16 = next(n for n in SET["notas"] if n["id"] == "n16")
+    assert por_id["n16"]["Text"] == n16["texto_audio"] and "[ilegible]" not in por_id["n16"]["Text"]
+    assert por_id["n02"]["Text"] == next(n for n in SET["notas"] if n["id"] == "n02")["texto"]
+    assert [p["VoiceId"] for p in polly.pedidos[:5]] == ["Lupe", "Pedro", "Penelope", "Miguel", "Lupe"]
+    assert {p["Engine"] for p in polly.pedidos if p["VoiceId"] in ("Penelope", "Miguel")} == {"standard"}
+    assert all(p["LanguageCode"] == "es-US" and p["OutputFormat"] == "mp3" for p in polly.pedidos)
+
+
+def test_generar_audios_no_repite_los_que_existen_salvo_con_forzar(tmp_path):
+    (tmp_path / "n01.mp3").write_bytes(b"viejo")
+    polly = _PollyFalso()
+    call_command("generar_audios", ids=["n01", "n02"], carpeta=str(tmp_path), polly=polly, stdout=StringIO())
+    assert [p["Text"][:10] for p in polly.pedidos] == [SET["notas"][1]["texto"][:10]]
+    assert (tmp_path / "n01.mp3").read_bytes() == b"viejo"
+    call_command("generar_audios", ids=["n01"], forzar=True, carpeta=str(tmp_path), polly=polly, stdout=StringIO())
+    assert (tmp_path / "n01.mp3").read_bytes().startswith(b"ID3")
+
+
+class _TranscriptorFalso:
+    """Devuelve lo dictado, salvo los ids de `cambios` ({id: texto} o una excepción)."""
+
+    def __init__(self, cambios=None, vocabulario="kimun-eval-abc"):
+        self.cambios = cambios or {}
+        self.vocabulario = vocabulario
+        self.trabajos = []
+
+    def asegurar_vocabulario(self, prefijo, frases):
+        self.frases = frases
+        return self.vocabulario
+
+    def transcribir(self, audio, id_trabajo, prefijo_vocabulario=None, frases=()):
+        self.trabajos.append(id_trabajo)
+        id_nota = id_trabajo.removeprefix("kimun-eval-")
+        cambio = self.cambios.get(id_nota)
+        if isinstance(cambio, Exception):
+            raise cambio
+        return cambio or audio.decode("utf-8")
+
+
+def _audios(carpeta, ids):
+    """Audios falsos cuyo contenido es lo que se dictó (el transcriptor falso lo devuelve tal cual)."""
+    from registro.management.commands.generar_audios import texto_a_dictar
+
+    for nota in SET["notas"]:
+        if nota["id"] in ids:
+            (carpeta / f"{nota['id']}.mp3").write_bytes(texto_a_dictar(nota).encode("utf-8"))
+
+
+def test_evaluar_audio_transcribe_una_vez_y_separa_con_cada_modelo(tmp_path):
+    _audios(tmp_path, ["n01", "n16"])
+    transcriptor = _TranscriptorFalso(cambios={"n16": "20 de abril. Matías midió el mueble con las manos."})
+    salida, errores, clientes = _evaluar(
+        "--modelo", "sonnet", "--modelo", "haiku", "--fuente", "audio", "--audios", str(tmp_path),
+        ids=["n01", "n16"], transcriptor=transcriptor,
+        respuestas=[_respuesta_perfecta(n) for n in SET["notas"] if n["id"] in ("n01", "n16")],
+    )
+    assert errores == ""
+    assert sorted(transcriptor.trabajos) == ["kimun-eval-n01", "kimun-eval-n16"]
+    assert "Naiara" in transcriptor.frases and "Nayara" in transcriptor.frases
+    # El modelo recibe lo transcrito, no la nota escrita.
+    assert "Matías midió el mueble" in clientes[0].llamadas[1]["mensaje"]
+    assert "Vocabulario de nombres: kimun-eval-abc" in salida
+    # n01 se transcribió perfecto; a n16 le faltan las palabras del final. Misma cifra en las dos columnas.
+    n16 = next(n for n in SET["notas"] if n["id"] == "n16")
+    ediciones, palabras_n16 = errores_palabras(n16["texto_audio"], transcriptor.cambios["n16"])
+    _, palabras_n01 = errores_palabras(SET["notas"][0]["texto_audio"], "")
+    esperado = f"{ediciones}/{palabras_n16 + palabras_n01}"
+    assert ediciones > 0 and _valor(salida, "Error de palabras (Transcribe)").count(esperado) == 2
+
+
+def test_evaluar_audio_cuenta_el_error_de_transcripcion_como_nota_con_error(tmp_path):
+    _audios(tmp_path, ["n01", "n02"])
+    nota = next(n for n in SET["notas"] if n["id"] == "n02")
+    salida, errores, clientes = _evaluar(
+        "--fuente", "audio", "--audios", str(tmp_path), ids=["n01", "n02"],
+        transcriptor=_TranscriptorFalso(cambios={"n01": ErrorTranscripcion("FAILED")}, vocabulario=None),
+        respuestas=[_respuesta_perfecta(nota)],
+    )
+    assert "n01: error de transcripción" in errores
+    assert len(clientes[0].llamadas) == 1  # n01 no llega a Bedrock
+    assert _valor(salida, "Notas evaluadas (con error)") == "2 (1)"
+    assert "todavía no está listo" in salida
+
+
+def test_evaluar_audio_avisa_si_faltan_audios(tmp_path):
+    _audios(tmp_path, ["n01"])
+    with pytest.raises(CommandError, match="n02.*generar_audios"):
+        _evaluar("--fuente", "audio", "--audios", str(tmp_path), ids=["n01", "n02"], transcriptor=_TranscriptorFalso())
