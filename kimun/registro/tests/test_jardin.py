@@ -493,11 +493,28 @@ def test_la_vista_funciona_con_9_niveles_y_10_nucleos(client, jardin, educadora,
 
 
 def test_la_directora_llega_al_resumen_desde_el_inicio(client, curso, directora_del_jardin):
+    # Dirige un solo jardín: el inicio la lleva a su resumen, antes que a registrar.
     client.force_login(directora_del_jardin)
     respuesta = client.get(reverse("inicio"))
-    # Aunque vea un solo curso, no se la redirige: el inicio enlaza al resumen.
+    assert respuesta.status_code == 302
+    assert respuesta["Location"] == reverse("jardin", args=[curso.jardin.pk])
+
+    # Dirige dos jardines: el inicio enlaza al resumen de cada uno.
+    otro = Jardin.objects.create(nombre="Otro jardín", directora=directora_del_jardin)
+    respuesta = client.get(reverse("inicio"))
     assert respuesta.status_code == 200
-    assert f'href="{reverse("jardin", args=[curso.jardin.pk])}"' in respuesta.content.decode()
+    html = respuesta.content.decode()
+    assert f'href="{reverse("jardin", args=[curso.jardin.pk])}"' in html
+    assert f'href="{reverse("jardin", args=[otro.pk])}"' in html
+
+
+def test_la_educadora_y_la_asistente_siguen_yendo_a_registrar(client, curso, educadora, asistente_del_curso,
+                                                              directora_del_jardin):
+    for usuaria in (educadora, asistente_del_curso):
+        client.force_login(usuaria)
+        respuesta = client.get(reverse("inicio"))
+        assert respuesta.status_code == 302
+        assert respuesta["Location"] == reverse("registrar", args=[curso.pk])
 
 
 def test_la_tabla_del_curso_enlaza_al_resumen_solo_para_la_directora(client, curso, educadora, directora_del_jardin):

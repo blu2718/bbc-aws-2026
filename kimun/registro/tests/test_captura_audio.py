@@ -144,7 +144,14 @@ def test_sin_archivo_no_se_crea_captura(client, curso, educadora):
     assert respuesta.status_code == 200 and not Captura.objects.exists()
 
 
-@pytest.mark.parametrize("quien", ["otra_educadora", "directora_del_jardin"])
+def test_la_directora_del_jardin_puede_subir(client, curso, directora_del_jardin):
+    """La directora registra en los cursos de su jardín (Task 12)."""
+    client.force_login(directora_del_jardin)
+    assert _subir(client, curso).status_code == 200
+    assert Captura.objects.get().autora == directora_del_jardin
+
+
+@pytest.mark.parametrize("quien", ["otra_educadora", "directora_de_otro_jardin"])
 def test_quien_no_registra_en_el_curso_recibe_404(client, request, curso, quien):
     client.force_login(request.getfixturevalue(quien))
     assert _subir(client, curso).status_code == 404

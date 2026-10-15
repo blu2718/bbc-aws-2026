@@ -43,17 +43,21 @@ def _es_htmx(request):
 def inicio(request):
     """La pestaña de inicio es "¿Qué quieres registrar?" (diseno-interfaz.jpg, pantalla I).
 
-    Quien registra en un solo curso (la educadora o una asistente) va directo
-    ahí. Quien solo ve cursos (la directora) va a la tabla, si es uno solo.
+    La directora de un jardín va al resumen de su jardín (Task 12); si dirige
+    más de uno, ve el inicio con un enlace a cada resumen. Quien registra en un
+    solo curso (la educadora o una asistente) va directo a registrar. Quien solo
+    ve un curso va a su tabla.
     """
-    registra = list(cursos_donde_registra(request.user))
-    if len(registra) == 1:
-        return redirect("registrar", curso_id=registra[0].pk)
-    cursos = cursos_de(request.user).select_related("jardin")
-    if not registra and len(cursos) == 1:
-        return redirect("curso", curso_id=cursos[0].pk)
-    # Task 12: la directora llega desde aquí al resumen de su jardín.
     jardines = list(jardines_que_dirige(request.user))
+    if len(jardines) == 1:
+        return redirect("jardin", jardin_id=jardines[0].pk)
+    registra = list(cursos_donde_registra(request.user))
+    cursos = cursos_de(request.user).select_related("jardin")
+    if not jardines:
+        if len(registra) == 1:
+            return redirect("registrar", curso_id=registra[0].pk)
+        if not registra and len(cursos) == 1:
+            return redirect("curso", curso_id=cursos[0].pk)
     return render(request, "registro/inicio.html", {
         "cursos": cursos, "registra": {c.pk for c in registra}, "jardines": jardines,
     })

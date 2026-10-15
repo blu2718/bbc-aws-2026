@@ -62,12 +62,6 @@ def test_la_directora_registra_en_los_cursos_de_su_jardin(client, curso, otro_cu
     assert Captura.objects.count() == 2
 
 
-@pytest.fixture
-def directora_de_otro_jardin(directora):
-    Jardin.objects.create(nombre="Otro jardín", directora=directora)
-    return directora
-
-
 @pytest.mark.parametrize("quien", ["otra_educadora", "asistente", "directora_de_otro_jardin"])
 def test_no_se_puede_registrar_en_un_curso_ajeno(client, request, curso, quien):
     """Una educadora de otro curso, una asistente de otro curso y la directora de otro jardín reciben 404."""
