@@ -4,11 +4,11 @@ AWS Breaking Barriers Chile 2026. Entrega: viernes 16 de octubre, 14:00 (MVP + p
 
 ## Problema
 
-Las educadoras de Integra dedican unas 4 horas a la semana (más de 11.000 horas semanales en toda la institución) a transcribir y ordenar observaciones escritas a mano, para ubicar a cada niño en un nivel del 1 al 8 en cada núcleo de aprendizaje. El MVP:
+Las educadoras de Integra dedican unas 4 horas a la semana (más de 11.000 horas semanales en toda la institución) a transcribir y ordenar observaciones escritas a mano, para ubicar a cada niño en un nivel (hoy del 1 al 8) en cada núcleo de aprendizaje. El MVP:
 
 - convierte notas, fotos y audios puntuales en observaciones ordenadas por niño;
 - propone un nivel por núcleo con la evidencia que lo respalda;
-- avisa cuando un niño va atrasado respecto de lo esperado o cuando faltan datos recientes.
+- avisa cuando un niño va atrasado respecto de sus pares o de lo esperado, o cuando faltan datos recientes.
 
 La educadora siempre decide el nivel.
 
@@ -16,21 +16,31 @@ La educadora siempre decide el nivel.
 
 ### Modelo pedagógico
 
-- 3 niveles educativos (sala cuna, medio, transición), cada uno con 8 núcleos y 8 niveles por núcleo. Según las Bases Curriculares, cada nivel abarca 2 años y sus OA describen lo esperado al final del tramo: 50 en sala cuna, 71 en medio y 85 en transición.
-- Núcleos (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA.
+- 3 niveles educativos (sala cuna, medio, transición). Según las Bases Curriculares, cada nivel abarca 2 años y sus OA describen lo esperado al final del tramo: 50 en sala cuna, 71 en medio y 85 en transición.
+- La rúbrica de Integra tendrá 10 núcleos y hoy tiene 8 niveles por núcleo, que podrían pasar a 9 (`contexto/respuestas-integra.md`). Por eso la cantidad de núcleos y de niveles es un dato de la rúbrica, editable, y nada en el código asume 8.
+- Núcleos de la demo (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA. Son los únicos con OA oficiales; se reemplazan por los 10 de Integra cuando entregue la lista.
 - La rúbrica se guarda por nivel educativo, porque puede variar entre ellos. La demo usa solo Transición (NT1 y NT2, 4 a 6 años), con una rúbrica provisoria derivada de las conductas observables del Programa Pedagógico de Transición (ver `contexto/hallazgos-programa-pedagogico-transicion.md`). Se reemplaza cuando Integra entregue la real.
-- Mapeo provisorio de niveles: 1 = lo esperado al iniciar NT1; 2 a 4 = conductas de NT1, desde "con ayuda" hasta "autónomo"; 5 a 7 = lo mismo con las conductas de NT2; 8 = conductas de NT2 de forma autónoma (lo esperado al egresar).
-- Todo niño entra al sistema en nivel 1 en los 8 núcleos. Solo la educadora cambia niveles.
+- Mapeo provisorio de niveles, para la rúbrica de 8: 1 = lo esperado al iniciar NT1; 2 a 4 = conductas de NT1, desde "con ayuda" hasta "autónomo"; 5 a 7 = lo mismo con las conductas de NT2; 8 = conductas de NT2 de forma autónoma (lo esperado al egresar). Si Integra pasa a 9 niveles, el mapeo se rehace.
+- Todo niño entra al sistema en nivel 1 en todos los núcleos de su nivel educativo. Solo la educadora cambia niveles.
+- El nivel se decide por la conducta observable y los avances del niño, no por una cantidad mínima de observaciones (respuesta de Integra). La propuesta de nivel no usa umbrales de cantidad.
 - El tiempo se mide en semestres escolares, con fechas editables.
-- Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4; al egresar se espera 8. No se asume que el avance sea lineal. Es una referencia blanda: las Bases Curriculares prescriben por tramos de 2 años porque una prescripción más corta "no respetaría diferencias individuales en el aprendizaje".
-- Brecha = nivel esperado − nivel actual validado. Brecha 2: aviso. Más de 2: alerta. Ambos se redactan como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares.
+- Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4; al egresar se espera el nivel máximo de la rúbrica (hoy 8). No se asume que el avance sea lineal. Es una referencia blanda: las Bases Curriculares prescriben por tramos de 2 años porque una prescripción más corta "no respetaría diferencias individuales en el aprendizaje".
+- Rezago: Integra lo evalúa comparando al niño con sus pares del nivel. Se muestran dos señales por núcleo, ambas redactadas como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares:
+  - Bajo sus pares (señal principal): mediana del curso − nivel del niño. 2: aviso. Más de 2: alerta.
+  - Bajo lo esperado: nivel esperado − nivel actual validado. 2: aviso. Más de 2: alerta.
+
+  Los umbrales son nuestros y provisorios.
+- Distribución del curso: por núcleo, cuántos niños hay en cada nivel y en qué nivel está la mayoría.
+- Evolución individual: la ficha muestra, por núcleo, la línea de tiempo de los niveles validados.
+- Vista del jardín para la directora: por núcleo, el promedio de cada curso del mismo nivel educativo. Si un curso queda 2 o más niveles bajo el promedio de los demás, se muestra una alerta. Es el ejemplo de Integra: dos salas de nivel medio en 6 y una en 3.
+- Pasos a seguir: la rúbrica que prepara Integra los traerá por nivel. La rúbrica de la app tiene un campo para cargarlos y la ficha los muestra si existen. El MVP no los genera con IA.
 - Aviso de datos desactualizados si un núcleo de un niño pasa 14 días sin observaciones aceptadas, y aviso "sin datos" si nunca tuvo.
 - Cobertura de evidencia por OA: para cada niño, cuántas observaciones aceptadas respaldan cada OA de su nivel educativo y la fecha de la más reciente. Los OA sin evidencia se destacan como sugerencia de qué observar.
 - Vista del grupo por quincena (del 1 al 15 y del 16 a fin de mes, según la fecha de la observación). Por núcleo muestra las observaciones aceptadas del curso y cuántos niños tienen al menos una. Los núcleos sin observaciones se destacan, porque la Política de Calidad de Integra pide una oferta que cubra todos los núcleos en cada quincena. Se puede volver a quincenas anteriores.
 
 ### Captura y procesamiento
 
-- La educadora registra desde su teléfono personal, con conexión: texto, foto (post-it o trabajo del niño) o audio corto. Sin video y sin grabación continua.
+- La educadora (1 por sala) y las asistentes de párvulo (1 cada 7 niños) registran desde su teléfono personal, con conexión: texto, foto (post-it o trabajo del niño) o audio corto. Sin video y sin grabación continua. Revisar observaciones y validar niveles queda en la educadora (decisión nuestra, por confirmar con Integra).
 - Una nota que menciona a varios niños genera una observación por niño.
 - Cada observación se etiqueta con sus núcleos y, cuando se pueda, con sus OA ("OA 4 LV"). Registra el nivel de apoyo (autónomo, con ayuda, parcial, no lo realiza o sin dato) y separa lo que el niño hizo o dijo de la interpretación de la educadora, como el registro anecdótico del programa.
 - Las notas sobre el grupo completo (por ejemplo, "bajó la asistencia") quedan como contexto del curso y no se usan para evaluar.
@@ -40,8 +50,9 @@ La educadora siempre decide el nivel.
 
 ### Alcance
 
-- Dentro: perspectiva de la educadora (su curso), nivel Transición, un curso de 15 niños cargados a mano, datos 100% ficticios.
-- Fuera del MVP (se mencionan en el pitch): vistas de directora y nacional, sugerencias de actividades, informes a familias, video, modo sin conexión, carga masiva de niños y otros niveles educativos.
+- Dentro: perspectiva de la educadora (su curso, con comparación con pares y evolución individual), registro por asistentes, nivel Transición, un curso de 15 niños cargados a mano, datos 100% ficticios.
+- Dentro si alcanza el tiempo (Task 12; si no, va en el pitch): vista del jardín para la directora, con un segundo curso de Transición en los datos de demo.
+- Fuera del MVP (se mencionan en el pitch): vista nacional, generar pasos a seguir o actividades con IA, informes a familias, video, modo sin conexión, carga masiva de niños y otros niveles educativos.
 - Descartado por el equipo: un registro propio de la voz del niño (sus intereses, preferencias o autoevaluación).
 
 ### Equipo
@@ -53,8 +64,10 @@ La educadora siempre decide el nivel.
 
 - La tabla de metas es por curso, no por niño.
 - El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra.
-- La rúbrica real y la referencia institucional del nivel esperado se piden a la directora de educación el jueves.
-- El dataset sintético E-1 de la organización (`dataset-publico/`) usa otra rúbrica: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad. `contexto/PLAN_PIPELINE_IA.md` se basa en él. Falta decidir si la app también debe cargar ese catálogo, porque este plan supone 8 niveles por núcleo y nivel esperado por semestre. Si se carga, sus edades corresponden a sala cuna y parte de medio, cuyos OA oficiales están en las Bases Curriculares; ahí también hay una correspondencia aproximada entre sus 5 dominios y los 8 núcleos.
+- Integra está ajustando la rúbrica real y solo nos entregó el ejemplo de un núcleo, que falta ubicar en el repo. Tampoco tenemos la lista de sus 10 núcleos ni una referencia institucional del nivel esperado.
+- Los umbrales de rezago (2 niveles bajo la mediana del curso; un curso 2 niveles bajo los demás del jardín) son nuestros.
+- Las asistentes registran, pero no revisan ni validan.
+- El dataset sintético E-1 de la organización (`dataset-publico/`) usa otra rúbrica: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad. Integra pidió pensar la herramienta en 10 núcleos, así que E-1 no se usa como rúbrica; solo sirve como dato sintético. `contexto/PLAN_PIPELINE_IA_obsoleto.md` se basaba en él.
 
 ## Contexto
 
@@ -64,6 +77,18 @@ La educadora siempre decide el nivel.
 - Bedrock: el workshop solo permite algunos modelos. Sonnet 5.5 y Haiku 5.5 están bloqueados. `us.anthropic.claude-sonnet-5` fue probado y funciona. Haiku 4.5 (`us.anthropic.claude-haiku-4-5-20251001-v1:0`) está permitido como opción más barata.
 - La simulación de permisos aprueba EC2, S3, KMS, CloudFront, Transcribe (incluido vocabulario personalizado), Polly (4 voces es-US) y creación de roles IAM. La simulación puede no reflejar todas las restricciones del evento.
 - App Runner ya no acepta clientes nuevos; no se usa.
+
+### Respuestas de Integra por correo
+
+Detalle en `contexto/respuestas-integra.md`.
+
+- Confirman el enfoque: la herramienta organiza y propone un nivel con evidencia, y la educadora lo ajusta. Quieren niveles "sí o sí".
+- Piden ver la evolución individual, en qué nivel está la mayoría del curso con alarma para los rezagados, y una alerta para la directora cuando un curso del jardín está bajo los demás del mismo nivel.
+- La rúbrica está en ajuste. Serán 10 núcleos; hoy son 8 niveles y podrían ser 9, y ambos parámetros deben ser ajustables.
+- El nivel se decide por la conducta observable y los avances, no por la cantidad de observaciones.
+- Observan la educadora (1 por sala) y las asistentes (1 cada 7 niños).
+- El rezago se mide contra los pares del nivel. La información se actualiza todo el tiempo.
+- Los pasos a seguir vendrán en su rúbrica; quieren poder cargarlos a futuro.
 
 ### Referente Curricular Integra 2025 (pp. 80–101)
 
@@ -82,7 +107,7 @@ Detalle en `contexto/hallazgos-politica-calidad-educativa-integra.md`. El PDF no
   - IEA "Evaluar para aprender": "niveles de logro y movilidad de los aprendizajes"; orienta la planificación y retroalimenta a las familias.
   - PLAEP-R: estandarizado, aplicado a una muestra.
 
-  La herramienta registra la misma movilidad que mide el IEA. Falta confirmar si el instrumento de 8 niveles lo reemplazó.
+  La herramienta registra la misma movilidad que mide el IEA. Falta confirmar si el instrumento de niveles (hoy 8) lo reemplazó.
 - Define la calidad con centro en "el bienestar, el aprendizaje oportuno y pertinente y el protagonismo de los niños y niñas".
 - Su vocabulario curricular es anterior a las Bases Curriculares 2018 y no se usa en la app.
 
@@ -104,7 +129,7 @@ PDF en `contexto/programa-pedagogico-transicion-mineduc.pdf`; detalle en `contex
 - Confirma los 8 núcleos y trae los 85 OA de Transición, cada uno con conductas observables separadas para NT1 y NT2: unas 500 en total, entre 1.000 y 2.000 palabras por núcleo. Caben en el prompt sin búsqueda vectorial.
 - Por núcleo describe lo esperado al iniciar NT1 y cómo continúa en Enseñanza Básica.
 - Trae formatos de registro (anecdótico, con foco en núcleo y OA, fotográfico) y una escala según autonomía: autónomo, con ayuda, parcial con ayuda, no lo realiza.
-- No trae los 8 niveles de Integra ni cubre sala cuna o nivel medio.
+- No trae los niveles de Integra ni cubre sala cuna o nivel medio.
 
 ### Por verificar durante la implementación
 
@@ -146,14 +171,15 @@ flowchart LR
 3. Claude separa el texto en observaciones y devuelve JSON (tool use obligatorio): nombre detectado, fecha, cita literal, núcleos, OA, nivel de apoyo, interpretación de la educadora (si la hay) y si es una nota grupal. El prompt incluye el catálogo de los 85 OA (código y texto).
 4. Los nombres se emparejan con la lista del curso en nuestro código, no en el modelo, usando alias y comparación aproximada (difflib). Así el resultado es predecible y testeable.
 5. La educadora revisa: acepta, edita o descarta cada observación y resuelve nombres ambiguos.
-6. Para proponer un nivel se envían a Claude las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1, el mapeo de niveles, el nivel validado actual y las observaciones aceptadas con su nivel de apoyo, con códigos en lugar de nombres. Claude devuelve nivel, observaciones citadas, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida que el nivel esté entre 1 y 8 y que las citas correspondan a observaciones enviadas.
-7. Las alertas y la cobertura de evidencia se calculan cada vez que se piden; no se guardan.
+6. Para proponer un nivel se envían a Claude las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1, el mapeo de niveles, el nivel validado actual y las observaciones aceptadas con su nivel de apoyo, con códigos en lugar de nombres. Claude devuelve nivel, observaciones citadas, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida que el nivel esté entre 1 y el máximo de la rúbrica, y que las citas correspondan a observaciones enviadas.
+7. Las alertas, la comparación con pares y la cobertura de evidencia se calculan cada vez que se piden; no se guardan. Así reflejan cada observación nueva, como pide Integra.
 
 ### Entidades
 
-- `Nucleo` (nombre, sigla); `DescriptorNivel` (nivel educativo, núcleo, nivel 1–8, descripción; generado con el mapeo provisorio).
+- `Rubrica` (nivel educativo, cantidad de niveles, provisoria). Es la única fuente del nivel máximo; hoy 8.
+- `Nucleo` (nombre, sigla, trayectoria; la cantidad sale de los datos); `DescriptorNivel` (nivel educativo, núcleo, nivel de 1 al máximo de la rúbrica, descripción, pasos sugeridos opcionales; generado con el mapeo provisorio).
 - `ObjetivoAprendizaje` (nivel educativo, núcleo, número, texto; se cita como "OA 4 LV"); `Manifestacion` (OA, año NT1 o NT2, texto observable).
-- `Jardin`; `Curso` (nivel educativo, educadora); `Semestre` (inicio, fin); `MetaSemestre` (curso, semestre de permanencia, nivel esperado).
+- `Jardin` (nombre, directora); `Curso` (nivel educativo, educadora, asistentes); `Semestre` (inicio, fin); `MetaSemestre` (curso, semestre de permanencia, nivel esperado).
 - `Nino` (curso, nombre, alias, código seudónimo, fecha de ingreso).
 - `Captura` (tipo, archivo, texto extraído, estado, error).
 - `Observacion` (captura, niño o vacío, nombre detectado, fecha, cita literal, interpretación, núcleos, OA, nivel de apoyo, grupal, estado).
@@ -162,7 +188,7 @@ flowchart LR
 
 ### Seguridad y privacidad
 
-- Todas las vistas piden login. La educadora solo ve sus cursos (filtro en todas las consultas). El panel de administración es solo para staff.
+- Todas las vistas piden login. La educadora y las asistentes solo ven sus cursos, y la directora los cursos de su jardín (filtro en todas las consultas). Solo la educadora revisa observaciones y valida niveles. El panel de administración es solo para staff.
 - Los originales se muestran con URLs prefirmadas de 5 minutos, después de verificar permisos.
 - S3 con bloqueo de acceso público y cifrado. Las transcripciones quedan en nuestro bucket.
 - El servidor solo acepta tráfico que venga de CloudFront. Sin puerto 22; acceso por SSM.
@@ -176,45 +202,52 @@ flowchart LR
 - Objetivo: el proyecto corre en local con el modelo pedagógico cargado.
 - Guía:
   - Proyecto `config` y app `registro`, con versiones fijas en `requirements.txt`.
-  - Modelos `Nucleo`, `DescriptorNivel`, `ObjetivoAprendizaje`, `Manifestacion`, `Jardin`, `Curso`, `Semestre`, `MetaSemestre`, `Nino` y `NivelValidado`, con restricciones (nivel entre 1 y 8, unicidad) y registrados en el panel de administración.
-  - `datos/curriculo_transicion.json`, extraído de `contexto/programa-pedagogico-transicion-mineduc.pdf` con `scripts/extraer_curriculo.py` (pdftotext más parseo) y revisado a mano: 8 núcleos con sigla y trayectoria, 85 OA y sus conductas de NT1 y NT2. Lo puede hacer la persona de IA en paralelo.
-  - Al crear un niño se crea automáticamente su nivel 1 en los 8 núcleos.
+  - Modelos `Rubrica`, `Nucleo`, `DescriptorNivel`, `ObjetivoAprendizaje`, `Manifestacion`, `Jardin`, `Curso`, `Semestre`, `MetaSemestre`, `Nino` y `NivelValidado`, con restricciones (nivel desde 1, unicidad) y registrados en el panel de administración.
+  - El nivel máximo sale de `Rubrica` del nivel educativo, no de una constante; se valida en el código y no en una restricción de la base de datos, para que pasar de 8 a 9 niveles no requiera una migración. La cantidad de núcleos sale de los datos.
+  - `DescriptorNivel` tiene un campo opcional de pasos sugeridos (vacío en la rúbrica provisoria).
+  - `Curso` tiene educadora y asistentes; `Jardin` tiene directora.
+  - `datos/curriculo_transicion.json`, extraído de `contexto/programa-pedagogico-transicion-mineduc.pdf` con `scripts/extraer_curriculo.py` (pdftotext más parseo) y revisado a mano: 8 núcleos con sigla y trayectoria (lo esperado al iniciar NT1 y cómo continúa en Enseñanza Básica), 85 OA y sus conductas de NT1 y NT2. Lo puede hacer la persona de IA en paralelo.
+  - Al crear un niño se crea automáticamente su nivel 1 en todos los núcleos.
   - Comando `cargar_demo`, que se puede correr varias veces sin duplicar datos, y que carga desde `datos/`:
-    - los 8 núcleos, los 85 OA con sus conductas y la rúbrica provisoria de Transición (8×8, generada con el mapeo provisorio y marcada como provisoria);
+    - los 8 núcleos, los 85 OA con sus conductas y la rúbrica provisoria de Transición (8 niveles por núcleo, generada con el mapeo provisorio y marcada como provisoria);
     - semestres desde 2025-2 hasta 2026-2;
     - 1 jardín y 1 curso de Transición de 15 niños, con casos difíciles (Naiara/Nayara, dos Sofías, ingresos en distintos semestres);
-    - una usuaria educadora de prueba.
+    - una usuaria educadora y una asistente de prueba.
   - Login de Django. `.gitignore` que excluya la base de datos, `.env` y los archivos subidos.
-- Tests: restricciones de los modelos, que `cargar_demo` no duplique datos, que se cree el nivel 1 inicial y que el currículo tenga 8 núcleos y 85 OA, cada uno con conductas de NT1 y NT2.
+- Tests: restricciones de los modelos; que un nivel sobre el máximo de la rúbrica se rechace y que con una rúbrica de 9 niveles se acepte el 9; que `cargar_demo` no duplique datos; que se cree el nivel 1 inicial; y que el currículo tenga 8 núcleos con trayectoria y 85 OA, cada uno con conductas de NT1 y NT2.
 - Demo: después de `cargar_demo`, el panel de administración muestra el curso, los niños, los OA y la rúbrica.
 
 ### Task 2: Nivel esperado, brechas y vista del curso
 
-- Objetivo: una tabla de 15 niños por 8 núcleos con nivel actual, nivel esperado y alertas.
+- Objetivo: una tabla de los niños del curso por núcleo con nivel actual, comparación con pares, nivel esperado y alertas.
 - Guía:
   - `registro/alertas.py` con funciones puras:
     - semestre de permanencia, contando desde el semestre de ingreso (inclusive);
-    - nivel esperado según la tabla del curso (después del semestre 4, siempre 8);
-    - brecha y gravedad (0–1 normal, 2 aviso, más de 2 alerta);
+    - nivel esperado según la tabla del curso (después del semestre 4, siempre el máximo de la rúbrica);
+    - mediana del curso por núcleo y brecha con pares;
+    - brecha con lo esperado;
+    - gravedad de cada brecha (0–1 normal, 2 aviso, más de 2 alerta);
     - "datos de más de 14 días" y "sin datos".
+  - Por núcleo, la distribución del curso: cuántos niños hay en cada nivel y cuál es el más frecuente.
   - Modelos mínimos `Captura` y `Observacion` (niño, fecha, cita, núcleos, OA, estado).
   - Unas 40 observaciones aceptadas, etiquetadas con núcleos y OA, y niveles históricos en los datos de demo, para que aparezcan todos los estados. Algunos OA quedan sin evidencia a propósito.
   - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad, y se redactan como sugerencias (por ejemplo, "Revisar: 3 niveles bajo lo esperado"), no como diagnóstico.
   - Sobre la tabla, el resumen de la quincena: por núcleo, observaciones aceptadas y niños con al menos una, con los núcleos sin observaciones destacados y navegación a quincenas anteriores. Función pura `cobertura_quincena` en `registro/cobertura.py`.
-- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero). Otra educadora recibe 404.
-- Demo: al entrar, aparece la tabla con las alertas y el resumen de la quincena con los núcleos sin observaciones.
+- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; mediana con cantidad par de niños y con un solo niño; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero). Otra educadora recibe 404.
+- Demo: al entrar, aparece la tabla con las alertas (un niño bajo sus pares en lenguaje) y el resumen de la quincena con los núcleos sin observaciones.
 
 ### Task 3: Ficha del niño, validación manual y tabla de metas
 
 - Objetivo: el flujo completo funciona sin IA.
 - Guía:
-  - Ficha con los 8 núcleos (actual frente a esperado), el historial de niveles validados y las observaciones aceptadas con fecha y cita.
+  - Ficha con todos los núcleos (actual frente a esperado y frente a la mediana del curso), la evolución de los niveles validados en el tiempo y las observaciones aceptadas con fecha y cita. La evolución va como gráfico simple por núcleo (SVG generado en el servidor, sin librerías nuevas) con una tabla equivalente, por accesibilidad.
+  - Si el descriptor del nivel tiene pasos sugeridos, la ficha los muestra.
   - En cada núcleo de la ficha, la cobertura de evidencia de sus OA: cantidad de observaciones aceptadas y fecha de la más reciente, con los OA sin evidencia destacados como sugerencia de qué observar. Se calcula con funciones puras en `registro/cobertura.py`.
   - Formulario con HTMX para fijar un nivel con un comentario (crea un `NivelValidado` con la usuaria).
   - Pantalla para editar la tabla de metas del curso.
   - Diseño pensado primero para celular, con Pico.css.
 - Tests: validar un nivel crea historial y actualiza la tabla; editar metas cambia las alertas; la cobertura por OA cuenta solo observaciones aceptadas del niño y toma la fecha más reciente; permisos.
-- Demo: se sube un nivel a mano y la alerta desaparece; la ficha muestra qué OA todavía no tienen evidencia.
+- Demo: se sube un nivel a mano y la alerta desaparece; la ficha muestra la evolución del niño y qué OA todavía no tienen evidencia.
 
 ### Task 4: Infraestructura y despliegue
 
@@ -264,7 +297,7 @@ flowchart LR
 - Guía:
   - Modelo `PropuestaNivel`.
   - `registro/ia/seudonimo.py` reemplaza en las citas todos los nombres y alias del curso por códigos.
-  - El prompt incluye, para el nivel educativo del niño, las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1 y el mapeo de niveles; además, el nivel validado actual y las observaciones aceptadas (id, fecha, cita, OA y nivel de apoyo). La salida es nivel, ids citados, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida (nivel 1–8, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
+  - El prompt incluye, para el nivel educativo del niño, las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1 y el mapeo de niveles; además, el nivel validado actual y las observaciones aceptadas (id, fecha, cita, OA y nivel de apoyo). La salida es nivel, ids citados, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. El prompt no fija un mínimo de observaciones: Integra decide por la conducta observable y los avances. Se valida (nivel entre 1 y el máximo de la rúbrica, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
   - Se pide una propuesta automáticamente al aceptar observaciones nuevas de ese núcleo, y con un botón en la ficha. La procesa el proceso de fondo.
   - En la ficha: propuesta con citas enlazadas. La educadora acepta (crea un `NivelValidado` ligado a la propuesta), fija otro nivel o rechaza. Nunca se aplica sola.
 - Tests: ningún nombre del curso aparece en lo enviado a Bedrock; validación de la respuesta; flujo de aceptar y rechazar con cliente falso.
@@ -315,18 +348,29 @@ flowchart LR
     - rúbrica (basada en el Programa Pedagógico de Transición del MINEDUC y reemplazable por la de Integra), y enfoque de evaluación alineado con las Bases Curriculares (evidencia cotidiana, la educadora concluye);
     - privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales);
     - cifras de la Task 10;
-    - cómo escala (vistas de directora y nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
+    - rúbrica como dato: 10 núcleos y 8 o 9 niveles sin cambiar código, con pasos a seguir cargables;
+    - cómo escala (vista de la directora si no entró en la demo, vista nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
   - Verificar la política de datos de Bedrock y la vigencia de la Ley 21.719 antes de citarlas.
   - Para el costo, usar la calculadora de precios de AWS.
   - Grabar un video de respaldo. Congelar el código a las 11:00.
 - Demo: ensayo completo cronometrado.
 
+### Task 12: Vista del jardín para la directora (si alcanza el tiempo)
+
+- Objetivo: la directora ve qué curso de su jardín está más rezagado, como en el ejemplo de Integra.
+- Guía:
+  - Usuaria directora ligada al jardín en los datos de demo, y un segundo curso de Transición con niveles más bajos en un núcleo.
+  - Vista con, por núcleo, el promedio de cada curso del mismo nivel educativo. Si un curso queda 2 o más niveles bajo el promedio de los demás, se muestra una alerta con texto, redactada como sugerencia de revisión. Función pura en `registro/alertas.py`.
+  - La directora ve el resumen y la tabla de cada curso de su jardín, pero no valida niveles.
+- Tests: el cálculo con el ejemplo de Integra (6, 6 y 3 genera alerta para el curso en 3); un jardín con un solo curso no genera alerta; una directora de otro jardín recibe 404.
+- Demo: la directora entra y ve la alerta del segundo curso.
+
 ## Reparto y horario
 
 | Rol | Tareas |
 |---|---|
-| Backend | 1, 2 (lógica), 3 (lógica), 7 (flujo) |
-| Frontend 1 | 3 (ficha), 6, 9 (grabación) |
+| Backend | 1, 2 (lógica), 3 (lógica), 7 (flujo), 12 |
+| Frontend 1 | 3 (ficha y evolución), 6, 9 (grabación) |
 | Frontend 2 | 2 (tabla), 8 (cámara), 11 (láminas) |
 | IA | 1 (currículo), 5, 7 (prompt), 8 (lectura de fotos), 9 (Transcribe), 10 |
 | Eléctrica | 4, 11 (guion y video), apoyo en 9 |
@@ -338,15 +382,21 @@ Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden traba
   - 09:00, reunión con la directora de educación.
   - 13:00, tareas 2 a 5 listas y URL en vivo.
   - En la tarde, tareas 6, 7 y 8.
-  - En la noche, tareas 9 y 10 y carga de la demo.
+  - En la noche, tareas 9 y 10, Task 12 si alcanza, y carga de la demo.
 - Viernes: Task 11, código congelado a las 11:00, presentación a las 14:00.
 
-## Preguntas para la directora de educación (jueves 09:00)
+## Preguntas pendientes para Integra
 
-1. ¿Nos puede pasar la rúbrica completa (descriptores y conductas observables)? ¿Cambia entre niveles educativos?
-2. ¿Hay una referencia institucional del nivel esperado por semestre, o lo define cada educadora? ¿Por curso o por niño?
-3. ¿Qué protocolo siguen cuando detectan un rezago?
-4. ¿Las familias firman un consentimiento para fotos y audios?
-5. Mostrarle la pantalla de revisión y preguntar si la usarían así en la sala.
-6. ¿El instrumento de 8 niveles se construyó sobre los OA y las conductas del Programa Pedagógico de Transición del MINEDUC? ¿Le hace sentido nuestro mapeo provisorio de niveles?
-7. ¿El instrumento de 8 niveles reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna?
+Las respuestas recibidas por correo están en `contexto/respuestas-integra.md`.
+
+1. ¿Dónde está el ejemplo de rúbrica de un núcleo que nos pasaron? No lo tenemos en el repo.
+2. ¿Cuáles son los 10 núcleos? ¿La rúbrica cambia entre niveles educativos?
+3. Pedir por WhatsApp el audio con el ejemplo de cómo deciden el nivel.
+4. ¿El nivel se asigna por núcleo o de forma global? (No lo respondieron; la rúbrica por núcleo sugiere que es por núcleo.)
+5. ¿Las asistentes pueden revisar observaciones o validar niveles, o solo registrar?
+6. ¿Hay una referencia institucional del nivel esperado por semestre, o lo define cada educadora?
+7. ¿Qué protocolo siguen cuando detectan un rezago? Además de la alerta a la directora, ¿hay derivación?
+8. ¿Las familias firman un consentimiento para fotos y audios?
+9. Mostrarles la pantalla de revisión y preguntar si la usarían así en la sala.
+10. ¿El instrumento se construyó sobre los OA y las conductas del Programa Pedagógico de Transición del MINEDUC? ¿Les hace sentido nuestro mapeo provisorio de niveles?
+11. ¿El instrumento reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna?
