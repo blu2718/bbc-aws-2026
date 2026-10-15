@@ -13,6 +13,8 @@ User=kimun
 Group=kimun
 WorkingDirectory=/opt/kimun/actual/kimun
 EnvironmentFile=/etc/kimun/kimun.env
+# Sin búfer de salida: así journald recibe cada línea al momento.
+Environment=PYTHONUNBUFFERED=1
 ExecStart=/opt/kimun/venv/bin/python manage.py procesar_capturas --intervalo 5
 Restart=always
 RestartSec=10
