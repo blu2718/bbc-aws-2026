@@ -41,3 +41,8 @@ def puede_validar(usuario, curso):
 
 def ninos_de(usuario):
     return Nino.objects.filter(curso__in=cursos_de(usuario))
+
+
+def ninos_que_valida(usuario):
+    """Niños de los cursos donde el usuario valida niveles (solo la educadora del curso)."""
+    return Nino.objects.filter(curso__in=cursos_que_valida(usuario))

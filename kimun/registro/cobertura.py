@@ -1,18 +1,24 @@
-"""Cobertura de evidencia (PLAN.md, Task 3).
+"""Cobertura de evidencia (PLAN.md, Tasks 2 y 3).
 
-Para cada niño, cuántas observaciones aceptadas respaldan cada OA de su nivel
-educativo y la fecha de la más reciente. Los OA sin evidencia se destacan en
-la ficha como sugerencia de qué observar, no como falta del niño.
+- Por niño (Task 3): cuántas observaciones aceptadas respaldan cada OA de su
+  nivel educativo y la fecha de la más reciente. Los OA sin evidencia se
+  destacan en la ficha como sugerencia de qué observar, no como falta del niño.
+- Por quincena (Task 2): por núcleo, cuántas observaciones aceptadas tiene el
+  curso y cuántos niños tienen al menos una. Los núcleos sin observaciones se
+  destacan, porque la Política de Calidad de Integra pide una oferta que cubra
+  todos los núcleos en cada quincena.
 
 Las funciones que calculan son puras: reciben los datos ya cargados y no
-consultan la base. `cobertura_del_nino` es la única que consulta y les pasa
-los datos. Nada se guarda: se calcula cada vez que se pide, para que refleje
-cada observación nueva (PLAN.md, "Flujo de procesamiento", paso 7).
+consultan la base. `cobertura_del_nino` y `cobertura_quincena_del_curso` son
+las únicas que consultan y les pasan los datos. Nada se guarda: se calcula
+cada vez que se pide, para que refleje cada observación nueva (PLAN.md,
+"Flujo de procesamiento", paso 7).
 """
+import calendar
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 
-from .models import ObjetivoAprendizaje, Observacion
+from .models import Nucleo, ObjetivoAprendizaje, Observacion
 
 
 @dataclass(frozen=True)
@@ -86,3 +92,89 @@ def cobertura_del_nino(nino):
         objetivoaprendizaje__nivel_educativo=nivel_educativo,
     ).values_list("objetivoaprendizaje_id", "observacion__fecha")
     return agrupar_por_nucleo(cobertura_por_oa(oas, evidencias))
+
+
+# --- Resumen de la quincena ------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Quincena:
+    """Del 1 al 15 o del 16 a fin de mes, según la fecha de la observación."""
+
+    inicio: date
+    fin: date
+
+    def contiene(self, fecha):
+        return self.inicio <= fecha <= self.fin
+
+    def anterior(self):
+        return quincena_de(self.inicio - timedelta(days=1))
+
+    def siguiente(self):
+        return quincena_de(self.fin + timedelta(days=1))
+
+
+def quincena_de(fecha):
+    if fecha.day <= 15:
+        return Quincena(fecha.replace(day=1), fecha.replace(day=15))
+    ultimo = calendar.monthrange(fecha.year, fecha.month)[1]
+    return Quincena(fecha.replace(day=16), fecha.replace(day=ultimo))
+
+
+@dataclass(frozen=True)
+class CoberturaNucleoQuincena:
+    nucleo: object
+    observaciones: int
+    ninos: int
+
+    @property
+    def sin_observaciones(self):
+        return self.observaciones == 0
+
+
+def cobertura_quincena(nucleos, evidencias, quincena):
+    """Por núcleo, observaciones de la quincena y niños con al menos una.
+
+    - nucleos: los núcleos a mostrar, en orden. Todos aparecen, aunque no
+      tengan observaciones.
+    - evidencias: tuplas (id de la observación, id del niño, fecha, id del
+      núcleo). Una observación etiquetada con un núcleo y con uno de sus OA
+      puede venir repetida: cuenta una vez. Las fechas fuera de la quincena se
+      ignoran.
+
+    Devuelve [CoberturaNucleoQuincena] en el orden de `nucleos`.
+    """
+    observaciones, ninos = {}, {}
+    for obs_id, nino_id, fecha, nucleo_id in evidencias:
+        if not quincena.contiene(fecha):
+            continue
+        observaciones.setdefault(nucleo_id, set()).add(obs_id)
+        ninos.setdefault(nucleo_id, set()).add(nino_id)
+    return [
+        CoberturaNucleoQuincena(n, len(observaciones.get(n.pk, ())), len(ninos.get(n.pk, ())))
+        for n in nucleos
+    ]
+
+
+def cobertura_quincena_del_curso(curso, quincena, nucleos=None):
+    """[CoberturaNucleoQuincena] del curso en la quincena, con todos los núcleos.
+
+    Cuentan las observaciones aceptadas de los niños del curso. Las notas
+    grupales no cuentan, porque son contexto y no se usan para evaluar. Una
+    observación cuenta para un núcleo si está etiquetada con él o con uno de
+    sus OA. Hace tres consultas (dos si se pasan los núcleos).
+    """
+    if nucleos is None:
+        nucleos = list(Nucleo.objects.all())
+    filtro = {
+        "observacion__nino__curso": curso,
+        "observacion__estado": Observacion.Estado.ACEPTADA,
+        "observacion__grupal": False,
+        "observacion__fecha__range": (quincena.inicio, quincena.fin),
+    }
+    columnas = ("observacion_id", "observacion__nino_id", "observacion__fecha")
+    por_nucleo = Observacion.nucleos.through.objects.filter(**filtro).values_list(*columnas, "nucleo_id")
+    por_oa = Observacion.oas.through.objects.filter(**filtro).values_list(
+        *columnas, "objetivoaprendizaje__nucleo_id"
+    )
+    return cobertura_quincena(nucleos, [*por_nucleo, *por_oa], quincena)
