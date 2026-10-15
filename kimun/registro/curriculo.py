@@ -6,7 +6,7 @@ from django.conf import settings
 from django.db import transaction
 
 from .models import DescriptorNivel, Manifestacion, NivelEducativo, Nucleo, ObjetivoAprendizaje, Rubrica
-from .rubrica import NIVELES_PROVISORIOS, descriptores_provisorios
+from .rubrica import NIVELES_PROVISORIOS, descriptores_provisorios, nombre_provisorio
 
 RUTA_CURRICULO_TRANSICION = Path(settings.DATOS_DIR) / "curriculo_transicion.json"
 
@@ -51,10 +51,12 @@ def cargar_curriculo(datos, nivel_educativo=NivelEducativo.TRANSICION):
 
         if nivel_educativo == NivelEducativo.TRANSICION:
             for nivel, descripcion in descriptores_provisorios(nucleo, rubrica.cantidad_niveles):
+                nombre = nombre_provisorio(nivel)
                 descriptor, creado = DescriptorNivel.objects.get_or_create(
                     nivel_educativo=nivel_educativo, nucleo=nucleo, nivel=nivel,
-                    defaults={"descripcion": descripcion, "provisorio": True},
+                    defaults={"nombre": nombre, "descripcion": descripcion, "provisorio": True},
                 )
-                if not creado and descriptor.provisorio and descriptor.descripcion != descripcion:
-                    descriptor.descripcion = descripcion
-                    descriptor.save(update_fields=["descripcion"])
+                cambio = (descriptor.nombre, descriptor.descripcion) != (nombre, descripcion)
+                if not creado and descriptor.provisorio and cambio:
+                    descriptor.nombre, descriptor.descripcion = nombre, descripcion
+                    descriptor.save(update_fields=["nombre", "descripcion"])

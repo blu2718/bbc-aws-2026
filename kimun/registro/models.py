@@ -19,6 +19,11 @@ from django.db.models import Q
 NIVEL_MIN = 1
 
 
+def texto_nivel(nivel, nombre=""):
+    """Cómo se muestra un nivel en la app: "3 · Desarrollando", o "3" si no tiene nombre."""
+    return f"{nivel} · {nombre}" if nombre else str(nivel)
+
+
 def _nivel_desde_1(campo="nivel"):
     return Q(**{f"{campo}__gte": NIVEL_MIN})
 
@@ -122,9 +127,16 @@ class DescriptorNivel(ValidaNivelMixin, models.Model):
     nivel_educativo = models.CharField(max_length=12, choices=NivelEducativo.choices)
     nucleo = models.ForeignKey(Nucleo, on_delete=models.CASCADE, related_name="descriptores")
     nivel = models.PositiveSmallIntegerField()
+    nombre = models.CharField(
+        max_length=40, blank=True, help_text='Por ejemplo "Desarrollando". En la rúbrica provisoria, "Nivel N".'
+    )
     descripcion = models.TextField()
+    conducta = models.TextField(blank=True, help_text="Conducta observable típica del nivel.")
+    ejemplos = models.JSONField(
+        default=list, blank=True, help_text="Situaciones de ejemplo, escritas como registros anecdóticos."
+    )
     pasos_sugeridos = models.TextField(
-        blank=True, help_text="Qué observar o proponer después. Vendrá en la rúbrica de Integra."
+        blank=True, help_text='Qué observar o proponer después: las "orientaciones" de la rúbrica de Integra.'
     )
     provisorio = models.BooleanField(default=True)
 
@@ -144,6 +156,23 @@ class DescriptorNivel(ValidaNivelMixin, models.Model):
 
     def nivel_educativo_para_validar(self):
         return self.nivel_educativo
+
+    @classmethod
+    def nombres_por_nucleo(cls, nivel_educativo):
+        """{sigla del núcleo: {nivel: nombre}}, solo de los descriptores oficiales.
+
+        Los provisorios se omiten porque su nombre ("Nivel N") repetiría el
+        número: con `texto_nivel` se muestran como "3" y no como "3 · Nivel 3".
+        """
+        nombres = {}
+        filas = (
+            cls.objects.filter(nivel_educativo=nivel_educativo, provisorio=False)
+            .exclude(nombre="")
+            .values_list("nucleo__sigla", "nivel", "nombre")
+        )
+        for sigla, nivel, nombre in filas:
+            nombres.setdefault(sigla, {})[nivel] = nombre
+        return nombres
 
 
 class ObjetivoAprendizaje(models.Model):
