@@ -1,0 +1,26 @@
+# kimun-worker: procesa las capturas en segundo plano (Bedrock y Transcribe).
+# Lo instala infra/remoto/instalar.sh, pero queda DESHABILITADO hasta que
+# `procesar_capturas` llegue a main. Activar con:
+#   sudo systemctl enable --now kimun-worker
+# Logs: journalctl -u kimun-worker
+[Unit]
+Description=kimun-worker - procesar_capturas
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=kimun
+Group=kimun
+WorkingDirectory=/opt/kimun/actual/kimun
+EnvironmentFile=/etc/kimun/kimun.env
+ExecStart=/opt/kimun/venv/bin/python manage.py procesar_capturas --intervalo 5
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/kimun
+
+[Install]
+WantedBy=multi-user.target
