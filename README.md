@@ -83,8 +83,9 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/registro/evaluacion.py`, `kimun/registro/management/commands/evaluar.py`, `generar_audios.py` | Métricas de calidad de la IA (Task 10): funciones puras, el comando que las corre contra Bedrock (y Transcribe, con `--fuente audio`) con el set de `datos/eval/`, y la generación de los audios de prueba con Polly |
 | `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, resumen del jardín (`jardin.html`), ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
-| `kimun/static/registro/registro.css` | Estilos de toda la app: paleta del logo (celeste `#5cbde6`) sobre Pico y colores de las señales con contraste ≥ 4,5:1 |
-| `kimun/static/registro/img/` | Logo (`logo.svg`, `logo-512.png`) y favicons |
+| `kimun/static/registro/registro.css` | Estilos de toda la app sobre Pico: los colores del logo de Integra en pastel (azul, rojo, verde, amarillo y gris), con texto de contraste ≥ 4,5:1 en modo claro y oscuro |
+| `kimun/static/registro/img/` | Logo de Kimün (`logo.svg`, `logo-512.png`) y favicons, sacados de `docs/marca/logo-kimun.pdf` |
+| `docs/marca/` | Originales de marca: `logo-kimun.pdf` (Canva) y `logo-integra.jpg`, del que sale la paleta |
 | `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json`. En `eval/`, las notas (`notas_separacion.json`) y los post-its (`postits_fotos.json`) de prueba; las fotos van en `eval/fotos/<id>.jpg`, sin versionar |
 | `scripts/probar_separacion.py`, `scripts/probar_foto.py` | Prueban la separación y la lectura de fotos contra Bedrock real y comparan con el set de `datos/eval/` |
 | `scripts/extraer_curriculo.py` | Regenera el currículo desde el PDF, que no se versiona: descargarlo desde <https://www.curriculumnacional.cl/614/articles-210511_programa.pdf> a `contexto/programa-pedagogico-transicion-mineduc.pdf` y correr `python -X utf8 scripts/extraer_curriculo.py --todos` (requiere `pdftotext` de Poppler; en Windows, `winget install oschwartz10612.Poppler`) |
