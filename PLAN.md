@@ -135,7 +135,7 @@ Detalle en `contexto/hallazgos-politica-calidad-educativa-integra.md`. El PDF no
 
 ### Bases Curriculares de la Educación Parvularia (MINEDUC, 2018)
 
-PDF en `contexto/bases-curriculares-educacion-parvularia-2018.pdf`; detalle en `contexto/hallazgos-bases-curriculares.md`.
+El PDF no se versiona: [fuente](https://www.curriculumnacional.cl/614/articles-69957_bases.pdf). Detalle en `contexto/hallazgos-bases-curriculares.md`.
 
 - Fijan oficialmente 8 núcleos y 3 niveles de 2 años. Los OA describen lo esperado al final de cada nivel: 206 en total (50 en sala cuna, 71 en medio y 85 en transición).
 - Su enfoque de evaluación coincide con la herramienta:
@@ -146,7 +146,7 @@ PDF en `contexto/bases-curriculares-educacion-parvularia-2018.pdf`; detalle en `
 
 ### Programa Pedagógico de Transición (MINEDUC, 2019)
 
-PDF en `contexto/programa-pedagogico-transicion-mineduc.pdf`; detalle en `contexto/hallazgos-programa-pedagogico-transicion.md`.
+El PDF no se versiona: [fuente](https://www.curriculumnacional.cl/614/articles-210511_programa.pdf). Detalle en `contexto/hallazgos-programa-pedagogico-transicion.md`.
 
 - Confirma los 8 núcleos y trae los 85 OA de Transición, cada uno con conductas observables separadas para NT1 y NT2: unas 500 en total, entre 1.000 y 2.000 palabras por núcleo. Caben en el prompt sin búsqueda vectorial.
 - Por núcleo describe lo esperado al iniciar NT1 y cómo continúa en Enseñanza Básica.
@@ -228,7 +228,7 @@ flowchart LR
   - El nivel máximo sale de `Rubrica` del nivel educativo, no de una constante; se valida en el código y no en una restricción de la base de datos, para que pasar de 8 a 9 niveles no requiera una migración. La cantidad de núcleos sale de los datos.
   - `DescriptorNivel` tiene un campo opcional de pasos sugeridos (vacío en la rúbrica provisoria).
   - `Curso` tiene educadora y asistentes; `Jardin` tiene directora.
-  - `datos/curriculo_transicion.json`, extraído de `contexto/programa-pedagogico-transicion-mineduc.pdf` con `scripts/extraer_curriculo.py` (pdftotext más parseo) y revisado a mano: 8 núcleos con sigla y trayectoria (lo esperado al iniciar NT1 y cómo continúa en Enseñanza Básica), 85 OA y sus conductas de NT1 y NT2. Lo puede hacer la persona de IA en paralelo.
+  - `datos/curriculo_transicion.json`, extraído del PDF del Programa Pedagógico de Transición (no versionado; se descarga a `contexto/programa-pedagogico-transicion-mineduc.pdf` para regenerarlo) con `scripts/extraer_curriculo.py` (pdftotext más parseo) y revisado a mano: 8 núcleos con sigla y trayectoria (lo esperado al iniciar NT1 y cómo continúa en Enseñanza Básica), 85 OA y sus conductas de NT1 y NT2. Lo puede hacer la persona de IA en paralelo.
   - Al crear un niño se crea automáticamente su nivel 1 en todos los núcleos.
   - Comando `cargar_demo`, que se puede correr varias veces sin duplicar datos, y que carga desde `datos/`:
     - los 8 núcleos, los 85 OA con sus conductas y la rúbrica provisoria de Transición (8 niveles por núcleo, generada con el mapeo provisorio y marcada como provisoria);

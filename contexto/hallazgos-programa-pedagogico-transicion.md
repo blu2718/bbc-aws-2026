@@ -1,6 +1,6 @@
 # Hallazgos: Programa Pedagógico de Transición (MINEDUC)
 
-- Archivo: `programa-pedagogico-transicion-mineduc.pdf` (452 páginas).
+- Archivo: `programa-pedagogico-transicion-mineduc.pdf` (452 páginas). No se versiona; se descarga desde la fuente.
 - Fuente: <https://www.curriculumnacional.cl/614/articles-210511_programa.pdf>
 - Autor: Unidad de Currículum y Evaluación, MINEDUC. Informado por el CNED mediante Resolución N° 257/2019.
 - Revisión: se leyeron el índice, la introducción, los componentes del programa, el núcleo Identidad y Autonomía (OA 1 y 2), las orientaciones de evaluación (pp. 380–399) y los instrumentos y rúbricas (pp. 436–451). Los conteos de los demás núcleos son automáticos y aproximados.

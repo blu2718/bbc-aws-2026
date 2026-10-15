@@ -1,7 +1,7 @@
 # Hallazgos: Bases Curriculares de la Educación Parvularia (MINEDUC, 2018)
 
 - Autores: Fabián Pereira y Julio Yáñez, 14 de octubre de 2026.
-- Archivo: `bases-curriculares-educacion-parvularia-2018.pdf` (136 páginas, reimpresión de diciembre de 2018).
+- Archivo: `bases-curriculares-educacion-parvularia-2018.pdf` (136 páginas, reimpresión de diciembre de 2018). No se versiona; se descarga desde la fuente.
 - Fuente: <https://www.curriculumnacional.cl/614/articles-69957_bases.pdf>
 - Autor del documento: Subsecretaría de Educación Parvularia, MINEDUC.
 - Páginas: se citan las impresas. En el PDF hay que sumar 2.
