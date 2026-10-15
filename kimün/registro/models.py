@@ -1,0 +1,496 @@
+"""Modelo de datos del MVP (ver PLAN.md, sección "Entidades").
+
+Se definen todas las entidades del plan desde el inicio para que las tareas
+2 a 9 trabajen en paralelo sin chocar en las migraciones.
+
+La cantidad de niveles no es una constante: sale de `Rubrica` según el nivel
+educativo (hoy 8, Integra podría pasar a 9). La base de datos solo exige
+nivel >= 1; el máximo se valida en el código para poder cambiarlo sin
+migración. La cantidad de núcleos sale de los datos (Integra tendrá 10).
+"""
+import secrets
+
+from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models, transaction
+from django.db.models import Q
+
+NIVEL_MIN = 1
+
+
+def _nivel_desde_1(campo="nivel"):
+    return Q(**{f"{campo}__gte": NIVEL_MIN})
+
+
+class NivelEducativo(models.TextChoices):
+    SALA_CUNA = "sala_cuna", "Sala cuna"
+    MEDIO = "medio", "Nivel medio"
+    TRANSICION = "transicion", "Transición"
+
+
+# --- Currículo y rúbrica -------------------------------------------------------
+
+
+class Rubrica(models.Model):
+    """Parámetros de la rúbrica de un nivel educativo. Única fuente del nivel máximo."""
+
+    nivel_educativo = models.CharField(max_length=12, choices=NivelEducativo.choices, unique=True)
+    cantidad_niveles = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(2), MaxValueValidator(20)],
+        help_text="Hoy 8. Integra podría pasar a 9.",
+    )
+    provisoria = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["nivel_educativo"]
+        verbose_name = "rúbrica"
+        verbose_name_plural = "rúbricas"
+        constraints = [
+            models.CheckConstraint(condition=Q(cantidad_niveles__gte=2), name="rubrica_al_menos_2_niveles"),
+        ]
+
+    def __str__(self):
+        return f"{self.get_nivel_educativo_display()}: {self.cantidad_niveles} niveles"
+
+    @classmethod
+    def nivel_maximo(cls, nivel_educativo):
+        rubrica = cls.objects.filter(nivel_educativo=nivel_educativo).first()
+        if rubrica is None:
+            raise ValidationError(f"No hay rúbrica para el nivel educativo «{nivel_educativo}».")
+        return rubrica.cantidad_niveles
+
+
+def validar_nivel(nivel, nivel_educativo, campo="nivel"):
+    """Lanza ValidationError si el nivel no está entre 1 y el máximo de la rúbrica."""
+    if nivel is None:
+        return
+    maximo = Rubrica.nivel_maximo(nivel_educativo)
+    if not NIVEL_MIN <= nivel <= maximo:
+        raise ValidationError({campo: f"El nivel debe estar entre {NIVEL_MIN} y {maximo}."})
+
+
+class ValidaNivelMixin:
+    """Valida el nivel contra la rúbrica en clean() y también en save().
+
+    save() lo repite para que el código que no pasa por formularios tampoco
+    guarde niveles fuera de rango. bulk_create no lo aplica.
+    """
+
+    campo_nivel = "nivel"
+
+    def nivel_educativo_para_validar(self):
+        raise NotImplementedError
+
+    def _validar_nivel(self):
+        try:
+            nivel_educativo = self.nivel_educativo_para_validar()
+        except ObjectDoesNotExist:
+            # Falta el curso o el niño: Django reportará ese error por su cuenta.
+            return
+        validar_nivel(getattr(self, self.campo_nivel), nivel_educativo, self.campo_nivel)
+
+    def clean(self):
+        super().clean()
+        self._validar_nivel()
+
+    def save(self, *args, **kwargs):
+        self._validar_nivel()
+        super().save(*args, **kwargs)
+
+
+class Nucleo(models.Model):
+    sigla = models.CharField(max_length=4, unique=True)
+    nombre = models.CharField(max_length=80, unique=True)
+    orden = models.PositiveSmallIntegerField(default=0)
+    # Trayectoria educativa del Programa Pedagógico de Transición.
+    esperado_inicio_nt1 = models.TextField(blank=True, help_text="Lo esperado al iniciar NT1.")
+    continuidad_basica = models.TextField(blank=True, help_text="Cómo continúan estos aprendizajes en Enseñanza Básica.")
+
+    class Meta:
+        ordering = ["orden", "sigla"]
+        verbose_name = "núcleo"
+        verbose_name_plural = "núcleos"
+
+    def __str__(self):
+        return f"{self.nombre} ({self.sigla})"
+
+
+class DescriptorNivel(ValidaNivelMixin, models.Model):
+    """Una celda de la rúbrica: qué significa el nivel N de un núcleo."""
+
+    nivel_educativo = models.CharField(max_length=12, choices=NivelEducativo.choices)
+    nucleo = models.ForeignKey(Nucleo, on_delete=models.CASCADE, related_name="descriptores")
+    nivel = models.PositiveSmallIntegerField()
+    descripcion = models.TextField()
+    pasos_sugeridos = models.TextField(
+        blank=True, help_text="Qué observar o proponer después. Vendrá en la rúbrica de Integra."
+    )
+    provisorio = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["nivel_educativo", "nucleo", "nivel"]
+        verbose_name = "descriptor de nivel"
+        verbose_name_plural = "descriptores de nivel"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["nivel_educativo", "nucleo", "nivel"], name="descriptor_unico"
+            ),
+            models.CheckConstraint(condition=_nivel_desde_1(), name="descriptor_nivel_desde_1"),
+        ]
+
+    def __str__(self):
+        return f"{self.nucleo.sigla} nivel {self.nivel} ({self.get_nivel_educativo_display()})"
+
+    def nivel_educativo_para_validar(self):
+        return self.nivel_educativo
+
+
+class ObjetivoAprendizaje(models.Model):
+    nivel_educativo = models.CharField(max_length=12, choices=NivelEducativo.choices)
+    nucleo = models.ForeignKey(Nucleo, on_delete=models.CASCADE, related_name="oas")
+    numero = models.PositiveSmallIntegerField()
+    texto = models.TextField()
+
+    class Meta:
+        ordering = ["nivel_educativo", "nucleo", "numero"]
+        verbose_name = "objetivo de aprendizaje"
+        verbose_name_plural = "objetivos de aprendizaje"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["nivel_educativo", "nucleo", "numero"], name="oa_unico"
+            ),
+        ]
+
+    @property
+    def codigo(self):
+        """Cómo se cita en la app: "OA 4 LV"."""
+        return f"OA {self.numero} {self.nucleo.sigla}"
+
+    def __str__(self):
+        return self.codigo
+
+
+class Manifestacion(models.Model):
+    """Conducta observable de un OA para NT1 o NT2."""
+
+    class Anio(models.TextChoices):
+        NT1 = "NT1", "NT1"
+        NT2 = "NT2", "NT2"
+
+    oa = models.ForeignKey(ObjetivoAprendizaje, on_delete=models.CASCADE, related_name="manifestaciones")
+    anio = models.CharField(max_length=3, choices=Anio.choices)
+    orden = models.PositiveSmallIntegerField(default=0)
+    texto = models.TextField()
+
+    class Meta:
+        ordering = ["oa", "anio", "orden"]
+        verbose_name = "manifestación"
+        verbose_name_plural = "manifestaciones"
+        constraints = [
+            models.UniqueConstraint(fields=["oa", "anio", "orden"], name="manifestacion_unica"),
+        ]
+
+    def __str__(self):
+        return f"{self.oa.codigo} {self.anio} #{self.orden}"
+
+
+# --- Organización -------------------------------------------------------------
+
+
+class Jardin(models.Model):
+    nombre = models.CharField(max_length=120, unique=True)
+    directora = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="jardines_dirigidos", help_text="Ve los cursos del jardín; no valida niveles.",
+    )
+
+    class Meta:
+        ordering = ["nombre"]
+        verbose_name = "jardín"
+        verbose_name_plural = "jardines"
+
+    def __str__(self):
+        return self.nombre
+
+
+class Curso(models.Model):
+    jardin = models.ForeignKey(Jardin, on_delete=models.CASCADE, related_name="cursos")
+    nombre = models.CharField(max_length=80)
+    nivel_educativo = models.CharField(max_length=12, choices=NivelEducativo.choices)
+    educadora = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="cursos",
+        help_text="Revisa observaciones y valida niveles.",
+    )
+    asistentes = models.ManyToManyField(
+        settings.AUTH_USER_MODEL, blank=True, related_name="cursos_asistidos",
+        help_text="Asistentes de párvulo: registran observaciones, no las revisan ni validan niveles.",
+    )
+
+    class Meta:
+        ordering = ["jardin", "nombre"]
+        constraints = [
+            models.UniqueConstraint(fields=["jardin", "nombre"], name="curso_unico_por_jardin"),
+        ]
+
+    def __str__(self):
+        return f"{self.nombre} ({self.jardin})"
+
+
+class Semestre(models.Model):
+    nombre = models.CharField(max_length=20, unique=True, help_text='Por ejemplo "2026-1".')
+    inicio = models.DateField()
+    fin = models.DateField()
+
+    class Meta:
+        ordering = ["inicio"]
+        constraints = [
+            models.CheckConstraint(condition=Q(fin__gt=models.F("inicio")), name="semestre_fin_despues_inicio"),
+        ]
+
+    def __str__(self):
+        return self.nombre
+
+
+class MetaSemestre(ValidaNivelMixin, models.Model):
+    """Nivel esperado según el semestre de permanencia del niño en el curso."""
+
+    campo_nivel = "nivel_esperado"
+
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="metas")
+    semestre_permanencia = models.PositiveSmallIntegerField(validators=[MinValueValidator(1)])
+    nivel_esperado = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ["curso", "semestre_permanencia"]
+        verbose_name = "meta por semestre"
+        verbose_name_plural = "metas por semestre"
+        constraints = [
+            models.UniqueConstraint(fields=["curso", "semestre_permanencia"], name="meta_unica"),
+            models.CheckConstraint(condition=Q(semestre_permanencia__gte=1), name="meta_semestre_desde_1"),
+            models.CheckConstraint(condition=_nivel_desde_1("nivel_esperado"), name="meta_nivel_desde_1"),
+        ]
+
+    def __str__(self):
+        return f"{self.curso}: semestre {self.semestre_permanencia} → {self.nivel_esperado}"
+
+    def nivel_educativo_para_validar(self):
+        return self.curso.nivel_educativo
+
+
+def _nuevo_codigo_nino():
+    return f"N-{secrets.token_hex(3).upper()}"
+
+
+class Nino(models.Model):
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="ninos")
+    nombre = models.CharField(max_length=120)
+    alias = models.JSONField(
+        default=list, blank=True, help_text='Variantes de escritura y apodos, por ejemplo ["Nayara"].'
+    )
+    codigo = models.CharField(
+        max_length=12, unique=True, default=_nuevo_codigo_nino, editable=False,
+        help_text="Seudónimo que se envía a Bedrock en lugar del nombre.",
+    )
+    fecha_ingreso = models.DateField()
+
+    class Meta:
+        ordering = ["curso", "nombre"]
+        verbose_name = "niño o niña"
+        verbose_name_plural = "niños y niñas"
+        constraints = [
+            models.UniqueConstraint(fields=["curso", "nombre"], name="nino_unico_por_curso"),
+        ]
+
+    def __str__(self):
+        return self.nombre
+
+    def save(self, *args, **kwargs):
+        nuevo = self._state.adding
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if nuevo:
+                # Todo niño entra en nivel 1 en todos los núcleos (PLAN.md).
+                NivelValidado.objects.bulk_create(
+                    NivelValidado(
+                        nino=self, nucleo=nucleo, nivel=NIVEL_MIN,
+                        fecha=self.fecha_ingreso, comentario="Nivel inicial al ingresar.",
+                    )
+                    for nucleo in Nucleo.objects.all()
+                )
+
+    def nivel_actual(self, nucleo):
+        """Último NivelValidado del núcleo, o None si no hay."""
+        return self.niveles.filter(nucleo=nucleo).order_by("-fecha", "-creado", "-id").first()
+
+    def niveles_actuales(self):
+        """{sigla del núcleo: NivelValidado más reciente}."""
+        actuales = {}
+        for nv in self.niveles.select_related("nucleo").order_by("nucleo", "-fecha", "-creado", "-id"):
+            actuales.setdefault(nv.nucleo.sigla, nv)
+        return actuales
+
+
+# --- Captura y observaciones ---------------------------------------------------
+
+
+class Captura(models.Model):
+    class Tipo(models.TextChoices):
+        TEXTO = "texto", "Texto"
+        FOTO = "foto", "Foto"
+        AUDIO = "audio", "Audio"
+
+    class Estado(models.TextChoices):
+        PENDIENTE = "pendiente", "Pendiente"
+        PROCESANDO = "procesando", "Procesando"
+        PROCESADA = "procesada", "Procesada"
+        ERROR = "error", "Error"
+
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="capturas")
+    autora = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="capturas",
+        help_text="Educadora o asistente que registró.",
+    )
+    tipo = models.CharField(max_length=5, choices=Tipo.choices)
+    archivo = models.FileField(upload_to="originales/%Y/%m/", blank=True)
+    texto_original = models.TextField(blank=True, help_text="Lo que se escribió (tipo texto).")
+    texto_extraido = models.TextField(blank=True, help_text="Texto leído de la foto o transcrito del audio.")
+    estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
+    error = models.TextField(blank=True)
+    intentos = models.PositiveSmallIntegerField(default=0)
+    creada = models.DateTimeField(auto_now_add=True)
+    actualizada = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-creada"]
+        indexes = [models.Index(fields=["estado", "creada"])]
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} #{self.pk} ({self.get_estado_display()})"
+
+
+class Apoyo(models.TextChoices):
+    """Escala del Programa Pedagógico de Transición."""
+
+    AUTONOMO = "autonomo", "Autónomo"
+    CON_AYUDA = "con_ayuda", "Con ayuda"
+    PARCIAL = "parcial", "Parcial con ayuda"
+    NO_LO_REALIZA = "no_lo_realiza", "No lo realiza"
+    SIN_DATO = "sin_dato", "Sin dato"
+
+
+class Observacion(models.Model):
+    class Estado(models.TextChoices):
+        PENDIENTE = "pendiente", "Pendiente de revisión"
+        ACEPTADA = "aceptada", "Aceptada"
+        DESCARTADA = "descartada", "Descartada"
+
+    captura = models.ForeignKey(Captura, on_delete=models.CASCADE, related_name="observaciones")
+    nino = models.ForeignKey(
+        Nino, on_delete=models.CASCADE, null=True, blank=True, related_name="observaciones",
+        help_text="Vacío si el nombre es ambiguo o desconocido, o si es una nota grupal.",
+    )
+    nombre_detectado = models.CharField(max_length=120, blank=True)
+    fecha = models.DateField()
+    cita = models.TextField(help_text="Lo que el niño hizo o dijo, tal como quedó registrado.")
+    interpretacion = models.TextField(blank=True, help_text="Interpretación de quien registró, si la hay.")
+    nucleos = models.ManyToManyField(Nucleo, blank=True, related_name="observaciones")
+    oas = models.ManyToManyField(ObjetivoAprendizaje, blank=True, related_name="observaciones")
+    apoyo = models.CharField(max_length=14, choices=Apoyo.choices, default=Apoyo.SIN_DATO)
+    grupal = models.BooleanField(default=False, help_text="Contexto del curso; no se usa para evaluar.")
+    estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
+    creada = models.DateTimeField(auto_now_add=True)
+    actualizada = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-fecha", "-creada"]
+        verbose_name = "observación"
+        verbose_name_plural = "observaciones"
+        indexes = [models.Index(fields=["nino", "estado", "fecha"])]
+        constraints = [
+            # Una observación individual no se puede aceptar sin niño asignado.
+            models.CheckConstraint(
+                condition=~Q(estado="aceptada") | Q(grupal=True) | Q(nino__isnull=False),
+                name="observacion_aceptada_con_nino",
+            ),
+        ]
+
+    def __str__(self):
+        quien = self.nino or self.nombre_detectado or "grupo"
+        return f"{quien} {self.fecha:%Y-%m-%d}: {self.cita[:40]}"
+
+
+# --- Niveles -------------------------------------------------------------------
+
+
+class PropuestaNivel(ValidaNivelMixin, models.Model):
+    class Estado(models.TextChoices):
+        SOLICITADA = "solicitada", "Solicitada"
+        LISTA = "lista", "Lista para revisar"
+        ACEPTADA = "aceptada", "Aceptada"
+        RECHAZADA = "rechazada", "Rechazada"
+        ERROR = "error", "Error"
+
+    nino = models.ForeignKey(Nino, on_delete=models.CASCADE, related_name="propuestas")
+    nucleo = models.ForeignKey(Nucleo, on_delete=models.CASCADE, related_name="propuestas")
+    nivel = models.PositiveSmallIntegerField(
+        null=True, blank=True, help_text="Vacío si la evidencia no alcanza para proponer un nivel.",
+    )
+    evidencia_suficiente = models.BooleanField(default=False)
+    justificacion = models.TextField(blank=True)
+    conductas_observadas = models.JSONField(default=list, blank=True)
+    observaciones_citadas = models.ManyToManyField(Observacion, blank=True, related_name="propuestas")
+    modelo = models.CharField(max_length=120, blank=True, help_text="Modelo de Bedrock que la generó.")
+    estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.SOLICITADA)
+    error = models.TextField(blank=True)
+    creada = models.DateTimeField(auto_now_add=True)
+    actualizada = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-creada"]
+        verbose_name = "propuesta de nivel"
+        verbose_name_plural = "propuestas de nivel"
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(nivel__isnull=True) | _nivel_desde_1(), name="propuesta_nivel_desde_1"
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.nino} {self.nucleo.sigla}: {self.nivel or 'sin nivel'} ({self.get_estado_display()})"
+
+    def nivel_educativo_para_validar(self):
+        return self.nino.curso.nivel_educativo
+
+
+class NivelValidado(ValidaNivelMixin, models.Model):
+    """Historial de niveles fijados por la educadora. El actual es el más reciente."""
+
+    nino = models.ForeignKey(Nino, on_delete=models.CASCADE, related_name="niveles")
+    nucleo = models.ForeignKey(Nucleo, on_delete=models.CASCADE, related_name="niveles_validados")
+    nivel = models.PositiveSmallIntegerField()
+    fecha = models.DateField()
+    validado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True,
+        related_name="niveles_validados", help_text="Vacío en el nivel inicial automático.",
+    )
+    comentario = models.TextField(blank=True)
+    propuesta = models.ForeignKey(
+        PropuestaNivel, on_delete=models.SET_NULL, null=True, blank=True, related_name="validaciones"
+    )
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["nino", "nucleo", "-fecha", "-creado"]
+        verbose_name = "nivel validado"
+        verbose_name_plural = "niveles validados"
+        indexes = [models.Index(fields=["nino", "nucleo", "fecha"])]
+        constraints = [
+            models.CheckConstraint(condition=_nivel_desde_1(), name="nivel_validado_desde_1"),
+        ]
+
+    def __str__(self):
+        return f"{self.nino} {self.nucleo.sigla}: {self.nivel} ({self.fecha:%Y-%m-%d})"
+
+    def nivel_educativo_para_validar(self):
+        return self.nino.curso.nivel_educativo

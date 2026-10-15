@@ -1,0 +1,32 @@
+{% load static %}<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Registro pedagógico{% endblock %}</title>
+  {# Frontend: Pico.css y HTMX van en static/vendor/ con versión fija (sin CDN). #}
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <header>
+    <nav aria-label="Principal">
+      <a href="{% url 'inicio' %}">Registro pedagógico</a>
+      {% if user.is_authenticated %}
+        <span>{{ user.get_full_name|default:user.username }}</span>
+        <form method="post" action="{% url 'logout' %}">
+          {% csrf_token %}
+          <button type="submit">Cerrar sesión</button>
+        </form>
+      {% endif %}
+    </nav>
+  </header>
+  <main id="contenido">
+    {% if messages %}
+      <ul role="status">
+        {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+      </ul>
+    {% endif %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>

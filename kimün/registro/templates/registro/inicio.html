@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Mis cursos{% endblock %}
+{% block contenido %}
+<h1>Mis cursos</h1>
+{% if cursos %}
+  <ul>
+    {% for curso in cursos %}
+      <li><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a>, {{ curso.jardin.nombre }}</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No tienes cursos asignados.</p>
+{% endif %}
+{% endblock %}

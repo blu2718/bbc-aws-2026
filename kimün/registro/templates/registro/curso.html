@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}{{ curso.nombre }}{% endblock %}
+{% block contenido %}
+<h1>{{ curso.nombre }}</h1>
+<p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ filas|length }} niños y niñas</p>
+
+{# Esqueleto: solo nivel actual. Nivel esperado, brechas y quincena llegan en la Task 2. #}
+<div style="overflow-x: auto">
+<table>
+  <caption>Nivel actual validado por núcleo</caption>
+  <thead>
+    <tr>
+      <th scope="col">Niño o niña</th>
+      {% for nucleo in nucleos %}<th scope="col"><abbr title="{{ nucleo.nombre }}">{{ nucleo.sigla }}</abbr></th>{% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for fila in filas %}
+      <tr>
+        <th scope="row">{{ fila.nino.nombre }}</th>
+        {% for nv in fila.niveles %}<td>{{ nv.nivel|default:"–" }}</td>{% endfor %}
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% endblock %}
