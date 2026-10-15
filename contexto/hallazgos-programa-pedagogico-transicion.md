@@ -109,7 +109,7 @@ Cada núcleo tiene una "Trayectoria educativa" con dos partes:
 | Conductas | ≈ 500, por OA y por año | 90, dos por dominio y nivel |
 | Niños y observaciones | No trae | 500 niños y 2.950 observaciones |
 
-Como la rúbrica se guarda como dato, la app podría cargar ambos catálogos. Hoy `PLAN.md` supone 8 niveles por núcleo y nivel esperado por semestre, mientras que E-1 usa 9 niveles por dominio y nivel esperado por edad. Soportar los dos requiere decidirlo explícitamente.
+Como la rúbrica se guarda como dato, la app podría cargar ambos catálogos. Hoy `PLAN.md` supone 8 niveles por núcleo y nivel esperado por semestre, mientras que E-1 usa 9 niveles por dominio y nivel esperado por edad. El equipo decidió usar solo este catálogo (Transición) en la demo.
 
 ## Preguntas para la directora de educación
 

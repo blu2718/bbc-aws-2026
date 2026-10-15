@@ -43,6 +43,7 @@ La educadora siempre decide el nivel.
 - Dentro: perspectiva de la educadora (su curso), nivel Transición, un curso de 15 niños cargados a mano, datos 100% ficticios.
 - Fuera del MVP (se mencionan en el pitch): vistas de directora y nacional, sugerencias de actividades, informes a familias, video, modo sin conexión, carga masiva de niños y otros niveles educativos.
 - Descartado por el equipo: un registro propio de la voz del niño (sus intereses, preferencias o autoevaluación).
+- Descartado por el equipo: cargar el catálogo del dataset sintético E-1 de la organización (`dataset-publico/`: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad). La demo usa solo Transición. `contexto/PLAN_PIPELINE_IA.md`, que se basaba en ese catálogo, quedó obsoleto. Si más adelante se amplía a sala cuna y medio, sus OA oficiales están en las Bases Curriculares.
 
 ### Equipo
 
@@ -54,7 +55,6 @@ La educadora siempre decide el nivel.
 - La tabla de metas es por curso, no por niño.
 - El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra.
 - La rúbrica real y la referencia institucional del nivel esperado se piden a la directora de educación el jueves.
-- El dataset sintético E-1 de la organización (`dataset-publico/`) usa otra rúbrica: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad. `contexto/PLAN_PIPELINE_IA.md` se basa en él. Falta decidir si la app también debe cargar ese catálogo, porque este plan supone 8 niveles por núcleo y nivel esperado por semestre. Si se carga, sus edades corresponden a sala cuna y parte de medio, cuyos OA oficiales están en las Bases Curriculares; ahí también hay una correspondencia aproximada entre sus 5 dominios y los 8 núcleos.
 
 ## Contexto
 
