@@ -33,12 +33,12 @@ from django.db.models import F
 from django.utils import timezone
 
 from .coincidencia import emparejar
-from .curriculo import leer_curriculo
+from .curriculo import leer_curriculo, leer_curriculo_de
 from .ia import ClienteBedrock, ClienteTranscribe, ErrorSeparacion, ErrorTranscripcion, separar
 from .ia.lectura import ErrorLectura, leer_foto
 from .ia.separacion import normalizar_codigo_oa
 from .ia.transcripcion import frases_vocabulario
-from .models import Captura, Efecto, Nucleo, ObjetivoAprendizaje, Observacion
+from .models import Captura, Efecto, NivelEducativo, Nucleo, ObjetivoAprendizaje, Observacion
 
 logger = logging.getLogger(__name__)
 
@@ -184,6 +184,18 @@ def _crear_observacion(captura, separada, ninos, nucleos, oas):
     return obs
 
 
+def _catalogo_del_curso(curso, catalogo=None):
+    """El catálogo de OA del nivel educativo del curso.
+
+    Se usa el que se pasa (el proceso de fondo lo lee una vez) solo si es del mismo
+    nivel: una nota de sala cuna nunca se etiqueta con OA de Transición.
+    """
+    nivel = curso.nivel_educativo
+    if catalogo is not None and catalogo.get("nivel_educativo", NivelEducativo.TRANSICION) == nivel:
+        return catalogo
+    return leer_curriculo_de(nivel)
+
+
 def _texto_a_separar(captura, ninos, cliente, transcriptor):
     """El texto escrito o, en una foto o un audio, lo leído o transcrito más lo que se escribió al adjuntarlo.
 
@@ -222,7 +234,7 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
             timezone.localdate(captura.creada),
             [n.nombre for n in ninos],
-            catalogo if catalogo is not None else leer_curriculo(),
+            _catalogo_del_curso(curso, catalogo),
             cliente=cliente,
         )
         nucleos = {n.sigla: n for n in Nucleo.objects.all()}

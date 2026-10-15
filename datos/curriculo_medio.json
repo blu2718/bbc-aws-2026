@@ -1,0 +1,482 @@
+{
+  "nivel_educativo": "medio",
+  "fuente": "Bases Curriculares de la Educación Parvularia (MINEDUC, 2018), capítulo 2",
+  "fuente_url": "https://www.curriculumnacional.cl/614/articles-69957_bases.pdf",
+  "provisorio": false,
+  "nucleos": [
+    {
+      "sigla": "IA",
+      "nombre": "Identidad y Autonomía",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 IA",
+          "texto": "Representar verbal y corporalmente diferentes emociones y sentimientos, en sus juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 IA",
+          "texto": "Manifestar disposición y confianza al separarse de los adultos significativos.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 IA",
+          "texto": "Reconocer en sí mismo, en otras personas y en personajes de cuentos, emociones tales como: tristeza, miedo, alegría, pena y rabia.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 IA",
+          "texto": "Manifestar disposición para regular sus emociones y sentimientos, en función de las necesidades propias, de los demás y de algunos acuerdos para el funcionamiento grupal.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 IA",
+          "texto": "Manifestar sus preferencias cuando participa o cuando solicita participar, en diversas situaciones cotidianas y juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 IA",
+          "texto": "Actuar con progresiva independencia, ampliando su repertorio de acciones, acorde a sus necesidades e intereses.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 IA",
+          "texto": "Comunicar algunos rasgos de su identidad, como su nombre, sus características corporales, género y otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 8,
+          "codigo": "OA 8 IA",
+          "texto": "Apreciar sus características identitarias, fortalezas y habilidades.",
+          "conductas": {}
+        },
+        {
+          "numero": 9,
+          "codigo": "OA 9 IA",
+          "texto": "Manifestar progresiva independencia en sus prácticas de alimentación, vigilia y sueño, vestimenta, higiene corporal, bucal y evacuación.",
+          "conductas": {}
+        },
+        {
+          "numero": 10,
+          "codigo": "OA 10 IA",
+          "texto": "Manifestar satisfacción y confianza por su autovalía, comunicando algunos desafíos alcanzados, tales como: saltar, hacer torres, sacar cáscara de huevos, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 11,
+          "codigo": "OA 11 IA",
+          "texto": "Identificar alimentos que se consumen en algunas celebraciones propias de su familia y comunidad.",
+          "conductas": {}
+        },
+        {
+          "numero": 12,
+          "codigo": "OA 12 IA",
+          "texto": "Representar sus pensamientos y experiencias, atribuyendo significados a objetos o elementos de su entorno, usando la imaginación en situaciones de juego.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "CC",
+      "nombre": "Convivencia y Ciudadanía",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 CC",
+          "texto": "Participar en actividades y juegos grupales con sus pares, conversando, intercambiando pertenencias, cooperando.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 CC",
+          "texto": "Disfrutar de instancias de interacción social con diversas personas de la comunidad.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 CC",
+          "texto": "Colaborar en situaciones cotidianas y de juego, proponiendo acciones simples frente a necesidades que presentan sus pares.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 CC",
+          "texto": "Colaborar en actividades, conmemoraciones o celebraciones culturales de su familia y comunidad.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 CC",
+          "texto": "Iniciarse en la resolución pacífica de conflictos, dialogando respecto de la situación, escuchando, opinando y proponiendo acciones para resolver.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 CC",
+          "texto": "Manifestar disposición para practicar acuerdos de convivencia básica que regulan situaciones cotidianas y juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 CC",
+          "texto": "Identificar objetos, comportamientos y situaciones de riesgo que pueden atentar contra su seguridad, bienestar y el de los demás.",
+          "conductas": {}
+        },
+        {
+          "numero": 8,
+          "codigo": "OA 8 CC",
+          "texto": "Reconocer acciones correctas e incorrectas para la convivencia armónica del grupo, que se presentan en diferentes situaciones cotidianas y juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 9,
+          "codigo": "OA 9 CC",
+          "texto": "Manifestar interés por algunos de sus derechos, tales como: ser escuchados, tener un nombre, jugar, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 10,
+          "codigo": "OA 10 CC",
+          "texto": "Manifestar interés para interactuar con niños y niñas, reconociendo la diversidad de sus características y formas de vida (costumbres, fisonomía, lingüística, entre otras).",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "CM",
+      "nombre": "Corporalidad y Movimiento",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 CM",
+          "texto": "Reconocer situaciones en que se siente cómodo corporalmente, manifestando al adulto su bienestar y su interés por mantener estas condiciones.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 CM",
+          "texto": "Reconocer las principales partes, características físicas de su cuerpo y sus funciones en situaciones cotidianas y de juego.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 CM",
+          "texto": "Experimentar diversas posibilidades de acción con su cuerpo, en situaciones cotidianas y de juego, identificando progresivamente el vocabulario asociado.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 CM",
+          "texto": "Reconocer el bienestar que le produce el movimiento libre en situaciones cotidianas y lúdicas, manifestando su interés por desarrollarlo en forma frecuente.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 CM",
+          "texto": "Perfeccionar su coordinación visomotriz fina, a través del uso de diversos objetos, juguetes y utensilios.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 CM",
+          "texto": "Adquirir control y equilibrio en movimientos, posturas y desplazamientos que realiza en diferentes direcciones y en variadas situaciones cotidianas y juegos, con y sin implementos.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 CM",
+          "texto": "Resolver desafíos prácticos en situaciones cotidianas y juegos, incorporando mayor precisión y coordinación en la realización de posturas, movimientos y desplazamientos, tales como: esquivar obstáculos o mantener equilibrio al subir escalas.",
+          "conductas": {}
+        },
+        {
+          "numero": 8,
+          "codigo": "OA 8 CM",
+          "texto": "Utilizar categorías de ubicación espacial y temporal, tales como: adelante/atrás, arriba/ abajo, adentro/afuera, antes/ después, rápido/lento, en situaciones cotidianas y lúdicas.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "LV",
+      "nombre": "Lenguaje Verbal",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 LV",
+          "texto": "Expresarse oralmente, empleando estructuras oracionales simples y respetando patrones gramaticales básicos, en distintas situaciones cotidianas y juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 LV",
+          "texto": "Comprender mensajes simples como instrucciones explícitas, explicaciones y preguntas relativas a objetos, personas, acciones, tiempo y lugar, identificando la intencionalidad comunicativa de diversos interlocutores.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 LV",
+          "texto": "Identificar algunos atributos de los sonidos de diferentes fuentes sonoras como intensidad (fuerte/suave), velocidad (rápido/lento).",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 LV",
+          "texto": "Incorporar progresivamente nuevas palabras, al comunicar oralmente temas variados de su interés e información básica, en distintas situaciones cotidianas.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 LV",
+          "texto": "Manifestar interés por descubrir el contenido de textos de diferentes formatos, a través de la manipulación, la exploración, la escucha atenta y la formulación de preguntas.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 LV",
+          "texto": "Comprender a partir de la escucha atenta, contenidos explícitos de textos literarios y no literarios, reconociendo ideas centrales, señalando preferencias, realizando sencillas descripciones, preguntando sobre el contenido.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 LV",
+          "texto": "Reconocer progresivamente el significado de diversas imágenes, logos, símbolos de su entorno cotidiano, en diversos soportes (incluye uso de TICs).",
+          "conductas": {}
+        },
+        {
+          "numero": 8,
+          "codigo": "OA 8 LV",
+          "texto": "Producir sus propios signos gráficos en situaciones lúdicas.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "LA",
+      "nombre": "Lenguajes Artísticos",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 LA",
+          "texto": "Manifestar interés por diversas producciones artísticas (arquitectura, modelado, piezas musicales, pintura, dibujos, títeres, obras de teatro, danzas, entre otras), describiendo algunas características.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 LA",
+          "texto": "Expresar sus preferencias, sensaciones y emociones relacionadas con diferentes recursos expresivos que se encuentran en sencillas obras visuales (colorido, formas), musicales (fuente, intensidad del sonido) o escénicas (desplazamiento, vestimenta, carácter expresivo).",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 LA",
+          "texto": "Interpretar canciones y juegos musicales, experimentando con diversos recursos tales como, la voz, el cuerpo, instrumentos musicales y objetos.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 LA",
+          "texto": "Expresar corporalmente sensaciones y emociones experimentando con mímica, juegos teatrales, rondas, bailes y danzas.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 LA",
+          "texto": "Expresar emociones, ideas y experiencias por medio de la plástica experimentando con recursos pictóricos, gráficos y de modelado.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 LA",
+          "texto": "Experimentar diversas posibilidades de expresión, combinando lenguajes artísticos en sus producciones.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 LA",
+          "texto": "Representar a través del dibujo, diversos elementos de su entorno, incorporando figuras cerradas, trazos intencionados y primeros esbozos de la figura humana.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "EEN",
+      "nombre": "Exploración del Entorno Natural",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 EEN",
+          "texto": "Manifestar interés y asombro por diversos elementos, situaciones y fenómenos del entorno natural, explorando, observando, preguntando, describiendo, agrupando, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 EEN",
+          "texto": "Comunicar verbalmente características de elementos y paisajes de su entorno natural, tales como cuerpos celestes, cerros, desierto, flora; y de fenómenos como marejadas, sismos, tormentas, sequías.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 EEN",
+          "texto": "Descubrir que el sol es fuente de luz y calor para el planeta, a través de experiencias directas o TICs.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 EEN",
+          "texto": "Comunicar algunas propiedades básicas de los elementos naturales que explora, tales como: colores, texturas, tamaños, temperaturas entre otras.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 EEN",
+          "texto": "Distinguir una variedad progresivamente más amplia de animales y plantas, respecto a sus características (tamaño, color, textura y morfología), sus necesidades básicas y los lugares que habitan, al observarlos en forma directa, en libros ilustrados o en TICs.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 EEN",
+          "texto": "Colaborar en situaciones cotidianas, en acciones que contribuyen al desarrollo de ambientes sostenibles, tales como cerrar las llaves de agua, apagar aparatos eléctricos, entre otras.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 EEN",
+          "texto": "Emplear instrumentos y herramientas de observación y recolección (lupas, frascos, recipientes, botellas, cucharas, embudos, pinzas, entre otros) en la exploración del entorno natural.",
+          "conductas": {}
+        },
+        {
+          "numero": 8,
+          "codigo": "OA 8 EEN",
+          "texto": "Experimentar mezclas y disoluciones con materiales cotidianos tales como: burbujas de jabón, agua salada, gelatina, describiendo los cambios observados.",
+          "conductas": {}
+        },
+        {
+          "numero": 9,
+          "codigo": "OA 9 EEN",
+          "texto": "Reconocer que el aire y el agua son elementos vitales para las personas, los animales y las plantas, y que estos elementos pueden encontrarse con o sin contaminación.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "CES",
+      "nombre": "Comprensión del Entorno Sociocultural",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 CES",
+          "texto": "Describir actividades habituales de su comunidad, como ir de compras, jugar en la plaza, viajar en bus, entre otras, señalando su participación en ellas.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 CES",
+          "texto": "Describir características de las formas de vida de su comunidad (viviendas, paisajes, costumbres), a través de canciones, juegos, relatos y fotos familiares, entre otras.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 CES",
+          "texto": "Seleccionar utensilios domésticos y objetos tecnológicos que les permiten resolver problemas en contextos sociales auténticos.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 CES",
+          "texto": "Reconocer sucesos significativos de su historia personal y familiar, en diversas situaciones, tales como: conversaciones familiares, relatos de un agente comunitario, visitas a lugares, observación de fotografías, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 CES",
+          "texto": "Identificar instituciones significativas de su entorno, describiendo actividades y rutinas representativas que en ellas se realizan.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 CES",
+          "texto": "Identificar algunas normas de protección y seguridad de su entorno cotidiano referidas a alimentación, tránsito y sismos, y otras pertinentes a su contexto geográfico.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 CES",
+          "texto": "Distinguir en paisajes de su localidad, elementos naturales (bosque, cerros, ríos), y culturales (caminos, edificios, puentes).",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "PM",
+      "nombre": "Pensamiento Matemático",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 PM",
+          "texto": "Reproducir patrones sonoros, visuales, gestuales, corporales u otros, de dos o tres elementos.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 PM",
+          "texto": "Experimentar con diversos objetos, estableciendo relaciones al clasificar por dos atributos a la vez (forma, color, entre otros) y seriar por altura o longitud.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 PM",
+          "texto": "Describir la posición de objetos y personas, respecto de un punto u objeto de referencia, empleando conceptos de ubicación y distancia tales como: dentro/fuera; encima/debajo; cerca /lejos.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 PM",
+          "texto": "Orientarse temporalmente en situaciones cotidianas, mediante la utilización progresiva de algunas nociones y relaciones de secuencias, tales como: antes/ después, día/noche, hoy/mañana.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 PM",
+          "texto": "Emplear cuantificadores, tales como: más/menos, mucho/poco, todo/ninguno, al comparar cantidades de objetos en situaciones cotidianas.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 PM",
+          "texto": "Emplear progresivamente los números, para contar, identificar, cuantificar y comparar cantidades, hasta el 10 e indicar orden o posición de algunos elementos en situaciones cotidianas o juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 PM",
+          "texto": "Representar progresivamente, números y cantidades en forma concreta y pictórica hasta el 10.",
+          "conductas": {}
+        },
+        {
+          "numero": 8,
+          "codigo": "OA 8 PM",
+          "texto": "Resolver progresivamente problemas simples, de manera concreta y pictórica, agregando o quitando hasta 5 elementos.",
+          "conductas": {}
+        },
+        {
+          "numero": 9,
+          "codigo": "OA 9 PM",
+          "texto": "Descubrir atributos de figuras 3D, mediante la exploración de objetos presentes en su entorno.",
+          "conductas": {}
+        },
+        {
+          "numero": 10,
+          "codigo": "OA 10 PM",
+          "texto": "Identificar algunas acciones que se llevaron a cabo para resolver problemas.",
+          "conductas": {}
+        }
+      ]
+    }
+  ]
+}

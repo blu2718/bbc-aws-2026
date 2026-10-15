@@ -28,7 +28,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
-from registro.curriculo import cargar_curriculo, leer_curriculo
+from registro.curriculo import cargar_curriculo, leer_curriculo, leer_curriculo_de
 from registro.models import (
     Apoyo,
     Captura,
@@ -36,6 +36,7 @@ from registro.models import (
     Efecto,
     Jardin,
     MetaSemestre,
+    NivelEducativo,
     NivelValidado,
     Nino,
     Nucleo,
@@ -76,6 +77,10 @@ class Command(BaseCommand):
                 f"Rúbrica de Integra: se omitió {sigla} en {nivel_educativo} porque ese núcleo no existe."
             ))
         demo = json.loads(Path(opciones["demo"]).read_text(encoding="utf-8"))
+        nivel_demo = demo["curso"]["nivel_educativo"]
+        if nivel_demo != NivelEducativo.TRANSICION:
+            # Cursos de sala cuna o medio (por ejemplo --demo datos/demo_sala_cuna.json): sus OA salen de las Bases.
+            cargar_curriculo(leer_curriculo_de(nivel_demo), nivel_educativo=nivel_demo)
         self._passwords = []
 
         for s in demo["semestres"]:

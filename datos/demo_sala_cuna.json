@@ -1,0 +1,66 @@
+{
+  "_nota": "Datos 100% ficticios. Curso de sala cuna (0 a 2 años) para probar la app con los más pequeños. Se carga con: python manage.py cargar_demo --demo ../datos/demo_sala_cuna.json (después de la demo principal). Los OA son los de sala cuna de las Bases Curriculares (datos/curriculo_sala_cuna.json).",
+  "semestres": [
+    {"nombre": "2025-2", "inicio": "2025-07-28", "fin": "2025-12-19"},
+    {"nombre": "2026-1", "inicio": "2026-03-02", "fin": "2026-07-03"},
+    {"nombre": "2026-2", "inicio": "2026-07-20", "fin": "2026-12-18"}
+  ],
+  "jardin": "Jardín Infantil Los Aromos (ficticio)",
+  "curso": {
+    "nombre": "Sala Cuna Heterogénea",
+    "nivel_educativo": "sala_cuna",
+    "metas": {"1": 1, "2": 3, "3": 5, "4": 7}
+  },
+  "educadora": {
+    "usuario": "educadora.salacuna",
+    "nombre": "Daniela",
+    "apellido": "Demo",
+    "email": "salacuna@example.com"
+  },
+  "asistentes": [],
+  "revisiones": {
+    "2026-07-03": "Cierre del semestre 2026-1",
+    "2026-09-30": "Revisión de septiembre"
+  },
+  "ninos": [
+    {"nombre": "Amanda Rivas", "fecha_nacimiento": "2025-11-20", "alias": ["Amandita"], "fecha_ingreso": "2026-07-20",
+     "niveles": {}},
+    {"nombre": "Julieta Rojas", "fecha_nacimiento": "2025-09-14", "alias": ["Juli"], "fecha_ingreso": "2026-07-20",
+     "niveles": {"todos": {"2026-09-30": 2}}},
+    {"nombre": "Gael Pino", "fecha_nacimiento": "2025-05-28", "alias": [], "fecha_ingreso": "2026-03-02",
+     "niveles": {"todos": {"2026-07-03": 2, "2026-09-30": 3}}},
+    {"nombre": "Lucas Vera", "fecha_nacimiento": "2025-02-10", "alias": ["Luquitas"], "fecha_ingreso": "2025-07-28",
+     "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 3, "2026-09-30": 4}}},
+    {"nombre": "Emma Soto", "fecha_nacimiento": "2024-12-03", "alias": [], "fecha_ingreso": "2025-07-28",
+     "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 4, "2026-09-30": 5}, "LV": {"2025-12-19": 1, "2026-07-03": 2, "2026-09-30": 2}}},
+    {"nombre": "Bastián Mora", "fecha_nacimiento": "2024-11-25", "alias": ["Basti"], "fecha_ingreso": "2025-07-28",
+     "niveles": {"todos": {"2025-12-19": 3, "2026-07-03": 4, "2026-09-30": 5}}}
+  ],
+  "observaciones": [
+    {"nino": "Amanda Rivas", "hace_dias": 1, "nucleos": ["LA"], "oas": ["OA 1 LA"], "apoyo": "sin_dato", "efecto": "avance",
+     "cita": "Amanda siguió con la mirada la pelota de colores y sonrió cuando la tía la hizo sonar."},
+    {"nino": "Amanda Rivas", "hace_dias": 3, "nucleos": ["CM", "IA"], "oas": ["OA 1 CM", "OA 2 IA"], "apoyo": "con_ayuda", "efecto": "avance",
+     "cita": "Amanda lloró al llegar y se calmó cuando la tía la tomó en brazos y le cantó.",
+     "interpretacion": "Todavía está en período de adaptación."},
+    {"nino": "Julieta Rojas", "hace_dias": 2, "nucleos": ["PM"], "oas": ["OA 1 PM"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Julieta levantó el paño y buscó el sonajero que la tía había escondido debajo."},
+    {"nino": "Julieta Rojas", "hace_dias": 6, "nucleos": ["IA"], "oas": ["OA 7 IA"], "apoyo": "con_ayuda", "efecto": "por_reforzar",
+     "cita": "Julieta se quedó dormida antes de terminar el almuerzo y despertó llorando."},
+    {"nino": "Gael Pino", "hace_dias": 4, "nucleos": ["CM"], "oas": ["OA 5 CM"], "apoyo": "con_ayuda", "efecto": "avance",
+     "cita": "Gael se puso de pie afirmado del mueble y dio dos pasos de lado sin soltarse."},
+    {"nino": "Gael Pino", "hace_dias": 9, "nucleos": ["LV"], "oas": ["OA 1 LV"], "apoyo": "sin_dato", "efecto": "avance",
+     "cita": "Gael balbuceó «ta-ta-ta» mirando a la tía cuando ella le hablaba."},
+    {"nino": "Lucas Vera", "hace_dias": 2, "nucleos": ["LV"], "oas": ["OA 2 LV"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Lucas dijo «agua» señalando su vaso y esperó a que se lo pasaran."},
+    {"nino": "Lucas Vera", "hace_dias": 12, "nucleos": ["CC"], "oas": ["OA 3 CC"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Cuando Emma lloró, Lucas se acercó y le pasó su tuto."},
+    {"nino": "Emma Soto", "hace_dias": 5, "nucleos": ["CM"], "oas": ["OA 7 CM"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Emma trepó sola por la rampa de goma y se rió al llegar arriba."},
+    {"nino": "Emma Soto", "hace_dias": 7, "nucleos": ["LV"], "oas": ["OA 4 LV"], "apoyo": "con_ayuda", "efecto": "por_reforzar",
+     "cita": "Cuando la tía le pidió «trae el zapato», Emma la miró y no se movió; con el gesto de señalar, lo trajo."},
+    {"nino": "Bastián Mora", "hace_dias": 3, "nucleos": ["IA"], "oas": ["OA 6 IA"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Frente al espejo, Basti se tocó la nariz y dijo «Basti»."},
+    {"nino": null, "grupal": true, "hace_dias": 4, "nucleos": [], "oas": [], "apoyo": "sin_dato",
+     "cita": "Hoy la siesta se atrasó media hora porque hubo corte de luz."}
+  ]
+}
