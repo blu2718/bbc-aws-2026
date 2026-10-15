@@ -1,0 +1,10 @@
+{% if p.estado == "error" %}
+  {% url 'reintentar_propuesta' p.pk as url_propuesta %}
+{% else %}
+  {% url 'solicitar_propuesta' ficha.nino.pk nf.nucleo.sigla as url_propuesta %}
+{% endif %}
+<form method="post" action="{{ url_propuesta }}" hx-post="{{ url_propuesta }}"
+      hx-target="#nucleo-{{ nf.nucleo.sigla }}" hx-swap="outerHTML" hx-disabled-elt="find button">
+  {% csrf_token %}
+  <button type="submit" class="secondary">{% if p.estado == "error" %}Reintentar propuesta{% else %}Solicitar propuesta{% endif %}</button>
+</form>

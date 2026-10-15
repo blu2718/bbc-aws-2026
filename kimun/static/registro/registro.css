@@ -603,3 +603,9 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
 }
+
+/* Propuestas de nivel: actualizar este panel conserva el formulario manual. */
+.propuesta-nivel { border-block-start: 1px solid var(--pico-muted-border-color); padding-block: 1rem; }
+.propuesta-nivel .acciones { margin-block: .75rem; }
+.propuesta-nivel details { margin-block: 1rem; }
+[id^="observacion-"] { scroll-margin-top: var(--pico-spacing); }

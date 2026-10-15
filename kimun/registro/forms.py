@@ -113,9 +113,11 @@ class FijarNivelForm(forms.Form):
         queda en el formulario).
         """
         try:
-            return NivelValidado.objects.create(
-                nino=nino, nucleo=nucleo, nivel=self.cleaned_data["nivel"], fecha=hoy,
-                validado_por=usuaria, comentario=self.cleaned_data["comentario"],
+            from .propuestas import fijar_nivel_manual
+
+            return fijar_nivel_manual(
+                nino, nucleo, usuaria, nivel=self.cleaned_data["nivel"], hoy=hoy,
+                comentario=self.cleaned_data["comentario"],
             )
         except ValidationError as error:
             self.add_error(None, error.messages)

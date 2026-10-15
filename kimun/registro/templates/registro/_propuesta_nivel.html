@@ -1,0 +1,90 @@
+{% if ficha.puede_validar %}
+  {% with p=nf.propuesta %}
+    <div id="propuesta-{{ nf.nucleo.sigla }}" class="propuesta-nivel"
+         {% if p.estado == "solicitada" or p.estado == "procesando" %}
+           hx-get="{% url 'estado_propuesta' ficha.nino.pk nf.nucleo.sigla %}"
+           hx-trigger="every 3s" hx-target="this" hx-swap="outerHTML"
+         {% endif %}>
+      <h3>Propuesta de nivel</h3>
+      {% if nf.error_propuesta %}<p role="alert" class="error">{{ nf.error_propuesta }}</p>{% endif %}
+      {% if p.estado == "solicitada" or p.estado == "procesando" %}
+        <p role="status">{% if p.estado == "solicitada" %}Propuesta en cola.{% else %}Generando propuesta.{% endif %}</p>
+        {# Sin JavaScript, un enlace a la misma ficha con #nucleo-... no la recarga; la vista de estado redirige y sí. #}
+        <p><a href="{% url 'estado_propuesta' ficha.nino.pk nf.nucleo.sigla %}">Actualizar estado</a></p>
+      {% else %}
+        {% if p %}
+          {% if p.estado == "obsoleta" %}
+            <p role="status">La propuesta anterior quedó desactualizada. Solicita una nueva antes de decidir.</p>
+          {% elif p.estado == "error" %}
+            <p role="alert">{{ p.error }}</p>
+          {% elif p.estado == "aceptada" %}
+            <p role="status">Propuesta aceptada.</p>
+          {% elif p.estado == "ajustada" %}
+            <p role="status">La educadora fijó otro nivel: <strong>{{ nf.texto_validado_propuesta }}</strong>.</p>
+          {% elif p.estado == "rechazada" %}
+            <p role="status">Propuesta rechazada.</p>
+          {% elif p.estado == "lista" %}
+            <p role="status">{% if p.evidencia_suficiente %}Propuesta lista para revisar.{% else %}Faltan observaciones para proponer un nivel.{% endif %}</p>
+          {% endif %}
+          {% if p.rubrica_provisoria %}<p class="etiqueta-provisoria">Propuesta basada en una rúbrica provisoria</p>{% endif %}
+          {% if p.nivel is not None %}<p>Nivel propuesto: <strong>{{ nf.texto_propuesto }}</strong></p>{% endif %}
+          {% if p.justificacion %}<p>{{ p.justificacion|linebreaksbr }}</p>{% endif %}
+          {% if p.conductas_observadas %}
+            <h4>Conductas observadas</h4>
+            <ul>{% for conducta in p.conductas_observadas %}<li>{{ conducta }}</li>{% endfor %}</ul>
+          {% endif %}
+          {% if nf.evidencia_propuesta %}
+            <h4>Evidencia citada</h4>
+            <ul>{% for obs in nf.evidencia_propuesta %}
+              <li><a href="#observacion-{{ nf.nucleo.sigla }}-{{ obs.pk }}">{{ obs.fecha|date:"d-m-Y" }}: {{ obs.cita }}</a></li>
+            {% endfor %}</ul>
+          {% endif %}
+          {% if p.resuelta_por %}<p>Decisión registrada por {{ p.resuelta_por.get_full_name|default:p.resuelta_por.username }} el {{ p.resuelta_en|date:"d-m-Y H:i" }}.</p>{% endif %}
+          {% if nf.validacion_propuesta.comentario %}<p>Comentario: {{ nf.validacion_propuesta.comentario|linebreaksbr }}</p>{% endif %}
+        {% endif %}
+        {% if p.estado == "lista" %}
+          <div class="acciones">
+            {% if p.evidencia_suficiente and p.nivel is not None %}
+              {% url 'aceptar_propuesta' p.pk as url_aceptar %}
+              <form method="post" action="{{ url_aceptar }}" hx-post="{{ url_aceptar }}" hx-target="#nucleo-{{ nf.nucleo.sigla }}" hx-swap="outerHTML" hx-disabled-elt="find button">
+                {% csrf_token %}<button type="submit">Aceptar propuesta</button>
+              </form>
+            {% endif %}
+            {% url 'rechazar_propuesta' p.pk as url_rechazar %}
+            <form method="post" action="{{ url_rechazar }}" hx-post="{{ url_rechazar }}" hx-target="#nucleo-{{ nf.nucleo.sigla }}" hx-swap="outerHTML" hx-disabled-elt="find button">
+              {% csrf_token %}<button type="submit" class="secondary outline">Rechazar propuesta</button>
+            </form>
+          </div>
+          {% if nf.form_propuesta %}
+            {% with form=nf.form_propuesta %}
+              <details{% if form.is_bound %} open{% endif %}>
+                <summary>Fijar otro nivel</summary>
+                {% url 'ajustar_propuesta' p.pk as url_ajustar %}
+                <form method="post" action="{{ url_ajustar }}" hx-post="{{ url_ajustar }}" hx-target="#nucleo-{{ nf.nucleo.sigla }}" hx-swap="outerHTML" hx-disabled-elt="find button">
+                  {% csrf_token %}
+                  {% if form.non_field_errors %}<div role="alert" class="error">{{ form.non_field_errors }}</div>{% endif %}
+                  <fieldset>
+                    <legend>Elige un nivel diferente del propuesto</legend>
+                    {% for op in form.opciones %}
+                      <label for="{{ form.prefix }}-nivel-{{ op.valor }}">
+                        <input type="radio" id="{{ form.prefix }}-nivel-{{ op.valor }}" name="{{ form.nivel.html_name }}" value="{{ op.valor }}"{% if op.marcada %} checked{% endif %}{% if form.nivel.errors %} aria-invalid="true"{% endif %}>
+                        <strong>{{ op.texto }}</strong>{% if op.descripcion %}: {{ op.descripcion }}{% endif %}
+                      </label>
+                    {% endfor %}
+                  </fieldset>
+                  {% if form.nivel.errors %}<div role="alert" class="error">{{ form.nivel.errors }}</div>{% endif %}
+                  <label for="{{ form.comentario.id_for_label }}">{{ form.comentario.label }}</label>
+                  {{ form.comentario }}
+                  {% if form.comentario.errors %}<div role="alert" class="error">{{ form.comentario.errors }}</div>{% endif %}
+                  <button type="submit">Guardar nivel elegido</button>
+                </form>
+              </details>
+            {% endwith %}
+          {% endif %}
+        {% endif %}
+        {# Una propuesta lista se decide primero. Si está desactualizada, al decidir queda obsoleta y vuelve este botón. #}
+        {% if p.estado != "lista" %}{% include "registro/_solicitud_propuesta.html" %}{% endif %}
+      {% endif %}
+    </div>
+  {% endwith %}
+{% endif %}

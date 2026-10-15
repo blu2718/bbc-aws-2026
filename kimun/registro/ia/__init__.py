@@ -4,6 +4,8 @@ from .bedrock import ClienteBedrock, ErrorBedrock
 from .foto import ImagenInvalida, transcribir_foto, validar_imagen
 from .separacion import ErrorSeparacion, separar
 from .transcripcion import ClienteTranscribe, ErrorTranscripcion
+from .seudonimo import MARCADOR_AMBIGUO, Seudonimizador, seudonimizar_texto
+from .propuesta import ErrorConfiguracionPropuesta, ErrorPropuesta, proponer
 
 __all__ = [
     "ClienteBedrock",
@@ -15,4 +17,10 @@ __all__ = [
     "separar",
     "transcribir_foto",
     "validar_imagen",
+    "MARCADOR_AMBIGUO",
+    "Seudonimizador",
+    "seudonimizar_texto",
+    "ErrorConfiguracionPropuesta",
+    "ErrorPropuesta",
+    "proponer",
 ]

@@ -95,17 +95,19 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
 
   <h3>Observaciones aceptadas</h3>
   {% if nf.observaciones %}
-    <details>
+    <details{% if nf.evidencia_propuesta %} open{% endif %}>
       <summary>{{ nf.observaciones|length }} observaciones</summary>
       <ul>
         {% for obs in nf.observaciones %}
-          <li><time datetime="{{ obs.fecha|date:'Y-m-d' }}">{{ obs.fecha|date:"d-m-Y" }}</time>: {{ obs.cita }}</li>
+          <li id="observacion-{{ nf.nucleo.sigla }}-{{ obs.pk }}"><time datetime="{{ obs.fecha|date:'Y-m-d' }}">{{ obs.fecha|date:"d-m-Y" }}</time>: {{ obs.cita }}</li>
         {% endfor %}
       </ul>
     </details>
   {% else %}
     <p>Sin observaciones aceptadas.</p>
   {% endif %}
+
+  {% include "registro/_propuesta_nivel.html" %}
 
   {% if nf.form %}
     {% url 'fijar_nivel' ficha.nino.pk nf.nucleo.sigla as url_fijar %}
