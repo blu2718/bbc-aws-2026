@@ -5,13 +5,15 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
 from django.db import transaction
+from django.urls import reverse
 
-from registro.alertas import EstadoDatos, Gravedad, tabla_del_curso
+from registro.alertas import EstadoDatos, Gravedad, resumen_del_jardin, tabla_del_curso
 from registro.cobertura import cobertura_del_nino, cobertura_quincena_del_curso, oas_sin_evidencia, quincena_de
 from registro.models import (
     Captura,
     Curso,
     DescriptorNivel,
+    Jardin,
     Manifestacion,
     MetaSemestre,
     NivelEducativo,
@@ -25,10 +27,15 @@ from registro.models import (
 )
 
 MODELOS = [
-    Rubrica, Nucleo, ObjetivoAprendizaje, Manifestacion, DescriptorNivel, Semestre, Curso, MetaSemestre, Nino,
-    NivelValidado, Captura, Observacion,
+    Rubrica, Nucleo, ObjetivoAprendizaje, Manifestacion, DescriptorNivel, Semestre, Jardin, Curso, MetaSemestre,
+    Nino, NivelValidado, Captura, Observacion,
 ]
 HOY = date(2026, 10, 16)  # día de la demo
+
+
+def _curso_a():
+    """El curso de la demo con observaciones (Tasks 2 a 6)."""
+    return Curso.objects.get(nombre="Transición Mayor A")
 
 
 def _conteos():
@@ -92,9 +99,9 @@ def test_cada_nucleo_trae_su_trayectoria(cargada):
 
 
 def test_carga_curso_de_15_ninos_con_nivel_inicial(cargada):
-    curso = Curso.objects.get()
+    curso = _curso_a()
     assert curso.ninos.count() == 15
-    iniciales = NivelValidado.objects.filter(validado_por__isnull=True)
+    iniciales = NivelValidado.objects.filter(validado_por__isnull=True, nino__curso=curso)
     assert iniciales.count() == 15 * 8
     assert set(iniciales.values_list("nivel", flat=True)) == {1}
     assert list(curso.metas.values_list("semestre_permanencia", "nivel_esperado")) == [(1, 1), (2, 3), (3, 5), (4, 7)]
@@ -102,7 +109,7 @@ def test_carga_curso_de_15_ninos_con_nivel_inicial(cargada):
 
 
 def test_carga_educadora_y_asistente(cargada, client):
-    curso = Curso.objects.get()
+    curso = _curso_a()
     assert curso.educadora.username == "educadora"
     assert list(curso.asistentes.values_list("username", flat=True)) == ["asistente"]
     assert client.login(username="educadora", password="clave-demo-de-prueba")
@@ -153,6 +160,8 @@ def test_sin_demo_password_genera_y_muestra_contrasenas(cargada, monkeypatch, ca
     salida = capsys.readouterr().out
     assert "Contraseña de educadora:" in salida
     assert "Contraseña de asistente:" in salida
+    assert "Contraseña de directora:" in salida
+    assert "Contraseña de educadora_b:" in salida
 
 
 @pytest.mark.parametrize(
@@ -168,7 +177,7 @@ def test_el_admin_abre_las_fichas(cargada, admin_client):
     urls = [
         f"/admin/registro/nino/{Nino.objects.first().pk}/change/",
         f"/admin/registro/objetivoaprendizaje/{ObjetivoAprendizaje.objects.first().pk}/change/",
-        f"/admin/registro/curso/{Curso.objects.get().pk}/change/",
+        f"/admin/registro/curso/{_curso_a().pk}/change/",
         f"/admin/registro/rubrica/{Rubrica.objects.get(nivel_educativo=NivelEducativo.TRANSICION).pk}/change/",
         f"/admin/registro/descriptornivel/{DescriptorNivel.objects.filter(provisorio=False).first().pk}/change/",
     ]
@@ -197,14 +206,14 @@ def test_demo_trae_unas_40_observaciones_aceptadas_con_nucleos_y_oa(cargada):
 
 
 def test_demo_muestra_un_nino_bajo_sus_pares_en_lenguaje(cargada):
-    tabla = tabla_del_curso(Curso.objects.get(), hoy=HOY)
+    tabla = tabla_del_curso(_curso_a(), hoy=HOY)
     lv = _celda(tabla, "Matías Lagos", "LV")
     assert (lv.nivel, lv.pares.gravedad, lv.esperado.gravedad) == (2, Gravedad.ALERTA, Gravedad.ALERTA)
     assert lv.pares.texto == "Revisar: 3 niveles bajo la mediana del curso"
 
 
 def test_demo_muestra_todos_los_estados(cargada):
-    tabla = tabla_del_curso(Curso.objects.get(), hoy=HOY)
+    tabla = tabla_del_curso(_curso_a(), hoy=HOY)
     celdas = [c for f in tabla.filas for c in f.celdas]
     assert {c.gravedad for c in celdas} == {Gravedad.NORMAL, Gravedad.AVISO, Gravedad.ALERTA}
     assert {c.datos for c in celdas} == {EstadoDatos.AL_DIA, EstadoDatos.DESACTUALIZADO, EstadoDatos.SIN_DATOS}
@@ -215,7 +224,7 @@ def test_demo_muestra_todos_los_estados(cargada):
 
 
 def test_demo_en_ia_usa_los_nombres_de_integra_y_benjamin_esta_en_desarrollando(cargada):
-    tabla = tabla_del_curso(Curso.objects.get(), hoy=HOY)
+    tabla = tabla_del_curso(_curso_a(), hoy=HOY)
     ia = _celda(tabla, "Benjamín Soto", "IA")
     assert ia.texto_nivel == "3 · Desarrollando"
     assert ia.esperado.texto == "Observar: 2 niveles bajo lo esperado"
@@ -238,7 +247,7 @@ def test_demo_deja_oa_sin_evidencia_a_proposito(cargada):
 
 
 def test_demo_la_quincena_actual_tiene_nucleos_sin_observaciones(cargada):
-    cobertura = cobertura_quincena_del_curso(Curso.objects.get(), quincena_de(HOY))
+    cobertura = cobertura_quincena_del_curso(_curso_a(), quincena_de(HOY))
     assert any(c.sin_observaciones for c in cobertura)
     assert any(not c.sin_observaciones for c in cobertura)
 
@@ -262,7 +271,77 @@ def test_volver_a_cargar_conserva_un_nivel_fijado_a_mano(cargada):
     benjamin = Nino.objects.get(nombre="Benjamín Soto")
     ia = Nucleo.objects.get(sigla="IA")
     NivelValidado.objects.create(
-        nino=benjamin, nucleo=ia, nivel=4, fecha=HOY, validado_por=Curso.objects.get().educadora
+        nino=benjamin, nucleo=ia, nivel=4, fecha=HOY, validado_por=_curso_a().educadora
     )
     call_command("cargar_demo", verbosity=0, hoy=HOY)
     assert benjamin.nivel_actual(ia).nivel == 4
+
+
+# --- Datos de demo de la Task 12 (vista de la directora) ----------------------------------
+
+ALERTAS_DEMO = [
+    "Revisar: Transición Mayor C, 2,4 niveles bajo el resto del jardín en Pensamiento Matemático",
+    "Revisar: Transición Mayor C, 2,3 niveles bajo el resto del jardín en Lenguaje Verbal",
+]
+
+
+def test_demo_tiene_3_salas_de_transicion_en_el_jardin(cargada):
+    jardin = _curso_a().jardin
+    cursos = list(jardin.cursos.all())
+    assert [c.nombre for c in cursos] == ["Transición Mayor A", "Transición Mayor B", "Transición Mayor C"]
+    assert {c.nivel_educativo for c in cursos} == {NivelEducativo.TRANSICION}
+    assert _curso_a().ninos.count() == 15
+    nucleos = Nucleo.objects.count()
+    for curso, usuario in zip(cursos[1:], ["educadora_b", "educadora_c"]):
+        assert 8 <= curso.ninos.count() <= 10
+        assert curso.educadora.username == usuario
+        assert not curso.asistentes.exists()
+        assert not Observacion.objects.filter(nino__curso=curso).exists()
+        # Cada niño tiene niveles validados por la educadora de su sala en todos los núcleos.
+        for nino in curso.ninos.all():
+            validados = nino.niveles.filter(validado_por=curso.educadora)
+            assert validados.values("nucleo").distinct().count() == nucleos, nino
+
+
+def test_demo_carga_la_directora_del_jardin(cargada, client):
+    jardin = _curso_a().jardin
+    assert jardin.directora.username == "directora"
+    assert client.login(username="directora", password="clave-demo-de-prueba")
+    assert client.login(username="educadora_b", password="clave-demo-de-prueba")
+    assert client.login(username="educadora_c", password="clave-demo-de-prueba")
+
+
+def test_demo_muestra_la_alerta_de_la_sala_rezagada(cargada):
+    resumen = resumen_del_jardin(_curso_a().jardin)
+    assert [a.texto_alerta for a in resumen.alertas] == ALERTAS_DEMO
+    b = next(c for c in resumen.grupos[0].cursos if c.nombre == "Transición Mayor B")
+    assert {celda.texto_promedio for fila in resumen.grupos[0].filas for celda in fila.celdas if celda.curso == b} == {"6"}
+
+
+def test_demo_la_directora_ve_la_alerta_en_la_vista_del_jardin(cargada, client):
+    jardin = _curso_a().jardin
+    url = reverse("jardin", args=[jardin.pk])
+    assert client.login(username="directora", password="clave-demo-de-prueba")
+
+    respuesta = client.get(url)
+
+    assert respuesta.status_code == 200
+    html = respuesta.content.decode()
+    for texto in ALERTAS_DEMO:
+        assert texto in html
+    assert html.count('class="celda-alerta"') == 2
+
+    client.logout()
+    assert client.login(username="educadora", password="clave-demo-de-prueba")
+    assert client.get(url).status_code == 404
+
+
+def test_volver_a_cargar_no_duplica_las_salas_ni_la_directora(cargada):
+    antes = _conteos()
+    jardin = _curso_a().jardin
+    call_command("cargar_demo", verbosity=0, hoy=HOY)
+    assert _conteos() == antes
+    assert Curso.objects.count() == 3
+    assert get_user_model().objects.filter(username="directora").count() == 1
+    jardin.refresh_from_db()
+    assert jardin.directora.username == "directora"

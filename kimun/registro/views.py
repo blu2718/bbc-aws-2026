@@ -1,6 +1,7 @@
 """Vistas de la app. Toda consulta de un curso o niño pasa por `permisos.py`.
 
 - `curso`: tabla del curso con nivel esperado, brechas, distribución y quincena (Task 2).
+- `jardin`: resumen del jardín para la directora, que compara salas del mismo nivel educativo (Task 12).
 - `ficha`, `fijar_nivel` y `metas`: ficha del niño, validación manual y tabla de metas (Task 3).
 - La revisión de observaciones (Task 6) está en `views_revision.py`.
 """
@@ -13,7 +14,7 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
-from .alertas import DIAS_DATOS_RECIENTES, tabla_del_curso
+from .alertas import DIAS_DATOS_RECIENTES, resumen_del_jardin, tabla_del_curso
 from .cobertura import cobertura_quincena_del_curso, quincena_de
 from .ficha import armar_ficha, descriptores_del_nucleo
 from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, etiqueta_nivel, nombres_comunes
@@ -22,6 +23,7 @@ from .permisos import (
     cursos_de,
     cursos_donde_registra,
     cursos_que_valida,
+    jardines_que_dirige,
     ninos_de,
     ninos_que_valida,
     puede_validar,
@@ -36,9 +38,18 @@ def _es_htmx(request):
 @login_required
 def inicio(request):
     cursos = cursos_de(request.user).select_related("jardin")
-    if len(cursos) == 1:
+    jardines = list(jardines_que_dirige(request.user))
+    # La directora siempre ve el inicio, para llegar al resumen de su jardín.
+    if len(cursos) == 1 and not jardines:
         return redirect("curso", curso_id=cursos[0].pk)
-    return render(request, "registro/inicio.html", {"cursos": cursos})
+    return render(request, "registro/inicio.html", {"cursos": cursos, "jardines": jardines})
+
+
+@login_required
+def jardin(request, jardin_id):
+    """Resumen del jardín para su directora: promedio de cada sala por núcleo y alertas (Task 12)."""
+    jardin = get_object_or_404(jardines_que_dirige(request.user), pk=jardin_id)
+    return render(request, "registro/jardin.html", {"jardin": jardin, "resumen": resumen_del_jardin(jardin)})
 
 
 def _quincena_pedida(valor, hoy):
@@ -72,6 +83,7 @@ def curso(request, curso_id):
         "nucleos_sin_observaciones": [c.nucleo for c in cobertura if c.sin_observaciones],
         "dias_datos_recientes": DIAS_DATOS_RECIENTES,
         "puede_validar": valida,
+        "es_directora": curso.jardin.directora_id == request.user.pk,
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=curso.pk).exists(),
         "pendientes_por_revisar": resumen_pendientes(curso)["individuales"] if valida else 0,
     })

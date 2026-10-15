@@ -15,13 +15,13 @@ python -m venv .venv
 .\.venv\Scripts\Activate.ps1          # en Linux/macOS: source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
 python manage.py migrate
-python manage.py cargar_demo          # muestra las contraseñas de "educadora" y "asistente" la primera vez
+python manage.py cargar_demo          # muestra las contraseñas de las usuarias de demo la primera vez
 python manage.py runserver
 ```
 
 Si Windows bloquea `Activate.ps1` ("la ejecución de scripts está deshabilitada"), ejecuta una vez `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, o usa `.\.venv\Scripts\python.exe` en lugar de `python`.
 
-Abrir http://127.0.0.1:8000 y entrar como `educadora` (revisa y valida) o `asistente` (solo registra). Para el panel de administración, crear un usuario con `python manage.py createsuperuser` y entrar en `/admin/`. Ahí se cambia la cantidad de niveles de la rúbrica (Rúbricas) y se asigna la directora de un jardín.
+Abrir http://127.0.0.1:8000 y entrar como `educadora` (revisa y valida), `asistente` (solo registra) o `directora` (ve el resumen del jardín en `/jardines/<id>/`, que compara las salas de Transición, y la tabla de cada sala; no valida). `educadora_b` y `educadora_c` son las educadoras de las otras dos salas. Para el panel de administración, crear un usuario con `python manage.py createsuperuser` y entrar en `/admin/`. Ahí se cambia la cantidad de niveles de la rúbrica (Rúbricas) y se asigna la directora de un jardín.
 
 `cargar_demo` se puede correr varias veces sin duplicar datos. Para fijar la contraseña, define `DEMO_PASSWORD` antes de correrlo y usa `--cambiar-password` si la usuaria ya existe.
 
@@ -51,16 +51,16 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/config/` | Configuración de Django (todo lo variable se lee del entorno) |
 | `kimun/registro/models.py` | Todas las entidades del plan, con sus restricciones |
 | `kimun/registro/curriculo.py`, `kimun/registro/rubrica.py` | Carga del currículo de Transición y rúbrica provisoria 8×8 |
-| `kimun/registro/alertas.py` | Semestre de permanencia, nivel esperado, brechas con pares y con lo esperado, datos desactualizados y distribución del curso (funciones puras; `tabla_del_curso` es la única que consulta) |
+| `kimun/registro/alertas.py` | Semestre de permanencia, nivel esperado, brechas con pares y con lo esperado, datos desactualizados y distribución del curso, y comparación de las salas del jardín por núcleo (funciones puras; `tabla_del_curso` y `resumen_del_jardin` son las únicas que consultan) |
 | `kimun/registro/cobertura.py` | Cobertura de evidencia por OA de cada niño y resumen de la quincena del curso |
 | `kimun/registro/ficha.py` | Datos de la ficha del niño por núcleo: rúbrica del nivel actual y del siguiente, evolución, cobertura por OA, observaciones y situación frente al curso (sale de `alertas.tabla_del_curso`) |
 | `kimun/registro/forms.py` | `FijarNivelForm` (niveles del 1 al máximo de la rúbrica) y `MetasForm` (nivel esperado por semestre de permanencia) |
 | `kimun/registro/revision.py`, `kimun/registro/views_revision.py` | Revisión de observaciones pendientes (Task 6): agrupar por captura, aceptar, editar, descartar, asignar niño y "aceptar todas". Solo la educadora del curso; las vistas responden a HTMX y también sin JavaScript |
 | `kimun/registro/contexto.py` | Context processor con el contador de pendientes de la barra de navegación (solo para quien revisa) |
 | `kimun/registro/grafico.py` | SVG de la evolución de niveles por núcleo, con tabla equivalente en `_evolucion.html` |
-| `kimun/registro/permisos.py` | `cursos_de(usuario)` para ver, `cursos_donde_registra` para capturar y `cursos_que_valida` para revisar y validar: filtro obligatorio en toda vista con datos de un curso. `ninos_de` y `ninos_que_valida` hacen lo mismo para la ficha |
-| `kimun/registro/management/commands/cargar_demo.py` | Currículo, semestres y curso de demo con 15 niños ficticios, niveles históricos y unas 40 observaciones aceptadas (fechas contadas desde el día de la carga, o desde `--hoy AAAA-MM-DD`) |
-| `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
+| `kimun/registro/permisos.py` | `cursos_de(usuario)` para ver, `cursos_donde_registra` para capturar y `cursos_que_valida` para revisar y validar: filtro obligatorio en toda vista con datos de un curso. `ninos_de` y `ninos_que_valida` hacen lo mismo para la ficha, y `jardines_que_dirige` para el resumen del jardín |
+| `kimun/registro/management/commands/cargar_demo.py` | Currículo, semestres y curso de demo con 15 niños ficticios, niveles históricos y unas 40 observaciones aceptadas (fechas contadas desde el día de la carga, o desde `--hoy AAAA-MM-DD`); además, la directora del jardín y 2 salas más de Transición con sus educadoras y niveles validados, una de ellas bajo las demás en Lenguaje Verbal y Pensamiento Matemático |
+| `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, resumen del jardín (`jardin.html`), ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
 | `kimun/static/registro/registro.css` | Estilos de toda la app: paleta del logo (celeste `#5cbde6`) sobre Pico y colores de las señales con contraste ≥ 4,5:1 |
 | `kimun/static/registro/img/` | Logo (`logo.svg`, `logo-512.png`) y favicons |

@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block titulo %}{{ jardin.nombre }}{% endblock %}
+{% block head %}
+<style>
+  /* Las alertas llevan color y también texto, por accesibilidad: el color nunca es la única pista. Colores en registro.css. */
+  .senal { display: block; margin-top: .25rem; padding: .1rem .35rem; border-radius: .25rem; font-size: .8rem; line-height: 1.3; font-weight: normal; }
+  .senal-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); font-weight: 600; }
+  .tabla-jardin th[scope="row"] { position: sticky; left: 0; background: var(--pico-background-color); z-index: 1; }
+  .tabla-jardin td, .tabla-jardin th { vertical-align: top; min-width: 7rem; }
+  .tabla-jardin th[scope="col"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
+  .tabla-jardin td.celda-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); }
+  .tabla-jardin td.celda-alerta .senal { border-left: 0; padding-left: 0; }
+</style>
+{% endblock %}
+{% block contenido %}
+<hgroup>
+  <h1>{{ jardin.nombre }}</h1>
+  <p>Resumen para la directora</p>
+</hgroup>
+
+{# --- Alertas --- #}
+<section aria-labelledby="titulo-alertas">
+  <h2 id="titulo-alertas">Sugerencias de revisión</h2>
+  {% if resumen.alertas %}
+    <ul>
+      {% for alerta in resumen.alertas %}
+        <li>
+          <span class="senal senal-alerta">{{ alerta.texto_alerta }}</span>
+          <a href="{% url 'curso' alerta.curso.pk %}">Ver {{ alerta.curso.nombre }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p role="status">Ninguna sala está {{ resumen.texto_umbral }} o más bajo las demás salas de su nivel educativo.</p>
+  {% endif %}
+</section>
+
+{# --- Tabla por nivel educativo --- #}
+<section aria-labelledby="titulo-salas">
+  <h2 id="titulo-salas">Promedio de cada sala por núcleo</h2>
+  <p>
+    Cada celda es el promedio del nivel actual validado de los niños y niñas de la sala, con un decimal.
+    Cada sala se compara solo con las otras salas de su mismo nivel educativo.
+    «Revisar» aparece cuando una sala queda {{ resumen.texto_umbral }} o más bajo el promedio de las demás:
+    es una sugerencia de revisión, no un diagnóstico.
+  </p>
+  {% for grupo in resumen.grupos %}
+    <h3>{{ grupo.nombre }}</h3>
+    {% if not grupo.comparable %}
+      <p>Con una sola sala de este nivel educativo no hay con quién comparar.</p>
+    {% endif %}
+    <div class="overflow-auto">
+      <table class="tabla-jardin">
+        <caption>Promedio del nivel actual validado por núcleo, salas de {{ grupo.nombre }}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Núcleo</th>
+            {% for c in grupo.cursos %}
+              <th scope="col">
+                <a href="{% url 'curso' c.pk %}">{{ c.nombre }}</a>
+                <small>{{ c.cantidad_ninos }} niño{{ c.cantidad_ninos|pluralize }}</small>
+              </th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for fila in grupo.filas %}
+            <tr>
+              <th scope="row">{{ fila.nucleo.nombre }}</th>
+              {% for celda in fila.celdas %}
+                <td{% if celda.alerta %} class="celda-alerta"{% endif %}>
+                  {{ celda.texto_promedio }}
+                  {% if celda.alerta %}<span class="senal senal-alerta">{{ celda.texto_celda }}</span>{% endif %}
+                </td>
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% empty %}
+    <p>Este jardín todavía no tiene salas.</p>
+  {% endfor %}
+</section>
+{% endblock %}
