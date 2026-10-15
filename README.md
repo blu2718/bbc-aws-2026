@@ -27,6 +27,20 @@ Abrir http://127.0.0.1:8000 y entrar como `educadora` (revisa y valida) o `asist
 
 Variables de entorno: ver `kimun/.env.example`.
 
+## Medición de calidad (Task 10)
+
+`manage.py evaluar` corre el set `datos/eval/notas_separacion.json` contra Bedrock real y muestra una tabla con niños bien asignados, precisión y cobertura de núcleos y OA, nivel de apoyo, fecha, interpretación, segundos, tokens y costo por nota. No usa la base de datos. Requiere las credenciales del workshop en el entorno (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` y `AWS_SESSION_TOKEN`, desde el panel del evento).
+
+```powershell
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; $env:PYTHONUTF8 = "1"   # tildes bien en la consola de Windows
+.\.venv\Scripts\python.exe manage.py evaluar                  # BEDROCK_MODEL_ID o Sonnet 5, las 20 notas
+.\.venv\Scripts\python.exe manage.py evaluar --modelo sonnet --modelo haiku   # comparación lado a lado
+.\.venv\Scripts\python.exe manage.py evaluar --ids n04 n15 --detalle          # qué no calzó, nota por nota
+.\.venv\Scripts\python.exe manage.py evaluar --json $env:TEMP\eval.json       # guarda lo obtenido (fuera del repo)
+```
+
+Cómo se cuenta, en `kimun/registro/evaluacion.py`: una observación que falta resta en niños y en cobertura; una de más, en precisión; dejar sin niño un nombre ambiguo o desconocido (las dos Sofías, Abel) es lo correcto. Cada observación esperada trae en `nino` el niño que debe quedar asignado. La propuesta de nivel (Task 7), las fotos (Task 8) y los audios (Task 9) se suman cuando existan; `casos_propuesta_ia` ya arma los 8 casos con el segundo ejemplo de cada nivel de IA (el que el prompt de la Task 7 no debe mostrar).
+
 ## Tests
 
 Dentro de `kimun/`, en una sola terminal y una sola corrida a la vez:
@@ -64,6 +78,7 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/registro/grafico.py` | SVG de la evolución de niveles por núcleo, con tabla equivalente en `_evolucion.html` |
 | `kimun/registro/permisos.py` | `cursos_de(usuario)` para ver, `cursos_donde_registra` para capturar y `cursos_que_valida` para revisar y validar: filtro obligatorio en toda vista con datos de un curso. `ninos_de` y `ninos_que_valida` hacen lo mismo para la ficha |
 | `kimun/registro/management/commands/cargar_demo.py` | Currículo, semestres y curso de demo con 15 niños ficticios, niveles históricos y unas 40 observaciones aceptadas (fechas contadas desde el día de la carga, o desde `--hoy AAAA-MM-DD`) |
+| `kimun/registro/evaluacion.py`, `kimun/registro/management/commands/evaluar.py` | Métricas de calidad de la IA (Task 10): funciones puras y el comando que las corre contra Bedrock con el set de `datos/eval/` |
 | `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
 | `kimun/static/registro/registro.css` | Estilos de toda la app: paleta del logo (celeste `#5cbde6`) sobre Pico y colores de las señales con contraste ≥ 4,5:1 |
