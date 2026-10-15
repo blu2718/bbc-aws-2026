@@ -42,6 +42,7 @@ La educadora siempre decide el nivel.
 
 - Dentro: perspectiva de la educadora (su curso), nivel Transición, un curso de 15 niños cargados a mano, datos 100% ficticios.
 - Fuera del MVP (se mencionan en el pitch): vistas de directora y nacional, sugerencias de actividades, informes a familias, video, modo sin conexión, carga masiva de niños y otros niveles educativos.
+- Descartado por el equipo: un registro propio de la voz del niño (sus intereses, preferencias o autoevaluación).
 
 ### Equipo
 

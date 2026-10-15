@@ -93,7 +93,7 @@ Lectura: las educadoras escribirán libremente. Si un registro sugiere una posib
 ### 6. Inclusión, talentos y protagonismo
 
 - **Inclusión y talentos.** Integra se compromete con una educación inclusiva que atienda las necesidades educativas especiales y los talentos de todos los niños. La app debe evitar etiquetas que estigmaticen, como "rezagado", y mostrar también fortalezas, no solo vacíos.
-- **Protagonismo.** Los niños eligen materiales, dónde y con quién jugar, y proponen acciones. Hay que escuchar su voz, así que la app debería poder registrar sus intereses, preferencias y palabras.
+- **Protagonismo.** Los niños eligen materiales, dónde y con quién jugar, y proponen acciones. Hay que escuchar su voz, así que la app podría registrar sus intereses, preferencias y palabras. El equipo descartó esta funcionalidad.
 
 ### 7. Familias y transiciones (pp. 96–98)
 
@@ -129,7 +129,7 @@ La última columna indica si `PLAN.md` ya las recoge.
 | Roles y reflexión en equipo | Parcial: el MVP cubre solo a la educadora |
 | Barrera de protección de derechos: detectar posibles vulneraciones y derivarlas al protocolo, sin procesarlas como evaluación | No |
 | Mostrar fortalezas y talentos, no solo vacíos | No |
-| Voz del niño: intereses, preferencias y palabras | No |
+| Voz del niño: intereses, preferencias y palabras | Descartado por el equipo |
 | Resumen para familias, validado por la educadora | Fuera del MVP |
 | Paneles agregados y anonimizados para directoras y regiones | Fuera del MVP |
 

@@ -120,7 +120,7 @@ La última columna indica si `PLAN.md` ya las recoge.
 | Trayectorias flexibles: OA de un nivel adyacente sin marcarlo como "fuera de rango" | No |
 | Más detalle individual en sala cuna | Fuera del alcance (la demo es Transición) |
 | Resumen para la familia, validado por la educadora | Fuera del MVP |
-| Voz del niño: sus apreciaciones e intereses | No |
+| Voz del niño: sus apreciaciones e intereses | Descartado por el equipo |
 
 ## Preguntas para Integra
 
