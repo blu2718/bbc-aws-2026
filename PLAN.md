@@ -228,12 +228,13 @@ flowchart LR
     - brecha con lo esperado;
     - gravedad de cada brecha (0–1 normal, 2 aviso, más de 2 alerta);
     - "datos de más de 14 días" y "sin datos".
-  - Por núcleo, la distribución del curso: cuántos niños hay en cada nivel y cuál es el más frecuente.
+  - Por núcleo, la distribución del curso: cuántos niños hay en cada nivel (columnas del 1 al máximo de la rúbrica) y cuál es el más frecuente.
+  - Las columnas de núcleos y de niveles salen de los datos, porque Integra pide que la herramienta esté pensada en 10 núcleos y en 8 o 9 niveles.
   - Modelos mínimos `Captura` y `Observacion` (niño, fecha, cita, núcleos, OA, estado).
   - Unas 40 observaciones aceptadas, etiquetadas con núcleos y OA, y niveles históricos en los datos de demo, para que aparezcan todos los estados. Algunos OA quedan sin evidencia a propósito.
   - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad, y se redactan como sugerencias (por ejemplo, "Revisar: 3 niveles bajo lo esperado"), no como diagnóstico.
   - Sobre la tabla, el resumen de la quincena: por núcleo, observaciones aceptadas y niños con al menos una, con los núcleos sin observaciones destacados y navegación a quincenas anteriores. Función pura `cobertura_quincena` en `registro/cobertura.py`.
-- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; mediana con cantidad par de niños y con un solo niño; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero). Otra educadora recibe 404.
+- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; mediana con cantidad par de niños y con un solo niño; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero); con una rúbrica de 9 niveles y 10 núcleos, la tabla, la distribución y las alertas funcionan sin cambiar código. Otra educadora recibe 404.
 - Demo: al entrar, aparece la tabla con las alertas (un niño bajo sus pares en lenguaje) y el resumen de la quincena con los núcleos sin observaciones.
 
 ### Task 3: Ficha del niño, validación manual y tabla de metas
@@ -241,12 +242,12 @@ flowchart LR
 - Objetivo: el flujo completo funciona sin IA.
 - Guía:
   - Ficha con todos los núcleos (actual frente a esperado y frente a la mediana del curso), la evolución de los niveles validados en el tiempo y las observaciones aceptadas con fecha y cita. La evolución va como gráfico simple por núcleo (SVG generado en el servidor, sin librerías nuevas) con una tabla equivalente, por accesibilidad.
-  - Si el descriptor del nivel tiene pasos sugeridos, la ficha los muestra.
+  - Si el descriptor del nivel tiene pasos sugeridos, la ficha los muestra. Se cargan desde el panel de administración (Integra quiere poder cargarlos a futuro). La carga masiva desde su rúbrica queda fuera del MVP. En la demo, un núcleo trae pasos de ejemplo marcados como ficticios, para mostrar dónde aparecen.
   - En cada núcleo de la ficha, la cobertura de evidencia de sus OA: cantidad de observaciones aceptadas y fecha de la más reciente, con los OA sin evidencia destacados como sugerencia de qué observar. Se calcula con funciones puras en `registro/cobertura.py`.
-  - Formulario con HTMX para fijar un nivel con un comentario (crea un `NivelValidado` con la usuaria).
+  - Formulario con HTMX para fijar un nivel con un comentario (crea un `NivelValidado` con la usuaria). Las opciones van del 1 al máximo de la rúbrica del nivel educativo. Solo lo ve la educadora del curso (`puede_validar`); las asistentes y la directora ven la ficha sin el formulario.
   - Pantalla para editar la tabla de metas del curso.
   - Diseño pensado primero para celular, con Pico.css.
-- Tests: validar un nivel crea historial y actualiza la tabla; editar metas cambia las alertas; la cobertura por OA cuenta solo observaciones aceptadas del niño y toma la fecha más reciente; permisos.
+- Tests: validar un nivel crea historial y actualiza la tabla; editar metas cambia las alertas; la cobertura por OA cuenta solo observaciones aceptadas del niño y toma la fecha más reciente; con una rúbrica de 9 niveles se puede fijar el 9; la ficha muestra los pasos sugeridos cuando existen; permisos (una asistente o la directora que intentan fijar un nivel o editar metas reciben 404).
 - Demo: se sube un nivel a mano y la alerta desaparece; la ficha muestra la evolución del niño y qué OA todavía no tienen evidencia.
 
 ### Task 4: Infraestructura y despliegue
@@ -273,10 +274,10 @@ flowchart LR
   - Prompt de separación en un archivo del repo. Recibe texto, fecha de captura, nombres de pila del curso como pista y el catálogo de núcleos y OA. Devuelve una lista de {nombre_detectado, fecha, cita_literal, interpretacion, núcleos[], oas[], apoyo, grupal}. Se valida el JSON y se descartan los códigos de OA que no existen.
   - `registro/coincidencia.py`: normaliza (tildes, mayúsculas), revisa alias exactos y luego comparación aproximada con difflib sobre un umbral. Si hay ambigüedad, la observación queda sin niño asignado.
   - `manage.py procesar_capturas`: bucle que toma una captura pendiente a la vez con una actualización condicional (dos procesos no toman la misma), registra estado y error visibles y permite reintentar.
-  - Formulario para capturar texto.
+  - Formulario para capturar texto, disponible para la educadora y las asistentes del curso (`cursos_donde_registra`). Integra confirmó que observan las dos: 1 educadora por sala y 1 asistente cada 7 niños. La captura guarda quién la registró.
   - Unas 20 notas de prueba, escritas a partir de conductas del programa, con el resultado esperado (niños, núcleos, OA y apoyo) en `datos/eval/`.
   - Prototipar el prompt con las notas de `contexto/ocr-presentacion.md`.
-- Tests: Naiara/Nayara se reconocen como la misma niña; "Sofía" queda ambigua porque hay dos; un nombre desconocido queda sin asignar; una nota sobre 3 niños genera 3 observaciones; una nota grupal queda como contexto; un código de OA inexistente se descarta; un JSON inválido marca error y permite reintentar.
+- Tests: Naiara/Nayara se reconocen como la misma niña; "Sofía" queda ambigua porque hay dos; un nombre desconocido queda sin asignar; una nota sobre 3 niños genera 3 observaciones; una nota grupal queda como contexto; un código de OA inexistente se descarta; un JSON inválido marca error y permite reintentar; una asistente puede registrar en su curso y recibe 404 en un curso ajeno.
 - Demo: se escribe "Pedro y Emilio clasificaron hojas por color" y aparecen 2 observaciones pendientes.
 
 ### Task 6: Pantalla de revisión
@@ -288,7 +289,7 @@ flowchart LR
   - Las notas grupales van en una sección de contexto.
   - Contador de pendientes en la barra de navegación.
   - Las observaciones aceptadas alimentan la ficha y las alertas.
-- Tests: aceptar, descartar y reasignar; no se puede actuar sobre observaciones de otro curso; aceptar actualiza el aviso de 14 días.
+- Tests: aceptar, descartar y reasignar; no se puede actuar sobre observaciones de otro curso; una asistente no puede revisar (404); aceptar actualiza el aviso de 14 días y la comparación con pares en la siguiente carga de la página, sin procesos aparte (Integra actualiza la información todo el tiempo).
 - Demo: se escribe una nota, se revisa, aparece en la ficha y desaparece el aviso de datos desactualizados.
 
 ### Task 7: Propuesta de nivel con nombres reemplazados por códigos
@@ -297,10 +298,10 @@ flowchart LR
 - Guía:
   - Modelo `PropuestaNivel`.
   - `registro/ia/seudonimo.py` reemplaza en las citas todos los nombres y alias del curso por códigos.
-  - El prompt incluye, para el nivel educativo del niño, las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1 y el mapeo de niveles; además, el nivel validado actual y las observaciones aceptadas (id, fecha, cita, OA y nivel de apoyo). La salida es nivel, ids citados, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. El prompt no fija un mínimo de observaciones: Integra decide por la conducta observable y los avances. Se valida (nivel entre 1 y el máximo de la rúbrica, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
+  - El prompt incluye, para el nivel educativo del niño, las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1 y el mapeo de niveles; además, el nivel validado actual y las observaciones aceptadas (id, fecha, cita, OA y nivel de apoyo). La salida es nivel, ids citados, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. El prompt no fija un mínimo de observaciones: Integra decide por la conducta observable y los avances. Por eso las observaciones van ordenadas por fecha y se pide considerar la progresión del niño (por ejemplo, de "con ayuda" a "autónomo"), no solo la más reciente. Si llega el audio de Integra con el ejemplo de cómo deciden el nivel, se transcribe y se incorpora al prompt como ejemplo. Se valida (nivel entre 1 y el máximo de la rúbrica, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
   - Se pide una propuesta automáticamente al aceptar observaciones nuevas de ese núcleo, y con un botón en la ficha. La procesa el proceso de fondo.
   - En la ficha: propuesta con citas enlazadas. La educadora acepta (crea un `NivelValidado` ligado a la propuesta), fija otro nivel o rechaza. Nunca se aplica sola.
-- Tests: ningún nombre del curso aparece en lo enviado a Bedrock; validación de la respuesta; flujo de aceptar y rechazar con cliente falso.
+- Tests: ningún nombre del curso aparece en lo enviado a Bedrock; las observaciones van en orden de fecha; validación de la respuesta (con una rúbrica de 9 niveles se acepta el 9); flujo de aceptar, fijar otro nivel y rechazar con cliente falso.
 - Demo: tras aceptar 3 observaciones de lenguaje de Sofía, aparece una propuesta de nivel 3 con sus citas; al aceptarla, la tabla se actualiza.
 
 ### Task 8: Captura por foto
