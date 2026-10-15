@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Registrar · {{ curso.nombre }}{% endblock %}
+{% block clase_pagina %}pagina-conversacion{% endblock %}
+{% block contenido %}
+<section class="conversacion" aria-labelledby="titulo-registrar">
+  <div class="registro-pregunta">
+    <img src="{% static 'registro/img/logo.svg' %}" alt="" width="88" height="88">
+    <h1 id="titulo-registrar">¿Qué quieres registrar?</h1>
+    <p>Cuenta lo que pasó con uno, dos o más niños, o con todo el curso. Puedes escribirlo, grabar un audio o adjuntar la foto del cuaderno o de un post-it.</p>
+    <p class="registro-curso">{{ curso.nombre }} · {{ curso.jardin.nombre }}</p>
+  </div>
+
+  {% if recientes %}
+    <section class="recientes" aria-labelledby="titulo-recientes">
+      <h2 id="titulo-recientes">Registros recientes</h2>
+      <ul>
+        {% for c in recientes %}
+          <li>
+            <a href="{% url 'captura' c.pk %}">
+              <span class="reciente-texto">{% if c.texto_original %}{{ c.texto_original|truncatechars:70 }}{% elif c.tipo == "foto" %}Foto{% else %}Audio{% endif %}</span>
+              <small>{{ c.get_tipo_display }} · {{ c.creada|date:"j M, H:i" }}{% if c.autora_id != user.pk %} · {{ c.autora.get_full_name|default:c.autora.username }}{% endif %} · {{ c.get_estado_display }}</small>
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+
+  {% include "registro/_composer.html" %}
+</section>
+{% endblock %}

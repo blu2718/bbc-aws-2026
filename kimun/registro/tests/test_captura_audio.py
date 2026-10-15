@@ -1,5 +1,6 @@
-"""Captura por audio (PLAN.md, Task 9): subida, proceso de fondo, audio original y revisión.
+"""Captura por audio (PLAN.md, Task 9): subida, proceso de fondo, borrado del audio y revisión.
 
+El audio solo se guarda mientras espera a ser transcrito: después se borra y queda el texto.
 Transcribe y Bedrock se reemplazan por clientes falsos; los archivos van a una carpeta temporal.
 """
 from datetime import date
@@ -32,6 +33,8 @@ CATALOGO = {
 def _ajustes(settings, tmp_path):
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
     settings.MEDIA_ROOT = tmp_path
+    # Disco temporal aunque el entorno defina KIMUN_BUCKET.
+    settings.STORAGES = {**settings.STORAGES, "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}}
 
 
 @pytest.fixture
@@ -210,6 +213,12 @@ def test_si_falla_bedrock_al_reintentar_no_se_vuelve_a_transcribir(curso, educad
     assert len(transcriptor.llamadas) == 1
 
 
+def test_la_pantalla_avisa_que_el_audio_no_se_guarda(client, curso, educadora):
+    client.force_login(educadora)
+    html = client.get(reverse("capturar", args=[curso.pk])).content.decode()
+    assert "El audio no se guarda: se borra apenas se transcribe" in html
+
+
 def test_un_audio_sin_archivo_queda_con_error(curso, educadora, ninos):
     Captura.objects.create(curso=curso, autora=educadora, tipo=Captura.Tipo.AUDIO)
     captura = tomar_siguiente()
@@ -238,73 +247,86 @@ def test_preparar_vocabularios_crea_el_de_cada_curso_con_ninos(curso, ninos, otr
     assert "Transición B (Jardín de prueba): sin niños" in salida and "creándose" in salida
 
 
-# --- Audio original --------------------------------------------------------------------
+# --- El audio no se conserva -----------------------------------------------------------
 
 
-def test_quien_ve_el_curso_escucha_el_audio_original(client, curso, educadora):
+def _archivos(carpeta):
+    return [p for p in carpeta.rglob("*") if p.is_file()]
+
+
+def test_al_transcribir_se_guarda_el_texto_y_se_borra_el_audio(curso, educadora, ninos, tmp_path):
+    _captura_audio(curso, educadora)
+    assert len(_archivos(tmp_path)) == 1
+
+    captura = tomar_siguiente()
+    procesar(captura, cliente=ClienteFalso(_respuesta_bedrock()), catalogo=CATALOGO, transcriptor=TranscriptorFalso(DICTADO))
+
+    captura.refresh_from_db()
+    assert captura.texto_extraido == DICTADO
+    assert not captura.archivo and _archivos(tmp_path) == []
+
+
+def test_si_falla_la_transcripcion_el_audio_se_conserva_para_reintentar(curso, educadora, ninos, tmp_path):
+    _captura_audio(curso, educadora)
+    captura = tomar_siguiente()
+    procesar(captura, cliente=ClienteFalso(), catalogo=CATALOGO,
+             transcriptor=TranscriptorFalso(ErrorTranscripcion("La transcripción no terminó en 180 s.")))
+
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.ERROR and captura.archivo
+    assert len(_archivos(tmp_path)) == 1
+
+
+def test_si_falla_bedrock_el_audio_ya_esta_borrado(curso, educadora, ninos, tmp_path):
+    _captura_audio(curso, educadora)
+    captura = tomar_siguiente()
+    procesar(captura, cliente=ClienteFalso(ErrorBedrock("Bedrock falló 3 veces")), catalogo=CATALOGO,
+             transcriptor=TranscriptorFalso(DICTADO))
+
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.ERROR and captura.texto_extraido == DICTADO
+    assert not captura.archivo and _archivos(tmp_path) == []
+
+
+def test_un_archivo_que_no_es_audio_se_borra_y_queda_en_error_sin_transcribir(curso, educadora, ninos, tmp_path):
+    _captura_audio(curso, educadora, contenido=b"%PDF-1.7 no es audio")
+    transcriptor = TranscriptorFalso()
+
+    captura = tomar_siguiente()
+    assert procesar(captura, cliente=ClienteFalso(), catalogo=CATALOGO, transcriptor=transcriptor) is None
+
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.ERROR and "Archivo inválido" in captura.error
+    assert transcriptor.llamadas == []
+    assert not captura.archivo and _archivos(tmp_path) == []
+
+
+def test_la_carpeta_de_archivos_no_se_sirve(client, curso, educadora):
     captura = _captura_audio(curso, educadora)
     client.force_login(educadora)
-
-    respuesta = client.get(reverse("captura_original", args=[captura.pk]))
-
-    assert respuesta.status_code == 200
-    assert respuesta["Content-Type"] == "audio/webm" and respuesta["Accept-Ranges"] == "bytes"
-    assert b"".join(respuesta.streaming_content) == WEBM
-
-
-@pytest.mark.parametrize("rango, inicio, fin", [("bytes=0-3", 0, 3), ("bytes=10-", 10, len(WEBM) - 1), ("bytes=-4", len(WEBM) - 4, len(WEBM) - 1)])
-def test_el_audio_original_responde_rangos_para_safari(client, curso, educadora, rango, inicio, fin):
-    captura = _captura_audio(curso, educadora)
-    client.force_login(educadora)
-
-    respuesta = client.get(reverse("captura_original", args=[captura.pk]), HTTP_RANGE=rango)
-
-    assert respuesta.status_code == 206
-    assert respuesta.content == WEBM[inicio:fin + 1]
-    assert respuesta["Content-Range"] == f"bytes {inicio}-{fin}/{len(WEBM)}"
-
-
-def test_un_rango_fuera_del_archivo_responde_416(client, curso, educadora):
-    captura = _captura_audio(curso, educadora)
-    client.force_login(educadora)
-    respuesta = client.get(reverse("captura_original", args=[captura.pk]), HTTP_RANGE="bytes=999-")
-    assert respuesta.status_code == 416 and respuesta["Content-Range"] == f"bytes */{len(WEBM)}"
-
-
-def test_otra_educadora_no_puede_escuchar_el_audio(client, curso, educadora, otra_educadora):
-    captura = _captura_audio(curso, educadora)
-    client.force_login(otra_educadora)
-    assert client.get(reverse("captura_original", args=[captura.pk])).status_code == 404
-
-
-def test_el_audio_original_pide_login(client, curso, educadora):
-    captura = _captura_audio(curso, educadora)
-    respuesta = client.get(reverse("captura_original", args=[captura.pk]))
-    assert respuesta.status_code == 302 and reverse("login") in respuesta["Location"]
-
-
-def test_una_nota_escrita_no_tiene_audio_original(client, curso, educadora):
-    captura = Captura.objects.create(curso=curso, autora=educadora, tipo=Captura.Tipo.TEXTO, texto_original="x")
-    client.force_login(educadora)
-    assert client.get(reverse("captura_original", args=[captura.pk])).status_code == 404
+    assert client.get(f"/media/{captura.archivo.name}").status_code == 404
 
 
 # --- Revisión y lista de capturas ------------------------------------------------------
 
 
-def test_la_revision_muestra_el_audio_enlazado_y_la_transcripcion(client, curso, educadora, ninos):
-    captura = _captura_audio(curso, educadora, estado=Captura.Estado.PROCESADA, texto_extraido=DICTADO)
+def test_la_revision_muestra_la_transcripcion_sin_el_audio(client, curso, educadora, ninos):
+    captura = Captura.objects.create(
+        curso=curso, autora=educadora, tipo=Captura.Tipo.AUDIO, estado=Captura.Estado.PROCESADA, texto_extraido=DICTADO
+    )
     Observacion.objects.create(captura=captura, nino=ninos["Rubí"], fecha=date(2026, 10, 15), cita=DICTADO)
     client.force_login(educadora)
 
     html = client.get(reverse("revision", args=[curso.pk])).content.decode()
 
-    assert f'src="{reverse("captura_original", args=[captura.pk])}"' in html
     assert "Ver la transcripción" in html and DICTADO in html
+    assert "<audio" not in html and "original" not in html.lower()
 
 
 def test_la_lista_de_capturas_muestra_el_audio_con_su_transcripcion(client, curso, educadora):
-    _captura_audio(curso, educadora, estado=Captura.Estado.PROCESADA, texto_extraido=DICTADO)
+    Captura.objects.create(
+        curso=curso, autora=educadora, tipo=Captura.Tipo.AUDIO, estado=Captura.Estado.PROCESADA, texto_extraido=DICTADO
+    )
     client.force_login(educadora)
     html = client.get(reverse("capturar", args=[curso.pk])).content.decode()
     assert f"Audio: «{DICTADO}»" in html

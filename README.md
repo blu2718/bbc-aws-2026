@@ -72,6 +72,10 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/registro/ficha.py` | Datos de la ficha del niño por núcleo: rúbrica del nivel actual y del siguiente, evolución, cobertura por OA, observaciones y situación frente al curso (sale de `alertas.tabla_del_curso`) |
 | `kimun/registro/forms.py` | `FijarNivelForm` (niveles del 1 al máximo de la rúbrica) y `MetasForm` (nivel esperado por semestre de permanencia) |
 | `kimun/registro/revision.py`, `kimun/registro/views_revision.py` | Revisión de observaciones pendientes (Task 6): agrupar por captura, aceptar, editar, descartar, asignar niño y "aceptar todas". Solo la educadora del curso; las vistas responden a HTMX y también sin JavaScript |
+| `kimun/registro/views_captura.py`, `kimun/registro/forms_captura.py` | Pantalla de registro (`capturar`): nota escrita (Task 5), foto (Task 8) y audio (Task 9), con la lista de las últimas capturas. Las fotos y los audios no se muestran en ninguna parte y `/media/` no se sirve |
+| `kimun/registro/procesamiento.py`, `kimun/registro/lectura.py` | Proceso de fondo (`manage.py procesar_capturas`): `texto_para_separar` lee la foto con Claude o transcribe el audio con Transcribe, guarda el texto en `texto_extraido` y borra el archivo (S3 o disco); luego se separa, se emparejan los nombres (`coincidencia.py`) y se crean las observaciones pendientes. El archivo solo queda guardado mientras espera ser leído o si la lectura falló y se puede reintentar |
+| `kimun/registro/ia/` | Cliente de Bedrock (`bedrock.py`, texto e imágenes), separación en observaciones (`separacion.py`), lectura de fotos (`foto.py`) y transcripción de audios (`transcripcion.py`, que borra del bucket su copia del audio y la salida de Transcribe), con sus prompts en `prompts/`. Sin Django |
+| `kimun/static/registro/captura_foto.js`, `kimun/static/registro/grabar.js` | Achica la foto en el teléfono (1600 px, JPEG) antes de subirla; graba el audio con MediaRecorder (máximo 2 minutos) |
 | `kimun/registro/contexto.py` | Context processor con el contador de pendientes de la barra de navegación (solo para quien revisa) |
 | `kimun/registro/grafico.py` | SVG de la evolución de niveles por núcleo, con tabla equivalente en `_evolucion.html` |
 | `kimun/registro/permisos.py` | `cursos_de(usuario)` para ver, `cursos_donde_registra` para capturar y `cursos_que_valida` para revisar y validar: filtro obligatorio en toda vista con datos de un curso. `ninos_de` y `ninos_que_valida` hacen lo mismo para la ficha |
@@ -81,7 +85,8 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
 | `kimun/static/registro/registro.css` | Estilos de toda la app: paleta del logo (celeste `#5cbde6`) sobre Pico y colores de las señales con contraste ≥ 4,5:1 |
 | `kimun/static/registro/img/` | Logo (`logo.svg`, `logo-512.png`) y favicons |
-| `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json` |
+| `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json`. En `eval/`, las notas (`notas_separacion.json`) y los post-its (`postits_fotos.json`) de prueba; las fotos van en `eval/fotos/<id>.jpg`, sin versionar |
+| `scripts/probar_separacion.py`, `scripts/probar_foto.py` | Prueban la separación y la lectura de fotos contra Bedrock real y comparan con el set de `datos/eval/` |
 | `scripts/extraer_curriculo.py` | Regenera el currículo desde el PDF, que no se versiona: descargarlo desde <https://www.curriculumnacional.cl/614/articles-210511_programa.pdf> a `contexto/programa-pedagogico-transicion-mineduc.pdf` y correr `python -X utf8 scripts/extraer_curriculo.py --todos` (requiere `pdftotext` de Poppler; en Windows, `winget install oschwartz10612.Poppler`) |
 
 La cantidad de niveles (hoy 8) se define en la rúbrica de cada nivel educativo, no en el código: nunca usar un 8 fijo. Para el máximo, usar `Rubrica.nivel_maximo(nivel_educativo)`.

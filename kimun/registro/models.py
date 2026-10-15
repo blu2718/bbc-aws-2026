@@ -8,13 +8,19 @@ educativo (hoy 8, Integra podría pasar a 9). La base de datos solo exige
 nivel >= 1; el máximo se valida en el código para poder cambiarlo sin
 migración. La cantidad de núcleos sale de los datos (Integra tendrá 10).
 """
+import re
 import secrets
+import uuid
+from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.utils import timezone
 
 NIVEL_MIN = 1
 
@@ -322,6 +328,9 @@ class Nino(models.Model):
         help_text="Seudónimo que se envía a Bedrock en lugar del nombre.",
     )
     fecha_ingreso = models.DateField()
+    fecha_nacimiento = models.DateField(
+        null=True, blank=True, help_text="Para mostrar la edad en el perfil. No se envía a Bedrock."
+    )
 
     class Meta:
         ordering = ["curso", "nombre"]
@@ -362,6 +371,20 @@ class Nino(models.Model):
 
 # --- Captura y observaciones ---------------------------------------------------
 
+_EXTENSION_SEGURA = re.compile(r"\.[a-z0-9]{1,5}")
+
+
+def ruta_original(instancia, nombre):
+    """originales/AAAA/MM/<aleatorio>.<ext>: el nombre del archivo subido no se conserva.
+
+    El nombre original puede traer el nombre de un niño ("sofia-postit.jpg") y
+    quedaría a la vista en la clave de S3. Solo se conserva la extensión, si es simple.
+    """
+    extension = Path(nombre or "").suffix.lower()
+    if not _EXTENSION_SEGURA.fullmatch(extension):
+        extension = ""
+    return f"originales/{timezone.localtime():%Y/%m}/{uuid.uuid4().hex}{extension}"
+
 
 class Captura(models.Model):
     class Tipo(models.TextChoices):
@@ -381,7 +404,10 @@ class Captura(models.Model):
         help_text="Educadora o asistente que registró.",
     )
     tipo = models.CharField(max_length=5, choices=Tipo.choices)
-    archivo = models.FileField(upload_to="originales/%Y/%m/", blank=True)
+    archivo = models.FileField(
+        upload_to=ruta_original, blank=True, max_length=200,
+        help_text="Foto mientras espera a ser leída. Se borra apenas se lee; no se muestra en la app.",
+    )
     texto_original = models.TextField(blank=True, help_text="Lo que se escribió (tipo texto).")
     texto_extraido = models.TextField(blank=True, help_text="Texto leído de la foto o transcrito del audio.")
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
@@ -398,6 +424,14 @@ class Captura(models.Model):
         return f"{self.get_tipo_display()} #{self.pk} ({self.get_estado_display()})"
 
 
+@receiver(post_delete, sender=Captura)
+def _borrar_archivo_de_captura(sender, instance, **kwargs):
+    """Si se borra una captura que todavía tenía foto (por ejemplo, desde el admin o al
+    borrar su curso), la foto se borra también: no queda guardada en ninguna parte."""
+    if instance.archivo:
+        instance.archivo.delete(save=False)
+
+
 class Apoyo(models.TextChoices):
     """Escala del Programa Pedagógico de Transición."""
 
@@ -405,6 +439,18 @@ class Apoyo(models.TextChoices):
     CON_AYUDA = "con_ayuda", "Con ayuda"
     PARCIAL = "parcial", "Parcial con ayuda"
     NO_LO_REALIZA = "no_lo_realiza", "No lo realiza"
+    SIN_DATO = "sin_dato", "Sin dato"
+
+
+class Efecto(models.TextChoices):
+    """Qué muestra el suceso sobre el aprendizaje del niño en sus OA.
+
+    Describe lo observado, no al niño: por eso "por reforzar" y no "negativo",
+    "sin juicios perentorios" (Bases Curriculares).
+    """
+
+    AVANCE = "avance", "Muestra avance"
+    POR_REFORZAR = "por_reforzar", "Por reforzar"
     SIN_DATO = "sin_dato", "Sin dato"
 
 
@@ -426,6 +472,10 @@ class Observacion(models.Model):
     nucleos = models.ManyToManyField(Nucleo, blank=True, related_name="observaciones")
     oas = models.ManyToManyField(ObjetivoAprendizaje, blank=True, related_name="observaciones")
     apoyo = models.CharField(max_length=14, choices=Apoyo.choices, default=Apoyo.SIN_DATO)
+    efecto = models.CharField(
+        max_length=12, choices=Efecto.choices, default=Efecto.SIN_DATO,
+        help_text="Si el suceso muestra un avance o algo por reforzar en sus OA. Lo propone Claude y lo corrige la educadora.",
+    )
     grupal = models.BooleanField(default=False, help_text="Contexto del curso; no se usa para evaluar.")
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
     creada = models.DateTimeField(auto_now_add=True)

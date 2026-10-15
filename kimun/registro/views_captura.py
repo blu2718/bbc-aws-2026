@@ -1,30 +1,31 @@
-"""Registro de notas escritas y audios (PLAN.md, Tasks 5 y 9).
+"""Registro de capturas (PLAN.md, Task 5: nota escrita; Task 8: foto; Task 9: audio).
 
 Registran la educadora y las asistentes del curso (`cursos_donde_registra`). La
-directora o una educadora de otro curso reciben 404. La nota o el audio quedan
-pendientes y `manage.py procesar_capturas` los separa en observaciones para la
-revisión (el audio, después de transcribirlo).
+directora o una educadora de otro curso reciben 404. La captura queda pendiente y
+`manage.py procesar_capturas` la separa en observaciones para la revisión (la foto se
+lee antes con Claude y el audio se transcribe con Transcribe).
 
-Debajo del formulario va la lista de las últimas capturas de la usuaria en el curso,
+Debajo de los formularios va la lista de las últimas capturas de la usuaria en el curso,
 con su estado. Mientras alguna esté pendiente o procesando (y no atascada), la lista se
 refresca sola con HTMX; las que quedaron con error se pueden reintentar (solo su autora).
 El detalle del error no se muestra aquí: queda en el log y en el admin.
 
-El audio original lo puede escuchar quien ve el curso (`cursos_de`), en `original_captura`.
+Las fotos y los audios no se muestran ni se pueden escuchar en ninguna parte: solo
+esperan a que el proceso de fondo los lea, y entonces se borran y queda el texto
+(`registro/lectura.py`).
 """
-import re
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.db import transaction
 from django.db.models import Count
-from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from .forms import CapturaAudioForm, CapturaTextoForm
-from .ia.transcripcion import TIPOS_MIME, formato_audio
+from .forms_captura import FotoForm
 from .models import Captura
-from .permisos import cursos_de, cursos_donde_registra
+from .permisos import cursos_donde_registra
 from .procesamiento import esta_atascada, reintentar
 
 CAPTURAS_RECIENTES = 5
@@ -57,6 +58,16 @@ def _contexto_recientes(curso, usuario, aviso=""):
     }
 
 
+def _pantalla(request, curso, form=None, form_foto=None, form_audio=None):
+    """La pantalla de registro, con el formulario que falló (si lo hay) y los otros vacíos."""
+    contexto = _contexto_recientes(curso, request.user) | {
+        "form": form or CapturaTextoForm(),
+        "form_foto": form_foto or FotoForm(),
+        "form_audio": form_audio or CapturaAudioForm(),
+    }
+    return render(request, "registro/capturar.html", contexto)
+
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def capturar(request, curso_id):
@@ -68,74 +79,39 @@ def capturar(request, curso_id):
         )
         messages.success(request, "Nota guardada. Se separará en observaciones para revisarlas.")
         return redirect("capturar", curso_id=curso.pk)
-    contexto = _contexto_recientes(curso, request.user) | {"form": form, "form_audio": CapturaAudioForm()}
-    return render(request, "registro/capturar.html", contexto)
+    return _pantalla(request, curso, form=form)
+
+
+@login_required
+@require_POST
+def capturar_foto(request, curso_id):
+    """Sube la foto de una nota (Task 8). Queda pendiente hasta que el proceso de fondo la lea y la borre."""
+    curso = _curso(request, curso_id)
+    form_foto = FotoForm(request.POST, request.FILES)
+    if not form_foto.is_valid():
+        return _pantalla(request, curso, form_foto=form_foto)
+    captura = Captura(curso=curso, autora=request.user, tipo=Captura.Tipo.FOTO)
+    with transaction.atomic():
+        # El nombre que mandó el teléfono no se usa: `ruta_original` pone uno aleatorio.
+        captura.archivo.save(f"foto.{form_foto.extension}", ContentFile(form_foto.contenido), save=False)
+        captura.save()
+    messages.success(request, "Foto recibida. Se leerá, se borrará y lo leído se separará en observaciones para revisarlas.")
+    return redirect("capturar", curso_id=curso.pk)
 
 
 @login_required
 @require_POST
 def capturar_audio(request, curso_id):
-    """Guarda un audio dictado (Task 9). `procesar_capturas` lo transcribe y lo separa."""
+    """Guarda un audio dictado (Task 9). `procesar_capturas` lo transcribe, lo borra y separa el texto."""
     curso = _curso(request, curso_id)
     form_audio = CapturaAudioForm(request.POST, request.FILES)
-    if form_audio.is_valid():
-        Captura.objects.create(
-            curso=curso, autora=request.user, tipo=Captura.Tipo.AUDIO, archivo=form_audio.cleaned_data["audio"]
-        )
-        messages.success(request, "Audio guardado. Se transcribirá y se separará en observaciones para revisarlas.")
-        return redirect("capturar", curso_id=curso.pk)
-    contexto = _contexto_recientes(curso, request.user) | {"form": CapturaTextoForm(), "form_audio": form_audio}
-    return render(request, "registro/capturar.html", contexto)
-
-
-_RANGO = re.compile(r"^bytes=(\d*)-(\d*)$")
-
-
-def _rango_pedido(encabezado, tamano):
-    """(inicio, fin) de un `Range: bytes=...` simple; None si no hay; "invalido" si no se puede servir."""
-    coincide = _RANGO.match((encabezado or "").strip())
-    if not coincide or coincide.groups() == ("", ""):
-        return None
-    inicio, fin = coincide.groups()
-    if inicio == "":  # "bytes=-500": los últimos 500 bytes
-        inicio, fin = max(tamano - int(fin), 0), tamano - 1
-    else:
-        inicio, fin = int(inicio), min(int(fin), tamano - 1) if fin else tamano - 1
-    if inicio >= tamano or inicio > fin:
-        return "invalido"
-    return inicio, fin
-
-
-@login_required
-@require_GET
-def original_captura(request, captura_id):
-    """Audio original de una captura, para quien puede ver el curso.
-
-    Responde rangos de bytes (206) porque Safari no reproduce un <audio> sin ellos.
-    """
-    captura = get_object_or_404(
-        Captura.objects.filter(curso__in=cursos_de(request.user), tipo=Captura.Tipo.AUDIO).exclude(archivo=""),
-        pk=captura_id,
+    if not form_audio.is_valid():
+        return _pantalla(request, curso, form_audio=form_audio)
+    Captura.objects.create(
+        curso=curso, autora=request.user, tipo=Captura.Tipo.AUDIO, archivo=form_audio.cleaned_data["audio"]
     )
-    almacen, nombre = captura.archivo.storage, captura.archivo.name
-    tamano = almacen.size(nombre)
-    with almacen.open(nombre, "rb") as archivo:
-        tipo = TIPOS_MIME.get(formato_audio(archivo.read(12)), "application/octet-stream")
-    rango = _rango_pedido(request.headers.get("Range"), tamano)
-    if rango == "invalido":
-        respuesta = HttpResponse(status=416)
-        respuesta["Content-Range"] = f"bytes */{tamano}"
-    elif rango:
-        inicio, fin = rango
-        with almacen.open(nombre, "rb") as archivo:
-            archivo.seek(inicio)
-            respuesta = HttpResponse(archivo.read(fin - inicio + 1), status=206, content_type=tipo)
-        respuesta["Content-Range"] = f"bytes {inicio}-{fin}/{tamano}"
-    else:
-        respuesta = FileResponse(almacen.open(nombre, "rb"), content_type=tipo)
-    respuesta["Accept-Ranges"] = "bytes"
-    respuesta["Cache-Control"] = "private, max-age=300"
-    return respuesta
+    messages.success(request, "Audio guardado. Se transcribirá, se borrará y el texto se separará en observaciones para revisarlas.")
+    return redirect("capturar", curso_id=curso.pk)
 
 
 @login_required

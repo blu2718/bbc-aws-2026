@@ -9,13 +9,14 @@ from registro.ia import ErrorBedrock, ErrorSeparacion, separar
 from registro.ia import separacion
 from registro.ia.separacion import (
     ESCALA_APOYO,
+    ESCALA_EFECTO,
     construir_herramienta,
     construir_prompt,
     indexar_catalogo,
     normalizar_codigo_oa,
 )
 
-CAMPOS = ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "grupal"]
+CAMPOS = ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "efecto", "grupal"]
 
 
 def _separar(respuesta, catalogo, cliente_falso, fecha="2026-05-25", nombres=("Pedro Salinas",), texto="nota"):
@@ -24,7 +25,7 @@ def _separar(respuesta, catalogo, cliente_falso, fecha="2026-05-25", nombres=("P
 
 
 def test_json_valido_produce_observaciones_normalizadas(catalogo, cliente_falso, obs):
-    respuesta = {"observaciones": [obs(nombre_detectado=" Pedro ", interpretacion="Se nota más seguro")]}
+    respuesta = {"observaciones": [obs(nombre_detectado=" Pedro ", interpretacion="Se nota más seguro", efecto="avance")]}
     resultado, cliente = _separar(respuesta, catalogo, cliente_falso)
     assert resultado == [
         {
@@ -35,6 +36,7 @@ def test_json_valido_produce_observaciones_normalizadas(catalogo, cliente_falso,
             "nucleos": ["PM"],
             "oas": ["OA 2 PM"],
             "apoyo": "autonomo",
+            "efecto": "avance",
             "grupal": False,
         }
     ]
@@ -165,6 +167,7 @@ def test_nota_grupal_queda_como_contexto(catalogo, cliente_falso, obs):
             "nucleos": ["IA"],
             "oas": [],
             "apoyo": "sin_dato",
+            "efecto": "sin_dato",
             "grupal": True,
         }
     ]
@@ -333,3 +336,23 @@ def test_sin_cliente_usa_cliente_bedrock(catalogo, cliente_falso, obs, monkeypat
     monkeypatch.setattr(separacion, "ClienteBedrock", lambda: falso)
     assert len(separar("Pedro clasificó hojas", "2026-05-25", [], catalogo)) == 1
     assert len(falso.llamadas) == 1
+
+
+# --- Efecto del suceso en sus OA (pantalla II de diseno-interfaz.jpg) ---------------------------
+
+
+@pytest.mark.parametrize("valor, esperado", [
+    ("avance", "avance"),
+    ("Por reforzar", "por_reforzar"),
+    ("negativo", "sin_dato"),
+    (None, "sin_dato"),
+])
+def test_el_efecto_fuera_de_la_escala_queda_sin_dato(catalogo, cliente_falso, obs, valor, esperado):
+    resultado, _ = _separar({"observaciones": [obs(efecto=valor)]}, catalogo, cliente_falso)
+    assert resultado[0]["efecto"] == esperado
+
+
+def test_la_herramienta_pide_el_efecto_con_su_escala(catalogo):
+    items = construir_herramienta(catalogo)["inputSchema"]["json"]["properties"]["observaciones"]["items"]
+    assert items["properties"]["efecto"]["enum"] == list(ESCALA_EFECTO)
+    assert "efecto" in items["required"]

@@ -13,7 +13,10 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
+from django.utils import timezone
+
 from .models import Captura
+from .pantallas import observaciones_para_tarjetas, tarjetas_suceso
 from .permisos import cursos_que_valida
 from .revision import (
     AsignarNinoForm,
@@ -31,6 +34,16 @@ def _es_htmx(request):
     return request.headers.get("HX-Request") == "true"
 
 
+# Las mismas acciones sirven en la página de la captura (pantalla II de diseno-interfaz.jpg):
+# con `vista=suceso` responden con la tarjeta del suceso y vuelven a esa página.
+VISTA_SUCESO = "suceso"
+
+
+def _vista(request):
+    vista = request.POST.get("vista") or request.GET.get("vista")
+    return VISTA_SUCESO if vista == VISTA_SUCESO else ""
+
+
 def _observacion(request, obs_id):
     """La observación pendiente, si el usuario revisa su curso; si no, 404."""
     return get_object_or_404(
@@ -39,7 +52,9 @@ def _observacion(request, obs_id):
     )
 
 
-def _url_revision(curso, obs=None):
+def _url_revision(curso, obs=None, vista=""):
+    if vista == VISTA_SUCESO and obs is not None:
+        return f"{reverse('captura', args=[obs.captura_id])}#obs-{obs.pk}"
     url = reverse("revision", args=[curso.pk])
     return f"{url}#obs-{obs.pk}" if obs else url
 
@@ -56,6 +71,19 @@ def _contexto_revision(curso):
 def _tarjeta(request, obs, *, resuelta="", error=""):
     """Fragmento de una observación, con el resumen de pendientes fuera de banda."""
     curso = obs.captura.curso
+    if _vista(request) == VISTA_SUCESO:
+        fresca = observaciones_para_tarjetas(type(obs).objects.filter(pk=obs.pk)).get()
+        return render(request, "registro/_tarjeta_suceso.html", {
+            "obs": fresca,
+            "t": tarjetas_suceso([fresca], timezone.localdate())[0],
+            "curso": curso,
+            "ninos": list(curso.ninos.all()),
+            "resuelta": resuelta,
+            "error": error,
+            "puede_validar": True,
+            "vista": VISTA_SUCESO,
+            "oob": True,
+        })
     return render(request, "registro/_tarjeta_revision.html", {
         "obs": obs,
         "curso": curso,
@@ -80,7 +108,7 @@ def observacion(request, obs_id):
     """La observación sin formulario de edición (para "Cancelar")."""
     obs = _observacion(request, obs_id)
     if not _es_htmx(request):
-        return redirect(_url_revision(obs.captura.curso, obs))
+        return redirect(_url_revision(obs.captura.curso, obs, _vista(request)))
     return _tarjeta(request, obs)
 
 
@@ -88,15 +116,16 @@ def observacion(request, obs_id):
 def editar(request, obs_id):
     obs = _observacion(request, obs_id)
     curso = obs.captura.curso
+    vista = _vista(request)
     form = ObservacionForm(request.POST or None, instance=obs, curso=curso, prefix=f"obs{obs.pk}")
     if request.method == "POST" and form.is_valid():
         obs = form.save()
         if _es_htmx(request):
             return _tarjeta(request, obs)
         messages.success(request, "Se guardaron los cambios de la observación.")
-        return redirect(_url_revision(curso, obs))
+        return redirect(_url_revision(curso, obs, vista))
     plantilla = "registro/_form_observacion.html" if _es_htmx(request) else "registro/revision_editar.html"
-    return render(request, plantilla, {"obs": obs, "curso": curso, "form": form})
+    return render(request, plantilla, {"obs": obs, "curso": curso, "form": form, "vista": vista})
 
 
 @login_required
@@ -119,7 +148,7 @@ def asignar(request, obs_id):
         messages.error(request, error)
     else:
         messages.success(request, f"Observación asignada a {obs.nino}.")
-    return redirect(_url_revision(curso, obs))
+    return redirect(_url_revision(curso, obs, _vista(request)))
 
 
 @login_required
@@ -133,11 +162,12 @@ def aceptar_observacion(request, obs_id):
         if _es_htmx(request):
             return _tarjeta(request, obs, error=e.messages[0])
         messages.error(request, e.messages[0])
-        return redirect(_url_revision(curso, obs))
+        return redirect(_url_revision(curso, obs, _vista(request)))
     if _es_htmx(request):
         return _tarjeta(request, obs, resuelta="aceptada")
     messages.success(request, "Observación aceptada.")
-    return redirect(_url_revision(curso))
+    vista = _vista(request)
+    return redirect(_url_revision(curso, obs if vista else None, vista))
 
 
 @login_required
@@ -148,7 +178,8 @@ def descartar_observacion(request, obs_id):
     if _es_htmx(request):
         return _tarjeta(request, obs, resuelta="descartada")
     messages.success(request, "Observación descartada.")
-    return redirect(_url_revision(obs.captura.curso))
+    vista = _vista(request)
+    return redirect(_url_revision(obs.captura.curso, obs if vista else None, vista))
 
 
 @login_required

@@ -15,7 +15,7 @@ from django.db import transaction
 from django.db.models import Count, Q
 from django.utils import timezone
 
-from .models import Captura, Nino, Nucleo, ObjetivoAprendizaje, Observacion
+from .models import Captura, Efecto, Nino, Nucleo, ObjetivoAprendizaje, Observacion
 from .permisos import cursos_que_valida
 
 MENSAJE_SIN_NINO = "Elige a qué niño o niña corresponde antes de aceptarla."
@@ -158,7 +158,7 @@ class ObservacionForm(forms.ModelForm):
 
     class Meta:
         model = Observacion
-        fields = ["grupal", "nino", "fecha", "cita", "interpretacion", "nucleos", "oas", "apoyo"]
+        fields = ["grupal", "nino", "fecha", "cita", "interpretacion", "nucleos", "oas", "apoyo", "efecto"]
         labels = {
             "grupal": "Nota sobre el grupo completo (contexto, no se usa para evaluar)",
             "nino": "Niño o niña",
@@ -167,6 +167,7 @@ class ObservacionForm(forms.ModelForm):
             "nucleos": "Núcleos",
             "oas": "Objetivos de aprendizaje",
             "apoyo": "Nivel de apoyo",
+            "efecto": "Efecto en sus OA",
         }
         widgets = {
             "fecha": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
@@ -186,6 +187,11 @@ class ObservacionForm(forms.ModelForm):
         self.fields["oas"].queryset = ObjetivoAprendizaje.objects.filter(
             nivel_educativo=curso.nivel_educativo
         ).select_related("nucleo")
+        # Si el formulario no lo trae, se conserva el que propuso Claude.
+        self.fields["efecto"].required = False
+
+    def clean_efecto(self):
+        return self.cleaned_data.get("efecto") or self.instance.efecto or Efecto.SIN_DATO
 
     def clean_fecha(self):
         fecha = self.cleaned_data["fecha"]

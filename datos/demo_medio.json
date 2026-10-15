@@ -1,0 +1,60 @@
+{
+  "_nota": "Datos 100% ficticios. Curso de nivel medio (2 a 4 años). Se carga con: python manage.py cargar_demo --demo ../datos/demo_medio.json (después de la demo principal). Los OA son los de nivel medio de las Bases Curriculares (datos/curriculo_medio.json).",
+  "semestres": [
+    {"nombre": "2025-2", "inicio": "2025-07-28", "fin": "2025-12-19"},
+    {"nombre": "2026-1", "inicio": "2026-03-02", "fin": "2026-07-03"},
+    {"nombre": "2026-2", "inicio": "2026-07-20", "fin": "2026-12-18"}
+  ],
+  "jardin": "Jardín Infantil Los Aromos (ficticio)",
+  "curso": {
+    "nombre": "Medio Menor A",
+    "nivel_educativo": "medio",
+    "metas": {"1": 1, "2": 3, "3": 5, "4": 7}
+  },
+  "educadora": {
+    "usuario": "educadora.medio",
+    "nombre": "Francisca",
+    "apellido": "Demo",
+    "email": "medio@example.com"
+  },
+  "asistentes": [],
+  "revisiones": {
+    "2025-12-19": "Cierre del semestre 2025-2",
+    "2026-07-03": "Cierre del semestre 2026-1",
+    "2026-09-30": "Revisión de septiembre"
+  },
+  "ninos": [
+    {"nombre": "Joaquín Díaz", "fecha_nacimiento": "2024-08-11", "alias": ["Joaco"], "fecha_ingreso": "2026-03-02",
+     "niveles": {"todos": {"2026-07-03": 2, "2026-09-30": 3}}},
+    {"nombre": "Florencia Ortiz", "fecha_nacimiento": "2024-04-02", "alias": ["Flo"], "fecha_ingreso": "2026-03-02",
+     "niveles": {"todos": {"2026-07-03": 2, "2026-09-30": 3}, "IA": {"2026-07-03": 1, "2026-09-30": 1}}},
+    {"nombre": "Vicente Araya", "fecha_nacimiento": "2023-11-19", "alias": ["Vicho"], "fecha_ingreso": "2025-07-28",
+     "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 4, "2026-09-30": 5}}},
+    {"nombre": "Trinidad Muñoz", "fecha_nacimiento": "2023-09-07", "alias": ["Trini"], "fecha_ingreso": "2025-07-28",
+     "niveles": {"todos": {"2025-12-19": 3, "2026-07-03": 4, "2026-09-30": 5}}},
+    {"nombre": "Maximiliano Fuentes", "fecha_nacimiento": "2023-06-23", "alias": ["Maxi"], "fecha_ingreso": "2025-07-28",
+     "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 4, "2026-09-30": 5}}},
+    {"nombre": "Catalina Pérez", "fecha_nacimiento": "2024-01-30", "alias": ["Cata"], "fecha_ingreso": "2025-07-28",
+     "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 3, "2026-09-30": 4}}}
+  ],
+  "observaciones": [
+    {"nino": "Florencia Ortiz", "hace_dias": 1, "nucleos": ["IA"], "oas": ["OA 2 IA"], "apoyo": "con_ayuda", "efecto": "por_reforzar",
+     "cita": "Flo se aferró a la pierna de su mamá en la puerta y lloró hasta que la tía le mostró los títeres."},
+    {"nino": "Florencia Ortiz", "hace_dias": 8, "nucleos": ["IA"], "oas": ["OA 9 IA"], "apoyo": "con_ayuda", "efecto": "por_reforzar",
+     "cita": "Flo no quiso comer la sopa y se quedó dormida en la mesa."},
+    {"nino": "Joaquín Díaz", "hace_dias": 2, "nucleos": ["CM"], "oas": ["OA 6 CM"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Joaco subió los tres escalones del tobogán alternando los pies, sin afirmarse."},
+    {"nino": "Joaquín Díaz", "hace_dias": 5, "nucleos": ["LV"], "oas": ["OA 1 LV"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Joaco dijo «yo quiero el auto rojo» y se lo pidió a Vicho."},
+    {"nino": "Vicente Araya", "hace_dias": 3, "nucleos": ["CC"], "oas": ["OA 5 CC"], "apoyo": "con_ayuda", "efecto": "avance",
+     "cita": "Vicho y Maxi se pelearon por la pala; con ayuda de la tía, Vicho propuso usarla «un ratito cada uno»."},
+    {"nino": "Trinidad Muñoz", "hace_dias": 4, "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Trini separó los bloques grandes rojos de los chicos azules y explicó «estos son de la mamá y estos de los hijos»."},
+    {"nino": "Maximiliano Fuentes", "hace_dias": 6, "nucleos": ["IA"], "oas": ["OA 4 IA"], "apoyo": "no_lo_realiza", "efecto": "por_reforzar",
+     "cita": "Maxi tiró la pala y gritó cuando Vicho no se la pasó; no quiso conversar."},
+    {"nino": "Catalina Pérez", "hace_dias": 2, "nucleos": ["EEN"], "oas": ["OA 1 EEN"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Cata encontró un chanchito de tierra, lo miró con la lupa y dijo «tiene muchas patitas»."},
+    {"nino": "Catalina Pérez", "hace_dias": 10, "nucleos": ["LV"], "oas": ["OA 8 LV"], "apoyo": "autonomo", "efecto": "avance",
+     "cita": "Cata hizo rayas y círculos en su hoja y dijo que era «una carta para mi abuela»."}
+  ]
+}
