@@ -2,8 +2,9 @@
 """Extrae el currículo de Transición desde el Programa Pedagógico del MINEDUC.
 
 Genera (o actualiza) datos/curriculo_transicion.json con, por núcleo:
-sigla, nombre, lo esperado al iniciar NT1 y sus OA con las conductas
-observables de NT1 y NT2.
+sigla, nombre, trayectoria educativa (lo esperado al iniciar NT1 y cómo
+continúa en Enseñanza Básica) y sus OA con las conductas observables de NT1
+y NT2.
 
 Usa `pdftotext -layout` página por página y parsea el texto. Los textos se
 copian tal cual del PDF. Lo que no se puede extraer con seguridad queda
@@ -49,6 +50,8 @@ RE_OBJETIVOS = re.compile(r"^\s*Objetivos de Aprendizaje( del Núcleo)?\s*$")
 M_TRAYECTORIA = "Trayectoria educativa"
 M_PREVIOS = "¿QUÉ APRENDIZAJES PREVIOS"
 M_CONTINUAN = "¿CÓMO CONTINÚAN"
+# CES lo titula en mayúsculas.
+RE_CONOCIMIENTOS = re.compile(r"^\s*Conocimientos disciplinarios\s*$", re.IGNORECASE)
 M_ESPERA = "¿QUÉ SE ESPERA QUE APRENDAN?"
 M_RECONOCER = "¿CÓMO SE PODRÍA RECONOCER EL LOGRO"
 M_EXPERIENCIAS = "¿QUÉ EXPERIENCIAS"
@@ -68,8 +71,8 @@ def pagina(pdf, n):
 
     Devuelve (líneas, números de las notas al pie de la página)."""
     salida = subprocess.run(
-        ["pdftotext", "-layout", "-f", str(n), "-l", str(n), str(pdf), "-"],
-        capture_output=True, text=True, check=True,
+        ["pdftotext", "-layout", "-enc", "UTF-8", "-f", str(n), "-l", str(n), str(pdf), "-"],
+        capture_output=True, text=True, encoding="utf-8", check=True,
     ).stdout
     lineas = salida.replace("\f", "").split("\n")
     # El encabezado es la primera línea no vacía y lleva el número de página.
@@ -93,7 +96,8 @@ def pagina(pdf, n):
 def vocabulario(pdf):
     """Palabras que aparecen en todo el PDF, para decidir guiones de corte."""
     texto = subprocess.run(
-        ["pdftotext", str(pdf), "-"], capture_output=True, text=True, check=True,
+        ["pdftotext", "-enc", "UTF-8", str(pdf), "-"],
+        capture_output=True, text=True, encoding="utf-8", check=True,
     ).stdout
     return {p.lower() for p in RE_PALABRA.findall(texto)}
 
@@ -221,6 +225,18 @@ class Extractor:
             dudas.append("no empieza con 'Al iniciar Primer Nivel de Transición'")
         return self.marcar(texto, dudas, donde)
 
+    def continuidad_basica(self, lineas, sigla):
+        """Segunda parte de la trayectoria: cómo continúa en Enseñanza Básica."""
+        ini = self.buscar(lineas, M_CONTINUAN)
+        fin = self.buscar(lineas, RE_CONOCIMIENTOS, ini)
+        donde = f"{sigla} continuidad_basica"
+        if ini < 0 or fin < 0:
+            return self.marcar("", [], donde)
+        texto, dudas = self.unir(lineas[ini + 1:fin], donde)
+        if not texto.startswith("Durante"):
+            dudas.append("no empieza con 'Durante'")
+        return self.marcar(texto, dudas, donde)
+
     def progresiones(self, lineas, sigla):
         """Por cada '¿QUÉ SE ESPERA QUE APRENDAN?': número, texto y conductas."""
         inicios = [i for i, l in enumerate(lineas) if M_ESPERA in l]
@@ -329,6 +345,7 @@ class Extractor:
             "sigla": sigla,
             "nombre": nombre,
             "esperado_inicio_nt1": self.esperado_inicio(lineas, sigla),
+            "continuidad_basica": self.continuidad_basica(lineas, sigla),
             "oas": oas,
         }
 
