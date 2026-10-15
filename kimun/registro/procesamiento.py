@@ -12,7 +12,12 @@ Lo usa `manage.py procesar_capturas`:
    devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
    recupera las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA).
 
-Las fotos (Task 8) y los audios (Task 9) todavía no se procesan: no se toman y siguen pendientes.
+Los audios (Task 9) primero se transcriben con `ia.transcripcion` (con los nombres
+del curso como vocabulario) y el texto queda en `texto_extraido`; desde ahí siguen
+igual que una nota escrita. Si después falla la separación, al reintentar no se
+vuelve a transcribir.
+
+Las fotos (Task 8) todavía no se procesan: no se toman y siguen pendientes.
 """
 import logging
 from datetime import date, timedelta
@@ -23,13 +28,14 @@ from django.utils import timezone
 
 from .coincidencia import emparejar
 from .curriculo import leer_curriculo
-from .ia import ErrorSeparacion, separar
+from .ia import ClienteTranscribe, ErrorSeparacion, ErrorTranscripcion, separar
 from .ia.separacion import normalizar_codigo_oa
+from .ia.transcripcion import frases_vocabulario
 from .models import Captura, Nucleo, ObjetivoAprendizaje, Observacion
 
 logger = logging.getLogger(__name__)
 
-TIPOS_PROCESABLES = (Captura.Tipo.TEXTO,)
+TIPOS_PROCESABLES = (Captura.Tipo.TEXTO, Captura.Tipo.AUDIO)
 LARGO_NOMBRE_DETECTADO = Observacion._meta.get_field("nombre_detectado").max_length
 # Una captura que lleva más que esto en "procesando" quedó atascada (el proceso murió a mitad).
 # Holgado frente al tiempo máximo de una llamada a Bedrock (90 s por defecto).
@@ -97,6 +103,40 @@ def reintentar_errores():
     return errores + atascadas
 
 
+def prefijo_vocabulario(curso):
+    """Nombre base del vocabulario de Transcribe del curso (los permisos exigen `kimun-*`)."""
+    return f"kimun-curso-{curso.pk}"
+
+
+def frases_del_curso(ninos):
+    """Nombre completo, nombre de pila y apodos de cada niño, listos para el vocabulario."""
+    nombres = []
+    for nino in ninos:
+        nombres.append(nino.nombre)
+        nombres.extend(nino.nombre.split()[:1])
+        nombres.extend(alias for alias in (nino.alias or []) if isinstance(alias, str))
+    return frases_vocabulario(nombres)
+
+
+def _texto_de_audio(captura, ninos, transcriptor):
+    """Transcribe el audio y guarda el texto. Si ya estaba transcrito (reintento), lo reutiliza."""
+    if captura.texto_extraido.strip():
+        return captura.texto_extraido
+    if not captura.archivo:
+        raise ErrorTranscripcion("La captura de audio no tiene archivo.")
+    with captura.archivo.storage.open(captura.archivo.name, "rb") as archivo:
+        audio = archivo.read()
+    texto = transcriptor.transcribir(
+        audio,
+        id_trabajo=f"kimun-captura-{captura.pk}-{captura.intentos}",
+        prefijo_vocabulario=prefijo_vocabulario(captura.curso),
+        frases=frases_del_curso(ninos),
+    )
+    captura.texto_extraido = texto
+    captura.save(update_fields=["texto_extraido", "actualizada"])
+    return texto
+
+
 def _marcar_error(captura, motivo):
     captura.estado = Captura.Estado.ERROR
     captura.error = motivo
@@ -136,9 +176,10 @@ def _crear_observacion(captura, separada, ninos, nucleos, oas):
     return obs
 
 
-def procesar(captura, cliente=None, catalogo=None):
+def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
     """Separa una captura ya tomada y crea sus observaciones pendientes.
 
+    Los audios se transcriben antes con `transcriptor` (por defecto, `ClienteTranscribe()`).
     Devuelve la lista de observaciones creadas (puede ser vacía si la nota no
     describe ninguna), o None si la captura quedó en error.
     """
@@ -146,6 +187,8 @@ def procesar(captura, cliente=None, catalogo=None):
     ninos = list(curso.ninos.all())
     texto = captura.texto_original or captura.texto_extraido
     try:
+        if captura.tipo == Captura.Tipo.AUDIO:
+            texto = _texto_de_audio(captura, ninos, transcriptor or ClienteTranscribe())
         separadas = separar(
             texto,
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
@@ -164,7 +207,7 @@ def procesar(captura, cliente=None, catalogo=None):
             captura.estado = Captura.Estado.PROCESADA
             captura.error = ""
             captura.save(update_fields=["estado", "error", "actualizada"])
-    except ErrorSeparacion as error:
+    except (ErrorSeparacion, ErrorTranscripcion) as error:
         logger.warning("Captura %s quedó con error: %s", captura.pk, error)
         _marcar_error(captura, str(error))
         return None
@@ -176,9 +219,9 @@ def procesar(captura, cliente=None, catalogo=None):
     return creadas
 
 
-def procesar_pendientes(cliente=None, catalogo=None):
+def procesar_pendientes(cliente=None, catalogo=None, transcriptor=None):
     """Toma y procesa capturas hasta que no quede ninguna pendiente. Entrega (captura, resultado)."""
     if catalogo is None:
         catalogo = leer_curriculo()
     while (captura := tomar_siguiente()) is not None:
-        yield captura, procesar(captura, cliente=cliente, catalogo=catalogo)
+        yield captura, procesar(captura, cliente=cliente, catalogo=catalogo, transcriptor=transcriptor)
