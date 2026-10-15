@@ -19,7 +19,7 @@ def comprobar_historial_unico(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('registro', '0004_propuesta_procesamiento'),
+        ('registro', '0006_propuesta_procesamiento'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

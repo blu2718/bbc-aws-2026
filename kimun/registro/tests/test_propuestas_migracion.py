@@ -13,7 +13,7 @@ def _insertar(modelo, **datos):
 @pytest.mark.django_db(transaction=True)
 def test_migracion_retira_solicitudes_sin_huella_y_conserva_decisiones(nino, nucleos, educadora):
     anterior = [("registro", "0002_descriptor_rubrica_integra")]
-    nueva = [("registro", "0003_propuesta_contrato")]
+    nueva = [("registro", "0005_propuesta_contrato")]
     executor = MigrationExecutor(connection)
     try:
         executor.migrate(anterior)
@@ -39,13 +39,13 @@ def test_migracion_retira_solicitudes_sin_huella_y_conserva_decisiones(nino, nuc
         assert Nivel.objects.get(pk=validado.pk).propuesta_id == historica.pk
         assert _insertar(Propuesta, **base).estado == "solicitada"
     finally:
-        MigrationExecutor(connection).migrate([("registro", "0005_propuesta_decision")])
+        MigrationExecutor(connection).migrate([("registro", "0008_captura_pregunta")])
 
 
 @pytest.mark.django_db(transaction=True)
 def test_migracion_no_corrige_automaticamente_evidencia_incoherente(nino, nucleos):
     anterior = [("registro", "0002_descriptor_rubrica_integra")]
-    nueva = [("registro", "0003_propuesta_contrato")]
+    nueva = [("registro", "0005_propuesta_contrato")]
     executor = MigrationExecutor(connection)
     executor.migrate(anterior)
     Propuesta = executor.loader.project_state(anterior).apps.get_model("registro", "PropuestaNivel")
@@ -56,4 +56,4 @@ def test_migracion_no_corrige_automaticamente_evidencia_incoherente(nino, nucleo
         assert Propuesta.objects.get(pk=incoherente.pk).nivel == 3
     finally:
         Propuesta.objects.filter(pk=incoherente.pk).delete()
-        MigrationExecutor(connection).migrate([("registro", "0005_propuesta_decision")])
+        MigrationExecutor(connection).migrate([("registro", "0008_captura_pregunta")])

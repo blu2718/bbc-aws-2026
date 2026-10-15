@@ -376,8 +376,8 @@ def test_migracion_no_borra_validaciones_duplicadas(lista):
     from django.db import connection
     from django.db.migrations.executor import MigrationExecutor
 
-    anterior = [("registro", "0004_propuesta_procesamiento")]
-    nueva = [("registro", "0005_propuesta_decision")]
+    anterior = [("registro", "0006_propuesta_procesamiento")]
+    nueva = [("registro", "0007_propuesta_decision")]
     executor = MigrationExecutor(connection)
     executor.migrate(anterior)
     Nivel = executor.loader.project_state(anterior).apps.get_model("registro", "NivelValidado")
@@ -389,4 +389,4 @@ def test_migracion_no_borra_validaciones_duplicadas(lista):
         assert Nivel.objects.filter(pk__in=[v.pk for v in creados]).count() == 2
     finally:
         Nivel.objects.filter(pk__in=[v.pk for v in creados]).delete()
-        MigrationExecutor(connection).migrate(nueva)
+        MigrationExecutor(connection).migrate([("registro", "0008_captura_pregunta")])
