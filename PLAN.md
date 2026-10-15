@@ -25,6 +25,7 @@ La educadora siempre decide el nivel.
 - Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4; al egresar se espera 8. No se asume que el avance sea lineal. Es una referencia blanda: las Bases Curriculares prescriben por tramos de 2 años porque una prescripción más corta "no respetaría diferencias individuales en el aprendizaje".
 - Brecha = nivel esperado − nivel actual validado. Brecha 2: aviso. Más de 2: alerta. Ambos se redactan como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares.
 - Aviso de datos desactualizados si un núcleo de un niño pasa 14 días sin observaciones aceptadas, y aviso "sin datos" si nunca tuvo.
+- Cobertura de evidencia por OA: para cada niño, cuántas observaciones aceptadas respaldan cada OA de su nivel educativo y la fecha de la más reciente. Los OA sin evidencia se destacan como sugerencia de qué observar.
 
 ### Captura y procesamiento
 
@@ -144,7 +145,7 @@ flowchart LR
 4. Los nombres se emparejan con la lista del curso en nuestro código, no en el modelo, usando alias y comparación aproximada (difflib). Así el resultado es predecible y testeable.
 5. La educadora revisa: acepta, edita o descarta cada observación y resuelve nombres ambiguos.
 6. Para proponer un nivel se envían a Claude las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1, el mapeo de niveles, el nivel validado actual y las observaciones aceptadas con su nivel de apoyo, con códigos en lugar de nombres. Claude devuelve nivel, observaciones citadas, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida que el nivel esté entre 1 y 8 y que las citas correspondan a observaciones enviadas.
-7. Las alertas se calculan cada vez que se piden; no se guardan.
+7. Las alertas y la cobertura de evidencia se calculan cada vez que se piden; no se guardan.
 
 ### Entidades
 
@@ -194,8 +195,8 @@ flowchart LR
     - nivel esperado según la tabla del curso (después del semestre 4, siempre 8);
     - brecha y gravedad (0–1 normal, 2 aviso, más de 2 alerta);
     - "datos de más de 14 días" y "sin datos".
-  - Modelos mínimos `Captura` y `Observacion` (niño, fecha, cita, núcleos, estado).
-  - Unas 40 observaciones aceptadas y niveles históricos en los datos de demo, para que aparezcan todos los estados.
+  - Modelos mínimos `Captura` y `Observacion` (niño, fecha, cita, núcleos, OA, estado).
+  - Unas 40 observaciones aceptadas, etiquetadas con núcleos y OA, y niveles históricos en los datos de demo, para que aparezcan todos los estados. Algunos OA quedan sin evidencia a propósito.
   - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad, y se redactan como sugerencias (por ejemplo, "Revisar: 3 niveles bajo lo esperado"), no como diagnóstico.
 - Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre. Otra educadora recibe 404.
 - Demo: al entrar, aparece la tabla con las alertas.
@@ -205,11 +206,12 @@ flowchart LR
 - Objetivo: el flujo completo funciona sin IA.
 - Guía:
   - Ficha con los 8 núcleos (actual frente a esperado), el historial de niveles validados y las observaciones aceptadas con fecha y cita.
+  - En cada núcleo de la ficha, la cobertura de evidencia de sus OA: cantidad de observaciones aceptadas y fecha de la más reciente, con los OA sin evidencia destacados como sugerencia de qué observar. Se calcula con funciones puras en `registro/cobertura.py`.
   - Formulario con HTMX para fijar un nivel con un comentario (crea un `NivelValidado` con la usuaria).
   - Pantalla para editar la tabla de metas del curso.
   - Diseño pensado primero para celular, con Pico.css.
-- Tests: validar un nivel crea historial y actualiza la tabla; editar metas cambia las alertas; permisos.
-- Demo: se sube un nivel a mano y la alerta desaparece.
+- Tests: validar un nivel crea historial y actualiza la tabla; editar metas cambia las alertas; la cobertura por OA cuenta solo observaciones aceptadas del niño y toma la fecha más reciente; permisos.
+- Demo: se sube un nivel a mano y la alerta desaparece; la ficha muestra qué OA todavía no tienen evidencia.
 
 ### Task 4: Infraestructura y despliegue
 

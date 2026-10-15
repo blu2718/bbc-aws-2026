@@ -114,7 +114,7 @@ La última columna indica si `PLAN.md` ya las recoge.
 | Formatos de evidencia: foto, audio y texto (las Bases también reconocen el video) | Sí, sin video en el MVP |
 | Cargar los 206 OA del CSV como catálogo, con la jerarquía ámbito → núcleo → nivel → OA | Parcial: Task 1 carga los 85 de Transición. Ampliarlo depende de la decisión sobre E-1 |
 | Criterios de logro por OA, editables por el equipo | Parcial: la rúbrica provisoria se edita en el panel de administración |
-| Matriz de cobertura por OA: si hay evidencia, cuánta y qué tan reciente | No: el plan mide la recencia por núcleo |
+| Matriz de cobertura por OA: si hay evidencia, cuánta y qué tan reciente | Sí (Task 3) |
 | Estado por OA con la escala del IEA: sin evidencia, incipiente, en desarrollo, adquirido (ver `docs/log-desafio-integra-e1.md`) | No: el plan usa niveles 1 a 8 por núcleo y nivel de apoyo por observación |
 | Vista que destaque los núcleos transversales | No |
 | Trayectorias flexibles: OA de un nivel adyacente sin marcarlo como "fuera de rango" | No |
