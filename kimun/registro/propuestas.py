@@ -7,6 +7,7 @@ from dataclasses import dataclass, field
 from datetime import timedelta
 import hashlib
 import json
+import logging
 import uuid
 
 from django.core.exceptions import ValidationError
@@ -17,6 +18,8 @@ from django.utils import timezone
 from .models import DescriptorNivel, Manifestacion, Nino, NivelValidado, Nucleo, Observacion, PropuestaNivel, Rubrica, validar_nivel
 from .ia.bedrock import ClienteBedrock
 from .ia.propuesta import ErrorConfiguracionPropuesta, ErrorPropuesta, VERSION_PROMPT, leer_prompt, proponer
+
+logger = logging.getLogger(__name__)
 
 MAX_INTENTOS = 3
 CADUCIDAD_SEGUNDOS = 300
@@ -280,13 +283,17 @@ def procesar_siguiente(*, cliente=None):
             generacion = evaluar_entrada(entrada, cliente=cliente)
             _guardar_resultado(trabajo, generacion)
     except Exception as error:
-        # No persistir mensajes de SDK, respuestas crudas ni repr de evidencia.
+        # No persistir ni registrar mensajes de SDK, respuestas crudas ni repr de evidencia.
         if isinstance(error, ErrorConfiguracionPropuesta):
             mensaje = "No se pudo preparar la rúbrica o la evidencia. Revisa los datos antes de reintentar."
+            diagnostico = "rúbrica o evidencia incompleta"
         elif isinstance(error, ErrorPropuesta):
             mensaje = "No se pudo generar una propuesta válida. Puedes reintentar."
+            diagnostico = f"Bedrock: {error.causa}" if error.causa else "respuesta fuera del contrato"
         else:
             mensaje = "El procesamiento falló. Puedes reintentar."
+            diagnostico = f"error inesperado: {type(error).__name__}"
+        logger.warning("La propuesta #%s quedó en error (%s).", trabajo.pk, diagnostico)
         _propietario(trabajo).update(estado=PropuestaNivel.Estado.ERROR, token_procesamiento=None,
                                     error=mensaje, actualizada=timezone.now(),
                                     modelo=getattr(cliente, "modelo", "") if entrada and entrada.datos["evidencia"] else "")

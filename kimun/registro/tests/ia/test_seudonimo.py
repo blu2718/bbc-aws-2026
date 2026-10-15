@@ -155,17 +155,33 @@ def test_no_infiere_por_similitud_nombres_no_declarados(identidades):
     assert seudonimizar_texto("Naira y una visitante.", identidades) == "Naira y una visitante."
 
 
-def test_los_datos_de_demo_pueden_usarse_sin_django():
+def _demo_con_codigos():
     from pathlib import Path
 
-    ruta = Path(__file__).resolve().parents[4] / "datos" / "demo_curso.json"
-    ninos = json.loads(ruta.read_text(encoding="utf-8"))["ninos"]
-    for i, nino in enumerate(ninos):
+    demo = json.loads((Path(__file__).resolve().parents[4] / "datos" / "demo_curso.json").read_text(encoding="utf-8"))
+    for i, nino in enumerate(demo["ninos"]):
         nino["codigo"] = f"N-{i:06X}"
+    return demo
+
+
+def test_los_datos_de_demo_pueden_usarse_sin_django():
+    ninos = _demo_con_codigos()["ninos"]
     seudonimo = Seudonimizador(ninos)
     for nino in ninos:
         for nombre in [nino["nombre"], *nino["alias"]]:
             assert seudonimo.texto(nombre) == nino["codigo"]
+
+
+def test_las_citas_de_demo_identifican_a_su_propio_nino():
+    """Con dos Sofías, «Sofía M.» debe ser un alias declarado: si no, su propia evidencia llega ambigua."""
+    demo = _demo_con_codigos()
+    codigos = {n["nombre"]: n["codigo"] for n in demo["ninos"]}
+    seudonimo = Seudonimizador(demo["ninos"])
+    for i, obs in enumerate(demo["observaciones"]):
+        if obs.get("nino"):
+            assert codigos[obs["nino"]] in seudonimo.texto(obs["cita"]), f"observación {i} de la demo"
+    assert seudonimo.texto("Sofía M. miró a Sofía R.") == f"{codigos['Sofía Muñoz']} miró a {codigos['Sofía Rojas']}"
+    assert seudonimo.texto("Sofía miró") == f"{MARCADOR_AMBIGUO} miró"
 
 
 @pytest.mark.parametrize("identidad", [

@@ -1,5 +1,6 @@
 """Cola de propuestas: persistencia, exclusión de trabajos y recuperación."""
 import json
+import logging
 from datetime import date, timedelta
 from io import StringIO
 from unittest.mock import patch
@@ -146,6 +147,19 @@ def test_error_se_persiste_sin_datos_sensibles_y_reintento_es_explicito(obs, des
     assert creada and nueva.pk != propuesta.pk
     assert PropuestaNivel.objects.get(pk=propuesta.pk).estado == "error"
     assert procesar_siguiente(cliente=ClienteFalso()).estado == "lista"
+
+
+@pytest.mark.parametrize("fallo,diagnostico", [
+    (ErrorBedrock("Pedro: cita privada", "AccessDeniedException"), "Bedrock: AccessDeniedException"),
+    (RuntimeError("Pedro: secreto"), "error inesperado: RuntimeError"),
+])
+def test_error_deja_diagnostico_en_el_log_sin_textos(obs, descriptores, caplog, fallo, diagnostico):
+    aceptar(obs)
+    with caplog.at_level(logging.WARNING, logger="registro.propuestas"):
+        propuesta = procesar_siguiente(cliente=ClienteFalso(fallo=fallo))
+    assert propuesta.estado == "error"
+    assert f"La propuesta #{propuesta.pk} quedó en error ({diagnostico})." in caplog.text
+    assert "Pedro" not in caplog.text and "cita" not in caplog.text and "secreto" not in caplog.text
 
 
 def test_configuracion_incompleta_se_guarda_como_error(obs):

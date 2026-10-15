@@ -12,7 +12,15 @@ APOYOS = {"autonomo", "con_ayuda", "parcial", "no_lo_realiza", "sin_dato"}
 
 
 class ErrorPropuesta(Exception):
-    """No se puede usar la respuesta; los mensajes no incluyen citas ni respuestas crudas."""
+    """No se puede usar la respuesta; los mensajes no incluyen citas ni respuestas crudas.
+
+    `causa` identifica una falla de Bedrock para el diagnóstico: el código de AWS
+    o la clase del error original. Nunca guarda el mensaje del servicio.
+    """
+
+    def __init__(self, mensaje, causa=""):
+        super().__init__(mensaje)
+        self.causa = causa
 
 
 class ErrorConfiguracionPropuesta(ErrorPropuesta):
@@ -151,8 +159,10 @@ def proponer(datos, identidades, *, cliente=None):
         seudonimo = Seudonimizador(identidades)
         respuesta = seudonimo.invocar(cliente if cliente is not None else ClienteBedrock(), leer_prompt(),
                                       contexto, construir_herramienta(contexto["rubrica"]["nivel_maximo"], ids))
-    except ErrorBedrock:
-        raise ErrorPropuesta("No se pudo generar la propuesta con Bedrock.") from None
+    except ErrorBedrock as error:
+        # El mensaje del SDK puede incluir ARN o partes del envío: solo se conserva el código o la clase.
+        causa = error.codigo or type(error.__cause__ or error).__name__
+        raise ErrorPropuesta("No se pudo generar la propuesta con Bedrock.", causa=causa) from None
     except (ValueError, TypeError):
         raise ErrorConfiguracionPropuesta("No se pudo preparar un envío con códigos y campos válidos.") from None
     validada = validar_respuesta(respuesta, nivel_maximo=contexto["rubrica"]["nivel_maximo"], ids_enviados=ids)

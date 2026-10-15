@@ -9,7 +9,8 @@
       {% if nf.error_propuesta %}<p role="alert" class="error">{{ nf.error_propuesta }}</p>{% endif %}
       {% if p.estado == "solicitada" or p.estado == "procesando" %}
         <p role="status">{% if p.estado == "solicitada" %}Propuesta en cola.{% else %}Generando propuesta.{% endif %}</p>
-        <p><a href="{% url 'ficha' ficha.nino.pk %}#nucleo-{{ nf.nucleo.sigla }}">Actualizar estado</a></p>
+        {# Sin JavaScript, un enlace a la misma ficha con #nucleo-... no la recarga; la vista de estado redirige y sí. #}
+        <p><a href="{% url 'estado_propuesta' ficha.nino.pk nf.nucleo.sigla %}">Actualizar estado</a></p>
       {% else %}
         {% if p %}
           {% if p.estado == "obsoleta" %}
@@ -81,7 +82,8 @@
             {% endwith %}
           {% endif %}
         {% endif %}
-        {% include "registro/_solicitud_propuesta.html" %}
+        {# Una propuesta lista se decide primero. Si está desactualizada, al decidir queda obsoleta y vuelve este botón. #}
+        {% if p.estado != "lista" %}{% include "registro/_solicitud_propuesta.html" %}{% endif %}
       {% endif %}
     </div>
   {% endwith %}

@@ -33,7 +33,7 @@ Dentro de `kimun/`, en una sola terminal y una sola corrida a la vez:
 .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider --durations=10
 ```
 
-La suite completa tarda menos de 1 minuto. Para iterar, corre solo el archivo que cambiaste (`pytest registro/tests/test_alertas.py`) y deja la suite completa para el final.
+La duración depende del equipo; la verificación de la Task 7 con 562 pruebas tardó 3 min 37 s. Para iterar, corre solo el archivo que cambiaste (`pytest registro/tests/test_alertas.py`) y deja la suite completa para el final.
 
 Por qué se demoraban (15-10-2026) y cómo evitarlo:
 
@@ -135,3 +135,27 @@ Antes de validar se comprueba que la propuesta esté lista, tenga evidencia sufi
 Con HTMX, el panel consulta el estado cada tres segundos solo mientras está en cola o generándose y se detiene al terminar. Se actualiza únicamente el panel para conservar cualquier edición del formulario manual. Aceptar o ajustar actualiza la sección del núcleo con historial y señales; la tabla del curso usa los mismos cálculos al cargarla. Sin JavaScript se puede actualizar el estado mediante el enlace de la ficha y decidir mediante formularios normales.
 
 Para verificar el recorrido: aceptar observaciones pendientes, ejecutar el proceso del punto 4, abrir la ficha como educadora, revisar las citas y decidir. Las pruebas de integración usan un cliente falso; una comprobación con Bedrock real y la revisión visual final corresponden al cierre del punto 6.
+
+## Task 7: verificación y demo aislada (punto 6)
+
+La verificación local del 15-10-2026 pasó con **562 pruebas**, `manage.py check` limpio y sin migraciones de modelos pendientes. También se revisó el flujo en navegador, en escritorio y a 390 px de ancho: solicitudes automática y manual, sondeo, evidencia, aceptación, ajuste, rechazo, historial, tabla del curso y evidencia insuficiente con rúbrica provisoria. El registro reproducible y la limitación de AWS están en [docs/validacion_task7.md](docs/validacion_task7.md). **La comprobación con Bedrock real sigue pendiente**: no había credenciales ni perfiles disponibles; no se hicieron llamadas reales.
+
+Desde la raíz, en PowerShell, prepara una base separada de la habitual:
+
+```powershell
+$env:DJANGO_DB_PATH = Join-Path $env:TEMP "kimun-task7.sqlite3"
+kimun\.venv\Scripts\python.exe kimun\manage.py migrate
+kimun\.venv\Scripts\python.exe kimun\manage.py cargar_demo
+kimun\.venv\Scripts\python.exe -X utf8 scripts\probar_propuesta.py --preparar
+kimun\.venv\Scripts\python.exe kimun\manage.py runserver 127.0.0.1:8017 --noreload
+```
+
+Entra como `educadora` con la contraseña generada por `cargar_demo`, acepta las tres observaciones de la captura de demo y abre la ficha de Sofía Muñoz. En otra terminal, define **la misma ruta absoluta** en `DJANGO_DB_PATH` y procesa una propuesta simulada:
+
+```powershell
+kimun\.venv\Scripts\python.exe -X utf8 scripts\probar_propuesta.py --sin-red
+```
+
+Este modo no necesita credenciales, intercepta la petición antes de enviarla y guarda el modelo como `simulado-sin-red`. Audita nombres y alias conocidos del curso, apellidos en citas y ejemplos reservados, sin imprimir el prompt ni la respuesta cruda. No sustituye una prueba real de permisos o de calidad del modelo.
+
+Para la comprobación real pendiente, configura las credenciales mediante la cadena estándar de AWS, `BEDROCK_MODEL_ID` y `BEDROCK_REGION`, y ejecuta el mismo script **sin `--sin-red`** con una única solicitud pendiente. La prueba permite un solo intento de Bedrock, sin reintentos automáticos, exige una base diferente de `kimun/db.sqlite3` y se detiene si hay varias solicitudes pendientes. No ejecutes a la vez el worker continuo. Revisa nivel, citas, modelo y métricas; si falla, conserva el diagnóstico y no repitas la llamada automáticamente. Aceptar, ajustar y rechazar se comprueban con solicitudes simuladas independientes. Detén el servidor al terminar.

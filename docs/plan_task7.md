@@ -107,6 +107,8 @@ Implementado el punto 5: panel completo con nivel y nombre, justificación, cond
 
 ## Orden de ejecución
 
+Estado del punto 6 (15-10-2026): verificación local completada con 562 pruebas, comprobaciones de Django y demo en navegador de escritorio y móvil. Se verificaron las tres decisiones y la ausencia de cambios de nivel al generar/rechazar. La auditoría del envío simulado no encontró identidades conocidas ni ejemplos reservados. **Pendiente la generación con Bedrock real por falta de credenciales AWS**; no se hicieron llamadas reales. Procedimiento y resultados en `docs/validacion_task7.md` y README. La Task 7 no se marca cerrada hasta comprobar esa integración.
+
 1. Contrato y migración.
 2. Sustitución de nombres y tests de privacidad.
 3. Preparación de evidencia, prompt y validación con cliente falso.

@@ -180,6 +180,28 @@ def test_sondeo_solo_mientras_hay_trabajo_y_actualiza_solo_panel(client, lista, 
     assert client.get(url).status_code == 302
 
 
+def test_actualizar_estado_sin_javascript_recarga_la_ficha(client, lista, educadora):
+    # Un enlace a la misma ficha con #nucleo-IA no recarga la página; la vista de estado redirige y sí lo hace.
+    PropuestaNivel.objects.filter(pk=lista.pk).update(estado="solicitada")
+    client.force_login(educadora)
+    url = reverse("estado_propuesta", args=[lista.nino_id, "IA"])
+    html = client.get(reverse("ficha", args=[lista.nino_id])).content.decode()
+    assert f'<a href="{url}">Actualizar estado</a>' in html
+    respuesta = client.get(url)
+    assert respuesta.status_code == 302
+    assert respuesta["Location"] == f"{reverse('ficha', args=[lista.nino_id])}#nucleo-IA"
+
+
+def test_lista_se_decide_antes_de_ofrecer_otra_solicitud(client, lista, educadora):
+    client.force_login(educadora)
+    url = reverse("estado_propuesta", args=[lista.nino_id, "IA"])
+    panel = client.get(url, HTTP_HX_REQUEST="true").content.decode()
+    assert "Aceptar propuesta" in panel and "Solicitar propuesta" not in panel
+    resolver_propuesta(lista, educadora, accion="rechazar")
+    panel = client.get(url, HTTP_HX_REQUEST="true").content.decode()
+    assert "Solicitar propuesta</button>" in panel
+
+
 @pytest.mark.parametrize("estado", ["solicitada", "procesando", "error", "obsoleta"])
 def test_no_decide_una_propuesta_que_no_esta_lista(lista, educadora, estado):
     PropuestaNivel.objects.filter(pk=lista.pk).update(estado=estado, procesamiento_iniciado=timezone.now(), intentos=1)

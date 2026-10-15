@@ -152,6 +152,25 @@ def test_error_de_bedrock_no_expone_texto_del_error(entrada, identidades, client
     assert "Pedro" not in str(error.value) and "Pedro" not in caplog.text
 
 
+class NoCredentialsError(Exception):
+    """Imita botocore.exceptions.NoCredentialsError, que no trae código de AWS."""
+
+
+@pytest.mark.parametrize("codigo,origen,causa", [
+    ("AccessDeniedException", None, "AccessDeniedException"),
+    (None, NoCredentialsError, "NoCredentialsError"),
+    (None, None, "ErrorBedrock"),
+])
+def test_error_de_bedrock_conserva_solo_codigo_o_clase(entrada, identidades, cliente_falso, codigo, origen, causa):
+    fallo = ErrorBedrock("Bedrock rechazó la llamada: Pedro y su cita", codigo)
+    if origen:
+        fallo.__cause__ = origen("Pedro: detalle del SDK")
+    with pytest.raises(ErrorPropuesta) as error:
+        proponer(entrada, identidades, cliente=cliente_falso(fallo))
+    assert error.value.causa == causa
+    assert "Pedro" not in str(error.value)
+
+
 def test_limpia_nombres_conocidos_en_la_respuesta(entrada, identidades, respuesta, cliente_falso):
     respuesta["justificacion"] = "Pedro progresó con Nayara."
     resultado = proponer(entrada, identidades, cliente=cliente_falso(respuesta))
