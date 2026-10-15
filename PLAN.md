@@ -16,14 +16,14 @@ La educadora siempre decide el nivel.
 
 ### Modelo pedagógico
 
-- 3 niveles educativos (sala cuna, medio, transición), cada uno con 8 núcleos y 8 niveles por núcleo.
+- 3 niveles educativos (sala cuna, medio, transición), cada uno con 8 núcleos y 8 niveles por núcleo. Según las Bases Curriculares, cada nivel abarca 2 años y sus OA describen lo esperado al final del tramo: 50 en sala cuna, 71 en medio y 85 en transición.
 - Núcleos (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA.
 - La rúbrica se guarda por nivel educativo, porque puede variar entre ellos. La demo usa solo Transición (NT1 y NT2, 4 a 6 años), con una rúbrica provisoria derivada de las conductas observables del Programa Pedagógico de Transición (ver `contexto/hallazgos-programa-pedagogico-transicion.md`). Se reemplaza cuando Integra entregue la real.
 - Mapeo provisorio de niveles: 1 = lo esperado al iniciar NT1; 2 a 4 = conductas de NT1, desde "con ayuda" hasta "autónomo"; 5 a 7 = lo mismo con las conductas de NT2; 8 = conductas de NT2 de forma autónoma (lo esperado al egresar).
 - Todo niño entra al sistema en nivel 1 en los 8 núcleos. Solo la educadora cambia niveles.
 - El tiempo se mide en semestres escolares, con fechas editables.
-- Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4; al egresar se espera 8. No se asume que el avance sea lineal.
-- Brecha = nivel esperado − nivel actual validado. Brecha 2: aviso. Más de 2: alerta.
+- Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4; al egresar se espera 8. No se asume que el avance sea lineal. Es una referencia blanda: las Bases Curriculares prescriben por tramos de 2 años porque una prescripción más corta "no respetaría diferencias individuales en el aprendizaje".
+- Brecha = nivel esperado − nivel actual validado. Brecha 2: aviso. Más de 2: alerta. Ambos se redactan como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares.
 - Aviso de datos desactualizados si un núcleo de un niño pasa 14 días sin observaciones aceptadas, y aviso "sin datos" si nunca tuvo.
 
 ### Captura y procesamiento
@@ -51,7 +51,7 @@ La educadora siempre decide el nivel.
 - La tabla de metas es por curso, no por niño.
 - El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra.
 - La rúbrica real y la referencia institucional del nivel esperado se piden a la directora de educación el jueves.
-- El dataset sintético E-1 de la organización (`dataset-publico/`) usa otra rúbrica: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad. `contexto/PLAN_PIPELINE_IA.md` se basa en él. Falta decidir si la app también debe cargar ese catálogo, porque este plan supone 8 niveles por núcleo y nivel esperado por semestre.
+- El dataset sintético E-1 de la organización (`dataset-publico/`) usa otra rúbrica: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad. `contexto/PLAN_PIPELINE_IA.md` se basa en él. Falta decidir si la app también debe cargar ese catálogo, porque este plan supone 8 niveles por núcleo y nivel esperado por semestre. Si se carga, sus edades corresponden a sala cuna y parte de medio, cuyos OA oficiales están en las Bases Curriculares; ahí también hay una correspondencia aproximada entre sus 5 dominios y los 8 núcleos.
 
 ## Contexto
 
@@ -82,6 +82,17 @@ Detalle en `contexto/hallazgos-politica-calidad-educativa-integra.md`. El PDF no
   La herramienta registra la misma movilidad que mide el IEA. Falta confirmar si el instrumento de 8 niveles lo reemplazó.
 - Define la calidad con centro en "el bienestar, el aprendizaje oportuno y pertinente y el protagonismo de los niños y niñas".
 - Su vocabulario curricular es anterior a las Bases Curriculares 2018 y no se usa en la app.
+
+### Bases Curriculares de la Educación Parvularia (MINEDUC, 2018)
+
+PDF en `contexto/bases-curriculares-educacion-parvularia-2018.pdf`; detalle en `contexto/hallazgos-bases-curriculares.md`.
+
+- Fijan oficialmente 8 núcleos y 3 niveles de 2 años. Los OA describen lo esperado al final de cada nivel: 206 en total (50 en sala cuna, 71 en medio y 85 en transición).
+- Su enfoque de evaluación coincide con la herramienta:
+  - la evidencia sale de situaciones cotidianas (fotografías, grabaciones, observaciones), sin instancias formales;
+  - "reunidas las evidencias, el o la educadora debe construir una conclusión evaluativa", considerando la distancia entre lo que el niño hace y lo que plantea el OA;
+  - todo "sin juicios perentorios".
+- No traen conductas observables por año. Sus OA de sala cuna y medio son la fuente oficial si el alcance se amplía más allá de Transición.
 
 ### Programa Pedagógico de Transición (MINEDUC, 2019)
 
@@ -185,7 +196,7 @@ flowchart LR
     - "datos de más de 14 días" y "sin datos".
   - Modelos mínimos `Captura` y `Observacion` (niño, fecha, cita, núcleos, estado).
   - Unas 40 observaciones aceptadas y niveles históricos en los datos de demo, para que aparezcan todos los estados.
-  - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad.
+  - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad, y se redactan como sugerencias (por ejemplo, "Revisar: 3 niveles bajo lo esperado"), no como diagnóstico.
 - Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre. Otra educadora recibe 404.
 - Demo: al entrar, aparece la tabla con las alertas.
 
@@ -296,7 +307,7 @@ flowchart LR
     - problema (4 h semanales por educadora);
     - solución y cómo encaja en el sistema de evaluación de Integra: registra la movilidad de los aprendizajes que mide el IEA y apunta a su definición de calidad (bienestar, aprendizaje oportuno y pertinente, protagonismo);
     - demo;
-    - rúbrica (basada en el Programa Pedagógico de Transición del MINEDUC y reemplazable por la de Integra);
+    - rúbrica (basada en el Programa Pedagógico de Transición del MINEDUC y reemplazable por la de Integra), y enfoque de evaluación alineado con las Bases Curriculares (evidencia cotidiana, la educadora concluye);
     - privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales);
     - cifras de la Task 10;
     - cómo escala (vistas de directora y nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
