@@ -13,6 +13,8 @@ tests pasan clientes falsos de Transcribe y S3.
 4. Lanza el trabajo en es-US con salida en `transcripciones/` del mismo bucket y
    consulta cada `intervalo` segundos hasta que termina o se cumple `tiempo_maximo`.
 5. Lee el JSON de salida y devuelve el texto.
+6. Borra del bucket la copia del audio y el JSON de salida, termine bien o mal: el audio
+   no se conserva y el texto lo guarda quien llama (`registro/lectura.py`).
 
 Transcribe batch acepta AMR, FLAC, M4A, MP3, MP4, Ogg, WebM y WAV
 (https://docs.aws.amazon.com/transcribe/latest/dg/how-input.html): los audios de
@@ -217,15 +219,31 @@ class ClienteTranscribe:
         }
         if vocabulario:
             pedido["Settings"] = {"VocabularyName": vocabulario}
+        subido = False
         try:
             self.s3.put_object(Bucket=self.bucket, Key=clave_audio, Body=audio, ContentType=TIPOS_MIME[formato])
+            subido = True
             self.transcribe.start_transcription_job(**pedido)
         except Exception as error:
+            if subido:
+                self._borrar(clave_audio)
             raise ErrorTranscripcion(f"No se pudo iniciar la transcripción {trabajo}: {error}") from error
         logger.info("Transcripción %s iniciada (%s, vocabulario: %s)", trabajo, formato, vocabulario or "ninguno")
 
-        self._esperar(trabajo)
-        return self._leer_texto(clave_salida)
+        try:
+            self._esperar(trabajo)
+            return self._leer_texto(clave_salida)
+        finally:
+            # Ni el audio ni la salida de Transcribe se conservan en el bucket.
+            self._borrar(clave_audio)
+            self._borrar(clave_salida)
+
+    def _borrar(self, clave):
+        """Borra un objeto del bucket. Si falla, lo registra y sigue: la transcripción no se pierde."""
+        try:
+            self.s3.delete_object(Bucket=self.bucket, Key=clave)
+        except Exception as error:
+            logger.warning("No se pudo borrar s3://%s/%s: %s", self.bucket, clave, error)
 
     def _esperar(self, trabajo):
         inicio = self._reloj()

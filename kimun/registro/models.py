@@ -8,13 +8,19 @@ educativo (hoy 8, Integra podría pasar a 9). La base de datos solo exige
 nivel >= 1; el máximo se valida en el código para poder cambiarlo sin
 migración. La cantidad de núcleos sale de los datos (Integra tendrá 10).
 """
+import re
 import secrets
+import uuid
+from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models, transaction
 from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.utils import timezone
 
 NIVEL_MIN = 1
 
@@ -362,6 +368,20 @@ class Nino(models.Model):
 
 # --- Captura y observaciones ---------------------------------------------------
 
+_EXTENSION_SEGURA = re.compile(r"\.[a-z0-9]{1,5}")
+
+
+def ruta_original(instancia, nombre):
+    """originales/AAAA/MM/<aleatorio>.<ext>: el nombre del archivo subido no se conserva.
+
+    El nombre original puede traer el nombre de un niño ("sofia-postit.jpg") y
+    quedaría a la vista en la clave de S3. Solo se conserva la extensión, si es simple.
+    """
+    extension = Path(nombre or "").suffix.lower()
+    if not _EXTENSION_SEGURA.fullmatch(extension):
+        extension = ""
+    return f"originales/{timezone.localtime():%Y/%m}/{uuid.uuid4().hex}{extension}"
+
 
 class Captura(models.Model):
     class Tipo(models.TextChoices):
@@ -381,7 +401,10 @@ class Captura(models.Model):
         help_text="Educadora o asistente que registró.",
     )
     tipo = models.CharField(max_length=5, choices=Tipo.choices)
-    archivo = models.FileField(upload_to="originales/%Y/%m/", blank=True)
+    archivo = models.FileField(
+        upload_to=ruta_original, blank=True, max_length=200,
+        help_text="Foto mientras espera a ser leída. Se borra apenas se lee; no se muestra en la app.",
+    )
     texto_original = models.TextField(blank=True, help_text="Lo que se escribió (tipo texto).")
     texto_extraido = models.TextField(blank=True, help_text="Texto leído de la foto o transcrito del audio.")
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
@@ -396,6 +419,14 @@ class Captura(models.Model):
 
     def __str__(self):
         return f"{self.get_tipo_display()} #{self.pk} ({self.get_estado_display()})"
+
+
+@receiver(post_delete, sender=Captura)
+def _borrar_archivo_de_captura(sender, instance, **kwargs):
+    """Si se borra una captura que todavía tenía foto (por ejemplo, desde el admin o al
+    borrar su curso), la foto se borra también: no queda guardada en ninguna parte."""
+    if instance.archivo:
+        instance.archivo.delete(save=False)
 
 
 class Apoyo(models.TextChoices):

@@ -5,11 +5,12 @@ from . import views, views_captura, views_revision
 urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("cursos/<int:curso_id>/", views.curso, name="curso"),
-    # Registro de notas escritas (Task 5)
+    # Registro de capturas: nota escrita (Task 5), foto (Task 8) y audio (Task 9).
+    # Las fotos y los audios no se sirven: se borran apenas se leen.
     path("cursos/<int:curso_id>/capturar/", views_captura.capturar, name="capturar"),
+    path("cursos/<int:curso_id>/capturar/foto/", views_captura.capturar_foto, name="capturar_foto"),
     path("cursos/<int:curso_id>/capturar/audio/", views_captura.capturar_audio, name="capturar_audio"),
     path("cursos/<int:curso_id>/capturar/recientes/", views_captura.capturas_recientes, name="capturas_recientes"),
-    path("capturas/<int:captura_id>/original/", views_captura.original_captura, name="captura_original"),
     path("capturas/<int:captura_id>/reintentar/", views_captura.reintentar_captura, name="captura_reintentar"),
     path("cursos/<int:curso_id>/metas/", views.metas, name="metas"),
     path("ninos/<int:nino_id>/", views.ficha, name="ficha"),
