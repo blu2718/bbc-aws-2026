@@ -1,4 +1,5 @@
-"""Formularios de la Task 3: fijar el nivel de un niño y editar la tabla de metas.
+"""Formularios de la Task 3 (fijar el nivel de un niño y editar la tabla de metas)
+y de la Task 5 (registrar una nota escrita).
 
 Las opciones de nivel van del 1 al máximo de la rúbrica del nivel educativo
 (`Rubrica.nivel_maximo`); nunca se asume una cantidad fija. El nivel se valida
@@ -117,6 +118,19 @@ class FijarNivelForm(forms.Form):
         except ValidationError as error:
             self.add_error(None, error.messages)
             return None
+
+
+LARGO_NOTA = 5000
+
+
+class CapturaTextoForm(forms.Form):
+    """Nota escrita por la educadora o una asistente. El curso y la autora los pone la vista."""
+
+    texto = forms.CharField(
+        label="Nota", max_length=LARGO_NOTA,
+        help_text="Escribe lo que observaste. Puedes nombrar a varios niños y niñas en la misma nota.",
+        widget=forms.Textarea(attrs={"rows": 6, "aria-describedby": "id_texto-ayuda"}),
+    )
 
 
 class MetasForm(forms.Form):
