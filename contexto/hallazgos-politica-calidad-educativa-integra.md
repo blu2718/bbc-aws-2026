@@ -125,7 +125,7 @@ La última columna indica si `PLAN.md` ya las recoge.
 | Evitar etiquetas estigmatizantes y redactar las alertas como sugerencias | Sí |
 | Ficha con los núcleos cruzados para ver brechas simultáneas | Sí (Task 3) |
 | Complementar, no reemplazar, EEDP, IEA y PLAEP-R; no presentarse como tamizaje clínico | Parcial: falta decirlo explícitamente en el pitch |
-| Vista de grupo con cobertura de núcleos por quincena | Parcial: la vista del curso (Task 2) muestra niveles y alertas, sin cobertura por quincena |
+| Vista de grupo con cobertura de núcleos por quincena | Sí (Task 2) |
 | Roles y reflexión en equipo | Parcial: el MVP cubre solo a la educadora |
 | Barrera de protección de derechos: detectar posibles vulneraciones y derivarlas al protocolo, sin procesarlas como evaluación | No |
 | Mostrar fortalezas y talentos, no solo vacíos | No |

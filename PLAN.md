@@ -26,6 +26,7 @@ La educadora siempre decide el nivel.
 - Brecha = nivel esperado − nivel actual validado. Brecha 2: aviso. Más de 2: alerta. Ambos se redactan como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares.
 - Aviso de datos desactualizados si un núcleo de un niño pasa 14 días sin observaciones aceptadas, y aviso "sin datos" si nunca tuvo.
 - Cobertura de evidencia por OA: para cada niño, cuántas observaciones aceptadas respaldan cada OA de su nivel educativo y la fecha de la más reciente. Los OA sin evidencia se destacan como sugerencia de qué observar.
+- Vista del grupo por quincena (del 1 al 15 y del 16 a fin de mes, según la fecha de la observación). Por núcleo muestra las observaciones aceptadas del curso y cuántos niños tienen al menos una. Los núcleos sin observaciones se destacan, porque la Política de Calidad de Integra pide una oferta que cubra todos los núcleos en cada quincena. Se puede volver a quincenas anteriores.
 
 ### Captura y procesamiento
 
@@ -198,8 +199,9 @@ flowchart LR
   - Modelos mínimos `Captura` y `Observacion` (niño, fecha, cita, núcleos, OA, estado).
   - Unas 40 observaciones aceptadas, etiquetadas con núcleos y OA, y niveles históricos en los datos de demo, para que aparezcan todos los estados. Algunos OA quedan sin evidencia a propósito.
   - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad, y se redactan como sugerencias (por ejemplo, "Revisar: 3 niveles bajo lo esperado"), no como diagnóstico.
-- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre. Otra educadora recibe 404.
-- Demo: al entrar, aparece la tabla con las alertas.
+  - Sobre la tabla, el resumen de la quincena: por núcleo, observaciones aceptadas y niños con al menos una, con los núcleos sin observaciones destacados y navegación a quincenas anteriores. Función pura `cobertura_quincena` en `registro/cobertura.py`.
+- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero). Otra educadora recibe 404.
+- Demo: al entrar, aparece la tabla con las alertas y el resumen de la quincena con los núcleos sin observaciones.
 
 ### Task 3: Ficha del niño, validación manual y tabla de metas
 
