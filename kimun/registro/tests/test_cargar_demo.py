@@ -1,4 +1,6 @@
+import json
 import os
+import re
 from datetime import date, timedelta
 
 import pytest
@@ -9,6 +11,7 @@ from django.urls import reverse
 
 from registro.alertas import EstadoDatos, Gravedad, resumen_del_jardin, tabla_del_curso
 from registro.cobertura import cobertura_del_nino, cobertura_quincena_del_curso, oas_sin_evidencia, quincena_de
+from registro.management.commands.cargar_demo import RUTA_DEMO
 from registro.models import (
     Captura,
     Curso,
@@ -153,15 +156,26 @@ def test_si_la_rubrica_cambia_de_cantidad_de_niveles_falla_sin_cambiar_nada(carg
     assert _conteos() == antes
 
 
-def test_sin_demo_password_genera_y_muestra_contrasenas(cargada, monkeypatch, capsys):
+def test_sin_demo_password_genera_y_muestra_contrasenas(cargada, monkeypatch, capsys, client):
     monkeypatch.delenv("DEMO_PASSWORD", raising=False)
     # Las usuarias ya existen (carga del módulo): --cambiar-password las vuelve a fijar.
     call_command("cargar_demo", cambiar_password=True)
-    salida = capsys.readouterr().out
-    assert "Contraseña de educadora:" in salida
-    assert "Contraseña de asistente:" in salida
-    assert "Contraseña de directora:" in salida
-    assert "Contraseña de educadora_b:" in salida
+    mostradas = dict(re.findall(r"^Contraseña de (\S+): (\S+)$", capsys.readouterr().out, re.MULTILINE))
+    assert set(mostradas) == {"educadora", "asistente", "directora", "educadora_b", "educadora_c"}
+    assert len(set(mostradas.values())) == len(mostradas)  # una al azar para cada una
+    # Directora, educadora_b y educadora_c usan el mismo mecanismo que las demás.
+    for usuario in ("directora", "educadora_b", "educadora_c"):
+        assert client.login(username=usuario, password=mostradas[usuario]), usuario
+        assert not client.login(username=usuario, password="clave-demo-de-prueba"), usuario
+
+
+def test_las_usuarias_de_demo_no_traen_contrasena_escrita():
+    """El JSON de la demo no trae contraseñas: salen de DEMO_PASSWORD o se generan al azar."""
+    demo = json.loads(RUTA_DEMO.read_text(encoding="utf-8"))
+    usuarias = [demo["educadora"], *demo["asistentes"], demo["directora"], *(c["educadora"] for c in demo["otros_cursos"])]
+    assert {u["usuario"] for u in usuarias} == {"educadora", "asistente", "directora", "educadora_b", "educadora_c"}
+    for u in usuarias:
+        assert set(u) == {"usuario", "nombre", "apellido", "email"}, u["usuario"]
 
 
 @pytest.mark.parametrize(
@@ -280,8 +294,9 @@ def test_volver_a_cargar_conserva_un_nivel_fijado_a_mano(cargada):
 # --- Datos de demo de la Task 12 (vista de la directora) ----------------------------------
 
 ALERTAS_DEMO = [
+    # A muestra 4,7 y B 6,0 en los dos núcleos; C muestra 3,0: el resto queda en 5,4 (5,35 redondeado).
+    "Revisar: Transición Mayor C, 2,4 niveles bajo el resto del jardín en Lenguaje Verbal",
     "Revisar: Transición Mayor C, 2,4 niveles bajo el resto del jardín en Pensamiento Matemático",
-    "Revisar: Transición Mayor C, 2,3 niveles bajo el resto del jardín en Lenguaje Verbal",
 ]
 
 
@@ -315,7 +330,21 @@ def test_demo_muestra_la_alerta_de_la_sala_rezagada(cargada):
     resumen = resumen_del_jardin(_curso_a().jardin)
     assert [a.texto_alerta for a in resumen.alertas] == ALERTAS_DEMO
     b = next(c for c in resumen.grupos[0].cursos if c.nombre == "Transición Mayor B")
-    assert {celda.texto_promedio for fila in resumen.grupos[0].filas for celda in fila.celdas if celda.curso == b} == {"6"}
+    assert {celda.texto_promedio for fila in resumen.grupos[0].filas for celda in fila.celdas if celda.curso == b} == {"6,0"}
+
+
+def test_en_la_demo_todas_las_salas_tienen_niveles_validados_suficientes(cargada):
+    """Las 3 salas entran en la comparación de todos los núcleos: cada niño tiene nivel validado por su educadora."""
+    resumen = resumen_del_jardin(_curso_a().jardin)
+    celdas = [celda for fila in resumen.grupos[0].filas for celda in fila.celdas]
+    assert len(celdas) == 3 * Nucleo.objects.count()
+    for celda in celdas:
+        assert celda.suficiente, (celda.curso.nombre, celda.nucleo.sigla)
+        assert celda.validados == celda.ninos == celda.curso.ninos.count(), (celda.curso.nombre, celda.nucleo.sigla)
+    for curso in _curso_a().jardin.cursos.all():
+        for nino in curso.ninos.all():
+            validados = nino.niveles.filter(validado_por=curso.educadora)
+            assert validados.values("nucleo").distinct().count() == Nucleo.objects.count(), nino
 
 
 def test_demo_la_directora_ve_la_alerta_en_la_vista_del_jardin(cargada, client):

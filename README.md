@@ -21,7 +21,7 @@ python manage.py runserver
 
 Si Windows bloquea `Activate.ps1` ("la ejecución de scripts está deshabilitada"), ejecuta una vez `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`, o usa `.\.venv\Scripts\python.exe` en lugar de `python`.
 
-Abrir http://127.0.0.1:8000 y entrar como `educadora` (revisa y valida), `asistente` (solo registra) o `directora` (ve el resumen del jardín en `/jardines/<id>/`, que compara las salas de Transición, y la tabla de cada sala; no valida). `educadora_b` y `educadora_c` son las educadoras de las otras dos salas. Para el panel de administración, crear un usuario con `python manage.py createsuperuser` y entrar en `/admin/`. Ahí se cambia la cantidad de niveles de la rúbrica (Rúbricas) y se asigna la directora de un jardín.
+Abrir http://127.0.0.1:8000 y entrar como `educadora` (revisa y valida), `asistente` (solo registra) o `directora` (ve el resumen del jardín en `/jardines/<id>/`, que compara las salas de Transición, y la tabla de cada sala, y registra notas en las salas de su jardín; no revisa ni valida). `educadora_b` y `educadora_c` son las educadoras de las otras dos salas. Para el panel de administración, crear un usuario con `python manage.py createsuperuser` y entrar en `/admin/`. Ahí se cambia la cantidad de niveles de la rúbrica (Rúbricas) y se asigna la directora de un jardín.
 
 `cargar_demo` se puede correr varias veces sin duplicar datos. Para fijar la contraseña, define `DEMO_PASSWORD` antes de correrlo y usa `--cambiar-password` si la usuaria ya existe.
 

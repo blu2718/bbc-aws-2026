@@ -10,6 +10,7 @@
   .tabla-jardin th[scope="col"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
   .tabla-jardin td.celda-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); }
   .tabla-jardin td.celda-alerta .senal { border-left: 0; padding-left: 0; }
+  .tabla-jardin td.celda-sin-datos { color: var(--pico-muted-color); font-size: .875rem; }
 </style>
 {% endblock %}
 {% block contenido %}
@@ -39,10 +40,14 @@
 <section aria-labelledby="titulo-salas">
   <h2 id="titulo-salas">Promedio de cada sala por núcleo</h2>
   <p>
-    Cada celda es el promedio del nivel actual validado de los niños y niñas de la sala, con un decimal.
-    Cada sala se compara solo con las otras salas de su mismo nivel educativo.
+    Cada celda es el promedio del nivel actual validado por la educadora de los niños y niñas de la sala, redondeado a un decimal.
+    Cada sala se compara solo con las otras salas de su mismo nivel educativo, usando estos mismos promedios redondeados.
     «Revisar» aparece cuando una sala queda {{ resumen.texto_umbral }} o más bajo el promedio de las demás:
     es una sugerencia de revisión, no un diagnóstico.
+  </p>
+  <p>
+    Una sala entra en la comparación de un núcleo si al menos {{ resumen.texto_minimo }} de sus niños y niñas tiene nivel validado en él.
+    Si no, la celda dice «Sin datos suficientes» y esa sala no cuenta en el promedio de las demás.
   </p>
   {% for grupo in resumen.grupos %}
     <h3>{{ grupo.nombre }}</h3>
@@ -69,7 +74,7 @@
             <tr>
               <th scope="row">{{ fila.nucleo.nombre }}</th>
               {% for celda in fila.celdas %}
-                <td{% if celda.alerta %} class="celda-alerta"{% endif %}>
+                <td{% if celda.alerta %} class="celda-alerta"{% elif not celda.suficiente %} class="celda-sin-datos"{% endif %}>
                   {{ celda.texto_promedio }}
                   {% if celda.alerta %}<span class="senal senal-alerta">{{ celda.texto_celda }}</span>{% endif %}
                 </td>

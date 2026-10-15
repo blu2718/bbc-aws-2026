@@ -41,7 +41,7 @@ La educadora siempre decide el nivel.
 
 ### Captura y procesamiento
 
-- La educadora (1 por sala) y las asistentes de párvulo (1 cada 7 niños) registran desde su teléfono personal, con conexión: texto, foto (post-it o trabajo del niño) o audio corto. Sin video y sin grabación continua. Revisar observaciones y validar niveles queda en la educadora (decisión nuestra, por confirmar con Integra).
+- La educadora (1 por sala) y las asistentes de párvulo (1 cada 7 niños) registran desde su teléfono personal, con conexión: texto, foto (post-it o trabajo del niño) o audio corto. La directora también puede registrar en cualquier curso de su jardín, con menos frecuencia (información de Integra). Sin video y sin grabación continua. Revisar observaciones y validar niveles queda en la educadora (decisión nuestra, por confirmar con Integra); la directora no revisa ni valida.
 - Una nota que menciona a varios niños genera una observación por niño.
 - Cada observación se etiqueta con sus núcleos y, cuando se pueda, con sus OA ("OA 4 LV"). Registra el nivel de apoyo (autónomo, con ayuda, parcial, no lo realiza o sin dato) y separa lo que el niño hizo o dijo de la interpretación de la educadora, como el registro anecdótico del programa.
 - Las notas sobre el grupo completo (por ejemplo, "bajó la asistencia") quedan como contexto del curso y no se usan para evaluar.
@@ -303,7 +303,7 @@ flowchart LR
   - Prompt de separación en un archivo del repo. Recibe texto, fecha de captura, nombres de pila del curso como pista y el catálogo de núcleos y OA. Devuelve una lista de {nombre_detectado, fecha, cita_literal, interpretacion, núcleos[], oas[], apoyo, grupal}. Se valida el JSON y se descartan los códigos de OA que no existen.
   - `registro/coincidencia.py`: normaliza (tildes, mayúsculas), revisa alias exactos y luego comparación aproximada con difflib sobre un umbral. Si hay ambigüedad, la observación queda sin niño asignado.
   - `manage.py procesar_capturas`: bucle que toma una captura pendiente a la vez con una actualización condicional (dos procesos no toman la misma), registra estado y error visibles y permite reintentar.
-  - Formulario para capturar texto, disponible para la educadora y las asistentes del curso (`cursos_donde_registra`). Integra confirmó que observan las dos: 1 educadora por sala y 1 asistente cada 7 niños. La captura guarda quién la registró.
+  - Formulario para capturar texto, disponible para la educadora y las asistentes del curso y para la directora en los cursos de su jardín (`cursos_donde_registra`). Integra confirmó que observan las dos: 1 educadora por sala y 1 asistente cada 7 niños; la directora también registra, con menos frecuencia, pero no revisa ni valida. La captura guarda quién la registró.
   - Unas 20 notas de prueba, escritas a partir de conductas del programa, con el resultado esperado (niños, núcleos, OA y apoyo) en `datos/eval/`.
   - Prototipar el prompt con las notas de `contexto/ocr-presentacion.md`.
 - Tests: Naiara/Nayara se reconocen como la misma niña; "Sofía" queda ambigua porque hay dos; un nombre desconocido queda sin asignar; una nota sobre 3 niños genera 3 observaciones; una nota grupal queda como contexto; un código de OA inexistente se descarta; un JSON inválido marca error y permite reintentar; una asistente puede registrar en su curso y recibe 404 en un curso ajeno.
@@ -393,7 +393,8 @@ flowchart LR
 - Guía:
   - Usuaria directora ligada al jardín en los datos de demo, y un segundo curso de Transición con niveles más bajos en un núcleo.
   - Vista con, por núcleo, el promedio de cada curso del mismo nivel educativo. Si un curso queda 2 o más niveles bajo el promedio de los demás, se muestra una alerta con texto, redactada como sugerencia de revisión. Función pura en `registro/alertas.py`.
-  - La directora ve el resumen y la tabla de cada curso de su jardín, pero no valida niveles.
+  - La directora ve el resumen y la tabla de cada curso de su jardín, y registra notas en ellos, pero no revisa observaciones ni valida niveles.
+  - El promedio usa solo niveles con `validado_por` (el validado más reciente de cada niño y núcleo; el nivel inicial automático no cuenta), redondeado a un decimal, y la alerta se calcula con esos mismos valores redondeados. Una sala entra en la comparación de un núcleo si al menos la mitad de sus niños tiene nivel validado en él (configurable junto al umbral); si no, muestra "Sin datos suficientes".
 - Tests: el cálculo con el ejemplo de Integra (6, 6 y 3 genera alerta para el curso en 3); un jardín con un solo curso no genera alerta; una directora de otro jardín recibe 404.
 - Demo: la directora entra y ve la alerta del segundo curso.
 
