@@ -176,6 +176,12 @@ Resources:
                 Effect: Allow
                 Action: s3:GetObject
                 Resource: !Sub ${KimunBucket.Arn}/releases/*
+              # respaldos/: la instancia solo sube los respaldos de la base que
+              # pide scripts/desplegar.sh (sin leer ni borrar).
+              - Sid: KimunEscribirRespaldos
+                Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub ${KimunBucket.Arn}/respaldos/*
         - PolicyName: kimun-transcribe
           PolicyDocument:
             Version: "2012-10-17"

@@ -42,7 +42,7 @@ scripts/desplegar.sh [--recargar-demo] [--permitir-cambios]
 1. Lee bucket, instancia y URL de los outputs del stack.
 2. Crea `/kimun/django-secret-key` como SecureString solo si no existe. Nunca lo muestra ni lo sobrescribe.
 3. `git archive` de HEAD a `s3://<bucket>/releases/kimun-<sha>-<fecha>.tar.gz`.
-4. Por SSM (`send-command`), la instancia descarga el release y ejecuta `infra/remoto/instalar.sh` del propio release: venv, `migrate`, `collectstatic`, `check --deploy`, `cargar_demo`, servicios y un health check local. El script muestra la salida.
+4. Por SSM (`send-command`), la instancia descarga el release, respalda la base con `infra/remoto/respaldar.sh` y ejecuta `infra/remoto/instalar.sh` del propio release: venv, `migrate`, `collectstatic`, `check --deploy`, `cargar_demo`, servicios y un health check local. El script muestra la salida.
 5. `curl` a `<UrlCloudFront>/login/`.
 
 - `--recargar-demo`: corre `cargar_demo` aunque ya haya cursos. Por defecto solo corre si la base no tiene ningún curso. No borra datos: actualiza los de demo.
@@ -55,8 +55,22 @@ scripts/desplegar.sh [--recargar-demo] [--permitir-cambios]
 - Código: `/opt/kimun/releases/<release>` (se conservan los 5 más recientes) y el symlink `/opt/kimun/actual`.
 - Entorno virtual: `/opt/kimun/venv` (Python 3.12, solo `requirements.txt`).
 - Datos (usuario `kimun`): `/var/lib/kimun/db.sqlite3` (SQLite en WAL), `/var/lib/kimun/static`, `/var/lib/kimun/media`.
-- Entorno: `/etc/kimun/kimun.env` (lo genera `instalar.sh`, sin secretos): `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `DJANGO_SECRET_KEY_PARAMETRO`, `DJANGO_DB_PATH`, `DJANGO_STATIC_ROOT`, `DJANGO_MEDIA_ROOT`, `DJANGO_SECURE_HSTS_SECONDS=3600`, `AWS_DEFAULT_REGION`, `BEDROCK_REGION`, `KIMUN_BUCKET`.
+- Entorno: `/etc/kimun/kimun.env` (lo genera `instalar.sh`, sin secretos): `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`, `DJANGO_SECRET_KEY_PARAMETRO`, `DJANGO_DB_PATH`, `DJANGO_STATIC_ROOT`, `DJANGO_MEDIA_ROOT`, `DJANGO_SECURE_HSTS_SECONDS=3600`, `AWS_DEFAULT_REGION`, `BEDROCK_MODEL_ID` (`us.anthropic.claude-sonnet-5`), `BEDROCK_REGION`, `KIMUN_BUCKET`.
 - El SECRET_KEY lo lee Django de Parameter Store con el rol de la instancia.
+
+## Respaldos de la base
+
+Cada despliegue, antes de `migrate`, sube un respaldo a `s3://<bucket>/respaldos/db-<fecha UTC>-antes-<release>.sqlite3.gz`. Usa `sqlite3.backup()` del Python del venv (copia en caliente, consistente con WAL) y verifica `integrity_check`. Si el respaldo falla, el despliegue se detiene. En el primer despliegue no hay base y se omite. La instancia solo puede escribir en `respaldos/`, no leer ni borrar.
+
+Para restaurar: la instancia no puede leer `respaldos/`. Desde tu máquina, copia el respaldo a `releases/` (`aws s3 cp s3://<bucket>/respaldos/<archivo>.gz s3://<bucket>/releases/<archivo>.gz`) y luego, en la instancia:
+
+```bash
+aws s3 cp s3://<bucket>/releases/<archivo>.gz /tmp/ && gunzip /tmp/<archivo>.gz
+sudo systemctl stop kimun-web kimun-worker
+sudo install -o kimun -g kimun -m 0640 /tmp/<archivo> /var/lib/kimun/db.sqlite3
+sudo rm -f /var/lib/kimun/db.sqlite3-wal /var/lib/kimun/db.sqlite3-shm
+sudo systemctl start kimun-web
+```
 
 ## Servicios y logs
 

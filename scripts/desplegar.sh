@@ -8,8 +8,10 @@
 # 2. Crea el SECRET_KEY en Parameter Store como SecureString solo si no existe
 #    (nunca lo muestra ni lo sobrescribe).
 # 3. Empaqueta el código (git archive de HEAD) y lo sube a s3://<bucket>/releases/.
-# 4. Por SSM, la instancia descarga el release y ejecuta infra/remoto/instalar.sh
-#    del propio release (venv, migrate, collectstatic, cargar_demo, servicios).
+# 4. Por SSM, la instancia descarga el release, respalda la base en
+#    s3://<bucket>/respaldos/ (infra/remoto/respaldar.sh) y ejecuta
+#    infra/remoto/instalar.sh del propio release (venv, migrate, collectstatic,
+#    cargar_demo, servicios).
 # 5. Prueba <UrlCloudFront>/login/ con curl.
 #
 # Variables (con valor por defecto): KIMUN_STACK=kimun-mvp, KIMUN_REGION=us-east-1,
@@ -136,6 +138,10 @@ DIR="/opt/kimun/releases/$RELEASE"
 instalar=(bash "$DIR/infra/remoto/instalar.sh" --release-dir "$DIR" --dominio "$DOMINIO"
     --bucket "$BUCKET" --region "$REGION" --parametro "$PARAMETRO")
 [ "$RECARGAR_DEMO" -eq 1 ] && instalar+=(--recargar-demo)
+# Respaldo de la base en s3://<bucket>/respaldos/ antes de instalar (antes de
+# migrate y cargar_demo). Si falla, el despliegue se detiene sin tocar nada.
+respaldar=(bash "$DIR/infra/remoto/respaldar.sh" --bucket "$BUCKET" --region "$REGION"
+    --etiqueta "antes-$RELEASE")
 comandos=(
     "set -eu"
     "install -d -m 0755 /opt/kimun/releases"
@@ -146,6 +152,7 @@ comandos=(
     "rm -rf $DIR"
     "mv \"\$d/codigo\" $DIR"
     "rm -rf \"\$d\""
+    "${respaldar[*]}"
     "${instalar[*]}"
 )
 parametros=$(python3 -c 'import json, sys; print(json.dumps({"commands": sys.argv[1:], "executionTimeout": ["1800"]}))' "${comandos[@]}")

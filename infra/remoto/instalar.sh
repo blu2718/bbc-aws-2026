@@ -14,6 +14,9 @@ VENV=/opt/kimun/venv
 ENV_FILE=/etc/kimun/kimun.env
 DATOS=/var/lib/kimun
 CONSERVAR=5
+# Modelo de Bedrock explícito en el entorno, para no depender del valor por
+# defecto del código (registro/ia/bedrock.py).
+BEDROCK_MODEL_ID=us.anthropic.claude-sonnet-5
 
 error() {
     echo "ERROR: $*" >&2
@@ -85,6 +88,7 @@ DJANGO_STATIC_ROOT=$DATOS/static
 DJANGO_MEDIA_ROOT=$DATOS/media
 DJANGO_SECURE_HSTS_SECONDS=3600
 AWS_DEFAULT_REGION=$REGION
+BEDROCK_MODEL_ID=$BEDROCK_MODEL_ID
 BEDROCK_REGION=$REGION
 KIMUN_BUCKET=$BUCKET
 EOF
