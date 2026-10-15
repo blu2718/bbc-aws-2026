@@ -9,13 +9,14 @@ from registro.ia import ErrorBedrock, ErrorSeparacion, separar
 from registro.ia import separacion
 from registro.ia.separacion import (
     ESCALA_APOYO,
+    ESCALA_EFECTO,
     construir_herramienta,
     construir_prompt,
     indexar_catalogo,
     normalizar_codigo_oa,
 )
 
-CAMPOS = ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "grupal"]
+CAMPOS = ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "efecto", "grupal", "todo_el_curso"]
 
 
 def _separar(respuesta, catalogo, cliente_falso, fecha="2026-05-25", nombres=("Pedro Salinas",), texto="nota"):
@@ -24,7 +25,7 @@ def _separar(respuesta, catalogo, cliente_falso, fecha="2026-05-25", nombres=("P
 
 
 def test_json_valido_produce_observaciones_normalizadas(catalogo, cliente_falso, obs):
-    respuesta = {"observaciones": [obs(nombre_detectado=" Pedro ", interpretacion="Se nota más seguro")]}
+    respuesta = {"observaciones": [obs(nombre_detectado=" Pedro ", interpretacion="Se nota más seguro", efecto="avance")]}
     resultado, cliente = _separar(respuesta, catalogo, cliente_falso)
     assert resultado == [
         {
@@ -35,7 +36,9 @@ def test_json_valido_produce_observaciones_normalizadas(catalogo, cliente_falso,
             "nucleos": ["PM"],
             "oas": ["OA 2 PM"],
             "apoyo": "autonomo",
+            "efecto": "avance",
             "grupal": False,
+            "todo_el_curso": False,
         }
     ]
     assert list(resultado[0]) == CAMPOS
@@ -54,6 +57,13 @@ def test_acepta_respuesta_serializada_como_texto(catalogo, cliente_falso):
     respuesta = '{"observaciones": "[{\\"nombre_detectado\\": \\"Pedro\\", \\"cita_literal\\": \\"contó hasta 10\\"}]"}'
     resultado, _ = _separar(respuesta, catalogo, cliente_falso)
     assert [o["nombre_detectado"] for o in resultado] == ["Pedro"]
+
+
+def test_acepta_el_objeto_completo_serializado_dentro_de_observaciones(catalogo, cliente_falso):
+    """Visto con Sonnet 5 en la Task 10: el texto de 'observaciones' traía {"observaciones": [...]}."""
+    respuesta = {"observaciones": '{"observaciones":[{"nombre_detectado":"Isi","cita_literal":"convidó su manzana"}]}'}
+    resultado, _ = _separar(respuesta, catalogo, cliente_falso)
+    assert [o["nombre_detectado"] for o in resultado] == ["Isi"]
 
 
 @pytest.mark.parametrize(
@@ -158,7 +168,9 @@ def test_nota_grupal_queda_como_contexto(catalogo, cliente_falso, obs):
             "nucleos": ["IA"],
             "oas": [],
             "apoyo": "sin_dato",
+            "efecto": "sin_dato",
             "grupal": True,
+            "todo_el_curso": False,
         }
     ]
 
@@ -326,3 +338,50 @@ def test_sin_cliente_usa_cliente_bedrock(catalogo, cliente_falso, obs, monkeypat
     monkeypatch.setattr(separacion, "ClienteBedrock", lambda: falso)
     assert len(separar("Pedro clasificó hojas", "2026-05-25", [], catalogo)) == 1
     assert len(falso.llamadas) == 1
+
+
+# --- Efecto del suceso en sus OA (pantalla II de diseno-interfaz.jpg) ---------------------------
+
+
+@pytest.mark.parametrize("valor, esperado", [
+    ("avance", "avance"),
+    ("Por reforzar", "por_reforzar"),
+    ("negativo", "sin_dato"),
+    (None, "sin_dato"),
+])
+def test_el_efecto_fuera_de_la_escala_queda_sin_dato(catalogo, cliente_falso, obs, valor, esperado):
+    resultado, _ = _separar({"observaciones": [obs(efecto=valor)]}, catalogo, cliente_falso)
+    assert resultado[0]["efecto"] == esperado
+
+
+def test_la_herramienta_pide_el_efecto_con_su_escala(catalogo):
+    items = construir_herramienta(catalogo)["inputSchema"]["json"]["properties"]["observaciones"]["items"]
+    assert items["properties"]["efecto"]["enum"] == list(ESCALA_EFECTO)
+    assert "efecto" in items["required"]
+
+
+# --- Varios niños, todo el curso y la pregunta de contexto ---------------------------------------
+
+
+def test_algo_que_hizo_todo_el_curso_no_es_una_nota_grupal(catalogo, cliente_falso, obs):
+    respuesta = {"observaciones": [obs(nombre_detectado="todos", cita_literal="Todos bailaron la cueca",
+                                       nucleos=["LA"], oas=["OA 1 LA"], grupal=True, todo_el_curso=True)]}
+    resultado, _ = _separar(respuesta, catalogo, cliente_falso)
+    assert resultado[0]["todo_el_curso"] is True and resultado[0]["grupal"] is False
+    assert resultado[0]["nombre_detectado"] is None and resultado[0]["oas"] == ["OA 1 LA"]
+
+
+def test_la_pregunta_de_contexto_se_devuelve_aparte(catalogo, cliente_falso, obs):
+    from registro.ia import separar_con_pregunta
+
+    cliente = cliente_falso({"observaciones": [obs()], "pregunta": "  ¿Quién empezó la pelea?  "})
+    observaciones, pregunta = separar_con_pregunta("nota", "2026-05-25", ["Pedro"], catalogo, cliente=cliente)
+    assert len(observaciones) == 1 and pregunta == "¿Quién empezó la pelea?"
+    sin = cliente_falso({"observaciones": [obs()], "pregunta": None})
+    assert separar_con_pregunta("nota", "2026-05-25", ["Pedro"], catalogo, cliente=sin)[1] is None
+
+
+def test_la_herramienta_pide_todo_el_curso_y_la_pregunta(catalogo):
+    esquema = construir_herramienta(catalogo)["inputSchema"]["json"]
+    assert "pregunta" in esquema["required"]
+    assert "todo_el_curso" in esquema["properties"]["observaciones"]["items"]["required"]

@@ -1,0 +1,521 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >-
+  kimun-mvp - Infraestructura del MVP de Kimun: bucket S3, rol de instancia,
+  security group, EC2 t3.small (Amazon Linux 2023) con pagina de prueba en el
+  puerto 8000 y distribucion CloudFront con HTTPS.
+
+# Notas de diseno (ver infra/README.md):
+# - Stack: kimun-mvp. Todos los recursos llevan prefijo kimun- y el tag Proyecto=kimun.
+# - Los roles tienen nombre explicito: crear con --capabilities CAPABILITY_NAMED_IAM.
+# - S3 no tiene carpetas reales. Los prefijos originales/, transcripciones/ y
+#   releases/ se materializan en los permisos IAM del rol (ver KimunInstanceRole)
+#   y se documentan en Metadata y en el output PrefijosBucket.
+# - El parametro SecureString del SECRET_KEY de Django NO lo crea esta plantilla
+#   (AWS::SSM::Parameter no admite SecureString); solo se da permiso de lectura.
+
+Metadata:
+  Kimun:
+    PrefijosBucket:
+      originales/: Audios y archivos subidos por las educadoras (entrada de Transcribe).
+      transcripciones/: Salida JSON de los trabajos de Transcribe.
+      releases/: Paquetes de la app que sube el script de despliegue (la instancia solo los lee).
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Red
+        Parameters:
+          - VpcId
+          - SubnetId
+          - CloudFrontPrefixListId
+      - Label:
+          default: Instancia
+        Parameters:
+          - AmiId
+      - Label:
+          default: Django
+        Parameters:
+          - SecretKeyParameterName
+
+Parameters:
+  # AMI fija a proposito: con el parametro SSM dinamico, un update-stack futuro
+  # tras salir una AMI nueva reemplazaria la EC2 y se perderia la SQLite.
+  # Para actualizarla a mano: consultar
+  #   aws ssm get-parameter --name /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --region us-east-1 --query Parameter.Value --output text
+  # y poner el nuevo ID en Default (eso reemplaza la instancia).
+  AmiId:
+    Type: AWS::EC2::Image::Id
+    Default: ami-0ed59cbb87dfa8dba
+    Description: >-
+      AMI fija de Amazon Linux 2023 (x86_64) en us-east-1
+      (al2023-ami-2023.12.20261014.0-kernel-6.18-x86_64). Cambiarla reemplaza la instancia.
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Default: vpc-0bfed549c10c163d5
+    Description: VPC donde vive la instancia (VPC por defecto de la cuenta).
+  SubnetId:
+    Type: AWS::EC2::Subnet::Id
+    Default: subnet-076a7486ea2c57567
+    Description: >-
+      Subred publica de la VPC anterior que ofrece t3.small (us-east-1a). No usar
+      us-east-1e, que no ofrece t3.small.
+  CloudFrontPrefixListId:
+    Type: String
+    Default: pl-3b927c52
+    AllowedPattern: ^pl-[0-9a-f]+$
+    Description: ID de la prefix list com.amazonaws.global.cloudfront.origin-facing en us-east-1.
+  SecretKeyParameterName:
+    Type: String
+    Default: /kimun/django-secret-key
+    AllowedPattern: ^/kimun/[A-Za-z0-9_.\-/]+$
+    Description: >-
+      Nombre del parametro SecureString de Parameter Store con el SECRET_KEY de
+      Django. La plantilla no lo crea; solo autoriza a la instancia a leerlo.
+
+Resources:
+  # ---------------------------------------------------------------------------
+  # S3
+  # ---------------------------------------------------------------------------
+  KimunBucket:
+    Type: AWS::S3::Bucket
+    # Workshop desechable: el bucket se borra con el stack. Si tiene objetos,
+    # CloudFormation no puede borrarlo y el delete-stack queda en DELETE_FAILED
+    # hasta vaciarlo (aws s3 rm s3://<bucket> --recursive), lo que evita
+    # perder audios por accidente.
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+    Properties:
+      BucketName: !Sub kimun-mvp-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+            BucketKeyEnabled: true
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+      LifecycleConfiguration:
+        Rules:
+          - Id: kimun-abortar-multipart-incompleto
+            Status: Enabled
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
+      Tags:
+        - Key: Name
+          Value: !Sub kimun-mvp-${AWS::AccountId}
+        - Key: Proyecto
+          Value: kimun
+
+  KimunBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref KimunBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # Solo niega conexiones sin TLS. Transcribe accede por HTTPS con las
+          # credenciales del llamador, asi que esta politica no lo bloquea.
+          - Sid: KimunDenegarSinTLS
+            Effect: Deny
+            Principal: "*"
+            Action: s3:*
+            Resource:
+              - !GetAtt KimunBucket.Arn
+              - !Sub ${KimunBucket.Arn}/*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+
+  # ---------------------------------------------------------------------------
+  # IAM
+  # ---------------------------------------------------------------------------
+  KimunInstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: kimun-instance-role
+      Description: Rol de la instancia kimun-web (S3 del bucket kimun, Transcribe, Bedrock, SSM).
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore
+      Policies:
+        - PolicyName: kimun-s3
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Sin condicion de prefijo a proposito: sin ListBucket, un
+              # HeadObject de una clave inexistente devuelve 403 en vez de 404
+              # (y la peticion no lleva s3:prefix, asi que la condicion no aplica).
+              - Sid: KimunListarBucket
+                Effect: Allow
+                Action: s3:ListBucket
+                Resource: !GetAtt KimunBucket.Arn
+              # originales/: lectura (tambien la usa Transcribe con estas
+              # credenciales) y escritura de la app. transcripciones/: escritura
+              # de la salida de Transcribe y lectura de la app.
+              - Sid: KimunObjetosApp
+                Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !Sub ${KimunBucket.Arn}/originales/*
+                  - !Sub ${KimunBucket.Arn}/transcripciones/*
+              # releases/: la instancia solo descarga los paquetes de despliegue.
+              - Sid: KimunLeerReleases
+                Effect: Allow
+                Action: s3:GetObject
+                Resource: !Sub ${KimunBucket.Arn}/releases/*
+              # respaldos/: la instancia solo sube los respaldos de la base que
+              # pide scripts/desplegar.sh (sin leer ni borrar).
+              - Sid: KimunEscribirRespaldos
+                Effect: Allow
+                Action: s3:PutObject
+                Resource: !Sub ${KimunBucket.Arn}/respaldos/*
+        - PolicyName: kimun-transcribe
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # StartTranscriptionJob no admite ARN de recurso (Resource "*"),
+              # pero si las condiciones transcribe:OutputBucketName y
+              # transcribe:OutputKey: la salida solo puede ir a
+              # <bucket>/transcripciones/.
+              - Sid: KimunIniciarTranscripcion
+                Effect: Allow
+                Action: transcribe:StartTranscriptionJob
+                Resource: "*"
+                Condition:
+                  StringEquals:
+                    transcribe:OutputBucketName: !Ref KimunBucket
+                  StringLike:
+                    transcribe:OutputKey: transcripciones/*
+              - Sid: KimunConsultarTranscripcion
+                Effect: Allow
+                Action: transcribe:GetTranscriptionJob
+                Resource: !Sub arn:${AWS::Partition}:transcribe:${AWS::Region}:${AWS::AccountId}:transcription-job/kimun-*
+              # CreateVocabulary no admite ARN de recurso (Resource "*").
+              - Sid: KimunCrearVocabulario
+                Effect: Allow
+                Action: transcribe:CreateVocabulary
+                Resource: "*"
+              - Sid: KimunGestionarVocabulario
+                Effect: Allow
+                Action:
+                  - transcribe:GetVocabulary
+                  - transcribe:UpdateVocabulary
+                Resource: !Sub arn:${AWS::Partition}:transcribe:${AWS::Region}:${AWS::AccountId}:vocabulary/kimun-*
+        - PolicyName: kimun-bedrock
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              # Perfiles de inferencia us.* y los modelos a los que enrutan
+              # (us-east-1, us-east-2 y us-west-2, segun get-inference-profile).
+              - Sid: KimunInvocarModelos
+                Effect: Allow
+                Action: bedrock:InvokeModel
+                Resource:
+                  - !Sub arn:${AWS::Partition}:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/us.anthropic.claude-sonnet-5
+                  - !Sub arn:${AWS::Partition}:bedrock:${AWS::Region}:${AWS::AccountId}:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0
+                  - !Sub arn:${AWS::Partition}:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-5
+                  - !Sub arn:${AWS::Partition}:bedrock:us-east-2::foundation-model/anthropic.claude-sonnet-5
+                  - !Sub arn:${AWS::Partition}:bedrock:us-west-2::foundation-model/anthropic.claude-sonnet-5
+                  - !Sub arn:${AWS::Partition}:bedrock:us-east-1::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0
+                  - !Sub arn:${AWS::Partition}:bedrock:us-east-2::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0
+                  - !Sub arn:${AWS::Partition}:bedrock:us-west-2::foundation-model/anthropic.claude-haiku-4-5-20251001-v1:0
+        - PolicyName: kimun-secret-key
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Sid: KimunLeerSecretKey
+                Effect: Allow
+                Action: ssm:GetParameter
+                Resource: !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SecretKeyParameterName}
+              # Descifrado con la clave administrada aws/ssm, solo a traves de
+              # Parameter Store y solo para ese parametro. El ID de la clave
+              # aws/ssm no se conoce de antemano (se crea al primer uso), por eso
+              # key/* acotado por condiciones.
+              - Sid: KimunDescifrarSecretKey
+                Effect: Allow
+                Action: kms:Decrypt
+                Resource: !Sub arn:${AWS::Partition}:kms:${AWS::Region}:${AWS::AccountId}:key/*
+                Condition:
+                  StringEquals:
+                    kms:ViaService: !Sub ssm.${AWS::Region}.amazonaws.com
+                    kms:EncryptionContext:PARAMETER_ARN: !Sub arn:${AWS::Partition}:ssm:${AWS::Region}:${AWS::AccountId}:parameter${SecretKeyParameterName}
+      Tags:
+        - Key: Name
+          Value: kimun-instance-role
+        - Key: Proyecto
+          Value: kimun
+
+  KimunInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: kimun-instance-profile
+      Roles:
+        - !Ref KimunInstanceRole
+
+  # ---------------------------------------------------------------------------
+  # Red
+  # ---------------------------------------------------------------------------
+  KimunWebSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: kimun-web-sg
+      GroupDescription: kimun-web - solo puerto 8000 desde CloudFront (origin-facing). Sin SSH.
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - Description: kimun - puerto 8000 desde la prefix list de origen de CloudFront
+          IpProtocol: tcp
+          FromPort: 8000
+          ToPort: 8000
+          SourcePrefixListId: !Ref CloudFrontPrefixListId
+      # Sin SecurityGroupEgress: se mantiene la regla por defecto (todo el
+      # trafico de salida) para llegar a dnf, S3, SSM, Bedrock y Transcribe.
+      Tags:
+        - Key: Name
+          Value: kimun-web-sg
+        - Key: Proyecto
+          Value: kimun
+
+  # ---------------------------------------------------------------------------
+  # EC2
+  # ---------------------------------------------------------------------------
+  KimunWebLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateName: kimun-web-lt
+      TagSpecifications:
+        - ResourceType: launch-template
+          Tags:
+            - Key: Name
+              Value: kimun-web-lt
+            - Key: Proyecto
+              Value: kimun
+      LaunchTemplateData:
+        ImageId: !Ref AmiId
+        InstanceType: t3.small
+        IamInstanceProfile:
+          Arn: !GetAtt KimunInstanceProfile.Arn
+        SecurityGroupIds:
+          - !GetAtt KimunWebSecurityGroup.GroupId
+        # IMDSv2 obligatorio.
+        MetadataOptions:
+          HttpEndpoint: enabled
+          HttpTokens: required
+          HttpPutResponseHopLimit: 1
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs:
+              VolumeSize: 20
+              VolumeType: gp3
+              Encrypted: true
+              DeleteOnTermination: true
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - Key: Name
+                Value: kimun-web
+              - Key: Proyecto
+                Value: kimun
+          - ResourceType: volume
+            Tags:
+              - Key: Name
+                Value: kimun-web-root
+              - Key: Proyecto
+                Value: kimun
+        # Solo ASCII a proposito: el cuerpo "Kimün ok" se genera con el escape
+        # \u00fc en Python y se codifica en UTF-8, sin depender del encoding del
+        # heredoc ni del user data.
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            # kimun-web: user data inicial (pagina de prueba en el puerto 8000).
+            set -euxo pipefail
+            exec > >(tee -a /var/log/kimun-userdata.log) 2>&1
+
+            dnf install -y python3.12
+            /usr/bin/python3.12 --version
+
+            id -u kimun >/dev/null 2>&1 || useradd --system --home-dir /opt/kimun --shell /sbin/nologin kimun
+            install -d -m 0755 /opt/kimun
+
+            cat > /opt/kimun/prueba.py <<'PY'
+            """Pagina de prueba de Kimun: responde 200 a cualquier GET."""
+            import http.server
+            import sys
+
+            BODY = "Kim\u00fcn ok".encode("utf-8")
+
+
+            class Handler(http.server.BaseHTTPRequestHandler):
+                def _responder(self, con_cuerpo):
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/plain; charset=utf-8")
+                    self.send_header("Content-Length", str(len(BODY)))
+                    self.end_headers()
+                    if con_cuerpo:
+                        self.wfile.write(BODY)
+
+                def do_GET(self):
+                    self._responder(True)
+
+                def do_HEAD(self):
+                    self._responder(False)
+
+
+            def main():
+                port = int(sys.argv[1]) if len(sys.argv) > 1 else 8000
+                server = http.server.ThreadingHTTPServer(("0.0.0.0", port), Handler)
+                server.serve_forever()
+
+
+            if __name__ == "__main__":
+                main()
+            PY
+            chmod 0644 /opt/kimun/prueba.py
+
+            cat > /etc/systemd/system/kimun-web.service <<'UNIT'
+            [Unit]
+            Description=kimun-web - pagina de prueba en el puerto 8000
+            Wants=network-online.target
+            After=network-online.target
+
+            [Service]
+            User=kimun
+            Group=kimun
+            ExecStart=/usr/bin/python3.12 /opt/kimun/prueba.py 8000
+            Restart=always
+            RestartSec=2
+
+            [Install]
+            WantedBy=multi-user.target
+            UNIT
+
+            systemctl daemon-reload
+            systemctl enable --now kimun-web.service
+
+            for i in $(seq 1 15); do
+              curl -fsS http://127.0.0.1:8000/ && break
+              sleep 1
+            done
+            echo "kimun-web: user data terminado"
+
+  KimunWebInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      LaunchTemplate:
+        LaunchTemplateId: !Ref KimunWebLaunchTemplate
+        Version: !GetAtt KimunWebLaunchTemplate.LatestVersionNumber
+      SubnetId: !Ref SubnetId
+      Tags:
+        - Key: Name
+          Value: kimun-web
+        - Key: Proyecto
+          Value: kimun
+
+  # IP elastica: el origen de CloudFront no cambia si la instancia se detiene
+  # y vuelve a arrancar.
+  KimunWebEIP:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: kimun-web-eip
+        - Key: Proyecto
+          Value: kimun
+
+  KimunWebEIPAssociation:
+    Type: AWS::EC2::EIPAssociation
+    Properties:
+      InstanceId: !Ref KimunWebInstance
+      AllocationId: !GetAtt KimunWebEIP.AllocationId
+
+  # ---------------------------------------------------------------------------
+  # CloudFront
+  # ---------------------------------------------------------------------------
+  KimunDistribution:
+    Type: AWS::CloudFront::Distribution
+    # La asociacion debe existir antes de que CloudFront empiece a usar el origen.
+    DependsOn: KimunWebEIPAssociation
+    Properties:
+      DistributionConfig:
+        Comment: kimun-cdn - Kimun MVP (origen kimun-web:8000 por HTTP)
+        Enabled: true
+        HttpVersion: http2and3
+        IPV6Enabled: true
+        # Todas las ubicaciones, incluida Sudamerica (la demo es en Chile).
+        PriceClass: PriceClass_All
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        Origins:
+          - Id: kimun-web-origin
+            # CloudFront no acepta IPs como origen: se usa el DNS publico de la
+            # IP elastica (ec2-a-b-c-d.compute-1.amazonaws.com en us-east-1).
+            # No sirve KimunWebInstance.PublicDnsName: se evalua antes de
+            # asociar el EIP y devolveria el DNS de la IP publica efimera.
+            DomainName: !Join
+              - ""
+              - - ec2-
+                - !Join ["-", !Split [".", !GetAtt KimunWebEIP.PublicIp]]
+                - .compute-1.amazonaws.com
+            CustomOriginConfig:
+              HTTPPort: 8000
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: kimun-web-origin
+          ViewerProtocolPolicy: redirect-to-https
+          # Politicas administradas: CachingDisabled y AllViewerAndCloudFrontHeaders-2022-06.
+          CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+          OriginRequestPolicyId: 33f36d7e-f396-46d9-90e0-52428a34d9dc
+          AllowedMethods:
+            - GET
+            - HEAD
+            - OPTIONS
+            - PUT
+            - POST
+            - PATCH
+            - DELETE
+          CachedMethods:
+            - GET
+            - HEAD
+          Compress: true
+      Tags:
+        - Key: Name
+          Value: kimun-cdn
+        - Key: Proyecto
+          Value: kimun
+
+Outputs:
+  UrlCloudFront:
+    Description: URL publica (HTTPS) de Kimun.
+    Value: !Sub https://${KimunDistribution.DomainName}
+  DominioCloudFront:
+    Description: Dominio de CloudFront (para ALLOWED_HOSTS y CSRF_TRUSTED_ORIGINS).
+    Value: !GetAtt KimunDistribution.DomainName
+  DistribucionId:
+    Description: ID de la distribucion CloudFront.
+    Value: !Ref KimunDistribution
+  NombreBucket:
+    Description: Bucket S3 de Kimun.
+    Value: !Ref KimunBucket
+  PrefijosBucket:
+    Description: Prefijos del bucket que autoriza el rol de instancia.
+    Value: originales/, transcripciones/, releases/
+  InstanciaId:
+    Description: ID de la instancia EC2 kimun-web.
+    Value: !Ref KimunWebInstance
+  IpElastica:
+    Description: IP elastica de la instancia kimun-web (origen de CloudFront).
+    Value: !GetAtt KimunWebEIP.PublicIp

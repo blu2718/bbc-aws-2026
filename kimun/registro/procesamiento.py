@@ -1,18 +1,24 @@
-"""De una captura de texto a observaciones pendientes (PLAN.md, Task 5 y "Flujo de procesamiento").
+"""De una captura (nota, foto o audio) a observaciones pendientes (PLAN.md, Tasks 5, 8 y 9, "Flujo de procesamiento").
 
 Lo usa `manage.py procesar_capturas`:
 
 1. `tomar_siguiente()` toma una captura pendiente con una actualización condicional
    (`pendiente` → `procesando`, sumando `intentos`). Si dos procesos van por la misma,
    solo a uno le resulta y el otro sigue con la siguiente.
-2. `procesar()` llama a `separar()`, empareja cada nombre con `coincidencia.py` y crea
-   las observaciones en estado pendiente, todo en una transacción.
-3. Si `separar()` falla, la captura queda en `error` con el motivo (en el log y en el
-   admin; a quien registró se le muestra un mensaje genérico); `reintentar()` la
-   devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
+2. `procesar()` obtiene el texto con `lectura.texto_para_separar()`: la nota tal cual,
+   la foto leída con Claude (Task 8) o el audio transcrito con Transcribe, con los
+   nombres del curso como vocabulario (Task 9). Luego llama a `separar()`, empareja cada
+   nombre con `coincidencia.py` y crea las observaciones en estado pendiente, todo en
+   una transacción.
+3. Si la lectura o `separar()` fallan, la captura queda en `error` con el motivo (en el
+   log y en el admin; a quien registró se le muestra un mensaje genérico); `reintentar()`
+   la devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
    recupera las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA).
 
-Las fotos (Task 8) y los audios (Task 9) todavía no se procesan: no se toman y siguen pendientes.
+Las fotos y los audios no se conservan: apenas se leen, el texto queda en
+`texto_extraido` y el archivo se borra. Un reintento después de leerlos usa ese texto y
+no vuelve a llamar a Claude ni a Transcribe. Si la lectura falla, el archivo se conserva
+para reintentar; si no es una foto o un audio válido, se borra (`lectura.ArchivoInvalido`).
 """
 import logging
 from datetime import date, timedelta
@@ -22,15 +28,20 @@ from django.db.models import F
 from django.utils import timezone
 
 from .coincidencia import emparejar
-from .curriculo import leer_curriculo
-from .ia import ErrorSeparacion, separar
+from .curriculo import leer_curriculo, leer_curriculo_de
+from .ia import ClienteBedrock, ErrorSeparacion, ErrorTranscripcion, separar_con_pregunta
 from .ia.separacion import normalizar_codigo_oa
-from .models import Captura, Nucleo, ObjetivoAprendizaje, Observacion
+# frases_del_curso y prefijo_vocabulario se usan también en `preparar_vocabularios`.
+from .lectura import ArchivoInvalido, frases_del_curso, prefijo_vocabulario, texto_para_separar  # noqa: F401
+from .models import Captura, Efecto, NivelEducativo, Nucleo, ObjetivoAprendizaje, Observacion
 
 logger = logging.getLogger(__name__)
 
-TIPOS_PROCESABLES = (Captura.Tipo.TEXTO,)
+TIPOS_PROCESABLES = (Captura.Tipo.TEXTO, Captura.Tipo.FOTO, Captura.Tipo.AUDIO)
 LARGO_NOMBRE_DETECTADO = Observacion._meta.get_field("nombre_detectado").max_length
+LARGO_PREGUNTA = 500
+# Así queda `nombre_detectado` en las observaciones de algo que hizo todo el curso.
+NOMBRE_TODO_EL_CURSO = "todo el curso"
 # Una captura que lleva más que esto en "procesando" quedó atascada (el proceso murió a mitad).
 # Holgado frente al tiempo máximo de una llamada a Bedrock (90 s por defecto).
 UMBRAL_PROCESANDO_ATASCADA = timedelta(minutes=5)
@@ -103,11 +114,24 @@ def _marcar_error(captura, motivo):
     captura.save(update_fields=["estado", "error", "actualizada"])
 
 
-def _crear_observacion(captura, separada, ninos, nucleos, oas):
+def _crear_observaciones(captura, separada, ninos, nucleos, oas):
+    """Las observaciones de una observación separada: una, o una por niño si fue todo el curso.
+
+    "Todos bailaron" cuenta en la ficha de cada niño del curso, con la misma cita.
+    Las notas grupales de contexto ("bajó la asistencia") quedan como una sola, sin niño.
+    """
+    if not separada.get("todo_el_curso"):
+        return [_crear_observacion(captura, separada, ninos, nucleos, oas)]
+    return [
+        _crear_observacion(captura, separada | {"nombre_detectado": NOMBRE_TODO_EL_CURSO}, ninos, nucleos, oas, nino=nino)
+        for nino in ninos
+    ]
+
+
+def _crear_observacion(captura, separada, ninos, nucleos, oas, nino=None):
     grupal = separada["grupal"]
     nombre = (separada["nombre_detectado"] or "")[:LARGO_NOMBRE_DETECTADO]
-    nino = None
-    if not grupal:
+    if not grupal and nino is None:
         # Las notas grupales son contexto del curso: nunca se asignan a un niño.
         coincidencia = emparejar(nombre, ninos)
         nino = coincidencia.nino
@@ -121,6 +145,7 @@ def _crear_observacion(captura, separada, ninos, nucleos, oas):
         cita=separada["cita_literal"],
         interpretacion=separada["interpretacion"] or "",
         apoyo=separada["apoyo"],
+        efecto=separada.get("efecto") or Efecto.SIN_DATO,
         grupal=grupal,
         estado=Observacion.Estado.PENDIENTE,
     )
@@ -136,22 +161,37 @@ def _crear_observacion(captura, separada, ninos, nucleos, oas):
     return obs
 
 
-def procesar(captura, cliente=None, catalogo=None):
+def _catalogo_del_curso(curso, catalogo=None):
+    """El catálogo de OA del nivel educativo del curso.
+
+    Se usa el que se pasa (el proceso de fondo lo lee una vez) solo si es del mismo
+    nivel: una nota de sala cuna nunca se etiqueta con OA de Transición.
+    """
+    nivel = curso.nivel_educativo
+    if catalogo is not None and catalogo.get("nivel_educativo", NivelEducativo.TRANSICION) == nivel:
+        return catalogo
+    return leer_curriculo_de(nivel)
+
+
+def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
     """Separa una captura ya tomada y crea sus observaciones pendientes.
 
+    Las fotos se leen antes con `cliente` y los audios se transcriben con `transcriptor`
+    (por defecto, `ClienteTranscribe()`); en ambos casos el archivo se borra después.
     Devuelve la lista de observaciones creadas (puede ser vacía si la nota no
     describe ninguna), o None si la captura quedó en error.
     """
     curso = captura.curso
     ninos = list(curso.ninos.all())
-    texto = captura.texto_original or captura.texto_extraido
     try:
-        separadas = separar(
+        # La foto o el audio se leen aquí (el texto se guarda y el archivo se borra); una nota se usa tal cual.
+        texto = texto_para_separar(captura, cliente=cliente, transcriptor=transcriptor, ninos=ninos)
+        separadas, pregunta = separar_con_pregunta(
             texto,
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
             timezone.localdate(captura.creada),
             [n.nombre for n in ninos],
-            catalogo if catalogo is not None else leer_curriculo(),
+            _catalogo_del_curso(curso, catalogo),
             cliente=cliente,
         )
         nucleos = {n.sigla: n for n in Nucleo.objects.all()}
@@ -160,13 +200,19 @@ def procesar(captura, cliente=None, catalogo=None):
             for oa in ObjetivoAprendizaje.objects.filter(nivel_educativo=curso.nivel_educativo).select_related("nucleo")
         }
         with transaction.atomic():
-            creadas = [_crear_observacion(captura, s, ninos, nucleos, oas) for s in separadas]
+            creadas = [obs for s in separadas for obs in _crear_observaciones(captura, s, ninos, nucleos, oas)]
             captura.estado = Captura.Estado.PROCESADA
             captura.error = ""
-            captura.save(update_fields=["estado", "error", "actualizada"])
-    except ErrorSeparacion as error:
+            captura.pregunta = (pregunta or "")[:LARGO_PREGUNTA]
+            captura.save(update_fields=["estado", "error", "pregunta", "actualizada"])
+    except (ErrorSeparacion, ErrorTranscripcion) as error:
         logger.warning("Captura %s quedó con error: %s", captura.pk, error)
         _marcar_error(captura, str(error))
+        return None
+    except ArchivoInvalido as error:
+        # Sin archivo, o no es una foto o un audio aceptado (ya se borró): reintentar no lo arregla.
+        logger.warning("Captura %s: el archivo no se puede leer: %s", captura.pk, error)
+        _marcar_error(captura, f"Archivo inválido: {error}")
         return None
     except Exception as error:
         # Un error inesperado no debe dejar la captura en "procesando" para siempre.
@@ -176,9 +222,32 @@ def procesar(captura, cliente=None, catalogo=None):
     return creadas
 
 
-def procesar_pendientes(cliente=None, catalogo=None):
+def procesar_pendientes(cliente=None, catalogo=None, transcriptor=None):
     """Toma y procesa capturas hasta que no quede ninguna pendiente. Entrega (captura, resultado)."""
     if catalogo is None:
         catalogo = leer_curriculo()
     while (captura := tomar_siguiente()) is not None:
-        yield captura, procesar(captura, cliente=cliente, catalogo=catalogo)
+        yield captura, procesar(captura, cliente=cliente, catalogo=catalogo, transcriptor=transcriptor)
+
+
+def procesar_si_pendiente(captura, cliente=None):
+    """Toma y procesa la captura si está pendiente y nadie más la tomó. True si la procesó esta llamada.
+
+    La usa la página de la captura (pantalla II de diseno-interfaz.jpg), que espera ahí
+    el resultado de Bedrock. Los audios no se toman aquí: Transcribe tarda más que el
+    timeout de la página y los procesa el proceso de fondo.
+    """
+    if captura.tipo == Captura.Tipo.AUDIO or not tomar(captura.pk):
+        return False
+    captura.refresh_from_db()
+    procesar(captura, cliente=cliente or ClienteBedrock())
+    return True
+
+
+def reintentar_desde_la_pagina(captura):
+    """Devuelve a pendiente una captura con error o atascada en procesando. True si cambió."""
+    if esta_atascada(captura):
+        return _procesables().filter(pk=captura.pk, estado=Captura.Estado.PROCESANDO).update(
+            estado=Captura.Estado.PENDIENTE, actualizada=timezone.now()
+        ) == 1
+    return reintentar(captura)

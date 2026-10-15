@@ -1,16 +1,18 @@
 """Formularios de la Task 3 (fijar el nivel de un niño y editar la tabla de metas)
-y de la Task 5 (registrar una nota escrita).
+y de las Tasks 5 y 9 (registrar una nota escrita o un audio).
 
 Las opciones de nivel van del 1 al máximo de la rúbrica del nivel educativo
 (`Rubrica.nivel_maximo`); nunca se asume una cantidad fija. El nivel se valida
 aquí y otra vez al guardar (`ValidaNivelMixin`).
 """
+import uuid
 from dataclasses import dataclass
 
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
+from .ia.transcripcion import formato_audio
 from .models import NIVEL_MIN, MetaSemestre, NivelValidado, texto_nivel
 
 # Valores por defecto de la tabla de metas (PLAN.md, "Nivel esperado").
@@ -131,6 +133,34 @@ class CapturaTextoForm(forms.Form):
         help_text="Escribe lo que observaste. Puedes nombrar a varios niños y niñas en la misma nota.",
         widget=forms.Textarea(attrs={"rows": 6, "aria-describedby": "id_texto-ayuda"}),
     )
+
+
+# 2 minutos en WAV sin comprimir (48 kHz, 16 bits, mono) son unos 11,5 MB; WebM o MP4, 1 a 2 MB.
+MAX_BYTES_AUDIO = 15 * 1024 * 1024
+FORMATOS_AUDIO = "WebM, MP4, M4A, Ogg, WAV, MP3, FLAC o AMR"
+
+
+class CapturaAudioForm(forms.Form):
+    """Audio dictado (Task 9). El formato se revisa por los primeros bytes, no por el nombre."""
+
+    audio = forms.FileField(
+        label="O elige un audio grabado en el teléfono",
+        help_text="Máximo 2 minutos.",
+        widget=forms.FileInput(attrs={"accept": "audio/*", "capture": "", "aria-describedby": "id_audio-ayuda"}),
+    )
+
+    def clean_audio(self):
+        archivo = self.cleaned_data["audio"]
+        if archivo.size > MAX_BYTES_AUDIO:
+            raise ValidationError(f"El audio pesa más de {MAX_BYTES_AUDIO // (1024 * 1024)} MB. Graba uno más corto.")
+        cabecera = archivo.read(12)
+        archivo.seek(0)
+        formato = formato_audio(cabecera)
+        if formato is None:
+            raise ValidationError(f"El archivo no es un audio compatible ({FORMATOS_AUDIO}).")
+        # Nombre propio: el del teléfono puede traer datos personales o caracteres raros.
+        archivo.name = f"audio-{uuid.uuid4().hex}.{formato}"
+        return archivo
 
 
 class MetasForm(forms.Form):

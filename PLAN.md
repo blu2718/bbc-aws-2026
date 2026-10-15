@@ -17,8 +17,9 @@ La educadora siempre decide el nivel.
 ### Modelo pedagógico
 
 - 3 niveles educativos (sala cuna, medio, transición). Según las Bases Curriculares, cada nivel abarca 2 años y sus OA describen lo esperado al final del tramo: 50 en sala cuna, 71 en medio y 85 en transición.
-- La rúbrica de Integra tendrá 10 núcleos y hoy tiene 8 niveles por núcleo, que podrían pasar a 9 (`contexto/respuestas-integra.md`). Por eso la cantidad de núcleos y de niveles es un dato de la rúbrica, editable, y nada en el código asume 8.
-- Núcleos de la demo (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA. Son los únicos con OA oficiales; se reemplazan por los 10 de Integra cuando entregue la lista.
+- La cantidad de núcleos y de niveles puede cambiar en el tiempo: hoy las Bases Curriculares fijan 8 núcleos y la herramienta de Integra apunta a 10; hoy hay 8 niveles por núcleo y se evalúa pasar a 9 (FAQ de Integra y `contexto/respuestas-integra.md`). Integra pide poder ajustar ambos parámetros y cargar la rúbrica sin importar cuántos sean. Por eso son un dato de la rúbrica, editable, y nada en el código asume 8.
+- El nivel es por núcleo: cada núcleo tiene sus propios niveles, no hay un nivel general compartido. Si se necesita un nivel general del niño, Integra sugiere usar el promedio de sus núcleos.
+- Núcleos de la demo (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA. Son los únicos con OA oficiales; se reemplazan por los de Integra cuando entregue su rúbrica, sean 8, 10 u otra cantidad.
 - La rúbrica se guarda por nivel educativo, porque varía entre ellos: la de Integra trae textos distintos para sala cuna, medio y transición, y en cada uno los niveles van del 1 al 8. La demo usa solo Transición (NT1 y NT2, 4 a 6 años).
 - Rúbrica oficial de Integra (`datos/rubrica_integra.json`, ver "Rúbrica de Integra" en Contexto): hoy trae solo Identidad y Autonomía (IA), en los 3 niveles educativos. Cada nivel tiene nombre, descripción, conducta observable, dos ejemplos de registro y orientaciones (los pasos a seguir, todavía vacíos). Los nombres son los mismos en los 3 niveles educativos: 1 Comenzando, 2 Explorando, 3 Desarrollando, 4 Afianzando, 5 Integrando, 6 Ampliando, 7 Consolidando, 8 Profundizando. Para IA reemplaza a la rúbrica provisoria.
 - Los otros 7 núcleos de la demo siguen con la rúbrica provisoria, derivada de las conductas del Programa Pedagógico de Transición (`contexto/hallazgos-programa-pedagogico-transicion.md`) y marcada como provisoria. Mapeo provisorio, para 8 niveles: 1 = lo esperado al iniciar NT1; 2 a 4 = conductas de NT1, desde "con ayuda" hasta "autónomo"; 5 a 7 = lo mismo con las conductas de NT2; 8 = conductas de NT2 de forma autónoma. La rúbrica de Integra no sigue esta lógica de apoyo: cada nivel retoma la redacción de uno o dos OA del núcleo y suma conductas más complejas. Cuando Integra entregue cada núcleo, su texto reemplaza al provisorio sin cambiar código.
@@ -26,9 +27,9 @@ La educadora siempre decide el nivel.
 - El nivel se decide por la conducta observable y los avances del niño, no por una cantidad mínima de observaciones (respuesta de Integra). La propuesta de nivel no usa umbrales de cantidad.
 - El tiempo se mide en semestres escolares, con fechas editables.
 - Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4 (en la rúbrica de Integra: Comenzando, Desarrollando, Integrando y Consolidando); al egresar se espera el nivel máximo de la rúbrica (hoy 8, Profundizando). Son nuestros: la rúbrica de Integra no asigna niveles a semestres. No se asume que el avance sea lineal. Es una referencia blanda: las Bases Curriculares prescriben por tramos de 2 años porque una prescripción más corta "no respetaría diferencias individuales en el aprendizaje".
-- Rezago: Integra lo evalúa comparando al niño con sus pares del nivel. Se muestran dos señales por núcleo, ambas redactadas como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares:
-  - Bajo sus pares (señal principal): mediana del curso − nivel del niño. 2: aviso. Más de 2: alerta.
-  - Bajo lo esperado: nivel esperado − nivel actual validado. 2: aviso. Más de 2: alerta.
+- Rezago: Integra lo define en relación con la composición de la propia sala. Su ejemplo: en una sala de 10 niños, 8 están en nivel 5 y 2 en nivel 2, así que esos 2 están rezagados respecto de su grupo. Quiere que el sistema avise automáticamente a la educadora, sin que ella tenga que decidir cuándo mirar. Se muestran dos señales por núcleo, ambas redactadas como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares:
+  - Bajo sus pares (señal principal): mediana del curso − nivel del niño. 2: aviso. Más de 2: alerta. En el ejemplo de Integra, 5 − 2 = 3 da alerta.
+  - Bajo lo esperado: nivel esperado − nivel actual validado. 2: aviso. Más de 2: alerta. Integra no la pidió; queda como segunda señal.
 
   Los umbrales son nuestros y provisorios.
 - Distribución del curso: por núcleo, cuántos niños hay en cada nivel y en qué nivel está la mayoría.
@@ -41,19 +42,21 @@ La educadora siempre decide el nivel.
 
 ### Captura y procesamiento
 
-- La educadora (1 por sala) y las asistentes de párvulo (1 cada 7 niños) registran desde su teléfono personal, con conexión: texto, foto (post-it o trabajo del niño) o audio corto. La directora también puede registrar en cualquier curso de su jardín, con menos frecuencia (información de Integra). Sin video y sin grabación continua. Revisar observaciones y validar niveles queda en la educadora (decisión nuestra, por confirmar con Integra); la directora no revisa ni valida.
-- Una nota que menciona a varios niños genera una observación por niño.
+- La educadora (1 por sala) y las asistentes de párvulo (1 cada 7 niños; con 14 niños, una educadora y dos asistentes) registran desde su teléfono personal, con conexión: texto, foto (post-it o trabajo del niño) o audio corto. Sin video y sin grabación continua. Que una educadora tenga más de una sala es muy excepcional. La directora, que pasa por todas las salas de su jardín, también puede registrar en cualquier curso de su jardín, aunque con menos frecuencia (FAQ de Integra). Revisar observaciones y validar niveles queda en la educadora (decisión nuestra, por confirmar con Integra); la directora no revisa ni valida.
+- En el registro de la trayectoria, cada post-it es de un solo niño: la educadora anota las conductas nuevas que observa y después las compara con las conductas observables de cada nivel de la rúbrica para ubicarlo (FAQ de Integra). Es lo mismo que hace la propuesta de nivel.
+- Una nota que menciona a varios niños genera una observación por niño, y cada una cuenta en el historial de ese niño. Si participan juntos en lo mismo (por ejemplo, dos niños que se pelean), cada uno recibe su observación; en un conflicto, en principio todos quedan "por reforzar" en la habilidad de convivencia o regulación que corresponda, salvo que la nota diga otra cosa.
+- Si falta un dato clave (por ejemplo, quién hizo qué en una pelea), Claude registra lo que sí dice la nota y deja una pregunta para quien registró. La respuesta se suma a la nota, que se vuelve a ordenar mientras no tenga observaciones aceptadas.
 - Cada observación se etiqueta con sus núcleos y, cuando se pueda, con sus OA ("OA 4 LV"). Registra el nivel de apoyo (autónomo, con ayuda, parcial, no lo realiza o sin dato) y separa lo que el niño hizo o dijo de la interpretación de la educadora, como el registro anecdótico del programa.
-- Las notas sobre el grupo completo (por ejemplo, "bajó la asistencia") quedan como contexto del curso y no se usan para evaluar.
-- Los nombres se emparejan con la lista del curso, tolerando variantes de escritura (Naiara/Nayara). Si un nombre es ambiguo o desconocido, decide la educadora.
+- Si la nota describe algo que hizo todo el curso (por ejemplo, "todos bailaron"), se crea una observación por cada niño del curso y cuenta en la ficha de todos. Solo las notas de contexto sin una conducta de los niños (por ejemplo, "bajó la asistencia") quedan como contexto del curso y no se usan para evaluar.
+- Los nombres se emparejan con la lista del curso, tolerando variantes de escritura (Naiara/Nayara). En el post-it va solo el nombre de pila; si dos niños de la sala se llaman igual, la educadora agrega el apellido (FAQ de Integra), y con el apellido la coincidencia debe resolverse sola. Si un nombre es ambiguo o desconocido, decide la educadora.
 - El sistema propone un nivel actual por núcleo considerando toda la evidencia aceptada y citando las observaciones que lo respaldan. La educadora acepta, fija otro nivel o rechaza. Nada se aplica solo.
-- Los archivos originales se guardan, y cada observación enlaza a su fuente.
+- Cada observación enlaza a su captura. Las fotos y los audios no se guardan: se suben, se extrae el texto (la foto la lee Claude y el audio lo transcribe Transcribe), el texto se guarda y el archivo se borra. Es la misma regla que Integra pide para video: subir la grabación, extraer solo la información necesaria y borrarla, para resguardar la privacidad del niño, con consentimiento de los apoderados pedido en la matrícula (FAQ de Integra). El equipo la aplica también a fotos y audios (decisión del 15-10-2026).
 
 ### Alcance
 
 - Dentro: perspectiva de la educadora (su curso, con comparación con pares y evolución individual), registro por asistentes, nivel Transición, un curso de 15 niños cargados a mano, datos 100% ficticios.
-- Dentro si alcanza el tiempo (Task 12; si no, va en el pitch): vista del jardín para la directora, con un segundo curso de Transición en los datos de demo.
-- Fuera del MVP (se mencionan en el pitch): vista nacional, generar pasos a seguir o actividades con IA, informes a familias, video, modo sin conexión, carga masiva de niños y otros niveles educativos.
+- Dentro si alcanza el tiempo (Task 12; si no, va en el pitch): vista del jardín para la directora, con un segundo curso de Transición en los datos de demo, y registro de capturas por la directora. También, en la tabla del curso y en la ficha, el nivel general del niño como promedio de sus núcleos, marcado como referencia.
+- Fuera del MVP (se mencionan en el pitch): vista nacional, generar pasos a seguir o actividades con IA, informes a familias, video (con consentimiento pedido en la matrícula y la grabación borrada después de extraer la información), modo sin conexión, carga masiva de niños y otros niveles educativos.
 - Descartado por el equipo: un registro propio de la voz del niño (sus intereses, preferencias o autoevaluación).
 - Descartado por el equipo: usar el dataset sintético E-1 de la organización (0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad), como rúbrica o como datos de demo. Integra pidió pensar la herramienta en 10 núcleos y la demo usa solo Transición. Se sacó del repo. Si más adelante se amplía a sala cuna y medio, sus OA oficiales están en las Bases Curriculares.
 
@@ -66,12 +69,13 @@ La educadora siempre decide el nivel.
 
 - La tabla de metas es por curso, no por niño.
 - El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra y solo se usa en los núcleos sin rúbrica de Integra (hoy, todos menos IA).
-- La rúbrica de Integra está en `datos/rubrica_integra.json`, pero solo cubre IA y sin orientaciones. Su fuente dice "borrador entregado el 15-10-2026", así que los textos pueden cambiar. Faltan los otros núcleos, la lista de sus 10 núcleos y una referencia institucional del nivel esperado.
+- La rúbrica de Integra está en `datos/rubrica_integra.json`, pero solo cubre IA y sin orientaciones. Su fuente dice "borrador entregado el 15-10-2026", así que los textos pueden cambiar. Faltan los otros núcleos (Integra confirmó que por ahora no hay rúbrica de ejemplo para más núcleos) y una referencia institucional del nivel esperado. Ya no hace falta la lista de sus 10 núcleos: la cantidad puede cambiar y la app carga los que traiga la rúbrica.
 - Que los niveles 1 a 8 de Integra abarcan los 2 años del nivel educativo (NT1 y NT2 en Transición) y que el 8 es lo esperado al egresar. La rúbrica no lo dice; lo suponemos porque cada nivel educativo parte de nuevo en 1.
 - Que todo niño entra en nivel 1. En la primera reunión, la mentora dijo otra cosa: "nivel 1 bajo lo esperado al ingreso, nivel 2 lo esperado al ingreso, nivel 8 por sobre lo esperado". Si se confirma, cambian el nivel inicial y la meta del semestre 1.
 - Qué OA retoma cada nivel de IA (por ejemplo, nivel 1 ≈ OA 1 IA, nivel 2 ≈ OA 3 IA, nivel 5 ≈ OA 12 IA) es una lectura nuestra de los textos.
-- Los umbrales de rezago (2 niveles bajo la mediana del curso; un curso 2 niveles bajo los demás del jardín) son nuestros.
-- Las asistentes registran, pero no revisan ni validan.
+- Los umbrales de rezago (2 niveles bajo la mediana del curso; un curso 2 niveles bajo los demás del jardín) son nuestros. El ejemplo de Integra (8 niños en nivel 5 y 2 en nivel 2) da alerta con ellos.
+- Las asistentes y la directora registran, pero no revisan ni validan.
+- Los audios y las fotos originales se guardan. Si Integra extiende a ellos la regla del video (extraer y borrar), se borran cuando todas las observaciones de la captura quedan aceptadas o descartadas, y la revisión muestra la cita en vez del original.
 
 ## Contexto
 
@@ -95,6 +99,18 @@ Detalle en `contexto/respuestas-integra.md`.
 - Observan la educadora (1 por sala) y las asistentes (1 cada 7 niños).
 - El rezago se mide contra los pares del nivel. La información se actualiza todo el tiempo.
 - Los pasos a seguir vendrán en su rúbrica; quieren poder cargarlos a futuro.
+
+### FAQ de Integra (15 de octubre)
+
+FAQ de los tres retos que publicó Integra, con algunas respuestas transcritas de audios. No se versiona en el repo. Lo nuevo para el reto E1:
+
+- La cantidad de núcleos no es fija: las Bases Curriculares tienen 8 y la herramienta de Integra apunta a 10, y puede cambiar. Lo mismo con los niveles (8, quizás 9). La herramienta debe cargar la rúbrica sin importar cuántos sean.
+- El nivel es por núcleo; un nivel general se puede sacar como promedio de los núcleos.
+- Rezago relativo a la propia sala (8 niños en nivel 5 y 2 en nivel 2: esos 2 están rezagados), con alerta automática a la educadora.
+- Los post-its de la trayectoria son de un solo niño, con las conductas nuevas observadas, y se comparan con las conductas de cada nivel de la rúbrica. Las fotos de la presentación no eran representativas. En el post-it va solo el nombre; si se repite en la sala, se agrega el apellido. Integra tiene el ID y el nombre completo de cada niño.
+- Una educadora por sala (más de una sala es muy excepcional) y una asistente cada 7 niños. La directora pasa por todas las salas, debe ver todo su jardín y también podría registrar.
+- Video: requiere consentimiento de los apoderados, que se pediría en la matrícula. La grabación se sube, se extrae lo necesario y se borra.
+- Todavía no hay rúbrica de ejemplo para otros núcleos.
 
 ### Rúbrica de Integra (recibida el 15 de octubre)
 
@@ -210,9 +226,9 @@ flowchart LR
 
 ### Seguridad y privacidad
 
-- Todas las vistas piden login. La educadora y las asistentes solo ven sus cursos, y la directora los cursos de su jardín (filtro en todas las consultas). Solo la educadora revisa observaciones y valida niveles. El panel de administración es solo para staff.
-- Los originales se muestran con URLs prefirmadas de 5 minutos, después de verificar permisos.
-- S3 con bloqueo de acceso público y cifrado. Las transcripciones quedan en nuestro bucket.
+- Todas las vistas piden login. La educadora y las asistentes solo ven sus cursos, y la directora los cursos de su jardín (filtro en todas las consultas). Registran capturas la educadora, las asistentes y la directora (esta última desde la Task 12). Solo la educadora revisa observaciones y valida niveles. El panel de administración es solo para staff.
+- Las fotos y los audios no se muestran ni se conservan: quedan en S3 solo hasta que se leen y entonces se borran, junto con la copia que usa Transcribe y su salida. De ellos solo queda el texto en la base de datos.
+- S3 con bloqueo de acceso público y cifrado.
 - El servidor solo acepta tráfico que venga de CloudFront. Sin puerto 22; acceso por SSM.
 - Riesgo aceptado para el MVP: el tramo entre CloudFront y EC2 va por HTTP sin cifrar. Es aceptable con datos ficticios; en producción se agrega TLS hasta el servidor (ALB + ACM).
 - Al proponer un nivel, Bedrock nunca recibe el nombre junto con la evaluación. Al separar observaciones sí ve nombres, porque están escritos en la nota.
@@ -256,7 +272,7 @@ flowchart LR
   - Unas 40 observaciones aceptadas, etiquetadas con núcleos y OA, y niveles históricos en los datos de demo, para que aparezcan todos los estados. Algunos OA quedan sin evidencia a propósito. Las de IA se escriben a partir de las conductas de la rúbrica de Integra, para que el nivel validado de cada niño calce con lo que dicen sus observaciones; no se copian sus ejemplos tal cual, porque se reservan para el prompt y la medición (Tasks 7 y 10).
   - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad, y se redactan como sugerencias (por ejemplo, "Revisar: 3 niveles bajo lo esperado"), no como diagnóstico.
   - Sobre la tabla, el resumen de la quincena: por núcleo, observaciones aceptadas y niños con al menos una, con los núcleos sin observaciones destacados y navegación a quincenas anteriores. Función pura `cobertura_quincena` en `registro/cobertura.py`.
-- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; mediana con cantidad par de niños y con un solo niño; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero); con una rúbrica de 9 niveles y 10 núcleos, la tabla, la distribución y las alertas funcionan sin cambiar código. Otra educadora recibe 404.
+- Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; mediana con cantidad par de niños y con un solo niño; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero); el ejemplo de Integra (8 niños en nivel 5 y 2 en nivel 2) da alerta bajo sus pares para esos 2; con una rúbrica de 9 niveles y 10 núcleos, la tabla, la distribución y las alertas funcionan sin cambiar código. Otra educadora recibe 404.
 - Demo: al entrar, aparece la tabla con las alertas (un niño bajo sus pares en lenguaje) y el resumen de la quincena con los núcleos sin observaciones.
 
 ### Task 3: Ficha del niño, validación manual y tabla de metas
@@ -335,26 +351,25 @@ flowchart LR
 
 ### Task 8: Captura por foto
 
-- Objetivo: la foto de un post-it genera observaciones pendientes que enlazan a la foto.
+- Objetivo: la foto de un post-it genera observaciones pendientes, y la foto no se conserva.
 - Guía:
   - `<input type="file" accept="image/*" capture="environment">`; el navegador achica la foto a unos 1600 px en JPEG con canvas, para quedar bajo el límite de imagen de Bedrock y subir rápido.
-  - django-storages: disco en desarrollo y S3 en producción.
-  - El proceso de fondo transcribe la foto tal cual con Claude (`[ilegible]` en vez de adivinar) y luego aplica la misma separación de la Task 5.
-  - Vista del original con URL prefirmada de 5 minutos y verificación de permisos.
-  - El equipo escribe a mano unos 10 post-its de prueba (textos generados en `datos/eval/`) y los fotografía. Las fotos de la diapositiva 5 de la presentación sirven para probar la lectura de letra real, pero no se cargan en la demo.
-- Tests: se procesa una captura de tipo foto con cliente falso; otra usuaria no puede ver el original; se rechazan archivos de tipo o tamaño inválido.
-- Demo: se fotografía un post-it con el teléfono y la revisión muestra el enlace a la foto.
+  - django-storages: disco en desarrollo y S3 en producción, solo mientras la foto espera ser leída.
+  - El proceso de fondo transcribe la foto tal cual con Claude (`[ilegible]` en vez de adivinar), guarda el texto y borra la foto; luego aplica la misma separación de la Task 5. Decisión del equipo (15-10-2026): las fotos no se almacenan, ni se muestran en la app; de ellas solo queda el texto leído. Si la lectura falla, la foto se conserva hasta reintentar.
+  - El equipo escribe a mano unos 10 post-its de prueba (textos generados en `datos/eval/`) y los fotografía. Cada post-it es de un solo niño, con conductas nuevas observadas, que es como Integra los usa para la trayectoria. Algunos llevan apellido porque hay dos niños con el mismo nombre. Las fotos de la presentación no se usan: Integra dijo que no eran representativas.
+- Tests: se procesa una captura de tipo foto con cliente falso; después de leerla la foto ya no existe; se rechazan archivos de tipo o tamaño inválido; "Sofía Rojas" en un post-it se asigna sola y "Sofía" queda ambigua.
+- Demo: se fotografía un post-it con el teléfono y la revisión muestra lo leído, sin la foto.
 
 ### Task 9: Captura por audio
 
 - Objetivo: la educadora dicta una observación y queda pendiente de revisión.
 - Guía:
-  - Botón de grabar y detener con MediaRecorder, límite de 2 minutos, botones con etiquetas y estado de la grabación mostrado en texto. Se sube a S3.
+  - Botón de grabar y detener con MediaRecorder, límite de 2 minutos, botones con etiquetas y estado de la grabación mostrado en texto. Se sube a S3 solo mientras espera ser transcrito: con la transcripción guardada, se borran el audio, la copia que usa Transcribe y su salida (misma regla que las fotos de la Task 8).
   - Verificar que Transcribe acepte los formatos de los teléfonos (WebM/Opus en Android, MP4 en iPhone). Si alguno no sirve, convertirlo en el proceso de fondo.
   - Trabajo de transcripción en es-US con vocabulario personalizado del curso (se crea o actualiza cuando cambian los niños), salida en nuestro bucket bajo `transcripciones/`, consulta periódica hasta que termine, y luego la separación de la Task 5.
   - Audios de prueba generados con Polly a partir de las notas de `datos/eval/`.
 - Tests: transcripción exitosa, fallida y que no termina a tiempo, con un cliente de Transcribe falso; el vocabulario usa solo caracteres válidos.
-- Demo: se dicta "Rubí cruzó el circuito sin ayuda" y aparece una observación pendiente con el audio enlazado.
+- Demo: se dicta "Rubí cruzó el circuito sin ayuda" y aparece una observación pendiente con su transcripción; el audio ya no existe.
 
 ### Task 10: Medición de calidad y ajuste de prompts
 
@@ -378,10 +393,10 @@ flowchart LR
     - solución y cómo encaja en el sistema de evaluación de Integra: registra la movilidad de los aprendizajes que mide el IEA y apunta a su definición de calidad (bienestar, aprendizaje oportuno y pertinente, protagonismo);
     - demo;
     - rúbrica: Identidad y Autonomía con la rúbrica oficial de Integra (niveles de Comenzando a Profundizando) y los demás núcleos con una provisoria basada en el Programa Pedagógico de Transición, que se reemplaza al cargar cada núcleo de Integra; enfoque de evaluación alineado con las Bases Curriculares (evidencia cotidiana, la educadora concluye);
-    - privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales);
+    - privacidad (códigos en vez de nombres, las fotos se borran apenas se leen, la educadora decide, ley de datos personales);
     - cifras de la Task 10;
     - rúbrica como dato: el JSON de Integra se cargó sin cambiar código, y lo mismo valdrá para 10 núcleos, 8 o 9 niveles y las orientaciones (pasos a seguir) cuando lleguen;
-    - cómo escala (vista de la directora si no entró en la demo, vista nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
+    - cómo escala (vista de la directora si no entró en la demo, vista nacional, video con consentimiento y borrado después de extraer la información, modo sin conexión, informes a familias, otros niveles educativos).
   - Verificar la política de datos de Bedrock y la vigencia de la Ley 21.719 antes de citarlas.
   - Para el costo, usar la calculadora de precios de AWS.
   - Grabar un video de respaldo. Congelar el código a las 11:00.
@@ -393,9 +408,10 @@ flowchart LR
 - Guía:
   - Usuaria directora ligada al jardín en los datos de demo, y un segundo curso de Transición con niveles más bajos en un núcleo.
   - Vista con, por núcleo, el promedio de cada curso del mismo nivel educativo. Si un curso queda 2 o más niveles bajo el promedio de los demás, se muestra una alerta con texto, redactada como sugerencia de revisión. Función pura en `registro/alertas.py`.
-  - La directora ve el resumen y la tabla de cada curso de su jardín, y registra notas en ellos, pero no revisa observaciones ni valida niveles.
+  - La directora ve el resumen y la tabla de cada curso de su jardín, pero no revisa observaciones ni valida niveles.
+  - La directora también registra capturas en los cursos de su jardín, como pidió Integra: se agrega a `cursos_donde_registra`. No revisa ni valida.
   - El promedio usa solo niveles con `validado_por` (el validado más reciente de cada niño y núcleo; el nivel inicial automático no cuenta), redondeado a un decimal, y la alerta se calcula con esos mismos valores redondeados. Una sala entra en la comparación de un núcleo si al menos la mitad de sus niños tiene nivel validado en él (configurable junto al umbral); si no, muestra "Sin datos suficientes".
-- Tests: el cálculo con el ejemplo de Integra (6, 6 y 3 genera alerta para el curso en 3); un jardín con un solo curso no genera alerta; una directora de otro jardín recibe 404.
+- Tests: el cálculo con el ejemplo de Integra (6, 6 y 3 genera alerta para el curso en 3); un jardín con un solo curso no genera alerta; una directora de otro jardín recibe 404; la directora registra una nota en un curso de su jardín, pero no puede revisarla.
 - Demo: la directora entra y ve la alerta del segundo curso.
 
 ## Reparto y horario
@@ -420,16 +436,13 @@ Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden traba
 
 ## Preguntas pendientes para Integra
 
-Las respuestas recibidas por correo están en `contexto/respuestas-integra.md`.
+Las respuestas recibidas por correo están en `contexto/respuestas-integra.md`; las del FAQ, resumidas en Contexto. El FAQ respondió cuántos núcleos usar (los que traiga la rúbrica), si el nivel es por núcleo (sí), cómo ubican al niño en un nivel y si la directora registra (sí).
 
 1. Sobre la rúbrica de IA que nos pasaron (`datos/rubrica_integra.json`): ¿los niveles 1 a 8 abarcan los 2 años del nivel educativo (NT1 y NT2) y el 8 es lo esperado al egresar? ¿Un niño que ingresa con lo esperado parte en el nivel 1 o en el 2 (como dijo la mentora)? ¿Hay un nivel esperado por semestre? ¿Cuándo llegan las orientaciones (pasos a seguir) y los otros núcleos? ¿Podemos mostrar sus ejemplos al modelo como referencia?
-2. ¿Cuáles son los 10 núcleos?
-3. Pedir por WhatsApp el audio con el ejemplo de cómo deciden el nivel.
-4. ¿El nivel se asigna por núcleo o de forma global? (No lo respondieron; la rúbrica por núcleo sugiere que es por núcleo.)
-5. ¿Las asistentes pueden revisar observaciones o validar niveles, o solo registrar?
-6. ¿Hay una referencia institucional del nivel esperado por semestre, o lo define cada educadora?
-7. ¿Qué protocolo siguen cuando detectan un rezago? Además de la alerta a la directora, ¿hay derivación?
-8. ¿Las familias firman un consentimiento para fotos y audios?
-9. Mostrarles la pantalla de revisión y preguntar si la usarían así en la sala.
-10. La rúbrica de IA retoma la redacción de los OA de las Bases Curriculares. ¿Los demás núcleos seguirán la misma lógica? Mientras no lleguen, ¿les parece razonable nuestro mapeo provisorio basado en las conductas del Programa Pedagógico de Transición?
-11. ¿El instrumento reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna?
+2. ¿Las asistentes pueden revisar observaciones o validar niveles, o solo registrar? ¿Y la directora?
+3. ¿Hay una referencia institucional del nivel esperado por semestre, o lo define cada educadora?
+4. Después de la alerta automática a la educadora, ¿qué protocolo siguen con un niño rezagado? ¿Hay derivación?
+5. El consentimiento que se pediría en la matrícula, ¿cubre también fotos de trabajos y audios dictados por la educadora? ¿La regla de borrar el video después de extraer la información vale también para audios y fotos?
+6. Mostrarles la pantalla de revisión y preguntar si la usarían así en la sala.
+7. La rúbrica de IA retoma la redacción de los OA de las Bases Curriculares. ¿Los demás núcleos seguirán la misma lógica? Mientras no lleguen, ¿les parece razonable nuestro mapeo provisorio basado en las conductas del Programa Pedagógico de Transición?
+8. ¿El instrumento reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna?

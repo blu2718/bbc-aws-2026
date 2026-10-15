@@ -3,6 +3,8 @@
 - `curso`: tabla del curso con nivel esperado, brechas, distribución y quincena (Task 2).
 - `jardin`: resumen del jardín para la directora, que compara salas del mismo nivel educativo (Task 12).
 - `ficha`, `fijar_nivel` y `metas`: ficha del niño, validación manual y tabla de metas (Task 3).
+  La ficha es también el perfil de la pantalla IV de diseno-interfaz.jpg.
+- `inicio` lleva a "¿Qué quieres registrar?", que está en `views_registro.py` con la captura.
 - La revisión de observaciones (Task 6) está en `views_revision.py`.
 """
 from datetime import date
@@ -28,6 +30,8 @@ from .permisos import (
     ninos_que_valida,
     puede_validar,
 )
+from .pantallas import historial_del_nino, texto_edad
+from .radar import radar_de_la_ficha
 from .revision import resumen_pendientes
 
 
@@ -37,12 +41,22 @@ def _es_htmx(request):
 
 @login_required
 def inicio(request):
+    """La pestaña de inicio es "¿Qué quieres registrar?" (diseno-interfaz.jpg, pantalla I).
+
+    Quien registra en un solo curso (la educadora o una asistente) va directo
+    ahí. Quien solo ve cursos (la directora) va a la tabla, si es uno solo.
+    """
+    registra = list(cursos_donde_registra(request.user))
+    if len(registra) == 1:
+        return redirect("registrar", curso_id=registra[0].pk)
     cursos = cursos_de(request.user).select_related("jardin")
-    jardines = list(jardines_que_dirige(request.user))
-    # La directora siempre ve el inicio, para llegar al resumen de su jardín.
-    if len(cursos) == 1 and not jardines:
+    if not registra and len(cursos) == 1:
         return redirect("curso", curso_id=cursos[0].pk)
-    return render(request, "registro/inicio.html", {"cursos": cursos, "jardines": jardines})
+    # Task 12: la directora llega desde aquí al resumen de su jardín.
+    jardines = list(jardines_que_dirige(request.user))
+    return render(request, "registro/inicio.html", {
+        "cursos": cursos, "registra": {c.pk for c in registra}, "jardines": jardines,
+    })
 
 
 @login_required
@@ -90,8 +104,19 @@ def curso(request, curso_id):
 
 
 def _pagina_ficha(request, nino, formularios=None):
-    ficha = armar_ficha(nino, request.user, formularios=formularios)
-    return render(request, "registro/ficha.html", {"ficha": ficha, "curso": nino.curso})
+    """Perfil del niño (diseno-interfaz.jpg, pantalla IV): gráfico por núcleo, historial y detalle por núcleo."""
+    hoy = timezone.localdate()
+    ficha = armar_ficha(nino, request.user, hoy=hoy, formularios=formularios)
+    radar, esperado = radar_de_la_ficha(ficha, Rubrica.nivel_maximo(nino.curso.nivel_educativo))
+    return render(request, "registro/ficha.html", {
+        "ficha": ficha,
+        "curso": nino.curso,
+        "edad": texto_edad(nino.fecha_nacimiento, hoy),
+        "radar": radar,
+        "esperado": esperado,
+        "historial": historial_del_nino(nino),
+        "puede_registrar": cursos_donde_registra(request.user).filter(pk=nino.curso_id).exists(),
+    })
 
 
 def _parcial_nucleo(request, nino, sigla, mensaje="", formularios=None):

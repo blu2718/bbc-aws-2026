@@ -9,10 +9,21 @@ from .models import DescriptorNivel, Manifestacion, NivelEducativo, Nucleo, Obje
 from .rubrica import NIVELES_PROVISORIOS, descriptores_provisorios, nombre_provisorio
 
 RUTA_CURRICULO_TRANSICION = Path(settings.DATOS_DIR) / "curriculo_transicion.json"
+# Sala cuna y medio salen de las Bases Curriculares (scripts/extraer_oa_bases.py). No traen conductas por año.
+RUTAS_CURRICULO = {
+    NivelEducativo.SALA_CUNA: Path(settings.DATOS_DIR) / "curriculo_sala_cuna.json",
+    NivelEducativo.MEDIO: Path(settings.DATOS_DIR) / "curriculo_medio.json",
+    NivelEducativo.TRANSICION: RUTA_CURRICULO_TRANSICION,
+}
 
 
 def leer_curriculo(ruta=RUTA_CURRICULO_TRANSICION):
     return json.loads(Path(ruta).read_text(encoding="utf-8"))
+
+
+def leer_curriculo_de(nivel_educativo):
+    """El catálogo de núcleos y OA del nivel educativo (sala cuna, medio o transición)."""
+    return leer_curriculo(RUTAS_CURRICULO[nivel_educativo])
 
 
 @transaction.atomic
@@ -28,14 +39,14 @@ def cargar_curriculo(datos, nivel_educativo=NivelEducativo.TRANSICION):
         defaults={"cantidad_niveles": NIVELES_PROVISORIOS, "provisoria": True},
     )
     for orden, n in enumerate(datos["nucleos"], start=1):
+        # La trayectoria (lo esperado al iniciar NT1 y en Básica) solo viene en el currículo de Transición:
+        # cargar sala cuna o medio no la borra.
+        trayectoria = {campo: n[campo] for campo in ("esperado_inicio_nt1", "continuidad_basica") if campo in n}
+        if nivel_educativo == NivelEducativo.TRANSICION:
+            trayectoria = {"esperado_inicio_nt1": "", "continuidad_basica": ""} | trayectoria
         nucleo, _ = Nucleo.objects.update_or_create(
             sigla=n["sigla"],
-            defaults={
-                "nombre": n["nombre"],
-                "orden": orden,
-                "esperado_inicio_nt1": n.get("esperado_inicio_nt1", ""),
-                "continuidad_basica": n.get("continuidad_basica", ""),
-            },
+            defaults={"nombre": n["nombre"], "orden": orden, **trayectoria},
         )
         for o in n["oas"]:
             oa, _ = ObjetivoAprendizaje.objects.update_or_create(

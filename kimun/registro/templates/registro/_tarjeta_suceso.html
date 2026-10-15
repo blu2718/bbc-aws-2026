@@ -1,0 +1,118 @@
+{% load kimun revision_tags %}
+{% comment %}
+Un suceso de un niño o niña (diseno-interfaz.jpg, pantalla II): edad, lo que pasó, la habilidad identificada
+(núcleos y OA) con su nivel actual, el efecto en sus OA y una sugerencia de qué observar después, sacada de
+la rúbrica. Recibe `t` (pantallas.TarjetaSuceso) y `obs`. La educadora acepta, edita o descarta con las vistas
+de views_revision.py (`vista=suceso`), que devuelven esta misma tarjeta.
+{% endcomment %}
+{% if resuelta %}
+  <article id="obs-{{ obs.pk }}" class="suceso suceso-resuelto">
+    <p role="status">
+      <strong>{% if resuelta == "aceptada" %}Aceptada{% else %}Descartada{% endif %}:</strong>
+      {% if obs.grupal %}nota sobre el curso{% else %}{{ obs.nino|default:"sin asignar" }}{% endif %}, {{ obs.fecha|date:"j \d\e F" }}.
+      {% if resuelta == "aceptada" and obs.nino %}<a href="{% url 'ficha' obs.nino.pk %}">Ver su perfil</a>{% endif %}
+    </p>
+  </article>
+{% else %}
+  <article id="obs-{{ obs.pk }}" class="suceso{% if obs.grupal %} suceso-grupal{% endif %}" aria-labelledby="obs-{{ obs.pk }}-titulo">
+    <header class="suceso-cabecera">
+      {% if obs.grupal %}
+        <span class="avatar avatar-curso" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><circle cx="8" cy="9" r="3" fill="currentColor"/><circle cx="16" cy="9" r="3" fill="currentColor"/><path d="M2.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M10.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" fill="currentColor"/></svg>
+        </span>
+      {% else %}
+        <span class="avatar" aria-hidden="true" style="--fondo-avatar: {{ obs.nino.nombre|default:obs.nombre_detectado|color_avatar }}">{{ obs.nino.nombre|default:obs.nombre_detectado|iniciales|default:"?" }}</span>
+      {% endif %}
+      <div class="suceso-quien">
+        <h2 id="obs-{{ obs.pk }}-titulo">
+          {% if obs.grupal %}Todo el curso{% elif obs.nino %}<a href="{% url 'ficha' obs.nino.pk %}">{{ obs.nino.nombre }}</a>{% else %}<span class="sin-asignar">Sin asignar</span>{% endif %}
+        </h2>
+        <p>
+          {% if obs.nino %}{% if t.edad %}Edad: {{ t.edad }}{% else %}Edad: sin fecha de nacimiento{% endif %} · {% endif %}<time datetime="{{ obs.fecha|date:'Y-m-d' }}">{{ obs.fecha|date:"j \d\e F" }}</time>
+          {% if obs|muestra_nombre_detectado %}· en la nota dice «{{ obs.nombre_detectado }}»{% endif %}
+        </p>
+      </div>
+      <span class="estado-obs estado-{{ obs.estado }}">{{ obs.get_estado_display }}</span>
+    </header>
+
+    <dl class="suceso-datos">
+      <dt>Lo que pasó</dt>
+      <dd><blockquote>{{ obs.cita }}</blockquote></dd>
+      {% if obs.interpretacion %}
+        <dt>Interpretación de quien registró</dt>
+        <dd>{{ obs.interpretacion }}</dd>
+      {% endif %}
+      {% if not obs.grupal %}
+        <dt>Habilidad identificada y nivel actual</dt>
+        <dd>
+          {% if t.nucleos %}
+            <ul class="habilidades">
+              {% for n in t.nucleos %}
+                <li><strong>{{ n.nucleo.nombre }}</strong>{% if n.texto_nivel %}: nivel {{ n.texto_nivel }}{% endif %}</li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            Sin núcleo identificado.
+          {% endif %}
+          {% if t.oas %}
+            <p class="oas">{% for oa in t.oas %}<abbr title="{{ oa.texto }}">{{ oa.codigo }}</abbr>{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+          {% endif %}
+        </dd>
+        <dt>Efecto en sus OA</dt>
+        <dd><span class="efecto efecto-{{ obs.efecto }}">{% if obs.efecto == "avance" %}↑ {% elif obs.efecto == "por_reforzar" %}↻ {% endif %}{{ obs.get_efecto_display }}</span> · Apoyo: {{ obs.get_apoyo_display|lower }}</dd>
+      {% elif obs.nucleos.all %}
+        <dt>Núcleos</dt>
+        <dd>{% for n in obs.nucleos.all %}{{ n.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+      {% endif %}
+    </dl>
+
+    {% if t.sugerencia %}
+      <details class="sugerencia">
+        <summary>¿Sugerencia? Qué observar después en {{ t.sugerencia.nucleo.nombre }}</summary>
+        <p>{{ t.sugerencia.siguiente.descripcion|linebreaksbr }}</p>
+        {% if t.sugerencia.siguiente.conducta %}<p><em>Conducta observable:</em> {{ t.sugerencia.siguiente.conducta|linebreaksbr }}</p>{% endif %}
+        <p class="ayuda">De la rúbrica: describe el nivel siguiente{% if t.sugerencia.siguiente.provisorio %} (rúbrica provisoria){% endif %}.</p>
+      </details>
+    {% endif %}
+
+    {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+
+    {% if obs.estado == "pendiente" %}
+      {% if puede_validar %}
+        {% if not obs.grupal and not obs.nino %}
+          <form class="asignar" method="post" action="{% url 'observacion_asignar' obs.pk %}"
+                hx-post="{% url 'observacion_asignar' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">
+            {% csrf_token %}
+            <input type="hidden" name="vista" value="suceso">
+            <label for="nino-{{ obs.pk }}">¿A quién corresponde?
+              <select id="nino-{{ obs.pk }}" name="nino" required>
+                <option value="">Elegir…</option>
+                {% for n in ninos %}<option value="{{ n.pk }}">{{ n.nombre }}</option>{% endfor %}
+              </select>
+            </label>
+            <button type="submit">Asignar</button>
+          </form>
+        {% endif %}
+        <footer class="acciones">
+          <form method="post" action="{% url 'observacion_aceptar' obs.pk %}"
+                hx-post="{% url 'observacion_aceptar' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">
+            {% csrf_token %}
+            <input type="hidden" name="vista" value="suceso">
+            <button type="submit">Aceptar</button>
+          </form>
+          <a role="button" class="secondary" href="{% url 'observacion_editar' obs.pk %}?vista=suceso"
+             hx-get="{% url 'observacion_editar' obs.pk %}?vista=suceso" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">Editar</a>
+          <form method="post" action="{% url 'observacion_descartar' obs.pk %}"
+                hx-post="{% url 'observacion_descartar' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">
+            {% csrf_token %}
+            <input type="hidden" name="vista" value="suceso">
+            <button type="submit" class="secondary outline">Descartar</button>
+          </form>
+        </footer>
+      {% else %}
+        <p class="ayuda">La educadora la revisará antes de que cuente en la ficha.</p>
+      {% endif %}
+    {% endif %}
+  </article>
+{% endif %}
+{% if oob %}{% include "registro/_contador_pendientes.html" %}{% endif %}

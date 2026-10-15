@@ -1,0 +1,98 @@
+{
+  "_nota": "Post-its 100% ficticios para medir la lectura de fotos (Task 8). El equipo escribe a mano cada 'texto' en un post-it, lo fotografía y guarda la foto como datos/eval/fotos/<id>.jpg (las fotos no se versionan). 'texto' es la transcripción esperada; 'esperado' trae las observaciones que debe dar la separación, con el mismo formato que notas_separacion.json y la misma lista de niños. Escritos a partir de conductas de NT1 y NT2 de datos/curriculo_transicion.json (ver conductas_referencia). 'caso' dice qué dificultad de lectura o de separación prueba.",
+  "nombres_curso_desde": "notas_separacion.json",
+  "fecha_captura": "2026-10-05",
+  "postits": [
+    {
+      "id": "p01",
+      "caso": "Fecha escrita en el post-it ('3-oct'); apodo 'Isi'; la compañera solo aparece como parte de la situación.",
+      "texto": "3-oct Isi le preguntó a la Marti x qué lloraba y le prestó su pañuelo",
+      "conductas_referencia": [{"oa": "OA 3 CC", "nt": "NT1"}],
+      "esperado": [
+        {"nombre_detectado": "Isi", "fecha": "2026-10-03", "nucleos": ["CC"], "oas": ["OA 3 CC"], "apoyo": "autonomo", "grupal": false}
+      ]
+    },
+    {
+      "id": "p02",
+      "caso": "Abreviatura 'q' y comparación con antes (progresión).",
+      "texto": "Gaspar cortó por la línea con la tijera solo, sin salirse. Antes había q ayudarlo.",
+      "conductas_referencia": [{"oa": "OA 6 CM", "nt": "NT2"}],
+      "esperado": [
+        {"nombre_detectado": "Gaspar", "nucleos": ["CM"], "oas": ["OA 6 CM"], "apoyo": "autonomo", "grupal": false}
+      ]
+    },
+    {
+      "id": "p03",
+      "caso": "Alias corto ('Naia') y palabras en mayúsculas dentro de la nota.",
+      "texto": "Naia leyó MAMÁ y PAPÁ en la tarjeta del día de la familia",
+      "conductas_referencia": [{"oa": "OA 7 LV", "nt": "NT2"}],
+      "esperado": [
+        {"nombre_detectado": "Naia", "nucleos": ["LV"], "oas": ["OA 7 LV"], "apoyo": "autonomo", "grupal": false}
+      ]
+    },
+    {
+      "id": "p04",
+      "caso": "Dos post-its en la misma foto, uno por niño, con apoyo distinto.",
+      "texto": "Benja clasificó los bloques x color, forma y tamaño a la vez\n\nAgus separó solo x color, le mostré cómo hacerlo x forma y lo siguió.",
+      "conductas_referencia": [{"oa": "OA 2 PM", "nt": "NT2"}, {"oa": "OA 2 PM", "nt": "NT1"}],
+      "esperado": [
+        {"nombre_detectado": "Benja", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "autonomo", "grupal": false},
+        {"nombre_detectado": "Agus", "nucleos": ["PM"], "oas": ["OA 2 PM"], "apoyo": "con_ayuda", "grupal": false}
+      ]
+    },
+    {
+      "id": "p05",
+      "caso": "Nota grupal: queda como contexto del curso.",
+      "texto": "Hoy no hubo patio x la lluvia. Se hizo circuito en la sala.",
+      "conductas_referencia": [],
+      "esperado": [
+        {"nombre_detectado": null, "nucleos": [], "oas": [], "apoyo": "sin_dato", "grupal": true}
+      ]
+    },
+    {
+      "id": "p06",
+      "caso": "Cita del niño entre comillas y un número escrito con cifra.",
+      "texto": "Tomi midió la mesa con palos de helado: \"son 7 palitos tía\"",
+      "conductas_referencia": [{"oa": "OA 11 PM", "nt": "NT2"}],
+      "esperado": [
+        {"nombre_detectado": "Tomi", "nucleos": ["PM"], "oas": ["OA 11 PM"], "apoyo": "autonomo", "grupal": false}
+      ]
+    },
+    {
+      "id": "p07",
+      "caso": "Apodo con inicial ('Sofi M') que distingue a una de las dos Sofías.",
+      "texto": "Sofi M se enojó cuando le quitaron el turno, respiró hondo como le enseñamos y pidió volver a jugar",
+      "conductas_referencia": [{"oa": "OA 4 IA", "nt": "NT2"}],
+      "esperado": [
+        {"nombre_detectado": "Sofi M", "nucleos": ["IA"], "oas": ["OA 4 IA"], "apoyo": "autonomo", "grupal": false}
+      ]
+    },
+    {
+      "id": "p08",
+      "caso": "Un segundo niño que solo recibe la explicación: no lleva observación propia.",
+      "texto": "Jose se lavó las manos antes de comer sin q le dijeran y le explicó a Mati q es pa sacar los bichitos",
+      "conductas_referencia": [{"oa": "OA 9 IA", "nt": "NT2"}],
+      "esperado": [
+        {"nombre_detectado": "Jose", "nucleos": ["IA"], "oas": ["OA 9 IA"], "apoyo": "autonomo", "grupal": false}
+      ]
+    },
+    {
+      "id": "p09",
+      "caso": "Nombre sin tilde ('Rubi') que debe transcribirse tal cual.",
+      "texto": "Rubi cantó la canción de los pollitos marcando el ritmo con las claves",
+      "conductas_referencia": [{"oa": "OA 3 LA", "nt": "NT1"}],
+      "esperado": [
+        {"nombre_detectado": "Rubi", "nucleos": ["LA"], "oas": ["OA 3 LA"], "apoyo": "autonomo", "grupal": false}
+      ]
+    },
+    {
+      "id": "p10",
+      "caso": "Explicación del niño con 'porq' abreviado.",
+      "texto": "Emilio dijo q las plantas necesitan agua y sol pa crecer porq si no se secan",
+      "conductas_referencia": [{"oa": "OA 3 EEN", "nt": "NT2"}],
+      "esperado": [
+        {"nombre_detectado": "Emilio", "nucleos": ["EEN"], "oas": ["OA 3 EEN"], "apoyo": "autonomo", "grupal": false}
+      ]
+    }
+  ]
+}

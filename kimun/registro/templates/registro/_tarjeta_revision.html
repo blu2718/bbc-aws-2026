@@ -28,6 +28,7 @@
       <dt>OA</dt>
       <dd>{% for oa in obs.oas.all %}<abbr title="{{ oa.texto }}">{{ oa.codigo }}</abbr>{% if not forloop.last %}, {% endif %}{% empty %}Sin OA{% endfor %}</dd>
       {% if not obs.grupal %}<dt>Apoyo</dt><dd>{{ obs.get_apoyo_display }}</dd>{% endif %}
+      {% if not obs.grupal %}<dt>Efecto</dt><dd><span class="efecto efecto-{{ obs.efecto }}">{{ obs.get_efecto_display }}</span></dd>{% endif %}
     </dl>
 
     {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}

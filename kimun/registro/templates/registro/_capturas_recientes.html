@@ -1,4 +1,4 @@
-{# Lista de las últimas notas de la usuaria en el curso. Se refresca sola solo mientras alguna está pendiente o procesando (sin contar las atascadas). #}
+{# Lista de las últimas capturas de la usuaria en el curso. Se refresca sola solo mientras alguna está pendiente o procesando (sin contar las atascadas). #}
 <section id="capturas-recientes" aria-labelledby="titulo-recientes" aria-live="polite"{% if refrescar %}
   hx-get="{% url 'capturas_recientes' curso.pk %}" hx-trigger="every {{ segundos_refresco }}s" hx-swap="outerHTML"{% endif %}>
   {% if recientes %}
@@ -9,7 +9,8 @@
         <li id="captura-{{ captura.pk }}">
           {{ captura.creada|date:"j \d\e F, H:i" }} · <strong>{{ captura.get_estado_display }}</strong>
           {% if captura.estado == "procesada" %}· {{ captura.cantidad_observaciones }} observaci{{ captura.cantidad_observaciones|pluralize:"ón,ones" }}{% endif %}
-          <br>{{ captura.texto_original|truncatechars:80 }}
+          {# De la foto y del audio solo queda el texto leído: el archivo se borra al leerlo. #}
+          <br>{% if captura.tipo == "texto" %}{{ captura.texto_original|truncatechars:80 }}{% else %}{{ captura.get_tipo_display }}{% if captura.texto_extraido %}: «{{ captura.texto_extraido|truncatechars:80 }}»{% endif %}{% endif %}
           {% if captura.estado == "error" %}
             {# El detalle (captura.error) puede traer datos de AWS: queda en el log y en el admin. #}
             <br><small>No se pudo procesar la nota. Puedes reintentar.</small>

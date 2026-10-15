@@ -1,0 +1,356 @@
+{
+  "nivel_educativo": "sala_cuna",
+  "fuente": "Bases Curriculares de la Educación Parvularia (MINEDUC, 2018), capítulo 2",
+  "fuente_url": "https://www.curriculumnacional.cl/614/articles-69957_bases.pdf",
+  "provisorio": false,
+  "nucleos": [
+    {
+      "sigla": "IA",
+      "nombre": "Identidad y Autonomía",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 IA",
+          "texto": "Expresar vocal, gestual o corporalmente distintas necesidades o emociones (alegría, miedo, pena, entre otras).",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 IA",
+          "texto": "Manifestar satisfacción cuando percibe que adultos significativos le expresan afecto.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 IA",
+          "texto": "Reconocer algunas emociones en adultos significativos, reaccionando frente a ellas.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 IA",
+          "texto": "Manifestar sus preferencias por algunas situaciones, objetos y juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 IA",
+          "texto": "Manifestar interés por nuevas situaciones u objetos, ampliando su campo y repertorio de acción habitual.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 IA",
+          "texto": "Reconocer algunos rasgos distintivos de su identidad, tales como: su nombre y su imagen física en el espejo.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 IA",
+          "texto": "Incorporar rutinas básicas vinculadas a la alimentación, vigilia, sueño, higiene, y vestuario dentro de un contexto diferente a su hogar y sensible a sus necesidades personales.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "CC",
+      "nombre": "Convivencia y Ciudadanía",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 CC",
+          "texto": "Interactuar con pares y adultos significativos (a través de gestos y vocalizaciones, entre otros), en diferentes situaciones y juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 CC",
+          "texto": "Disfrutar de la cercanía de niños, niñas y adultos en juegos y situaciones cotidianas.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 CC",
+          "texto": "Manifestar interés por lo que le sucede a otros niños y niñas, a través de acciones tales como: abrazar a quien está llorando, hacer cariños, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 CC",
+          "texto": "Manifestar interés por participar en celebraciones de su entorno significativo.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 CC",
+          "texto": "Practicar algunas normas de convivencia, tales como: sentarse en su silla para almorzar, saludar, despedirse, y colaborar en acciones cotidianas.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 CC",
+          "texto": "Manifestar disposición para responder positivamente o cambiar su comportamiento, frente a requerimientos del adulto, asociados a su seguridad y bienestar.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "CM",
+      "nombre": "Corporalidad y Movimiento",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 CM",
+          "texto": "Manifestar su agrado, al sentirse cómodo, seguro y contenido corporalmente.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 CM",
+          "texto": "Descubrir partes de su cuerpo y algunas de sus características físicas, a través de diversas experiencias sensoriomotrices.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 CM",
+          "texto": "Manifestar interés y satisfacción al moverse libremente en situaciones cotidianas y lúdicas.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 CM",
+          "texto": "Ampliar sus posibilidades de exploración sensoriomotriz, adquiriendo control de la prensión palmar voluntaria (toma objetos, se pasa objetos de una mano a otra, entre otros) y la postura sedente.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 CM",
+          "texto": "Adquirir desplazamiento gradual en sus distintas formas (girar, reptar, ponerse de pie, caminar), para disfrutar la ampliación de sus posibilidades de movimiento, exploración y juego.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 CM",
+          "texto": "Coordinar movimientos de manipulación ubicando objetos en relación a su propio cuerpo, tales como: acercar objetos pequeños utilizando índice y pulgar en oposición.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 CM",
+          "texto": "Explorar la alternancia de posturas y movimientos en acciones tales como: trepar, lanzar objetos o hacer ronda, adquiriendo control gradual de su cuerpo al jugar.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "LV",
+      "nombre": "Lenguaje Verbal",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 LV",
+          "texto": "Expresar oralmente sus emociones y necesidades, a través de balbuceos, vocalizaciones y diversos recursos gestuales.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 LV",
+          "texto": "Expresar oralmente sus necesidades e intereses, mediante la combinación de palabras y gestos, el uso de palabra-frase y progresivamente el empleo de frases simples.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 LV",
+          "texto": "Identificar progresivamente la intención comunicativa de las distintas personas de su entorno a partir de sus expresiones verbales, no verbales y paraverbales.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 LV",
+          "texto": "Comprender mensajes simples y breves en juegos y situaciones comunicativas cotidianas, respondiendo en forma gestual y corporal.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 LV",
+          "texto": "Reconocer sonidos de diferentes fuentes sonoras de su entorno cotidiano, tales como objetos, artefactos, instrumentos musicales, animales, naturaleza.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 LV",
+          "texto": "Incorporar nuevas palabras a su repertorio lingüístico para comunicarse con otros, en juegos y conversaciones.",
+          "conductas": {}
+        },
+        {
+          "numero": 7,
+          "codigo": "OA 7 LV",
+          "texto": "Disfrutar de distintos textos gráficos (libros de cuentos, láminas, entre otros) al manipularlos y observar sus imágenes.",
+          "conductas": {}
+        },
+        {
+          "numero": 8,
+          "codigo": "OA 8 LV",
+          "texto": "Comprender progresivamente, a partir de la escucha atenta, algunos contenidos explícitos de textos literarios y no literarios, respondiendo preguntas simples, en forma oral o gestual (¿qué es?, ¿quién es?, ¿dónde está?).",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "LA",
+      "nombre": "Lenguajes Artísticos",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 LA",
+          "texto": "Manifestar interés por los sonidos, las texturas, los colores y la luminosidad de su entorno, respondiendo a través de diversas formas, tales como balbuceo, gestos, sonrisas, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 LA",
+          "texto": "Producir sonidos con su voz, su cuerpo y diversos objetos sonoros, en forma espontánea o por imitación.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 LA",
+          "texto": "Imitar gestos, movimientos, sonidos de su entorno significativo, a través de diversos medios.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 LA",
+          "texto": "Manifestar sus preferencias por recursos expresivos presentes en piezas musicales, visuales, y escénicas, a través de gestos, movimientos, palabras, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 LA",
+          "texto": "Expresar corporalmente las emociones y sensaciones que le provocan algunas piezas musicales, bailando, cantando e intentando seguir el ritmo.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 LA",
+          "texto": "Experimentar sus posibilidades de expresión plástica a través de diversos recursos, produciendo sus primeros garabateos espontáneos.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "EEN",
+      "nombre": "Exploración del Entorno Natural",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 EEN",
+          "texto": "Manifestar curiosidad y asombro por algunos elementos, situaciones y fenómenos que ocurren en su entorno natural cercano, tales como: arena, lluvia, viento, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 EEN",
+          "texto": "Reconocer algunos elementos representativos de su entorno natural, tales como: animales, plantas, ríos, cerros, desierto.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 EEN",
+          "texto": "Explorar su entorno, observando, manipulando y experimentando con diversos materiales de su interés, tales como: mezclar agua con tierra, recoger hojas o ramas, trasladar piedras, hacer huellas.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 EEN",
+          "texto": "Descubrir características de animales al observarlos en forma directa, en textos y en imágenes.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 EEN",
+          "texto": "Colaborar en actividades sencillas de cuidado de la naturaleza, tales como: regar, recoger hojas, trasladar ramitas, entre otras.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "CES",
+      "nombre": "Comprensión del Entorno Sociocultural",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 CES",
+          "texto": "Imitar gestos y acciones que realizan personas de su entorno cercano.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 CES",
+          "texto": "Identificar algunas actividades habituales que se realizan en su vida cotidiana, tales como: preparación de alimentos, rutinas antes de dormir, entre otras.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 CES",
+          "texto": "Manifestar interés por canciones, juegos y bailes que forman parte de su cotidianeidad.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 CES",
+          "texto": "Explorar utensilios domésticos y objetos tecnológicos que forman parte de su vida cotidiana, tales como: pocillos, envases de botellas, escobas, cucharas, teléfonos, entre otros, utilizándolos progresivamente en situaciones cotidianas y juegos.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 CES",
+          "texto": "Reconocer objetos y personas, asociándolos a ciertos lugares, tales como: educadora/ técnico y jardín infantil; mamá/papá y casa; cama y dormir, recinto de cocina y comida, de su entorno sociocultural.",
+          "conductas": {}
+        }
+      ]
+    },
+    {
+      "sigla": "PM",
+      "nombre": "Pensamiento Matemático",
+      "oas": [
+        {
+          "numero": 1,
+          "codigo": "OA 1 PM",
+          "texto": "Adquirir la noción de permanencia de objetos y de personas significativas, mediante juegos con diversos objetos de uso cotidiano.",
+          "conductas": {}
+        },
+        {
+          "numero": 2,
+          "codigo": "OA 2 PM",
+          "texto": "Explorar a través de sus experiencias sensoriales y motrices, atributos de los objetos tales como: tamaño, textura y dureza.",
+          "conductas": {}
+        },
+        {
+          "numero": 3,
+          "codigo": "OA 3 PM",
+          "texto": "Experimentar con los objetos, resolviendo situaciones concretas, tales como: alcanzar objetos, apretar botones en aparatos sonoros, sacar juguetes de contenedores, juntar objetos, entre otros.",
+          "conductas": {}
+        },
+        {
+          "numero": 4,
+          "codigo": "OA 4 PM",
+          "texto": "Utilizar en situaciones lúdicas, nociones de ubicación en relación con su propio cuerpo tales como: dentro/fuera; encima/debajo.",
+          "conductas": {}
+        },
+        {
+          "numero": 5,
+          "codigo": "OA 5 PM",
+          "texto": "Orientarse temporalmente en situaciones cotidianas, siguiendo secuencias breves tales como: antes/después.",
+          "conductas": {}
+        },
+        {
+          "numero": 6,
+          "codigo": "OA 6 PM",
+          "texto": "Emplear cuantificadores (más/menos, mucho/poco), en situaciones cotidianas.",
+          "conductas": {}
+        }
+      ]
+    }
+  ]
+}

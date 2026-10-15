@@ -11,3 +11,8 @@ python-dateutil==2.9.0.post0
 s3transfer==0.19.2
 six==1.17.0
 urllib3==2.8.0
+# Producción: servidor WSGI y archivos estáticos.
+gunicorn==26.2.0
+whitenoise==6.12.0
+# Fotos y audios originales en S3 (Task 8).
+django-storages==1.14.6

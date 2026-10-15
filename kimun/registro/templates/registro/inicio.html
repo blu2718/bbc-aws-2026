@@ -6,9 +6,15 @@
   <p><a href="{% url 'jardin' j.pk %}">Resumen de {{ j.nombre }}</a>: compara las salas de tu jardín.</p>
 {% endfor %}
 {% if cursos %}
-  <ul>
+  <ul class="lista-cursos">
     {% for curso in cursos %}
-      <li><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a>, {{ curso.jardin.nombre }}</li>
+      <li>
+        <strong>{{ curso.nombre }}</strong>, {{ curso.jardin.nombre }}
+        <span class="acciones">
+          {% if curso.pk in registra %}<a href="{% url 'registrar' curso.pk %}">Registrar</a> ·{% endif %}
+          <a href="{% url 'curso' curso.pk %}">Tabla del curso</a>
+        </span>
+      </li>
     {% endfor %}
   </ul>
 {% else %}

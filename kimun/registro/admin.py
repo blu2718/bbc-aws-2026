@@ -60,7 +60,7 @@ class MetaSemestreInline(admin.TabularInline):
 class NinoInline(admin.TabularInline):
     model = models.Nino
     extra = 0
-    fields = ["nombre", "alias", "fecha_ingreso", "codigo"]
+    fields = ["nombre", "alias", "fecha_nacimiento", "fecha_ingreso", "codigo"]
     readonly_fields = ["codigo"]
 
 
@@ -84,7 +84,7 @@ class NivelValidadoInline(admin.TabularInline):
 
 @admin.register(models.Nino)
 class NinoAdmin(admin.ModelAdmin):
-    list_display = ["nombre", "curso", "codigo", "fecha_ingreso"]
+    list_display = ["nombre", "curso", "codigo", "fecha_nacimiento", "fecha_ingreso"]
     list_filter = ["curso"]
     search_fields = ["nombre"]
     readonly_fields = ["codigo"]
@@ -100,7 +100,7 @@ class NivelValidadoAdmin(admin.ModelAdmin):
 class ObservacionInline(admin.TabularInline):
     model = models.Observacion
     extra = 0
-    fields = ["nino", "nombre_detectado", "fecha", "cita", "apoyo", "grupal", "estado"]
+    fields = ["nino", "nombre_detectado", "fecha", "cita", "apoyo", "efecto", "grupal", "estado"]
 
 
 @admin.register(models.Captura)
@@ -113,8 +113,8 @@ class CapturaAdmin(admin.ModelAdmin):
 
 @admin.register(models.Observacion)
 class ObservacionAdmin(admin.ModelAdmin):
-    list_display = ["fecha", "nino", "nombre_detectado", "apoyo", "grupal", "estado"]
-    list_filter = ["estado", "grupal", "apoyo", "nucleos"]
+    list_display = ["fecha", "nino", "nombre_detectado", "apoyo", "efecto", "grupal", "estado"]
+    list_filter = ["estado", "grupal", "apoyo", "efecto", "nucleos"]
     search_fields = ["cita", "nombre_detectado"]
     filter_horizontal = ["nucleos", "oas"]
 

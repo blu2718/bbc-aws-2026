@@ -1,48 +1,52 @@
-{% load static %}<!doctype html>
-<html lang="es">
+{% load static kimun %}<!doctype html>
+{# Tema claro fijo: los colores de Kimün y de las señales están pensados (y medidos) sobre fondo blanco. #}
+<html lang="es" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}Registro pedagógico{% endblock %}</title>
-  {# Pico.css y HTMX con versión fija en static/vendor/ (sin CDN). Para actualizar, reemplazar el archivo y la ruta. #}
-  <link rel="icon" href="{% static 'registro/img/logo.svg' %}" type="image/svg+xml">
-  <link rel="icon" href="{% static 'registro/img/favicon-32.png' %}" sizes="32x32" type="image/png">
-  <link rel="apple-touch-icon" href="{% static 'registro/img/apple-touch-icon.png' %}">
   <meta name="theme-color" content="#5cbde6">
+  <title>{% block titulo %}Registro pedagógico{% endblock %} · Kimün</title>
+  <link rel="icon" href="{% static 'registro/img/logo.svg' %}" type="image/svg+xml">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'registro/img/favicon-32.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'registro/img/apple-touch-icon.png' %}">
+  {# Pico.css y HTMX con versión fija en static/vendor/ (sin CDN). Para actualizar, reemplazar el archivo y la ruta. #}
   <link rel="stylesheet" href="{% static 'vendor/pico-2.1.1.min.css' %}">
   <link rel="stylesheet" href="{% static 'registro/registro.css' %}">
   <script src="{% static 'vendor/htmx-2.0.11.min.js' %}" defer></script>
+  <script src="{% static 'registro/kimun.js' %}" defer></script>
   {% block head %}{% endblock %}
 </head>
 {# HTMX envía el token CSRF en todas sus peticiones. #}
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
-  <header class="container">
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}' class="{% block clase_pagina %}{% endblock %}">
+  <a class="saltar-al-contenido" href="#contenido">Saltar al contenido</a>
+  <header class="barra-app">
     <nav aria-label="Principal">
       <ul>
+        {% if user.is_authenticated %}
+          <li>
+            <button type="button" class="boton-icono boton-menu" data-abrir-menu aria-controls="menu-lateral"
+                    aria-expanded="false" aria-haspopup="dialog">
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M4 6h16M4 12h16M4 18h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <span class="visualmente-oculto">Abrir el menú</span>
+            </button>
+          </li>
+        {% endif %}
         <li>
-          <a href="{% url 'inicio' %}" class="marca">
-            <img src="{% static 'registro/img/logo.svg' %}" alt="" width="40" height="40">
-            <strong>Registro pedagógico</strong>
+          <a class="marca" href="{% url 'inicio' %}">
+            <img src="{% static 'registro/img/logo.svg' %}" alt="" width="36" height="36">
+            <span>Kimün</span>
           </a>
         </li>
       </ul>
       {% if user.is_authenticated %}
-        <ul>
-          {% include "registro/_contador_pendientes.html" %}
-          <li>{{ user.get_full_name|default:user.username }}</li>
-          <li>
-            <form method="post" action="{% url 'logout' %}">
-              {% csrf_token %}
-              <button type="submit" class="secondary">Cerrar sesión</button>
-            </form>
-          </li>
-        </ul>
+        <ul>{% include "registro/_contador_pendientes.html" %}</ul>
       {% endif %}
     </nav>
   </header>
+  {% if user.is_authenticated %}{% menu_lateral %}{% endif %}
   <main id="contenido" class="container">
     {% if messages %}
-      <ul role="status">
+      <ul role="status" class="mensajes">
         {% for message in messages %}<li>{{ message }}</li>{% endfor %}
       </ul>
     {% endif %}

@@ -24,7 +24,7 @@
 {% if es_directora %}<p><a href="{% url 'jardin' curso.jardin.pk %}">Resumen del jardín</a></p>{% endif %}
 {% if puede_registrar or puede_validar %}
   <p>
-    {% if puede_registrar %}<a href="{% url 'capturar' curso.pk %}">Registrar una nota</a>{% endif %}
+    {% if puede_registrar %}<a href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
     {% if puede_validar %}
       {% if puede_registrar %}·{% endif %}
       <a href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a>

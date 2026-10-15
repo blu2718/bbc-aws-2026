@@ -3,6 +3,7 @@
   <form method="post" action="{% url 'observacion_editar' obs.pk %}"
         hx-post="{% url 'observacion_editar' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">
     {% csrf_token %}
+    {% if vista %}<input type="hidden" name="vista" value="{{ vista }}">{% endif %}
     <h3 id="obs-{{ obs.pk }}-editar">Editar observación</h3>
     {% if form.non_field_errors %}<div class="error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
 
@@ -13,6 +14,7 @@
     {% include "registro/_campo.html" with campo=form.cita %}
     {% include "registro/_campo.html" with campo=form.interpretacion %}
     {% include "registro/_campo.html" with campo=form.apoyo %}
+    {% include "registro/_campo.html" with campo=form.efecto %}
 
     <fieldset>
       <legend>{{ form.nucleos.label }}</legend>
@@ -37,8 +39,13 @@
 
     <div class="acciones">
       <button type="submit">Guardar cambios</button>
-      <a role="button" class="secondary outline" href="{% url 'revision' curso.pk %}#obs-{{ obs.pk }}"
-         hx-get="{% url 'observacion' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">Cancelar</a>
+      {% if vista %}
+        <a role="button" class="secondary outline" href="{% url 'captura' obs.captura_id %}#obs-{{ obs.pk }}"
+           hx-get="{% url 'observacion' obs.pk %}?vista={{ vista }}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">Cancelar</a>
+      {% else %}
+        <a role="button" class="secondary outline" href="{% url 'revision' curso.pk %}#obs-{{ obs.pk }}"
+           hx-get="{% url 'observacion' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">Cancelar</a>
+      {% endif %}
     </div>
   </form>
 </article>

@@ -16,8 +16,20 @@ def test_inicio_pide_login(client, db):
     assert reverse("login") in respuesta["Location"]
 
 
-def test_con_un_solo_curso_va_directo_a_el(client, curso, educadora):
-    client.force_login(educadora)
+def test_con_un_solo_curso_va_directo_a_registrar(client, curso, educadora, asistente):
+    """La pestaña de inicio es "¿Qué quieres registrar?" (diseno-interfaz.jpg, pantalla I)."""
+    curso.asistentes.add(asistente)
+    for usuaria in (educadora, asistente):
+        client.force_login(usuaria)
+        respuesta = client.get(reverse("inicio"))
+        assert respuesta.status_code == 302
+        assert respuesta["Location"] == reverse("registrar", args=[curso.pk])
+
+
+def test_la_directora_con_un_solo_curso_va_a_la_tabla(client, curso, directora, jardin):
+    jardin.directora = directora
+    jardin.save()
+    client.force_login(directora)
     respuesta = client.get(reverse("inicio"))
     assert respuesta.status_code == 302
     assert respuesta["Location"] == reverse("curso", args=[curso.pk])

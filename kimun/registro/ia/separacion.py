@@ -22,6 +22,8 @@ RUTA_PROMPT = Path(__file__).resolve().parent / "prompts" / "separacion.md"
 NOMBRE_HERRAMIENTA = "registrar_observaciones"
 # Escala de apoyo del Programa Pedagógico de Transición (igual que `registro.models.Apoyo`).
 ESCALA_APOYO = ("autonomo", "con_ayuda", "parcial", "no_lo_realiza", "sin_dato")
+# Qué muestra lo observado sobre sus OA (igual que `registro.models.Efecto`).
+ESCALA_EFECTO = ("avance", "por_reforzar", "sin_dato")
 SIN_DATO = "sin_dato"
 
 # "OA", número y sigla (empieza con letra; puede traer dígitos si el catálogo los usa).
@@ -174,9 +176,24 @@ def construir_herramienta(catalogo):
                 "description": "Códigos de OA exactamente como aparecen en el catálogo.",
             },
             "apoyo": {"type": "string", "enum": list(ESCALA_APOYO)},
-            "grupal": {"type": "boolean", "description": "true si la nota es sobre el grupo completo."},
+            "efecto": {
+                "type": "string",
+                "enum": list(ESCALA_EFECTO),
+                "description": "Si lo observado muestra un avance o algo por reforzar en sus OA; sin_dato si no se sabe.",
+            },
+            "grupal": {
+                "type": "boolean",
+                "description": "true solo si es contexto del curso sin una conducta de los niños (no se evalúa).",
+            },
+            "todo_el_curso": {
+                "type": "boolean",
+                "description": "true si describe algo que hicieron todos los niños del curso: se registra en la ficha de cada uno.",
+            },
         },
-        "required": ["nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "grupal"],
+        "required": [
+            "nombre_detectado", "fecha", "cita_literal", "interpretacion", "nucleos", "oas", "apoyo", "efecto",
+            "grupal", "todo_el_curso",
+        ],
     }
     return {
         "name": NOMBRE_HERRAMIENTA,
@@ -184,8 +201,14 @@ def construir_herramienta(catalogo):
         "inputSchema": {
             "json": {
                 "type": "object",
-                "properties": {"observaciones": {"type": "array", "items": observacion}},
-                "required": ["observaciones"],
+                "properties": {
+                    "observaciones": {"type": "array", "items": observacion},
+                    "pregunta": {
+                        **texto_o_nulo,
+                        "description": "Una pregunta breve a quien registró si falta contexto clave; null si no hace falta.",
+                    },
+                },
+                "required": ["observaciones", "pregunta"],
             }
         },
     }
@@ -231,6 +254,16 @@ def _apoyo(valor, posicion):
     return SIN_DATO
 
 
+def _efecto(valor, posicion):
+    if isinstance(valor, str):
+        normalizado = _sin_tildes(valor).strip().lower().replace(" ", "_")
+        if normalizado in ESCALA_EFECTO:
+            return normalizado
+    if valor is not None:
+        logger.info("Observación %s: efecto %r fuera de la escala, se usa %s", posicion, valor, SIN_DATO)
+    return SIN_DATO
+
+
 def _fecha(valor, fecha_captura, posicion):
     if valor in (None, ""):
         return fecha_captura
@@ -260,6 +293,9 @@ def _extraer_observaciones(entrada):
             observaciones = json.loads(observaciones)
         except ValueError as error:
             raise ErrorSeparacion(f"'observaciones' no es JSON válido: {error}") from error
+    # Y a veces ese texto trae el objeto completo, {"observaciones": [...]}, en vez de solo la lista.
+    if isinstance(observaciones, dict) and "observaciones" in observaciones:
+        observaciones = observaciones["observaciones"]
     if not isinstance(observaciones, list):
         raise ErrorSeparacion("La respuesta no trae la lista 'observaciones'.")
     return observaciones
@@ -302,7 +338,9 @@ def _normalizar(cruda, posicion, nucleos_catalogo, oas_catalogo, fecha_captura):
         if sigla_oa not in nucleos:
             nucleos.append(sigla_oa)
 
-    grupal = _como_bool(cruda.get("grupal"))
+    # Algo que hicieron todos cuenta para cada niño; solo el contexto sin conducta queda como nota grupal.
+    todo_el_curso = _como_bool(cruda.get("todo_el_curso"))
+    grupal = _como_bool(cruda.get("grupal")) and not todo_el_curso
     observacion = {
         "nombre_detectado": _texto_o_none(cruda.get("nombre_detectado")),
         "fecha": _fecha(cruda.get("fecha"), fecha_captura, posicion).isoformat(),
@@ -311,16 +349,32 @@ def _normalizar(cruda, posicion, nucleos_catalogo, oas_catalogo, fecha_captura):
         "nucleos": nucleos,
         "oas": oas,
         "apoyo": _apoyo(cruda.get("apoyo"), posicion),
+        "efecto": _efecto(cruda.get("efecto"), posicion),
         "grupal": grupal,
+        "todo_el_curso": todo_el_curso,
     }
     if grupal:
         # Contexto del curso: no se asigna a un niño ni se usa para evaluar.
-        observacion.update(nombre_detectado=None, oas=[], apoyo=SIN_DATO)
+        observacion.update(nombre_detectado=None, oas=[], apoyo=SIN_DATO, efecto=SIN_DATO)
+    if todo_el_curso:
+        # El backend crea una observación por cada niño del curso.
+        observacion.update(nombre_detectado=None)
     return observacion
 
 
+def _pregunta(entrada):
+    if isinstance(entrada, dict):
+        return _texto_o_none(entrada.get("pregunta"))
+    return None
+
+
 def separar(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
-    """Separa `texto` en observaciones validadas contra `catalogo`.
+    """Separa `texto` en observaciones validadas contra `catalogo`. Ver `separar_con_pregunta`."""
+    return separar_con_pregunta(texto, fecha_captura, nombres_curso, catalogo, cliente=cliente)[0]
+
+
+def separar_con_pregunta(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
+    """(observaciones, pregunta): las observaciones validadas y, si falta contexto, una pregunta para quien registró.
 
     `fecha_captura` es un `date`, un texto AAAA-MM-DD o un `datetime` (se usa solo su
     fecha, sin convertir de zona). Desde el backend conviene pasar la fecha local,
@@ -329,7 +383,7 @@ def separar(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
     por defecto, `ClienteBedrock()`. Lanza ErrorSeparacion si la respuesta no sirve.
     """
     if not texto or not texto.strip():
-        return []
+        return [], None
     fecha_captura = _como_fecha(fecha_captura)
     nucleos_catalogo, oas_catalogo = indexar_catalogo(catalogo)
     system = construir_prompt(fecha_captura, nombres_curso, catalogo)
@@ -346,4 +400,4 @@ def separar(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
         observacion = _normalizar(cruda, posicion, nucleos_catalogo, oas_catalogo, fecha_captura)
         if observacion is not None:
             observaciones.append(observacion)
-    return observaciones
+    return observaciones, _pregunta(entrada)

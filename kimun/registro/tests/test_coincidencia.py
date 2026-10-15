@@ -47,6 +47,23 @@ def test_nombre_de_pila_o_completo_coinciden_exacto(escrito):
     assert _nombre(escrito) == ("Pedro Salinas", EXACTA)
 
 
+@pytest.mark.parametrize("escrito, esperado", [
+    ("la Rubi", ("Rubí Contreras", EXACTA)),
+    ("El Pedro", ("Pedro Salinas", EXACTA)),
+    ("La Sofi R", ("Sofía Rojas", EXACTA)),
+    # Visto al transcribir audios (Task 10): "la Rubi" se entendió "La rubia".
+    ("La rubia", ("Rubí Contreras", APROXIMADA)),
+    ("la Sofía", (None, AMBIGUO)),
+])
+def test_ignora_el_articulo_antes_del_nombre(escrito, esperado):
+    """En Chile se dice "el Benja" o "la Rubi", y así llega de un audio transcrito."""
+    assert _nombre(escrito) == esperado
+
+
+def test_un_articulo_solo_no_coincide_con_nadie():
+    assert _nombre("la") == (None, DESCONOCIDO)
+
+
 def test_sin_tilde_coincide_exacto():
     assert _nombre("Rubi") == ("Rubí Contreras", EXACTA)
 

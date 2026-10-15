@@ -1,14 +1,23 @@
 from django.urls import path
 
-from . import views, views_captura, views_revision
+from . import views, views_captura, views_registro, views_revision
 
 urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("cursos/<int:curso_id>/", views.curso, name="curso"),
     # Resumen del jardín para la directora (Task 12)
     path("jardines/<int:jardin_id>/", views.jardin, name="jardin"),
-    # Registro de notas escritas (Task 5)
+    # Registrar un suceso y ver cómo quedó ordenado (pantallas I y II de diseno-interfaz.jpg)
+    path("cursos/<int:curso_id>/registrar/", views_registro.registrar, name="registrar"),
+    path("capturas/<int:captura_id>/", views_registro.captura, name="captura"),
+    path("capturas/<int:captura_id>/procesar/", views_registro.procesar, name="captura_procesar"),
+    path("capturas/<int:captura_id>/procesar/reintentar/", views_registro.reintentar, name="captura_reintentar_suceso"),
+    path("capturas/<int:captura_id>/contexto/", views_registro.agregar_contexto, name="captura_contexto"),
+    # Registro de capturas: nota escrita (Task 5), foto (Task 8) y audio (Task 9).
+    # Las fotos y los audios no se sirven: se borran apenas se leen.
     path("cursos/<int:curso_id>/capturar/", views_captura.capturar, name="capturar"),
+    path("cursos/<int:curso_id>/capturar/foto/", views_captura.capturar_foto, name="capturar_foto"),
+    path("cursos/<int:curso_id>/capturar/audio/", views_captura.capturar_audio, name="capturar_audio"),
     path("cursos/<int:curso_id>/capturar/recientes/", views_captura.capturas_recientes, name="capturas_recientes"),
     path("capturas/<int:captura_id>/reintentar/", views_captura.reintentar_captura, name="captura_reintentar"),
     path("cursos/<int:curso_id>/metas/", views.metas, name="metas"),

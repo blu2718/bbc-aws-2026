@@ -1,22 +1,30 @@
-"""Registro de notas escritas (PLAN.md, Task 5).
+"""Registro de capturas (PLAN.md, Task 5: nota escrita; Task 8: foto; Task 9: audio).
 
 Registran la educadora, las asistentes del curso y la directora del jardín
 (`cursos_donde_registra`). Una educadora de otro curso o la directora de otro
-jardín reciben 404. La revisión sigue siendo solo de la educadora del curso. La nota queda pendiente y
-`manage.py procesar_capturas` la separa en observaciones para la revisión.
+jardín reciben 404. La revisión sigue siendo solo de la educadora del curso. La
+captura queda pendiente y `manage.py procesar_capturas` la separa en observaciones
+para la revisión (la foto se lee antes con Claude y el audio se transcribe con Transcribe).
 
-Debajo del formulario va la lista de las últimas capturas de la usuaria en el curso,
+Debajo de los formularios va la lista de las últimas capturas de la usuaria en el curso,
 con su estado. Mientras alguna esté pendiente o procesando (y no atascada), la lista se
 refresca sola con HTMX; las que quedaron con error se pueden reintentar (solo su autora).
 El detalle del error no se muestra aquí: queda en el log y en el admin.
+
+Las fotos y los audios no se muestran ni se pueden escuchar en ninguna parte: solo
+esperan a que el proceso de fondo los lea, y entonces se borran y queda el texto
+(`registro/lectura.py`).
 """
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from .forms import CapturaTextoForm
+from .forms import CapturaAudioForm, CapturaTextoForm
+from .forms_captura import FotoForm
 from .models import Captura
 from .permisos import cursos_donde_registra
 from .procesamiento import esta_atascada, reintentar
@@ -51,6 +59,16 @@ def _contexto_recientes(curso, usuario, aviso=""):
     }
 
 
+def _pantalla(request, curso, form=None, form_foto=None, form_audio=None):
+    """La pantalla de registro, con el formulario que falló (si lo hay) y los otros vacíos."""
+    contexto = _contexto_recientes(curso, request.user) | {
+        "form": form or CapturaTextoForm(),
+        "form_foto": form_foto or FotoForm(),
+        "form_audio": form_audio or CapturaAudioForm(),
+    }
+    return render(request, "registro/capturar.html", contexto)
+
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def capturar(request, curso_id):
@@ -62,8 +80,39 @@ def capturar(request, curso_id):
         )
         messages.success(request, "Nota guardada. Se separará en observaciones para revisarlas.")
         return redirect("capturar", curso_id=curso.pk)
-    contexto = _contexto_recientes(curso, request.user) | {"form": form}
-    return render(request, "registro/capturar.html", contexto)
+    return _pantalla(request, curso, form=form)
+
+
+@login_required
+@require_POST
+def capturar_foto(request, curso_id):
+    """Sube la foto de una nota (Task 8). Queda pendiente hasta que el proceso de fondo la lea y la borre."""
+    curso = _curso(request, curso_id)
+    form_foto = FotoForm(request.POST, request.FILES)
+    if not form_foto.is_valid():
+        return _pantalla(request, curso, form_foto=form_foto)
+    captura = Captura(curso=curso, autora=request.user, tipo=Captura.Tipo.FOTO)
+    with transaction.atomic():
+        # El nombre que mandó el teléfono no se usa: `ruta_original` pone uno aleatorio.
+        captura.archivo.save(f"foto.{form_foto.extension}", ContentFile(form_foto.contenido), save=False)
+        captura.save()
+    messages.success(request, "Foto recibida. Se leerá, se borrará y lo leído se separará en observaciones para revisarlas.")
+    return redirect("capturar", curso_id=curso.pk)
+
+
+@login_required
+@require_POST
+def capturar_audio(request, curso_id):
+    """Guarda un audio dictado (Task 9). `procesar_capturas` lo transcribe, lo borra y separa el texto."""
+    curso = _curso(request, curso_id)
+    form_audio = CapturaAudioForm(request.POST, request.FILES)
+    if not form_audio.is_valid():
+        return _pantalla(request, curso, form_audio=form_audio)
+    Captura.objects.create(
+        curso=curso, autora=request.user, tipo=Captura.Tipo.AUDIO, archivo=form_audio.cleaned_data["audio"]
+    )
+    messages.success(request, "Audio guardado. Se transcribirá, se borrará y el texto se separará en observaciones para revisarlas.")
+    return redirect("capturar", curso_id=curso.pk)
 
 
 @login_required

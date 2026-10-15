@@ -16,8 +16,10 @@ class ClienteFalso:
         self.respuestas = list(respuestas)
         self.llamadas = []
 
-    def invocar_herramienta(self, system, mensaje, herramienta):
-        self.llamadas.append({"system": system, "mensaje": mensaje, "herramienta": herramienta})
+    def invocar_herramienta(self, system, mensaje, herramienta, imagenes=()):
+        self.llamadas.append(
+            {"system": system, "mensaje": mensaje, "herramienta": herramienta, "imagenes": list(imagenes)}
+        )
         respuesta = self.respuestas.pop(0)
         if isinstance(respuesta, Exception):
             raise respuesta

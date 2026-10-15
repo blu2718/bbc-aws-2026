@@ -1,0 +1,28 @@
+# kimun-web: Django con Gunicorn en el puerto 8000 (origen de CloudFront).
+# Lo instala infra/remoto/instalar.sh en /etc/systemd/system/ y reemplaza la
+# página de prueba "Kimün ok" del user data. Logs: journalctl -u kimun-web
+[Unit]
+Description=kimun-web - Django (Gunicorn) en el puerto 8000
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=kimun
+Group=kimun
+WorkingDirectory=/opt/kimun/actual/kimun
+EnvironmentFile=/etc/kimun/kimun.env
+# Sin búfer de salida: así journald recibe cada línea al momento.
+Environment=PYTHONUNBUFFERED=1
+# 3 workers sync (t3.small: 2 vCPU, 2 GB; SQLite). Timeout 60 s, por encima de
+# los 30 s de origen de CloudFront: las vistas no llaman a Bedrock.
+ExecStart=/opt/kimun/venv/bin/gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 3 --timeout 60 --graceful-timeout 30 --access-logfile - --error-logfile -
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/kimun
+
+[Install]
+WantedBy=multi-user.target
