@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Revisión · {{ curso.nombre }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{% static 'registro/registro.css' %}">{% endblock %}
+{% block contenido %}
+<hgroup>
+  <h1>Observaciones por revisar</h1>
+  <p><a href="{% url 'curso' curso.pk %}">{{ curso.nombre }}</a> · {{ curso.jardin.nombre }}</p>
+</hgroup>
+<p>Revisa cada observación antes de que cuente para la ficha y las alertas. Puedes aceptarla, corregirla o descartarla.</p>
+{% include "registro/_revision_contenido.html" %}
+{% endblock %}

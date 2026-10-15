@@ -1,0 +1,7 @@
+{% extends "registro/revision.html" %}
+{% block titulo %}Editar observación · {{ curso.nombre }}{% endblock %}
+{# Sin JavaScript, la edición se abre en su propia página. #}
+{% block contenido %}
+<p><a href="{% url 'revision' curso.pk %}#obs-{{ obs.pk }}">← Volver a la revisión</a></p>
+{% include "registro/_form_observacion.html" %}
+{% endblock %}

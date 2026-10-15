@@ -2,6 +2,7 @@
 
 - `curso`: tabla del curso con nivel esperado, brechas, distribución y quincena (Task 2).
 - `ficha`, `fijar_nivel` y `metas`: ficha del niño, validación manual y tabla de metas (Task 3).
+- La revisión de observaciones (Task 6) está en `views_revision.py`.
 """
 from datetime import date
 
@@ -18,6 +19,7 @@ from .ficha import armar_ficha, descriptores_del_nucleo
 from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, etiqueta_nivel, nombres_comunes
 from .models import DescriptorNivel, Nucleo, Rubrica, texto_nivel
 from .permisos import cursos_de, cursos_que_valida, ninos_de, ninos_que_valida, puede_validar
+from .revision import resumen_pendientes
 
 
 def _es_htmx(request):
@@ -51,6 +53,7 @@ def curso(request, curso_id):
     quincena = _quincena_pedida(request.GET.get("quincena"), hoy)
     actual = quincena_de(hoy)
     cobertura = cobertura_quincena_del_curso(curso, quincena, nucleos=tabla.nucleos)
+    valida = puede_validar(request.user, curso)
     return render(request, "registro/curso.html", {
         "curso": curso,
         "tabla": tabla,
@@ -61,7 +64,8 @@ def curso(request, curso_id):
         "cobertura_quincena": cobertura,
         "nucleos_sin_observaciones": [c.nucleo for c in cobertura if c.sin_observaciones],
         "dias_datos_recientes": DIAS_DATOS_RECIENTES,
-        "puede_validar": puede_validar(request.user, curso),
+        "puede_validar": valida,
+        "pendientes_por_revisar": resumen_pendientes(curso)["individuales"] if valida else 0,
     })
 
 

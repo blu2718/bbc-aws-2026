@@ -1,0 +1,44 @@
+{# Edición de una observación pendiente. Con HTMX reemplaza a su tarjeta. #}
+<article id="obs-{{ obs.pk }}" class="obs" aria-labelledby="obs-{{ obs.pk }}-editar">
+  <form method="post" action="{% url 'observacion_editar' obs.pk %}"
+        hx-post="{% url 'observacion_editar' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">
+    {% csrf_token %}
+    <h3 id="obs-{{ obs.pk }}-editar">Editar observación</h3>
+    {% if form.non_field_errors %}<div class="error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+
+    <label>{{ form.grupal }} {{ form.grupal.label }}</label>
+
+    {% include "registro/_campo.html" with campo=form.nino %}
+    {% include "registro/_campo.html" with campo=form.fecha %}
+    {% include "registro/_campo.html" with campo=form.cita %}
+    {% include "registro/_campo.html" with campo=form.interpretacion %}
+    {% include "registro/_campo.html" with campo=form.apoyo %}
+
+    <fieldset>
+      <legend>{{ form.nucleos.label }}</legend>
+      {% for opcion in form.nucleos %}<label>{{ opcion.tag }} {{ opcion.choice_label }}</label>{% endfor %}
+    </fieldset>
+
+    <fieldset class="lista-oas">
+      <legend>{{ form.oas.label }}</legend>
+      {% if form.oas.errors %}<small class="error" role="alert">{{ form.oas.errors|join:" " }}</small>{% endif %}
+      {% for nucleo, opciones, hay_marcados in form.oas_por_nucleo %}
+        <details{% if hay_marcados %} open{% endif %}>
+          <summary>{{ nucleo.nombre }} ({{ nucleo.sigla }})</summary>
+          {% for oa, marcado in opciones %}
+            <label>
+              <input type="checkbox" name="{{ form.oas.html_name }}" value="{{ oa.pk }}"{% if marcado %} checked{% endif %}>
+              <strong>{{ oa.codigo }}</strong>: {{ oa.texto }}
+            </label>
+          {% endfor %}
+        </details>
+      {% endfor %}
+    </fieldset>
+
+    <div class="acciones">
+      <button type="submit">Guardar cambios</button>
+      <a role="button" class="secondary outline" href="{% url 'revision' curso.pk %}#obs-{{ obs.pk }}"
+         hx-get="{% url 'observacion' obs.pk %}" hx-target="#obs-{{ obs.pk }}" hx-swap="outerHTML">Cancelar</a>
+    </div>
+  </form>
+</article>
