@@ -1,5 +1,4 @@
-# Plan de construcción: servicio de IA (frente B)
-
+# Plan de construcción: servicio de IA (frente B) (obsoleto)
 > Para Kiro. Leer antes `CONTEXTO_PROYECTO_CLAUDE.md` (secciones 5, 6, 7, 7.5 y 8) y `docs/investigacion_servicios.md`.
 > Avanzar fase por fase. Al terminar cada fase, mostrar el resultado de sus criterios de aceptación y esperar confirmación antes de seguir.
 
