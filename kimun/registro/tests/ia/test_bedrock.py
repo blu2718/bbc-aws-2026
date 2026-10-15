@@ -96,6 +96,15 @@ def test_fuerza_la_herramienta_y_no_envia_temperature(reloj):
     assert "temperature" not in str(pedido) and "topP" not in str(pedido)
 
 
+def test_envia_las_imagenes_antes_del_texto(reloj):
+    boto = Boto3Falso(respuesta_ok())
+    _cliente(boto, reloj).invocar_herramienta("s", "Transcribe.", HERRAMIENTA, imagenes=[("jpeg", b"\xff\xd8\xffdatos")])
+    assert boto.pedidos[0]["messages"] == [{"role": "user", "content": [
+        {"image": {"format": "jpeg", "source": {"bytes": b"\xff\xd8\xffdatos"}}},
+        {"text": "Transcribe."},
+    ]}]
+
+
 def test_modelo_y_region_por_variable_de_entorno(monkeypatch, reloj):
     monkeypatch.setenv("BEDROCK_MODEL_ID", "us.anthropic.claude-haiku-4-5-20251001-v1:0")
     monkeypatch.setenv("BEDROCK_REGION", "us-west-2")

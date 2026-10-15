@@ -9,6 +9,8 @@ urlpatterns = [
     path("cursos/<int:curso_id>/capturar/", views_captura.capturar, name="capturar"),
     path("cursos/<int:curso_id>/capturar/recientes/", views_captura.capturas_recientes, name="capturas_recientes"),
     path("capturas/<int:captura_id>/reintentar/", views_captura.reintentar_captura, name="captura_reintentar"),
+    # Captura por foto (Task 8)
+    path("cursos/<int:curso_id>/capturar/foto/", views_captura.capturar_foto, name="capturar_foto"),
     path("cursos/<int:curso_id>/metas/", views.metas, name="metas"),
     path("ninos/<int:nino_id>/", views.ficha, name="ficha"),
     path("ninos/<int:nino_id>/nucleos/<str:sigla>/nivel/", views.fijar_nivel, name="fijar_nivel"),

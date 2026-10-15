@@ -47,7 +47,7 @@ La educadora siempre decide el nivel.
 - Las notas sobre el grupo completo (por ejemplo, "bajó la asistencia") quedan como contexto del curso y no se usan para evaluar.
 - Los nombres se emparejan con la lista del curso, tolerando variantes de escritura (Naiara/Nayara). Si un nombre es ambiguo o desconocido, decide la educadora.
 - El sistema propone un nivel actual por núcleo considerando toda la evidencia aceptada y citando las observaciones que lo respaldan. La educadora acepta, fija otro nivel o rechaza. Nada se aplica solo.
-- Los archivos originales se guardan, y cada observación enlaza a su fuente.
+- Cada observación enlaza a su captura. Las fotos no se guardan: se borran apenas se leen y de ellas solo queda el texto (decisión del equipo, Task 8).
 
 ### Alcance
 
@@ -211,7 +211,7 @@ flowchart LR
 ### Seguridad y privacidad
 
 - Todas las vistas piden login. La educadora y las asistentes solo ven sus cursos, y la directora los cursos de su jardín (filtro en todas las consultas). Solo la educadora revisa observaciones y valida niveles. El panel de administración es solo para staff.
-- Los originales se muestran con URLs prefirmadas de 5 minutos, después de verificar permisos.
+- Las fotos no se muestran ni se conservan: quedan en S3 solo hasta que se leen y entonces se borran.
 - S3 con bloqueo de acceso público y cifrado. Las transcripciones quedan en nuestro bucket.
 - El servidor solo acepta tráfico que venga de CloudFront. Sin puerto 22; acceso por SSM.
 - Riesgo aceptado para el MVP: el tramo entre CloudFront y EC2 va por HTTP sin cifrar. Es aceptable con datos ficticios; en producción se agrega TLS hasta el servidor (ALB + ACM).
@@ -335,15 +335,14 @@ flowchart LR
 
 ### Task 8: Captura por foto
 
-- Objetivo: la foto de un post-it genera observaciones pendientes que enlazan a la foto.
+- Objetivo: la foto de un post-it genera observaciones pendientes, y la foto no se conserva.
 - Guía:
   - `<input type="file" accept="image/*" capture="environment">`; el navegador achica la foto a unos 1600 px en JPEG con canvas, para quedar bajo el límite de imagen de Bedrock y subir rápido.
-  - django-storages: disco en desarrollo y S3 en producción.
-  - El proceso de fondo transcribe la foto tal cual con Claude (`[ilegible]` en vez de adivinar) y luego aplica la misma separación de la Task 5.
-  - Vista del original con URL prefirmada de 5 minutos y verificación de permisos.
+  - django-storages: disco en desarrollo y S3 en producción, solo mientras la foto espera ser leída.
+  - El proceso de fondo transcribe la foto tal cual con Claude (`[ilegible]` en vez de adivinar), guarda el texto y borra la foto; luego aplica la misma separación de la Task 5. Decisión del equipo (15-10-2026): las fotos no se almacenan, ni se muestran en la app; de ellas solo queda el texto leído. Si la lectura falla, la foto se conserva hasta reintentar.
   - El equipo escribe a mano unos 10 post-its de prueba (textos generados en `datos/eval/`) y los fotografía. Las fotos de la diapositiva 5 de la presentación sirven para probar la lectura de letra real, pero no se cargan en la demo.
-- Tests: se procesa una captura de tipo foto con cliente falso; otra usuaria no puede ver el original; se rechazan archivos de tipo o tamaño inválido.
-- Demo: se fotografía un post-it con el teléfono y la revisión muestra el enlace a la foto.
+- Tests: se procesa una captura de tipo foto con cliente falso; después de leerla la foto ya no existe; se rechazan archivos de tipo o tamaño inválido.
+- Demo: se fotografía un post-it con el teléfono y la revisión muestra lo leído, sin la foto.
 
 ### Task 9: Captura por audio
 
@@ -378,7 +377,7 @@ flowchart LR
     - solución y cómo encaja en el sistema de evaluación de Integra: registra la movilidad de los aprendizajes que mide el IEA y apunta a su definición de calidad (bienestar, aprendizaje oportuno y pertinente, protagonismo);
     - demo;
     - rúbrica: Identidad y Autonomía con la rúbrica oficial de Integra (niveles de Comenzando a Profundizando) y los demás núcleos con una provisoria basada en el Programa Pedagógico de Transición, que se reemplaza al cargar cada núcleo de Integra; enfoque de evaluación alineado con las Bases Curriculares (evidencia cotidiana, la educadora concluye);
-    - privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales);
+    - privacidad (códigos en vez de nombres, las fotos se borran apenas se leen, la educadora decide, ley de datos personales);
     - cifras de la Task 10;
     - rúbrica como dato: el JSON de Integra se cargó sin cambiar código, y lo mismo valdrá para 10 núcleos, 8 o 9 niveles y las orientaciones (pasos a seguir) cuando lleguen;
     - cómo escala (vista de la directora si no entró en la demo, vista nacional, video, modo sin conexión, informes a familias, otros niveles educativos).

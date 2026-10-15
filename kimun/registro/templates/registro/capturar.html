@@ -1,17 +1,41 @@
 {% extends "base.html" %}
-{% block titulo %}Registrar una nota · {{ curso.nombre }}{% endblock %}
+{% load static %}
+{% block titulo %}Registrar · {{ curso.nombre }}{% endblock %}
+{% block head %}<script src="{% static 'registro/captura_foto.js' %}" defer></script>{% endblock %}
 {% block contenido %}
 <p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
-<h1>Registrar una nota</h1>
+<h1>¿Qué quieres registrar?</h1>
+{# El audio (Task 9) se suma a esta misma pantalla. #}
 
-<form method="post">
-  {% csrf_token %}
-  <label for="{{ form.texto.id_for_label }}">{{ form.texto.label }}</label>
-  {{ form.texto }}
-  <small id="id_texto-ayuda">{{ form.texto.help_text }}</small>
-  {% if form.texto.errors %}<div role="alert">{{ form.texto.errors }}</div>{% endif %}
-  <button type="submit">Guardar nota</button>
-</form>
+<section aria-labelledby="titulo-nota">
+  <h2 id="titulo-nota">Una nota escrita</h2>
+  <form method="post" action="{% url 'capturar' curso.pk %}">
+    {% csrf_token %}
+    <label for="{{ form.texto.id_for_label }}">{{ form.texto.label }}</label>
+    {{ form.texto }}
+    <small id="id_texto-ayuda">{{ form.texto.help_text }}</small>
+    {% if form.texto.errors %}<div role="alert">{{ form.texto.errors }}</div>{% endif %}
+    <button type="submit">Guardar nota</button>
+  </form>
+</section>
+
+<section aria-labelledby="titulo-foto">
+  <h2 id="titulo-foto">Una foto de una nota</h2>
+  <form method="post" action="{% url 'capturar_foto' curso.pk %}" enctype="multipart/form-data" data-captura-foto>
+    {% csrf_token %}
+    <label for="{{ form_foto.foto.id_for_label }}">{{ form_foto.foto.label }}</label>
+    {{ form_foto.foto }}
+    <small id="ayuda-foto">
+      Un post-it, una hoja del cuaderno o un trabajo con algo escrito. Que se vea completo y con buena luz.
+      Lo que no se pueda leer quedará marcado como [ilegible] para que lo corrijas al revisar.
+      La foto no se guarda: se borra apenas se lee y solo queda el texto.
+    </small>
+    {% if form_foto.foto.errors %}<p class="error" role="alert">{{ form_foto.foto.errors|join:" " }}</p>{% endif %}
+    <p id="estado-foto" class="estado-foto" aria-live="polite" data-estado></p>
+    <img class="vista-previa" alt="Vista previa de la foto que se va a subir" data-vista-previa hidden>
+    <button type="submit" data-enviar>Subir foto</button>
+  </form>
+</section>
 
 {% include "registro/_capturas_recientes.html" %}
 {% endblock %}

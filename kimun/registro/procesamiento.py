@@ -1,18 +1,22 @@
-"""De una captura de texto a observaciones pendientes (PLAN.md, Task 5 y "Flujo de procesamiento").
+"""De una captura de texto o foto a observaciones pendientes (PLAN.md, Tasks 5 y 8, "Flujo de procesamiento").
 
 Lo usa `manage.py procesar_capturas`:
 
 1. `tomar_siguiente()` toma una captura pendiente con una actualización condicional
    (`pendiente` → `procesando`, sumando `intentos`). Si dos procesos van por la misma,
    solo a uno le resulta y el otro sigue con la siguiente.
-2. `procesar()` llama a `separar()`, empareja cada nombre con `coincidencia.py` y crea
-   las observaciones en estado pendiente, todo en una transacción.
-3. Si `separar()` falla, la captura queda en `error` con el motivo (en el log y en el
-   admin; a quien registró se le muestra un mensaje genérico); `reintentar()` la
-   devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
+2. `procesar()` obtiene el texto con `lectura.texto_para_separar()` (la nota tal cual, o
+   la foto leída con Claude, Task 8), llama a `separar()`, empareja cada nombre con
+   `coincidencia.py` y crea las observaciones en estado pendiente, todo en una transacción.
+3. Si la lectura o `separar()` fallan, la captura queda en `error` con el motivo (en el
+   log y en el admin; a quien registró se le muestra un mensaje genérico); `reintentar()`
+   la devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
    recupera las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA).
+   La foto se borra apenas se lee y su texto queda en `texto_extraido`, así que un
+   reintento después de leerla no la necesita. Si la lectura falla, la foto se conserva
+   para reintentar; si el archivo no es una foto válida, se borra.
 
-Las fotos (Task 8) y los audios (Task 9) todavía no se procesan: no se toman y siguen pendientes.
+Los audios (Task 9) todavía no se procesan: no se toman y siguen pendientes.
 """
 import logging
 from datetime import date, timedelta
@@ -23,13 +27,14 @@ from django.utils import timezone
 
 from .coincidencia import emparejar
 from .curriculo import leer_curriculo
-from .ia import ErrorSeparacion, separar
+from .ia import ErrorSeparacion, ErrorTranscripcion, ImagenInvalida, separar
 from .ia.separacion import normalizar_codigo_oa
+from .lectura import texto_para_separar
 from .models import Captura, Nucleo, ObjetivoAprendizaje, Observacion
 
 logger = logging.getLogger(__name__)
 
-TIPOS_PROCESABLES = (Captura.Tipo.TEXTO,)
+TIPOS_PROCESABLES = (Captura.Tipo.TEXTO, Captura.Tipo.FOTO)
 LARGO_NOMBRE_DETECTADO = Observacion._meta.get_field("nombre_detectado").max_length
 # Una captura que lleva más que esto en "procesando" quedó atascada (el proceso murió a mitad).
 # Holgado frente al tiempo máximo de una llamada a Bedrock (90 s por defecto).
@@ -144,8 +149,9 @@ def procesar(captura, cliente=None, catalogo=None):
     """
     curso = captura.curso
     ninos = list(curso.ninos.all())
-    texto = captura.texto_original or captura.texto_extraido
     try:
+        # Una foto se lee aquí (y se guarda) antes de separar; una nota se usa tal cual.
+        texto = texto_para_separar(captura, cliente=cliente)
         separadas = separar(
             texto,
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
@@ -164,9 +170,14 @@ def procesar(captura, cliente=None, catalogo=None):
             captura.estado = Captura.Estado.PROCESADA
             captura.error = ""
             captura.save(update_fields=["estado", "error", "actualizada"])
-    except ErrorSeparacion as error:
+    except (ErrorSeparacion, ErrorTranscripcion) as error:
         logger.warning("Captura %s quedó con error: %s", captura.pk, error)
         _marcar_error(captura, str(error))
+        return None
+    except ImagenInvalida as error:
+        # El archivo guardado no es una foto aceptada: reintentar no lo arregla.
+        logger.warning("Captura %s: el archivo no se puede leer: %s", captura.pk, error)
+        _marcar_error(captura, f"Archivo inválido: {error}")
         return None
     except Exception as error:
         # Un error inesperado no debe dejar la captura en "procesando" para siempre.

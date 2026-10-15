@@ -1,21 +1,28 @@
-"""Registro de notas escritas (PLAN.md, Task 5).
+"""Registro de capturas (PLAN.md, Task 5: nota escrita; Task 8: foto) y vista de los originales.
 
 Registran la educadora y las asistentes del curso (`cursos_donde_registra`). La
-directora o una educadora de otro curso reciben 404. La nota queda pendiente y
-`manage.py procesar_capturas` la separa en observaciones para la revisión.
+directora o una educadora de otro curso reciben 404. La captura queda pendiente y
+`manage.py procesar_capturas` la separa en observaciones para la revisión (una foto
+se lee primero con Claude).
 
-Debajo del formulario va la lista de las últimas capturas de la usuaria en el curso,
+Debajo de los formularios va la lista de las últimas capturas de la usuaria en el curso,
 con su estado. Mientras alguna esté pendiente o procesando (y no atascada), la lista se
 refresca sola con HTMX; las que quedaron con error se pueden reintentar (solo su autora).
 El detalle del error no se muestra aquí: queda en el log y en el admin.
+
+La foto no se muestra en ninguna parte: solo espera a que el proceso de fondo la lea,
+y entonces se borra y queda el texto (`registro/lectura.py`).
 """
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.files.base import ContentFile
+from django.db import transaction
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from .forms import CapturaTextoForm
+from .forms_captura import FotoForm
 from .models import Captura
 from .permisos import cursos_donde_registra
 from .procesamiento import esta_atascada, reintentar
@@ -50,6 +57,14 @@ def _contexto_recientes(curso, usuario, aviso=""):
     }
 
 
+def _pantalla(request, curso, form=None, form_foto=None):
+    contexto = _contexto_recientes(curso, request.user) | {
+        "form": form or CapturaTextoForm(),
+        "form_foto": form_foto or FotoForm(),
+    }
+    return render(request, "registro/capturar.html", contexto)
+
+
 @login_required
 @require_http_methods(["GET", "POST"])
 def capturar(request, curso_id):
@@ -61,8 +76,24 @@ def capturar(request, curso_id):
         )
         messages.success(request, "Nota guardada. Se separará en observaciones para revisarlas.")
         return redirect("capturar", curso_id=curso.pk)
-    contexto = _contexto_recientes(curso, request.user) | {"form": form}
-    return render(request, "registro/capturar.html", contexto)
+    return _pantalla(request, curso, form=form)
+
+
+@login_required
+@require_POST
+def capturar_foto(request, curso_id):
+    """Sube la foto de una nota (Task 8). Queda pendiente hasta que el proceso de fondo la lea."""
+    curso = _curso(request, curso_id)
+    form_foto = FotoForm(request.POST, request.FILES)
+    if not form_foto.is_valid():
+        return _pantalla(request, curso, form_foto=form_foto)
+    captura = Captura(curso=curso, autora=request.user, tipo=Captura.Tipo.FOTO)
+    with transaction.atomic():
+        # El nombre que mandó el teléfono no se usa: `ruta_original` pone uno aleatorio.
+        captura.archivo.save(f"foto.{form_foto.extension}", ContentFile(form_foto.contenido), save=False)
+        captura.save()
+    messages.success(request, "Foto recibida. Se leerá, se borrará y lo leído se separará en observaciones para revisarlas.")
+    return redirect("capturar", curso_id=curso.pk)
 
 
 @login_required
