@@ -1,57 +1,85 @@
 # Hallazgos: Bases Curriculares de la Educación Parvularia (MINEDUC, 2018)
 
-- Archivo: `bases-curriculares-educacion-parvularia-2018.pdf` (136 páginas).
+- Autores: Fabián Pereira y Julio Yáñez, 14 de octubre de 2026. Este archivo unifica `informe-bases-curriculares-2018.md` con la versión anterior de estos hallazgos.
+- Archivo: `bases-curriculares-educacion-parvularia-2018.pdf` (136 páginas, reimpresión de diciembre de 2018).
 - Fuente: <https://www.curriculumnacional.cl/614/articles-69957_bases.pdf>
-- Autor: Subsecretaría de Educación Parvularia, MINEDUC. Reimpresión de diciembre de 2018.
-- Revisión: se leyeron el índice, los componentes estructurales y los niveles curriculares (pp. 36–41), la estructura de los OA en el núcleo Identidad y Autonomía y las consideraciones para la evaluación (pp. 110–112). Las páginas citadas son las impresas; en el PDF hay que sumar 2.
+- Autor del documento: Subsecretaría de Educación Parvularia, MINEDUC.
+- Datos derivados: `oa_bases_curriculares_2018.csv`, con los 206 OA (detalle al final).
+- Páginas: se citan las impresas. En el PDF hay que sumar 2.
 
 ## Qué es
 
-Es el marco curricular nacional de la educación parvularia. Todos los demás documentos de la carpeta se apoyan en él. El Programa Pedagógico de Transición lo lleva a la sala para NT1 y NT2, y el Referente Curricular de Integra se declara coherente con él.
+Es el marco curricular nacional de la educación parvularia. Define qué y para qué deben aprender los niños desde los primeros meses hasta el ingreso a la educación básica. Todo programa propio debe cubrir sus OA (Programa Pedagógico de Transición, p. 8). El Programa Pedagógico de Transición los lleva a la sala para NT1 y NT2, y el Referente Curricular de Integra se declara coherente con ellas. Reemplazan a las Bases de 2001.
+
+Tiene tres capítulos:
+
+1. **Fundamentos.** Enfoque de derechos, inclusión, familia y comunidad, y 8 principios pedagógicos: bienestar, unidad, singularidad, actividad, juego, relación, significado y potenciación (p. 30).
+2. **Organización curricular.** Ámbitos, núcleos, niveles y OA. Es la parte central para el proyecto.
+3. **Contextos para el aprendizaje.** Planificación y evaluación, ambientes de aprendizaje, y familia y comunidad.
+
+Cambios respecto de 2001:
+- se pasa de ciclos de 3 años a tramos de 2 años;
+- los "aprendizajes esperados" pasan a llamarse Objetivos de Aprendizaje (OA);
+- los núcleos del ámbito Desarrollo Personal y Social se vuelven transversales.
 
 ## Por qué es útil
 
-### 1. Fija oficialmente la estructura: 8 núcleos y 3 niveles de 2 años (pp. 40–41)
+### 1. Fija la estructura oficial (pp. 36–41)
 
-- "Se organizan de acuerdo a ocho núcleos y tres niveles educativos."
-- Los niveles son "1° Nivel (Sala Cuna) hacia los dos años; 2° Nivel (Medio) hacia los cuatro años y 3° Nivel (Transición) hacia los seis años".
-- Los OA "se enuncian desde lo que se espera al final de cada nivel, es decir abarcando tramos curriculares de dos años". Coincide con el modelo de Integra (8 niveles en 2 años, nivel 8 = lo esperado al salir).
+| Componente | Qué es |
+|---|---|
+| Ámbitos (3) | Grandes campos donde se organizan los OA |
+| Núcleos (8) | Focos de experiencias que agrupan OA |
+| Niveles curriculares (3) | Tramos de 2 años: "1° Nivel (Sala Cuna) hacia los dos años; 2° Nivel (Medio) hacia los cuatro años y 3° Nivel (Transición) hacia los seis años" (p. 41) |
+| Objetivos de Aprendizaje (206) | Lo esperado al final de cada nivel |
 
-### 2. Trae los OA de los tres niveles, no solo de Transición
+- "Se organizan de acuerdo a ocho núcleos y tres niveles educativos" (p. 40).
+- Los OA "se enuncian desde lo que se espera al final de cada nivel, es decir abarcando tramos curriculares de dos años" (p. 40). Coincide con el modelo de Integra: 8 niveles en 2 años, con el nivel 8 como lo esperado al salir.
+- Hay una diferencia de núcleos. La presentación de Integra habla de 10, mientras que la mentora (`dudas-integra.txt`) y las Bases hablan de 8. `PLAN.md` asume 8.
 
-Conteo automático. El total de Transición coincide con el del Programa Pedagógico (85).
+### 2. Trae los OA de los tres niveles
 
-| Núcleo | Sala cuna | Medio | Transición |
-|---|---:|---:|---:|
-| Identidad y Autonomía (IA) | 7 | 12 | 13 |
-| Convivencia y Ciudadanía (CC) | 6 | 10 | 11 |
-| Corporalidad y Movimiento (CM) | 7 | 8 | 9 |
-| Lenguaje Verbal (LV) | 8 | 8 | 10 |
-| Lenguajes Artísticos (LA) | 6 | 7 | 7 |
-| Exploración del Entorno Natural (EEN) | 5 | 9 | 12 |
-| Comprensión del Entorno Sociocultural (CES) | 5 | 7 | 11 |
-| Pensamiento Matemático (PM) | 6 | 10 | 12 |
-| **Total** | **50** | **71** | **85** |
+Coinciden dos conteos independientes: el CSV y un conteo automático sobre el PDF. Además, el total de Transición coincide con el del Programa Pedagógico (85).
 
-Los OA de sala cuna y medio llenan el vacío del Programa Pedagógico, que solo cubre Transición. Además, sus redacciones ya describen conductas que se pueden observar, por ejemplo IA 2 de sala cuna: "Manifestar satisfacción cuando percibe que adultos significativos le expresan afecto". En sala cuna los OA vienen "con una estructura más secuenciada" (p. 40).
+| Ámbito | Núcleo | Sala cuna | Medio | Transición | Total |
+|---|---|---:|---:|---:|---:|
+| Desarrollo Personal y Social (transversal) | Identidad y Autonomía (IA) | 7 | 12 | 13 | 32 |
+| | Convivencia y Ciudadanía (CC) | 6 | 10 | 11 | 27 |
+| | Corporalidad y Movimiento (CM) | 7 | 8 | 9 | 24 |
+| Comunicación Integral | Lenguaje Verbal (LV) | 8 | 8 | 10 | 26 |
+| | Lenguajes Artísticos (LA) | 6 | 7 | 7 | 20 |
+| Interacción y Comprensión del Entorno | Exploración del Entorno Natural (EEN) | 5 | 9 | 12 | 26 |
+| | Comprensión del Entorno Sociocultural (CES) | 5 | 7 | 11 | 23 |
+| | Pensamiento Matemático (PM) | 6 | 10 | 12 | 28 |
+| **Total** | | **50** | **71** | **85** | **206** |
 
-### 3. Respalda que una observación libre se asocie a un OA (p. 40)
+Los OA de sala cuna y medio llenan el vacío del Programa Pedagógico, que solo cubre Transición. Sus redacciones ya describen conductas que se pueden observar. Ejemplos de sala cuna:
 
-"El párvulo que ha adquirido el aprendizaje especificado en alguno de los objetivos de estas Bases, lo puede evidenciar a través de diferentes desempeños concretos." Justifica que el modelo asocie notas en lenguaje libre a OA.
+- IA 1: "Expresar vocal, gestual o corporalmente distintas necesidades o emociones (alegría, miedo, pena, entre otras)."
+- IA 2: "Manifestar satisfacción cuando percibe que adultos significativos le expresan afecto."
 
-### 4. Su enfoque de evaluación coincide con el diseño de la herramienta (pp. 110–112)
+### 3. Características de los OA que importan para la app
 
-- **Captura**: "Son múltiples las formas de recogida de información (por ejemplo, fotografías, grabaciones, observaciones)". Además, "no es imprescindible construir situaciones especiales ni momentos formales de evaluación".
-- **Medios habituales**: "Registros de observación, piezas audiovisuales, listas de cotejo, escalas de apreciación, informes al/del hogar, portafolios y documentación pedagógica".
-- **La educadora decide**: "Reunidas las evidencias, el o la educadora debe construir una conclusión evaluativa acerca del desempeño del párvulo, teniendo en cuenta la distancia entre lo que él o ella es capaz de hacer y lo que plantea el objetivo de aprendizaje". Es el mismo flujo de nuestra propuesta con evidencia más la validación humana.
-- **Criterios de logro**: los equipos deben especificar "algunos criterios para reconocerlo como logrado". Eso es lo que hace nuestra rúbrica provisoria.
+- **Se pueden evidenciar de muchas formas.** "El párvulo que ha adquirido el aprendizaje especificado en alguno de los objetivos de estas Bases, lo puede evidenciar a través de diferentes desempeños concretos" (p. 40). La app no debe buscar coincidencias exactas de texto, sino interpretar la conducta. Eso justifica que el modelo asocie notas libres a OA.
+- **Son metas de fin de tramo, no de año ni de mes.** En sala cuna vienen "con una estructura más secuenciada" y en medio y transición la secuencia es más flexible (p. 40). Por eso las Bases no dicen en qué nivel fino está un niño dentro del tramo: eso es lo que agrega la rúbrica de 8 niveles de Integra.
+- **El nivel esperado es una referencia blanda.**
+  - "Una temporalidad más corta de prescripción, anual, por ejemplo, tiene el inconveniente de que no respetaría diferencias individuales en el aprendizaje" (p. 40).
+  - Los tramos orientan "los periodos óptimos, pero en ningún caso implica limitar las expectativas de progreso de los párvulos que no se ajustan a ellos" (p. 42).
+- **Admiten trayectorias flexibles.** Para la inclusión se pueden seleccionar OA de otro nivel, según el Decreto N°83/2015 de adecuaciones curriculares (p. 107).
+- **Los OA del ámbito Desarrollo Personal y Social son transversales.** Deben estar presentes de forma permanente en la planificación.
 
-### 5. Marca cómo hay que comunicar las brechas (pp. 40 y 112)
+### 4. Su enfoque de evaluación coincide con el diseño de la herramienta (pp. 104–112)
 
-- La evaluación debe hacerse "sin juicios perentorios".
-- Los OA se prescriben por tramos de 2 años porque "una temporalidad más corta de prescripción, anual, por ejemplo, tiene el inconveniente de que no respetaría diferencias individuales en el aprendizaje".
-
-Consecuencia para nosotros: el nivel esperado por semestre es una referencia blanda, y las alertas se redactan como sugerencias de revisión, no como diagnóstico.
+1. **Evaluación para el aprendizaje, no solo del aprendizaje.** Es una herramienta de apoyo, no un juicio final.
+2. **Criterios de logro.** Los equipos deben especificar "algunos criterios para reconocerlo como logrado". Es lo que hace nuestra rúbrica provisoria.
+3. **Evidencia cotidiana.** "Son múltiples las formas de recogida de información (por ejemplo, fotografías, grabaciones, observaciones)", y "no es imprescindible construir situaciones especiales ni momentos formales de evaluación". Es evaluación auténtica.
+4. **Documentación pedagógica.** Observar, documentar e interpretar ideas, anécdotas y conflictos de cada niño en distintos momentos.
+5. **La educadora concluye.** "Reunidas las evidencias, el o la educadora debe construir una conclusión evaluativa acerca del desempeño del párvulo, teniendo en cuenta la distancia entre lo que él o ella es capaz de hacer y lo que plantea el objetivo de aprendizaje." Es el mismo flujo de nuestra propuesta con evidencia más la validación humana.
+6. **Medios habituales.** "Registros de observación, piezas audiovisuales, listas de cotejo, escalas de apreciación, informes al/del hogar, portafolios y documentación pedagógica."
+7. **Retroalimentación al niño**, con lenguaje acogedor que valore la diversidad de ritmos.
+8. **Autoevaluación** de los propios párvulos, de forma progresiva.
+9. **Más individual en los más pequeños.** "Mientras más pequeños los párvulos, las planificaciones y la evaluación deben tener un carácter más individual, integral y flexible" (p. 106).
+10. **Formativa y sumativa.** La formativa identifica logros y dificultades durante el proceso. La sumativa verifica logros y suele servir para informar a las familias y decidir la transición entre niveles, siempre "sin juicios perentorios" (p. 112).
 
 ## Qué no trae
 
@@ -61,21 +89,58 @@ Consecuencia para nosotros: el nivel esperado por semestre es una referencia bla
 
 ## Relación con lo que ya tenemos
 
-- **Programa Pedagógico de Transición**: aporta las conductas observables de los 85 OA de Transición, que son los mismos de las Bases.
-- **Dataset E-1** (0 a 36 meses): sus edades corresponden a sala cuna y a parte de medio, cuyos OA oficiales están aquí. Sus 5 dominios calzan aproximadamente con núcleos de las Bases:
+- **Programa Pedagógico de Transición.** Aporta unas 500 conductas observables para los mismos 85 OA de Transición.
+- **Rúbrica de 8 niveles de Integra.** Las Bases dan el qué (OA por tramo de 2 años) y la rúbrica probablemente da el cuánto (8 niveles por núcleo). La rúbrica puede entrar como una capa sobre el mismo catálogo, que es lo que hace el mapeo provisorio de `PLAN.md`.
+- **Dataset E-1 (0 a 36 meses).** Sus edades corresponden a sala cuna y a parte de medio, cuyos OA oficiales están aquí. Sus 5 dominios calzan aproximadamente con núcleos de las Bases:
 
-  | Dominio E-1 | Núcleo |
+  | Dominio E-1 | Núcleo más cercano |
   |---|---|
   | Motor fino y motor grueso | Corporalidad y Movimiento |
   | Lenguaje y comunicación | Lenguaje Verbal |
   | Socioemocional | Identidad y Autonomía, y Convivencia y Ciudadanía |
   | Cognitivo | Pensamiento Matemático, y Exploración del Entorno Natural |
 
-  Esta correspondencia es nuestra, no oficial. Podría servir para mostrar ambos catálogos bajo los mismos 8 núcleos, si se decide soportar E-1.
+  Lenguajes Artísticos y Comprensión del Entorno Sociocultural no tienen equivalente. La correspondencia es nuestra, no oficial, y conviene presentarla como aproximada.
 
-## Cómo lo usamos
+## Implicancias para la app
 
-1. **Fuente de verdad** para los nombres, siglas y OA de los núcleos en los tres niveles.
-2. **Si se amplía el alcance** más allá de Transición (otros niveles o el dataset E-1), los OA de sala cuna y medio se extraen de aquí.
-3. **Las alertas** se redactan como sugerencias de revisión.
-4. **En el pitch**, citar que la herramienta sigue el enfoque de evaluación de las Bases: evidencia de situaciones cotidianas y conclusión de la educadora.
+La última columna indica si `PLAN.md` ya las recoge.
+
+| Implicancia | En `PLAN.md` |
+|---|---|
+| Usar los nombres, siglas y OA de las Bases como fuente de verdad | Sí |
+| Vincular cada registro con uno o más OA, citando el fragmento; la educadora confirma o corrige | Sí (Tasks 5 y 6) |
+| Redactar las alertas como sugerencias de revisión y tratar el nivel esperado como referencia blanda | Sí |
+| Formatos de evidencia: foto, audio y texto (las Bases también reconocen el video) | Sí, sin video en el MVP |
+| Cargar los 206 OA del CSV como catálogo, con la jerarquía ámbito → núcleo → nivel → OA | Parcial: Task 1 carga los 85 de Transición. Ampliarlo depende de la decisión sobre E-1 |
+| Criterios de logro por OA, editables por el equipo | Parcial: la rúbrica provisoria se edita en el panel de administración |
+| Matriz de cobertura por OA: si hay evidencia, cuánta y qué tan reciente | No: el plan mide la recencia por núcleo |
+| Estado por OA con la escala del IEA: sin evidencia, incipiente, en desarrollo, adquirido (ver `docs/log-desafio-integra-e1.md`) | No: el plan usa niveles 1 a 8 por núcleo y nivel de apoyo por observación |
+| Vista que destaque los núcleos transversales | No |
+| Trayectorias flexibles: OA de un nivel adyacente sin marcarlo como "fuera de rango" | No |
+| Más detalle individual en sala cuna | Fuera del alcance (la demo es Transición) |
+| Resumen para la familia, validado por la educadora | Fuera del MVP |
+| Voz del niño: sus apreciaciones e intereses | No |
+
+## Preguntas para Integra
+
+1. ¿Cuáles son los 10 núcleos de la presentación, si las Bases tienen 8?
+2. ¿Cómo se relacionan los 8 niveles de la rúbrica con los 3 niveles curriculares?
+3. ¿Los equipos ya tienen criterios de logro definidos para cada OA, como piden las Bases?
+4. ¿La rúbrica trabaja directamente con los OA de las Bases o con indicadores propios?
+
+## Sobre `oa_bases_curriculares_2018.csv`
+
+Contiene los 206 OA con estas columnas:
+
+| Columna | Contenido |
+|---|---|
+| `id_oa` | Identificador, por ejemplo `IA-SC-01` |
+| `ambito` | Ámbito |
+| `nucleo` | Núcleo |
+| `nivel_curricular` | Sala Cuna, Medio o Transición |
+| `numero` | Número del OA dentro del núcleo y nivel |
+| `transversal` | `si` o `no` |
+| `texto` | Texto del OA |
+
+Se extrajo automáticamente del PDF y se verificó que la numeración de cada núcleo y nivel fuera continua. Los conteos por núcleo y nivel coinciden con la tabla anterior. Conviene revisar algunos textos contra el original antes de usarlo en producción.
