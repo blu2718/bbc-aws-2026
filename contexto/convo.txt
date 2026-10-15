@@ -1,0 +1,8 @@
+curriculum:
+- que aprender
+- cuando aprenderlo
+- como aprenderlo
+- como evaluarlo
+
+politica:
+- criterios de calidad
