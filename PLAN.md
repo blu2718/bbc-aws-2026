@@ -19,12 +19,13 @@ La educadora siempre decide el nivel.
 - 3 niveles educativos (sala cuna, medio, transición). Según las Bases Curriculares, cada nivel abarca 2 años y sus OA describen lo esperado al final del tramo: 50 en sala cuna, 71 en medio y 85 en transición.
 - La rúbrica de Integra tendrá 10 núcleos y hoy tiene 8 niveles por núcleo, que podrían pasar a 9 (`contexto/respuestas-integra.md`). Por eso la cantidad de núcleos y de niveles es un dato de la rúbrica, editable, y nada en el código asume 8.
 - Núcleos de la demo (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA. Son los únicos con OA oficiales; se reemplazan por los 10 de Integra cuando entregue la lista.
-- La rúbrica se guarda por nivel educativo, porque puede variar entre ellos. La demo usa solo Transición (NT1 y NT2, 4 a 6 años), con una rúbrica provisoria derivada de las conductas observables del Programa Pedagógico de Transición (ver `contexto/hallazgos-programa-pedagogico-transicion.md`). Se reemplaza cuando Integra entregue la real.
-- Mapeo provisorio de niveles, para la rúbrica de 8: 1 = lo esperado al iniciar NT1; 2 a 4 = conductas de NT1, desde "con ayuda" hasta "autónomo"; 5 a 7 = lo mismo con las conductas de NT2; 8 = conductas de NT2 de forma autónoma (lo esperado al egresar). Si Integra pasa a 9 niveles, el mapeo se rehace.
+- La rúbrica se guarda por nivel educativo, porque varía entre ellos: la de Integra trae textos distintos para sala cuna, medio y transición, y en cada uno los niveles van del 1 al 8. La demo usa solo Transición (NT1 y NT2, 4 a 6 años).
+- Rúbrica oficial de Integra (`datos/rubrica_integra.json`, ver "Rúbrica de Integra" en Contexto): hoy trae solo Identidad y Autonomía (IA), en los 3 niveles educativos. Cada nivel tiene nombre, descripción, conducta observable, dos ejemplos de registro y orientaciones (los pasos a seguir, todavía vacíos). Los nombres son los mismos en los 3 niveles educativos: 1 Comenzando, 2 Explorando, 3 Desarrollando, 4 Afianzando, 5 Integrando, 6 Ampliando, 7 Consolidando, 8 Profundizando. Para IA reemplaza a la rúbrica provisoria.
+- Los otros 7 núcleos de la demo siguen con la rúbrica provisoria, derivada de las conductas del Programa Pedagógico de Transición (`contexto/hallazgos-programa-pedagogico-transicion.md`) y marcada como provisoria. Mapeo provisorio, para 8 niveles: 1 = lo esperado al iniciar NT1; 2 a 4 = conductas de NT1, desde "con ayuda" hasta "autónomo"; 5 a 7 = lo mismo con las conductas de NT2; 8 = conductas de NT2 de forma autónoma. La rúbrica de Integra no sigue esta lógica de apoyo: cada nivel retoma la redacción de uno o dos OA del núcleo y suma conductas más complejas. Cuando Integra entregue cada núcleo, su texto reemplaza al provisorio sin cambiar código.
 - Todo niño entra al sistema en nivel 1 en todos los núcleos de su nivel educativo. Solo la educadora cambia niveles.
 - El nivel se decide por la conducta observable y los avances del niño, no por una cantidad mínima de observaciones (respuesta de Integra). La propuesta de nivel no usa umbrales de cantidad.
 - El tiempo se mide en semestres escolares, con fechas editables.
-- Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4; al egresar se espera el nivel máximo de la rúbrica (hoy 8). No se asume que el avance sea lineal. Es una referencia blanda: las Bases Curriculares prescriben por tramos de 2 años porque una prescripción más corta "no respetaría diferencias individuales en el aprendizaje".
+- Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4 (en la rúbrica de Integra: Comenzando, Desarrollando, Integrando y Consolidando); al egresar se espera el nivel máximo de la rúbrica (hoy 8, Profundizando). Son nuestros: la rúbrica de Integra no asigna niveles a semestres. No se asume que el avance sea lineal. Es una referencia blanda: las Bases Curriculares prescriben por tramos de 2 años porque una prescripción más corta "no respetaría diferencias individuales en el aprendizaje".
 - Rezago: Integra lo evalúa comparando al niño con sus pares del nivel. Se muestran dos señales por núcleo, ambas redactadas como sugerencias de revisión, "sin juicios perentorios", como piden las Bases Curriculares:
   - Bajo sus pares (señal principal): mediana del curso − nivel del niño. 2: aviso. Más de 2: alerta.
   - Bajo lo esperado: nivel esperado − nivel actual validado. 2: aviso. Más de 2: alerta.
@@ -33,7 +34,7 @@ La educadora siempre decide el nivel.
 - Distribución del curso: por núcleo, cuántos niños hay en cada nivel y en qué nivel está la mayoría.
 - Evolución individual: la ficha muestra, por núcleo, la línea de tiempo de los niveles validados.
 - Vista del jardín para la directora: por núcleo, el promedio de cada curso del mismo nivel educativo. Si un curso queda 2 o más niveles bajo el promedio de los demás, se muestra una alerta. Es el ejemplo de Integra: dos salas de nivel medio en 6 y una en 3.
-- Pasos a seguir: la rúbrica que prepara Integra los traerá por nivel. La rúbrica de la app tiene un campo para cargarlos y la ficha los muestra si existen. El MVP no los genera con IA.
+- Pasos a seguir: en la rúbrica de Integra son las "orientaciones" de cada nivel, que hoy vienen vacías. La app las carga desde el JSON cuando lleguen (o desde el panel de administración) y la ficha las muestra si existen. Mientras tanto, la ficha muestra la descripción y la conducta del nivel siguiente como referencia de qué observar, sacadas de la misma rúbrica. El MVP no genera pasos con IA.
 - Aviso de datos desactualizados si un núcleo de un niño pasa 14 días sin observaciones aceptadas, y aviso "sin datos" si nunca tuvo.
 - Cobertura de evidencia por OA: para cada niño, cuántas observaciones aceptadas respaldan cada OA de su nivel educativo y la fecha de la más reciente. Los OA sin evidencia se destacan como sugerencia de qué observar.
 - Vista del grupo por quincena (del 1 al 15 y del 16 a fin de mes, según la fecha de la observación). Por núcleo muestra las observaciones aceptadas del curso y cuántos niños tienen al menos una. Los núcleos sin observaciones se destacan, porque la Política de Calidad de Integra pide una oferta que cubra todos los núcleos en cada quincena. Se puede volver a quincenas anteriores.
@@ -64,8 +65,10 @@ La educadora siempre decide el nivel.
 ### Supuestos pendientes de confirmar
 
 - La tabla de metas es por curso, no por niño.
-- El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra.
-- Integra está ajustando la rúbrica real y solo nos entregó el ejemplo de un núcleo, que falta ubicar en el repo. Tampoco tenemos la lista de sus 10 núcleos ni una referencia institucional del nivel esperado.
+- El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra y solo se usa en los núcleos sin rúbrica de Integra (hoy, todos menos IA).
+- La rúbrica de Integra está en `datos/rubrica_integra.json`, pero solo cubre IA y sin orientaciones. Su fuente dice "borrador entregado el 15-10-2026", así que los textos pueden cambiar. Faltan los otros núcleos, la lista de sus 10 núcleos y una referencia institucional del nivel esperado.
+- Que los niveles 1 a 8 de Integra abarcan los 2 años del nivel educativo (NT1 y NT2 en Transición) y que el 8 es lo esperado al egresar. La rúbrica no lo dice; lo suponemos porque cada nivel educativo parte de nuevo en 1.
+- Qué OA retoma cada nivel de IA (por ejemplo, nivel 1 ≈ OA 1 IA, nivel 2 ≈ OA 3 IA, nivel 5 ≈ OA 12 IA) es una lectura nuestra de los textos.
 - Los umbrales de rezago (2 niveles bajo la mediana del curso; un curso 2 niveles bajo los demás del jardín) son nuestros.
 - Las asistentes registran, pero no revisan ni validan.
 
@@ -89,6 +92,20 @@ Detalle en `contexto/respuestas-integra.md`.
 - Observan la educadora (1 por sala) y las asistentes (1 cada 7 niños).
 - El rezago se mide contra los pares del nivel. La información se actualiza todo el tiempo.
 - Los pasos a seguir vendrán en su rúbrica; quieren poder cargarlos a futuro.
+
+### Rúbrica de Integra (recibida el 15 de octubre)
+
+Archivo `datos/rubrica_integra.json`. Es la rúbrica oficial de progresión, en versión borrador.
+
+- Trae un solo núcleo, Identidad y Autonomía (IA), con un bloque por nivel educativo: sala cuna, medio y transición. Es el "ejemplo de un núcleo" que mencionaron por correo.
+- 8 niveles por nivel educativo, con los mismos nombres en los tres: Comenzando, Explorando, Desarrollando, Afianzando, Integrando, Ampliando, Consolidando y Profundizando.
+- Cada nivel tiene:
+  - `descripcion`: qué logra el niño, en el lenguaje de los OA;
+  - `conducta`: la conducta observable típica;
+  - `ejemplos`: dos situaciones concretas, escritas como registros anecdóticos (en Transición IA son 16 en total);
+  - `orientaciones`: los pasos a seguir, hoy en `null` en todos los niveles.
+- En Transición, los textos retoman la redacción de los OA de IA de las Bases Curriculares y avanzan en complejidad (por ejemplo, el nivel 8 habla de perseverar en proyectos y regular emociones de forma flexible). No usa la escala de apoyo del Programa (con ayuda, autónomo): la ayuda del adulto aparece solo en los primeros niveles.
+- No indica a qué semestre corresponde cada nivel, ni cómo se reparte entre NT1 y NT2.
 
 ### Referente Curricular Integra 2025 (pp. 80–101)
 
@@ -171,13 +188,13 @@ flowchart LR
 3. Claude separa el texto en observaciones y devuelve JSON (tool use obligatorio): nombre detectado, fecha, cita literal, núcleos, OA, nivel de apoyo, interpretación de la educadora (si la hay) y si es una nota grupal. El prompt incluye el catálogo de los 85 OA (código y texto).
 4. Los nombres se emparejan con la lista del curso en nuestro código, no en el modelo, usando alias y comparación aproximada (difflib). Así el resultado es predecible y testeable.
 5. La educadora revisa: acepta, edita o descarta cada observación y resuelve nombres ambiguos.
-6. Para proponer un nivel se envían a Claude las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1, el mapeo de niveles, el nivel validado actual y las observaciones aceptadas con su nivel de apoyo, con códigos en lugar de nombres. Claude devuelve nivel, observaciones citadas, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida que el nivel esté entre 1 y el máximo de la rúbrica, y que las citas correspondan a observaciones enviadas.
+6. Para proponer un nivel se envía a Claude la rúbrica del núcleo: si es de Integra, los 8 niveles con nombre, descripción, conducta y ejemplos; si es provisoria, las conductas de NT1 y NT2, lo esperado al iniciar NT1 y el mapeo de niveles. Además van el nivel validado actual y las observaciones aceptadas con su nivel de apoyo, con códigos en lugar de nombres. Claude devuelve nivel, observaciones citadas, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida que el nivel esté entre 1 y el máximo de la rúbrica, y que las citas correspondan a observaciones enviadas.
 7. Las alertas, la comparación con pares y la cobertura de evidencia se calculan cada vez que se piden; no se guardan. Así reflejan cada observación nueva, como pide Integra.
 
 ### Entidades
 
 - `Rubrica` (nivel educativo, cantidad de niveles, provisoria). Es la única fuente del nivel máximo; hoy 8.
-- `Nucleo` (nombre, sigla, trayectoria; la cantidad sale de los datos); `DescriptorNivel` (nivel educativo, núcleo, nivel de 1 al máximo de la rúbrica, descripción, pasos sugeridos opcionales; generado con el mapeo provisorio).
+- `Nucleo` (nombre, sigla, trayectoria; la cantidad sale de los datos); `DescriptorNivel` (nivel educativo, núcleo, nivel de 1 al máximo de la rúbrica, nombre del nivel, descripción, conducta observable, ejemplos, pasos sugeridos opcionales, provisorio). Viene de la rúbrica de Integra cuando existe para el núcleo (los pasos sugeridos son sus "orientaciones") y si no, del mapeo provisorio.
 - `ObjetivoAprendizaje` (nivel educativo, núcleo, número, texto; se cita como "OA 4 LV"); `Manifestacion` (OA, año NT1 o NT2, texto observable).
 - `Jardin` (nombre, directora); `Curso` (nivel educativo, educadora, asistentes); `Semestre` (inicio, fin); `MetaSemestre` (curso, semestre de permanencia, nivel esperado).
 - `Nino` (curso, nombre, alias, código seudónimo, fecha de ingreso).
@@ -231,7 +248,7 @@ flowchart LR
   - Por núcleo, la distribución del curso: cuántos niños hay en cada nivel (columnas del 1 al máximo de la rúbrica) y cuál es el más frecuente.
   - Las columnas de núcleos y de niveles salen de los datos, porque Integra pide que la herramienta esté pensada en 10 núcleos y en 8 o 9 niveles.
   - Modelos mínimos `Captura` y `Observacion` (niño, fecha, cita, núcleos, OA, estado).
-  - Unas 40 observaciones aceptadas, etiquetadas con núcleos y OA, y niveles históricos en los datos de demo, para que aparezcan todos los estados. Algunos OA quedan sin evidencia a propósito.
+  - Unas 40 observaciones aceptadas, etiquetadas con núcleos y OA, y niveles históricos en los datos de demo, para que aparezcan todos los estados. Algunos OA quedan sin evidencia a propósito. Las de IA se escriben a partir de las conductas de la rúbrica de Integra, para que el nivel validado de cada niño calce con lo que dicen sus observaciones; no se copian sus ejemplos tal cual, porque se reservan para el prompt y la medición (Tasks 7 y 10).
   - Vista del curso con permisos. Las alertas se muestran con color y también con texto, por accesibilidad, y se redactan como sugerencias (por ejemplo, "Revisar: 3 niveles bajo lo esperado"), no como diagnóstico.
   - Sobre la tabla, el resumen de la quincena: por núcleo, observaciones aceptadas y niños con al menos una, con los núcleos sin observaciones destacados y navegación a quincenas anteriores. Función pura `cobertura_quincena` en `registro/cobertura.py`.
 - Tests: escritos antes que el código, cubriendo bordes: brecha 2 frente a 3; mediana con cantidad par de niños y con un solo niño; 14 frente a 15 días; ingreso a mitad de semestre; fechas de vacaciones fuera de todo semestre; límites de quincena (día 15 frente a 16, fin de mes y febrero); con una rúbrica de 9 niveles y 10 núcleos, la tabla, la distribución y las alertas funcionan sin cambiar código. Otra educadora recibe 404.
@@ -239,16 +256,23 @@ flowchart LR
 
 ### Task 3: Ficha del niño, validación manual y tabla de metas
 
-- Objetivo: el flujo completo funciona sin IA.
+- Objetivo: el flujo completo funciona sin IA, con la rúbrica oficial de Integra en IA.
 - Guía:
+  - Rúbrica de Integra (primer paso, porque la ficha y el formulario la muestran):
+    - `DescriptorNivel` suma `nombre` (por ejemplo, "Desarrollando"), `conducta` (texto) y `ejemplos` (lista JSON), con su migración. `pasos_sugeridos` recibe las `orientaciones`.
+    - `registro/rubrica_integra.py` con `leer_rubrica_integra()` y `cargar_rubrica_integra(datos)`, idempotente, llamada desde `cargar_demo` después del currículo. Por cada bloque crea la `Rubrica` del nivel educativo si falta (con tantos niveles como trae el bloque) y crea o actualiza los descriptores del núcleo, marcados como no provisorios. No crea núcleos: si la sigla no existe, la omite y lo informa. Carga los 3 niveles educativos aunque la demo use solo Transición.
+    - Si el bloque trae una cantidad de niveles distinta de la `Rubrica` existente, falla con un mensaje claro en vez de dejar niveles a medias.
+    - Los núcleos sin rúbrica de Integra conservan los descriptores provisorios, que pasan a tener nombre "Nivel N".
+  - En toda la app el nivel se muestra con número y nombre, por ejemplo "3 · Desarrollando", en la tabla del curso, la ficha, el historial y el formulario. Sale de `DescriptorNivel`, no de una constante.
   - Ficha con todos los núcleos (actual frente a esperado y frente a la mediana del curso), la evolución de los niveles validados en el tiempo y las observaciones aceptadas con fecha y cita. La evolución va como gráfico simple por núcleo (SVG generado en el servidor, sin librerías nuevas) con una tabla equivalente, por accesibilidad.
-  - Si el descriptor del nivel tiene pasos sugeridos, la ficha los muestra. Se cargan desde el panel de administración (Integra quiere poder cargarlos a futuro). La carga masiva desde su rúbrica queda fuera del MVP. En la demo, un núcleo trae pasos de ejemplo marcados como ficticios, para mostrar dónde aparecen.
-  - En cada núcleo de la ficha, la cobertura de evidencia de sus OA: cantidad de observaciones aceptadas y fecha de la más reciente, con los OA sin evidencia destacados como sugerencia de qué observar. Se calcula con funciones puras en `registro/cobertura.py`.
-  - Formulario con HTMX para fijar un nivel con un comentario (crea un `NivelValidado` con la usuaria). Las opciones van del 1 al máximo de la rúbrica del nivel educativo. Solo lo ve la educadora del curso (`puede_validar`); las asistentes y la directora ven la ficha sin el formulario.
+  - En cada núcleo, la ficha muestra el descriptor del nivel actual (nombre, descripción y conducta, con los ejemplos plegados en `<details>`) y la descripción y conducta del nivel siguiente, como referencia de qué observar. Los núcleos con rúbrica provisoria llevan la etiqueta "Rúbrica provisoria".
+  - Si el descriptor tiene pasos sugeridos (las orientaciones de Integra), la ficha los muestra. Hoy vienen vacíos, así que la sección no aparece; no se inventan pasos de ejemplo, para no mezclar texto nuestro con la rúbrica oficial. Se cargan al volver a correr `cargar_demo` con el JSON actualizado o desde el panel de administración.
+  - En cada núcleo de la ficha, la cobertura de evidencia de sus OA: cantidad de observaciones aceptadas y fecha de la más reciente, con los OA sin evidencia destacados como sugerencia de qué observar. Se calcula con funciones puras en `registro/cobertura.py` (ya hecho: `cobertura_del_nino` y sus tests); falta mostrarla en la ficha.
+  - Formulario con HTMX para fijar un nivel con un comentario (crea un `NivelValidado` con la usuaria). Las opciones van del 1 al máximo de la rúbrica del nivel educativo, cada una con número, nombre y descripción, para que la educadora compare antes de decidir. Solo lo ve la educadora del curso (`puede_validar`); las asistentes y la directora ven la ficha sin el formulario.
   - Pantalla para editar la tabla de metas del curso.
   - Diseño pensado primero para celular, con Pico.css.
-- Tests: validar un nivel crea historial y actualiza la tabla; editar metas cambia las alertas; la cobertura por OA cuenta solo observaciones aceptadas del niño y toma la fecha más reciente; con una rúbrica de 9 niveles se puede fijar el 9; la ficha muestra los pasos sugeridos cuando existen; permisos (una asistente o la directora que intentan fijar un nivel o editar metas reciben 404).
-- Demo: se sube un nivel a mano y la alerta desaparece; la ficha muestra la evolución del niño y qué OA todavía no tienen evidencia.
+- Tests: validar un nivel crea historial y actualiza la tabla; editar metas cambia las alertas; la cobertura por OA cuenta solo observaciones aceptadas del niño y toma la fecha más reciente; con una rúbrica de 9 niveles se puede fijar el 9; la ficha muestra los pasos sugeridos cuando existen y oculta la sección cuando no; `cargar_rubrica_integra` deja IA de Transición con 8 descriptores no provisorios y "Desarrollando" en el nivel 3, no duplica al correr dos veces, actualiza un texto que cambió en el JSON, omite una sigla inexistente y falla si la cantidad de niveles no calza; los otros núcleos siguen provisorios; permisos (una asistente o la directora que intentan fijar un nivel o editar metas reciben 404).
+- Demo: en IA, la ficha muestra el nivel "3 · Desarrollando" con la conducta y los ejemplos de Integra y lo que describe "4 · Afianzando"; se sube un nivel a mano y la alerta desaparece; la ficha muestra la evolución del niño y qué OA todavía no tienen evidencia.
 
 ### Task 4: Infraestructura y despliegue
 
@@ -298,11 +322,11 @@ flowchart LR
 - Guía:
   - Modelo `PropuestaNivel`.
   - `registro/ia/seudonimo.py` reemplaza en las citas todos los nombres y alias del curso por códigos.
-  - El prompt incluye, para el nivel educativo del niño, las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1 y el mapeo de niveles; además, el nivel validado actual y las observaciones aceptadas (id, fecha, cita, OA y nivel de apoyo). La salida es nivel, ids citados, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. El prompt no fija un mínimo de observaciones: Integra decide por la conducta observable y los avances. Por eso las observaciones van ordenadas por fecha y se pide considerar la progresión del niño (por ejemplo, de "con ayuda" a "autónomo"), no solo la más reciente. Si llega el audio de Integra con el ejemplo de cómo deciden el nivel, se transcribe y se incorpora al prompt como ejemplo. Se valida (nivel entre 1 y el máximo de la rúbrica, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
+  - El prompt incluye la rúbrica del núcleo para el nivel educativo del niño. Si es de Integra (hoy IA): los niveles con nombre, descripción y conducta, y uno de los dos ejemplos de cada nivel como referencia de cómo se ve en un registro. El otro ejemplo se reserva para medir en la Task 10, para no evaluar con lo mismo que se muestra al modelo. Si es provisoria: las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1 y el mapeo de niveles. Además, el nivel validado actual y las observaciones aceptadas (id, fecha, cita, OA y nivel de apoyo). La salida es nivel, ids citados, conductas que se observan (de la rúbrica de Integra o del programa), justificación breve y si la evidencia es suficiente. La ficha avisa cuando la propuesta se basó en una rúbrica provisoria. El prompt no fija un mínimo de observaciones: Integra decide por la conducta observable y los avances. Por eso las observaciones van ordenadas por fecha y se pide considerar la progresión del niño (por ejemplo, de "con ayuda" a "autónomo"), no solo la más reciente. Si llega el audio de Integra con el ejemplo de cómo deciden el nivel, se transcribe y se incorpora al prompt como ejemplo. Se valida (nivel entre 1 y el máximo de la rúbrica, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
   - Se pide una propuesta automáticamente al aceptar observaciones nuevas de ese núcleo, y con un botón en la ficha. La procesa el proceso de fondo.
   - En la ficha: propuesta con citas enlazadas. La educadora acepta (crea un `NivelValidado` ligado a la propuesta), fija otro nivel o rechaza. Nunca se aplica sola.
-- Tests: ningún nombre del curso aparece en lo enviado a Bedrock; las observaciones van en orden de fecha; validación de la respuesta (con una rúbrica de 9 niveles se acepta el 9); flujo de aceptar, fijar otro nivel y rechazar con cliente falso.
-- Demo: tras aceptar 3 observaciones de lenguaje de Sofía, aparece una propuesta de nivel 3 con sus citas; al aceptarla, la tabla se actualiza.
+- Tests: ningún nombre del curso aparece en lo enviado a Bedrock; las observaciones van en orden de fecha; para IA el prompt lleva los descriptores de Integra y no el mapeo provisorio, y no incluye los ejemplos reservados para medir; validación de la respuesta (con una rúbrica de 9 niveles se acepta el 9); flujo de aceptar, fijar otro nivel y rechazar con cliente falso.
+- Demo: tras aceptar 3 observaciones de identidad y autonomía de Sofía, aparece una propuesta "3 · Desarrollando" con sus citas y la conducta de Integra que se observa; al aceptarla, la tabla se actualiza.
 
 ### Task 8: Captura por foto
 
@@ -332,6 +356,7 @@ flowchart LR
 - Objetivo: cifras de precisión para el pitch y prompts afinados.
 - Guía:
   - `manage.py evaluar` corre todo el set de prueba (texto, fotos y audios) contra Bedrock real y mide: porcentaje de niños bien asignados, precisión y cobertura de núcleos y de OA, porcentaje de propuestas a ±1 nivel del esperado y tiempo por captura.
+  - Para la propuesta de nivel en IA, el set usa los ejemplos de la rúbrica de Integra que no van en el prompt (8 en Transición), cada uno con su nivel oficial como respuesta esperada. Es la única cifra medida contra un nivel definido por Integra y no por nosotros; en el pitch se presenta así, aclarando que son pocos casos.
   - Iterar los prompts y comparar Sonnet 5 con Haiku 4.5 en calidad, latencia y costo.
 - Tests: las métricas se calculan bien sobre resultados conocidos (con cliente falso).
 - Demo: tabla de resultados.
@@ -346,10 +371,10 @@ flowchart LR
     - problema (4 h semanales por educadora);
     - solución y cómo encaja en el sistema de evaluación de Integra: registra la movilidad de los aprendizajes que mide el IEA y apunta a su definición de calidad (bienestar, aprendizaje oportuno y pertinente, protagonismo);
     - demo;
-    - rúbrica (basada en el Programa Pedagógico de Transición del MINEDUC y reemplazable por la de Integra), y enfoque de evaluación alineado con las Bases Curriculares (evidencia cotidiana, la educadora concluye);
+    - rúbrica: Identidad y Autonomía con la rúbrica oficial de Integra (niveles de Comenzando a Profundizando) y los demás núcleos con una provisoria basada en el Programa Pedagógico de Transición, que se reemplaza al cargar cada núcleo de Integra; enfoque de evaluación alineado con las Bases Curriculares (evidencia cotidiana, la educadora concluye);
     - privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales);
     - cifras de la Task 10;
-    - rúbrica como dato: 10 núcleos y 8 o 9 niveles sin cambiar código, con pasos a seguir cargables;
+    - rúbrica como dato: el JSON de Integra se cargó sin cambiar código, y lo mismo valdrá para 10 núcleos, 8 o 9 niveles y las orientaciones (pasos a seguir) cuando lleguen;
     - cómo escala (vista de la directora si no entró en la demo, vista nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
   - Verificar la política de datos de Bedrock y la vigencia de la Ley 21.719 antes de citarlas.
   - Para el costo, usar la calculadora de precios de AWS.
@@ -390,8 +415,8 @@ Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden traba
 
 Las respuestas recibidas por correo están en `contexto/respuestas-integra.md`.
 
-1. ¿Dónde está el ejemplo de rúbrica de un núcleo que nos pasaron? No lo tenemos en el repo.
-2. ¿Cuáles son los 10 núcleos? ¿La rúbrica cambia entre niveles educativos?
+1. Sobre la rúbrica de IA que nos pasaron (`datos/rubrica_integra.json`): ¿los niveles 1 a 8 abarcan los 2 años del nivel educativo (NT1 y NT2) y el 8 es lo esperado al egresar? ¿Hay un nivel esperado por semestre? ¿Cuándo llegan las orientaciones (pasos a seguir) y los otros núcleos? ¿Podemos mostrar sus ejemplos al modelo como referencia?
+2. ¿Cuáles son los 10 núcleos?
 3. Pedir por WhatsApp el audio con el ejemplo de cómo deciden el nivel.
 4. ¿El nivel se asigna por núcleo o de forma global? (No lo respondieron; la rúbrica por núcleo sugiere que es por núcleo.)
 5. ¿Las asistentes pueden revisar observaciones o validar niveles, o solo registrar?
@@ -399,5 +424,5 @@ Las respuestas recibidas por correo están en `contexto/respuestas-integra.md`.
 7. ¿Qué protocolo siguen cuando detectan un rezago? Además de la alerta a la directora, ¿hay derivación?
 8. ¿Las familias firman un consentimiento para fotos y audios?
 9. Mostrarles la pantalla de revisión y preguntar si la usarían así en la sala.
-10. ¿El instrumento se construyó sobre los OA y las conductas del Programa Pedagógico de Transición del MINEDUC? ¿Les hace sentido nuestro mapeo provisorio de niveles?
+10. La rúbrica de IA retoma la redacción de los OA de las Bases Curriculares. ¿Los demás núcleos seguirán la misma lógica? Mientras no lleguen, ¿les parece razonable nuestro mapeo provisorio basado en las conductas del Programa Pedagógico de Transición?
 11. ¿El instrumento reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna?
