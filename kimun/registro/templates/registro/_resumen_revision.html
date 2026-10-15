@@ -1,0 +1,7 @@
+<p id="resumen-revision" role="status"{% if oob %} hx-swap-oob="true"{% endif %}>
+  {% if resumen.individuales or resumen.grupales %}
+    <strong>{{ resumen.individuales }} observaci{{ resumen.individuales|pluralize:"ón,ones" }} por revisar</strong>{% if resumen.grupales %} y {{ resumen.grupales }} nota{{ resumen.grupales|pluralize }} grupal{{ resumen.grupales|pluralize:"es" }} de contexto{% endif %}.
+  {% else %}
+    No quedan observaciones por revisar.
+  {% endif %}
+</p>

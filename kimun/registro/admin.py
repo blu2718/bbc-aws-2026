@@ -20,9 +20,9 @@ class NucleoAdmin(admin.ModelAdmin):
 
 @admin.register(models.DescriptorNivel)
 class DescriptorNivelAdmin(admin.ModelAdmin):
-    list_display = ["nucleo", "nivel", "nivel_educativo", "provisorio"]
+    list_display = ["nucleo", "nivel", "nombre", "nivel_educativo", "provisorio"]
     list_filter = ["nivel_educativo", "nucleo", "provisorio"]
-    search_fields = ["descripcion", "pasos_sugeridos"]
+    search_fields = ["nombre", "descripcion", "conducta", "pasos_sugeridos"]
 
 
 @admin.register(models.ObjetivoAprendizaje)

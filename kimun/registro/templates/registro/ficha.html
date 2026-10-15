@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}{{ ficha.nino.nombre }}{% endblock %}
+{% block head %}<link rel="stylesheet" href="{% static 'registro/registro.css' %}">{% endblock %}
+{% block contenido %}
+<p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
+<h1>{{ ficha.nino.nombre }}</h1>
+<p>{{ curso.nombre }} · {{ curso.jardin.nombre }} · Ingreso: <time datetime="{{ ficha.nino.fecha_ingreso|date:'Y-m-d' }}">{{ ficha.nino.fecha_ingreso|date:"d-m-Y" }}</time></p>
+{% if ficha.puede_validar %}<p><a href="{% url 'metas' curso.pk %}">Editar metas del curso</a></p>{% endif %}
+
+<nav aria-label="Núcleos">
+  <div class="overflow-auto">
+    <table>
+      <caption>Resumen por núcleo</caption>
+      <thead><tr><th scope="col">Núcleo</th><th scope="col">Nivel actual</th></tr></thead>
+      <tbody>
+        {% for nf in ficha.nucleos %}
+          <tr>
+            <th scope="row"><a href="#nucleo-{{ nf.nucleo.sigla }}">{{ nf.nucleo.nombre }}</a></th>
+            <td>{{ nf.texto_actual }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</nav>
+
+{% for nf in ficha.nucleos %}
+  {% include "registro/_nucleo_ficha.html" with nf=nf %}
+{% endfor %}
+{% endblock %}

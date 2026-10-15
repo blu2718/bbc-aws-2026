@@ -1,4 +1,13 @@
-"""Carga el currículo de Transición y un curso de demo con 15 niños ficticios.
+"""Carga el currículo de Transición, la rúbrica de Integra y un curso de demo con 15 niños ficticios.
+
+La rúbrica de Integra (`datos/rubrica_integra.json`) se carga después del
+currículo y reemplaza a la provisoria en los núcleos que trae (hoy, IA).
+
+El curso trae niveles históricos validados y unas 40 observaciones aceptadas
+(Task 2), para que la tabla muestre todos los estados: un niño bajo sus pares
+en lenguaje, avisos, datos desactualizados, núcleos sin datos y OA sin
+evidencia. Las fechas de las observaciones se cuentan hacia atrás desde el día
+de la carga (o desde --hoy).
 
 Se puede correr varias veces: actualiza lo existente y no duplica datos.
 Las contraseñas de la educadora y las asistentes se toman de DEMO_PASSWORD o
@@ -7,23 +16,40 @@ se generan al azar, y solo se fijan al crear cada usuaria (o con
 """
 import json
 import os
+import re
 import secrets
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.management.base import BaseCommand
+from django.core.exceptions import ValidationError
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils import timezone
 
 from registro.curriculo import cargar_curriculo, leer_curriculo
-from registro.models import Curso, Jardin, MetaSemestre, Nino, Semestre
+from registro.models import (
+    Apoyo,
+    Captura,
+    Curso,
+    Jardin,
+    MetaSemestre,
+    NivelValidado,
+    Nino,
+    Nucleo,
+    ObjetivoAprendizaje,
+    Observacion,
+    Semestre,
+)
+from registro.rubrica_integra import cargar_rubrica_integra, leer_rubrica_integra
 
 RUTA_DEMO = Path(settings.DATOS_DIR) / "demo_curso.json"
+CODIGO_OA = re.compile(r"^OA (\d+) ([A-Z]+)$")
 
 
 class Command(BaseCommand):
-    help = "Carga currículo, rúbrica provisoria, semestres y un curso de demo (idempotente)."
+    help = "Carga currículo, rúbricas (provisoria y de Integra), semestres y un curso de demo (idempotente)."
 
     def add_arguments(self, parser):
         parser.add_argument("--demo", type=Path, default=RUTA_DEMO, help="JSON con el curso de demo.")
@@ -31,10 +57,23 @@ class Command(BaseCommand):
             "--cambiar-password", action="store_true",
             help="Vuelve a fijar las contraseñas de las usuarias de demo aunque ya existan.",
         )
+        parser.add_argument(
+            "--hoy", type=date.fromisoformat, default=None,
+            help="Fecha (AAAA-MM-DD) desde la que se cuentan los días de las observaciones. Por defecto, hoy.",
+        )
 
     @transaction.atomic
     def handle(self, *args, **opciones):
         cargar_curriculo(leer_curriculo())
+        try:
+            omitidos = cargar_rubrica_integra(leer_rubrica_integra())
+        except ValidationError as error:
+            # Al salir con error, la transacción deshace todo lo cargado.
+            raise CommandError(f"No se cargó la rúbrica de Integra. {' '.join(error.messages)}") from error
+        for nivel_educativo, sigla in omitidos:
+            self.stderr.write(self.style.WARNING(
+                f"Rúbrica de Integra: se omitió {sigla} en {nivel_educativo} porque ese núcleo no existe."
+            ))
         demo = json.loads(Path(opciones["demo"]).read_text(encoding="utf-8"))
         self._passwords = []
 
@@ -60,11 +99,12 @@ class Command(BaseCommand):
                 curso=curso, semestre_permanencia=int(semestre), defaults={"nivel_esperado": nivel}
             )
 
+        ninos = {}
         for n in demo["ninos"]:
             nino = Nino.objects.filter(curso=curso, nombre=n["nombre"]).first()
             if nino is None:
                 # save() crea el nivel 1 en todos los núcleos.
-                Nino.objects.create(
+                nino = Nino.objects.create(
                     curso=curso, nombre=n["nombre"], alias=n["alias"],
                     fecha_ingreso=date.fromisoformat(n["fecha_ingreso"]),
                 )
@@ -72,13 +112,107 @@ class Command(BaseCommand):
                 nino.alias = n["alias"]
                 nino.fecha_ingreso = date.fromisoformat(n["fecha_ingreso"])
                 nino.save(update_fields=["alias", "fecha_ingreso"])
+            ninos[nino.nombre] = nino
+            self._niveles(nino, n.get("niveles", {}), demo.get("revisiones", {}), educadora)
+
+        usuarias = {u.username: u for u in [educadora, *asistentes]}
+        hoy = opciones["hoy"] or timezone.localdate()
+        aceptadas = self._observaciones(curso, demo.get("observaciones", []), ninos, educadora, usuarias, hoy)
 
         nombres = ", ".join(u.username for u in [educadora, *asistentes])
         self.stdout.write(self.style.SUCCESS(
-            f"Demo cargada: {curso} con {curso.ninos.count()} niños. Usuarias: {nombres}"
+            f"Demo cargada: {curso} con {curso.ninos.count()} niños y {aceptadas} observaciones aceptadas. "
+            f"Usuarias: {nombres}"
         ))
         for usuario, password in self._passwords:
             self.stdout.write(f"Contraseña de {usuario}: {password}")
+
+    def _niveles(self, nino, niveles, revisiones, educadora):
+        """Niveles históricos validados por la educadora en cada revisión.
+
+        `niveles` es {"todos": {fecha: nivel}, sigla: {fecha: nivel}}: la sigla
+        reemplaza a "todos" en ese núcleo. Se identifican por niño, núcleo,
+        fecha y educadora, así que volver a cargar no duplica ni borra los
+        niveles fijados a mano durante la demo.
+        """
+        if not niveles:
+            return
+        nucleos = list(Nucleo.objects.all())
+        siglas = {n.sigla for n in nucleos}
+        desconocidas = set(niveles) - siglas - {"todos"}
+        if desconocidas:
+            raise CommandError(f"{nino}: núcleos desconocidos en los niveles de demo: {', '.join(sorted(desconocidas))}.")
+        for nucleo in nucleos:
+            for texto_fecha, nivel in niveles.get(nucleo.sigla, niveles.get("todos", {})).items():
+                fecha = date.fromisoformat(texto_fecha)
+                if fecha < nino.fecha_ingreso:
+                    raise CommandError(f"{nino}: nivel validado el {fecha}, antes de su ingreso.")
+                NivelValidado.objects.update_or_create(
+                    nino=nino, nucleo=nucleo, fecha=fecha, validado_por=educadora,
+                    defaults={"nivel": nivel, "comentario": revisiones.get(texto_fecha, "")},
+                )
+
+    def _observaciones(self, curso, observaciones, ninos, educadora, usuarias, hoy):
+        """Observaciones ya aceptadas, cada una con su captura de texto.
+
+        La fecha es `hoy - hace_dias`, para que los avisos de 14 días y la
+        quincena se vean igual cualquier día que se cargue la demo. Cada
+        observación se identifica por su cita: si el JSON la cambia, se crea
+        otra. Devuelve cuántas observaciones aceptadas e individuales hay.
+        """
+        nucleos = {n.sigla: n for n in Nucleo.objects.all()}
+        oas = {
+            (oa.numero, oa.nucleo.sigla): oa
+            for oa in ObjetivoAprendizaje.objects.filter(nivel_educativo=curso.nivel_educativo).select_related("nucleo")
+        }
+        for o in observaciones:
+            nino = ninos.get(o["nino"]) if o.get("nino") else None
+            grupal = o.get("grupal", False)
+            if nino is None and not grupal:
+                raise CommandError(f"Observación de demo sin niño conocido: «{o['cita'][:40]}».")
+            etiquetas_oa = []
+            for codigo in o.get("oas", []):
+                coincide = CODIGO_OA.match(codigo)
+                oa = coincide and oas.get((int(coincide.group(1)), coincide.group(2)))
+                if not oa:
+                    raise CommandError(f"OA desconocido en la demo: «{codigo}».")
+                etiquetas_oa.append(oa)
+            try:
+                etiquetas = [nucleos[s] for s in o.get("nucleos", [])]
+            except KeyError as error:
+                raise CommandError(f"Núcleo desconocido en la demo: {error}.") from error
+            if o.get("apoyo", "sin_dato") not in Apoyo.values:
+                raise CommandError(f"Nivel de apoyo desconocido en la demo: «{o['apoyo']}».")
+            if "autora" in o and o["autora"] not in usuarias:
+                raise CommandError(f"Autora desconocida en la demo: «{o['autora']}».")
+            # Un OA implica su núcleo.
+            etiquetas += [oa.nucleo for oa in etiquetas_oa if oa.nucleo not in etiquetas]
+
+            captura, _ = Captura.objects.update_or_create(
+                curso=curso, tipo=Captura.Tipo.TEXTO, texto_original=o["cita"],
+                defaults={
+                    "autora": usuarias[o["autora"]] if "autora" in o else educadora,
+                    "estado": Captura.Estado.PROCESADA,
+                },
+            )
+            observacion, _ = Observacion.objects.update_or_create(
+                captura=captura,
+                defaults={
+                    "nino": nino,
+                    "nombre_detectado": nino.nombre.split()[0] if nino else "",
+                    "fecha": hoy - timedelta(days=o["hace_dias"]),
+                    "cita": o["cita"],
+                    "interpretacion": o.get("interpretacion", ""),
+                    "apoyo": o.get("apoyo", "sin_dato"),
+                    "grupal": grupal,
+                    "estado": Observacion.Estado.ACEPTADA,
+                },
+            )
+            observacion.nucleos.set(etiquetas)
+            observacion.oas.set(etiquetas_oa)
+        return Observacion.objects.filter(
+            nino__curso=curso, estado=Observacion.Estado.ACEPTADA, grupal=False
+        ).count()
 
     def _usuaria(self, datos, cambiar_password):
         User = get_user_model()

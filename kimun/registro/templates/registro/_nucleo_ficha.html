@@ -1,0 +1,136 @@
+{% comment %}
+Un núcleo de la ficha (spec task3-ficha-nino, sección 6). Recibe `nf` (registro.ficha.NucleoFicha) y `ficha`.
+La vista fijar_nivel lo devuelve solo, como parcial de HTMX, con `mensaje`.
+La sección no se pliega; si se pliega, el parcial debe volver abierto (requisito 6.11).
+Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se inserta tal cual.
+{% endcomment %}
+<section id="nucleo-{{ nf.nucleo.sigla }}" class="nucleo-ficha">
+  <hgroup>
+    <h2>{{ nf.nucleo.nombre }}</h2>
+    <p>
+      Nivel actual: <strong>{{ nf.texto_actual }}</strong>
+      {% if nf.provisorio %}<span class="etiqueta-provisoria">Rúbrica provisoria</span>{% endif %}
+    </p>
+  </hgroup>
+
+  {% if mensaje %}<p role="status" class="mensaje-ok">{{ mensaje }}</p>{% endif %}
+
+  {% if nf.situacion %}
+    <ul class="situacion">
+      <li>Nivel esperado: {{ nf.situacion.esperado|default:"–" }}</li>
+      <li>Mediana del curso: {{ nf.situacion.texto_mediana }}</li>
+      {% for senal in nf.situacion.senales %}
+        <li class="senal senal-{{ senal.gravedad.value }}">{{ senal.texto }}</li>
+      {% endfor %}
+      {% if nf.aviso_datos %}<li class="senal senal-aviso">{{ nf.aviso_datos }}</li>{% endif %}
+    </ul>
+  {% endif %}
+
+  <h3>El nivel actual en la rúbrica</h3>
+  {% if nf.descriptor_actual %}
+    {% with d=nf.descriptor_actual %}
+      <p><strong>{{ nf.texto_actual }}</strong></p>
+      <p>{{ d.descripcion|linebreaksbr }}</p>
+      {% if d.conducta %}<p><em>Conducta observable:</em> {{ d.conducta|linebreaksbr }}</p>{% endif %}
+      {% if d.ejemplos %}
+        <details>
+          <summary>Ejemplos de registro</summary>
+          <ul>{% for ejemplo in d.ejemplos %}<li>{{ ejemplo }}</li>{% endfor %}</ul>
+        </details>
+      {% endif %}
+    {% endwith %}
+  {% elif nf.actual %}
+    <p>{{ nf.actual.nivel }}. Sin descriptor en la rúbrica para este nivel.</p>
+  {% else %}
+    <p>{{ nf.texto_actual }}.</p>
+  {% endif %}
+
+  {% if nf.descriptor_siguiente %}
+    <h3>Qué observar después</h3>
+    {% with d=nf.descriptor_siguiente %}
+      <p>{{ d.descripcion|linebreaksbr }}</p>
+      {% if d.conducta %}<p><em>Conducta observable:</em> {{ d.conducta|linebreaksbr }}</p>{% endif %}
+    {% endwith %}
+  {% endif %}
+
+  {% if nf.pasos_sugeridos %}
+    <h3>Pasos sugeridos</h3>
+    {{ nf.pasos_sugeridos|linebreaks }}
+  {% endif %}
+
+  <h3>Evolución</h3>
+  {% include "registro/_evolucion.html" with evolucion=nf.evolucion %}
+
+  <h3>Evidencia por OA</h3>
+  {% if nf.cobertura %}
+    <details>
+      <summary>{{ nf.oas_con_evidencia }} de {{ nf.cobertura|length }} OA con evidencia</summary>
+      <div class="overflow-auto">
+        <table>
+          <caption>Observaciones aceptadas por OA en {{ nf.nucleo.nombre }}</caption>
+          <thead>
+            <tr><th scope="col">OA</th><th scope="col">Evidencias</th><th scope="col">Más reciente</th></tr>
+          </thead>
+          <tbody>
+            {% for c in nf.cobertura %}
+              <tr{% if c.sin_evidencia %} class="sin-evidencia"{% endif %}>
+                <th scope="row"><abbr title="{{ c.oa.texto }}">{{ c.oa.codigo }}</abbr></th>
+                <td>{{ c.cantidad }}</td>
+                <td>
+                  {% if c.ultima_fecha %}
+                    <time datetime="{{ c.ultima_fecha|date:'Y-m-d' }}">{{ c.ultima_fecha|date:"d-m-Y" }}</time>
+                  {% else %}
+                    Sin evidencia todavía: sugerencia de qué observar
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  {% else %}
+    <p>Este núcleo no tiene OA cargados para el nivel educativo.</p>
+  {% endif %}
+
+  <h3>Observaciones aceptadas</h3>
+  {% if nf.observaciones %}
+    <details>
+      <summary>{{ nf.observaciones|length }} observaciones</summary>
+      <ul>
+        {% for obs in nf.observaciones %}
+          <li><time datetime="{{ obs.fecha|date:'Y-m-d' }}">{{ obs.fecha|date:"d-m-Y" }}</time>: {{ obs.cita }}</li>
+        {% endfor %}
+      </ul>
+    </details>
+  {% else %}
+    <p>Sin observaciones aceptadas.</p>
+  {% endif %}
+
+  {% if nf.form %}
+    {% url 'fijar_nivel' ficha.nino.pk nf.nucleo.sigla as url_fijar %}
+    <details{% if nf.form.is_bound %} open{% endif %}>
+      <summary role="button" class="secondary outline">Fijar nivel en {{ nf.nucleo.nombre }}</summary>
+      <form method="post" action="{{ url_fijar }}" hx-post="{{ url_fijar }}" hx-target="#nucleo-{{ nf.nucleo.sigla }}"
+            hx-swap="outerHTML" hx-disabled-elt="find button">
+        {% csrf_token %}
+        {% if nf.form.non_field_errors %}<div role="alert">{{ nf.form.non_field_errors }}</div>{% endif %}
+        <fieldset>
+          <legend>Nivel</legend>
+          {% for op in nf.form.opciones %}
+            <label for="{{ nf.form.prefix }}-nivel-{{ op.valor }}">
+              <input type="radio" id="{{ nf.form.prefix }}-nivel-{{ op.valor }}" name="{{ nf.form.nivel.html_name }}"
+                     value="{{ op.valor }}"{% if op.marcada %} checked{% endif %}{% if nf.form.nivel.errors %} aria-invalid="true"{% endif %}>
+              <strong>{{ op.texto }}</strong>{% if op.descripcion %}: {{ op.descripcion }}{% endif %}
+            </label>
+          {% endfor %}
+        </fieldset>
+        {% if nf.form.nivel.errors %}<div role="alert">{{ nf.form.nivel.errors }}</div>{% endif %}
+        <label for="{{ nf.form.comentario.id_for_label }}">{{ nf.form.comentario.label }}</label>
+        {{ nf.form.comentario }}
+        {% if nf.form.comentario.errors %}<div role="alert">{{ nf.form.comentario.errors }}</div>{% endif %}
+        <button type="submit">Guardar nivel</button>
+      </form>
+    </details>
+  {% endif %}
+</section>

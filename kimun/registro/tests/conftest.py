@@ -1,7 +1,19 @@
+from datetime import date
+
 import pytest
 from django.contrib.auth import get_user_model
 
-from registro.models import Curso, Jardin, NivelEducativo, Nucleo, Rubrica
+from registro.models import (
+    Captura,
+    Curso,
+    DescriptorNivel,
+    Jardin,
+    NivelEducativo,
+    Nino,
+    Nucleo,
+    Observacion,
+    Rubrica,
+)
 
 
 def _usuario(nombre):
@@ -49,3 +61,62 @@ def curso(educadora, jardin, rubrica):
     return Curso.objects.create(
         jardin=jardin, nombre="Transición A", nivel_educativo=NivelEducativo.TRANSICION, educadora=educadora
     )
+
+
+# --- Fixtures de la ficha (Task 3) ------------------------------------------------
+
+NOMBRES_INTEGRA = [
+    "Comenzando", "Explorando", "Desarrollando", "Afianzando",
+    "Integrando", "Ampliando", "Consolidando", "Profundizando",
+]
+
+
+@pytest.fixture
+def nino(curso, nucleos):
+    """Se crea después de los núcleos, así que parte en nivel 1 en IA, LV y PM."""
+    return Nino.objects.create(curso=curso, nombre="Pedro Salinas", fecha_ingreso=date(2026, 3, 2))
+
+
+@pytest.fixture
+def descriptores(nucleos):
+    """IA con rúbrica oficial de 8 niveles; LV provisoria; PM sin descriptores."""
+    ia, lv, _pm = nucleos
+    for nivel, nombre in enumerate(NOMBRES_INTEGRA, start=1):
+        DescriptorNivel.objects.create(
+            nivel_educativo=NivelEducativo.TRANSICION, nucleo=ia, nivel=nivel, nombre=nombre,
+            descripcion=f"Descripción IA {nivel}", conducta=f"Conducta IA {nivel}",
+            ejemplos=[f"Ejemplo IA {nivel} a", f"Ejemplo IA {nivel} b"], provisorio=False,
+        )
+        DescriptorNivel.objects.create(
+            nivel_educativo=NivelEducativo.TRANSICION, nucleo=lv, nivel=nivel, nombre=f"Nivel {nivel}",
+            descripcion=f"Descripción LV {nivel}",
+        )
+
+
+@pytest.fixture
+def asistente_del_curso(curso, asistente):
+    curso.asistentes.add(asistente)
+    return asistente
+
+
+@pytest.fixture
+def directora_del_jardin(jardin, directora):
+    jardin.directora = directora
+    jardin.save()
+    return directora
+
+
+@pytest.fixture
+def observar_en(curso, educadora):
+    """Crea observaciones del niño etiquetadas con núcleos (y OA, si se pasan)."""
+    captura = Captura.objects.create(curso=curso, autora=educadora, tipo=Captura.Tipo.TEXTO, texto_original="x")
+
+    def crear(nino, fecha, nucleos, cita="Cita", estado=Observacion.Estado.ACEPTADA, grupal=False, oas=()):
+        obs = Observacion.objects.create(
+            captura=captura, nino=nino, fecha=fecha, cita=cita, estado=estado, grupal=grupal
+        )
+        obs.nucleos.set(nucleos)
+        obs.oas.set(oas)
+        return obs
+
+    return crear
