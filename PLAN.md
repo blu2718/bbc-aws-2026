@@ -70,6 +70,19 @@ La educadora siempre decide el nivel.
 - "Aprendizajes emergentes": una observación puede tocar núcleos distintos de los que buscaba la actividad.
 - El documento presenta la documentación como un acto reflexivo. Mensaje para el pitch: eliminamos transcribir y ordenar, no la reflexión pedagógica.
 
+### Política de Calidad Educativa de Integra (2017)
+
+Detalle en `contexto/hallazgos-politica-calidad-educativa-integra.md`. El PDF no se versiona porque tiene derechos reservados.
+
+- En 2017, el sistema de evaluación de Integra usaba tres instrumentos:
+  - EEDP: desarrollo psicomotor de 0 a 2 años.
+  - IEA "Evaluar para aprender": "niveles de logro y movilidad de los aprendizajes"; orienta la planificación y retroalimenta a las familias.
+  - PLAEP-R: estandarizado, aplicado a una muestra.
+
+  La herramienta registra la misma movilidad que mide el IEA. Falta confirmar si el instrumento de 8 niveles lo reemplazó.
+- Define la calidad con centro en "el bienestar, el aprendizaje oportuno y pertinente y el protagonismo de los niños y niñas".
+- Su vocabulario curricular es anterior a las Bases Curriculares 2018 y no se usa en la app.
+
 ### Programa Pedagógico de Transición (MINEDUC, 2019)
 
 PDF en `contexto/programa-pedagogico-transicion-mineduc.pdf`; detalle en `contexto/hallazgos-programa-pedagogico-transicion.md`.
@@ -279,7 +292,14 @@ flowchart LR
 - Guía:
   - Volver a cargar los datos de demo en producción.
   - Guion: nota, foto y audio → revisión → propuesta → validación → tabla, mostrando el tiempo que toma.
-  - Láminas: problema (4 h semanales por educadora), solución, demo, rúbrica (basada en el Programa Pedagógico de Transición del MINEDUC y reemplazable por la de Integra), privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales), cifras de la Task 10, cómo escala (vistas de directora y nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
+  - Láminas:
+    - problema (4 h semanales por educadora);
+    - solución y cómo encaja en el sistema de evaluación de Integra: registra la movilidad de los aprendizajes que mide el IEA y apunta a su definición de calidad (bienestar, aprendizaje oportuno y pertinente, protagonismo);
+    - demo;
+    - rúbrica (basada en el Programa Pedagógico de Transición del MINEDUC y reemplazable por la de Integra);
+    - privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales);
+    - cifras de la Task 10;
+    - cómo escala (vistas de directora y nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
   - Verificar la política de datos de Bedrock y la vigencia de la Ley 21.719 antes de citarlas.
   - Para el costo, usar la calculadora de precios de AWS.
   - Grabar un video de respaldo. Congelar el código a las 11:00.
@@ -313,3 +333,4 @@ Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden traba
 4. ¿Las familias firman un consentimiento para fotos y audios?
 5. Mostrarle la pantalla de revisión y preguntar si la usarían así en la sala.
 6. ¿El instrumento de 8 niveles se construyó sobre los OA y las conductas del Programa Pedagógico de Transición del MINEDUC? ¿Le hace sentido nuestro mapeo provisorio de niveles?
+7. ¿El instrumento de 8 niveles reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna?
