@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
 {% block titulo %}{{ ficha.nino.nombre }}{% endblock %}
-{% block head %}<link rel="stylesheet" href="{% static 'registro/registro.css' %}">{% endblock %}
 {% block contenido %}
 <p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
 <h1>{{ ficha.nino.nombre }}</h1>

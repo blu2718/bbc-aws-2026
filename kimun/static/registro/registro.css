@@ -1,30 +1,161 @@
-/* Ajustes mínimos sobre Pico.css para la ficha (spec task3-ficha-nino, sección 6).
-   Los colores de las señales tienen contraste de al menos 4,5:1 con el fondo
-   de Pico en modo claro (#fff) y oscuro (#13171f). El color siempre va
-   acompañado de texto. */
+/* Estilos de Kimün sobre Pico.css. Se carga en base.html, en todas las páginas.
+
+   La paleta sale del logo (static/registro/img/logo.svg): el celeste #5cbde6
+   del fondo y el blanco de la araucaria y los niños. El celeste tiene poco
+   contraste con texto blanco (2,1:1), así que se usa como fondo con texto
+   oscuro (#14313d, 6,4:1); para enlaces y textos se usa un azul más profundo
+   de la misma familia (#0b6f96, 5,6:1 sobre blanco).
+
+   Los colores de las señales tienen contraste de al menos 4,5:1 con su fondo
+   en modo claro y oscuro (#13171f). El color siempre va acompañado de texto. */
 
 :root {
+  /* Logo */
+  --kimun-celeste: #5cbde6;        /* el del logo: solo como fondo */
+  --kimun-celeste-hover: #43acd9;  /* texto #14313d encima: 5,3:1 */
+  --kimun-celeste-suave: #e8f6fc;  /* bandas y fondos suaves */
+  --kimun-celeste-borde: #b9e3f5;
+  --kimun-azul: #0b6f96;           /* enlaces: 5,6:1 sobre blanco, 5,1:1 sobre celeste suave */
+  --kimun-tinta: #14313d;          /* texto sobre celeste: 6,4:1 */
+  --kimun-fondo: #f7fbfe;          /* fondo de página, blanco apenas celeste */
+  --kimun-radio: .75rem;
+  --kimun-sombra: 0 1px 2px rgba(20, 49, 61, .06), 0 6px 18px rgba(20, 49, 61, .07);
+
+  /* Señales: texto sobre el fondo de la página */
   --kimun-aviso: #7a4a00;      /* 7,4:1 sobre blanco */
-  --kimun-alerta: #a3122a;     /* 7,3:1 sobre blanco */
+  --kimun-alerta: #a3122a;     /* 7,8:1 sobre blanco */
   --kimun-ok: #1e6b35;         /* 6,5:1 sobre blanco */
-  --kimun-provisoria: #4a5160; /* 8,0:1 sobre blanco */
+  --kimun-provisoria: #3d5a68; /* gris azulado del logo: 7,3:1 sobre blanco */
+
+  /* Señales en caja (tabla del curso): fondo suave, texto oscuro y borde */
+  --kimun-aviso-fondo: #fdf3dc;  /* texto 10,1:1 */
+  --kimun-aviso-texto: #4d3800;
+  --kimun-aviso-borde: #b38600;
+  --kimun-alerta-fondo: #fbe4e6; /* texto 11,3:1 */
+  --kimun-alerta-texto: #5c0f17;
+  --kimun-alerta-borde: #b02a37;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+/* Variables de Pico con la paleta del logo. Modo claro: automático y forzado. */
+@media only screen and (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --pico-background-color: var(--kimun-fondo);
+    --pico-primary: var(--kimun-azul);
+    --pico-primary-background: var(--kimun-celeste);
+    --pico-primary-border: var(--kimun-celeste);
+    --pico-primary-underline: rgba(11, 111, 150, .45);
+    --pico-primary-hover: #085a7a;
+    --pico-primary-hover-background: var(--kimun-celeste-hover);
+    --pico-primary-hover-border: var(--kimun-celeste-hover);
+    --pico-primary-hover-underline: #085a7a;
+    --pico-primary-focus: rgba(11, 111, 150, .35);
+    --pico-primary-inverse: var(--kimun-tinta);
+    --pico-muted-border-color: #d6ecf6;
+  }
+}
+
+[data-theme="light"] {
+  --pico-background-color: var(--kimun-fondo);
+  --pico-primary: var(--kimun-azul);
+  --pico-primary-background: var(--kimun-celeste);
+  --pico-primary-border: var(--kimun-celeste);
+  --pico-primary-underline: rgba(11, 111, 150, .45);
+  --pico-primary-hover: #085a7a;
+  --pico-primary-hover-background: var(--kimun-celeste-hover);
+  --pico-primary-hover-border: var(--kimun-celeste-hover);
+  --pico-primary-hover-underline: #085a7a;
+  --pico-primary-focus: rgba(11, 111, 150, .35);
+  --pico-primary-inverse: var(--kimun-tinta);
+  --pico-muted-border-color: #d6ecf6;
+}
+
+/* Modo oscuro: el celeste del logo sí sirve como texto (8,4:1 sobre #13171f). */
+@media only screen and (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --kimun-celeste-suave: #16252e;  /* texto celeste encima: 7,4:1 */
+    --kimun-celeste-borde: #24414f;
+    --kimun-azul: #5cbde6;
+    --kimun-tinta: #c9e6f3;
     --kimun-aviso: #ffc66d;
     --kimun-alerta: #ff9aa8;
     --kimun-ok: #8fe0a6;
-    --kimun-provisoria: #c2c8d4;
+    --kimun-provisoria: #a9c3d0;     /* 9,8:1 */
+    --kimun-aviso-fondo: #3a2f12;    /* texto 9,7:1 */
+    --kimun-aviso-texto: #ffd98a;
+    --kimun-alerta-fondo: #3d1a20;   /* texto 10,1:1 */
+    --kimun-alerta-texto: #ffc2ca;
+    --pico-primary: #5cbde6;
+    --pico-primary-background: #5cbde6;
+    --pico-primary-border: #5cbde6;
+    --pico-primary-underline: rgba(92, 189, 230, .5);
+    --pico-primary-hover: #8fd3ef;
+    --pico-primary-hover-background: #8fd3ef;
+    --pico-primary-hover-border: #8fd3ef;
+    --pico-primary-focus: rgba(92, 189, 230, .4);
+    --pico-primary-inverse: #0b2230;  /* 7,7:1 sobre el celeste */
   }
 }
 
 [data-theme="dark"] {
+  --kimun-celeste-suave: #16252e;
+  --kimun-celeste-borde: #24414f;
+  --kimun-azul: #5cbde6;
+  --kimun-tinta: #c9e6f3;
   --kimun-aviso: #ffc66d;
   --kimun-alerta: #ff9aa8;
   --kimun-ok: #8fe0a6;
-  --kimun-provisoria: #c2c8d4;
+  --kimun-provisoria: #a9c3d0;
+  --kimun-aviso-fondo: #3a2f12;
+  --kimun-aviso-texto: #ffd98a;
+  --kimun-alerta-fondo: #3d1a20;
+  --kimun-alerta-texto: #ffc2ca;
+  --pico-primary: #5cbde6;
+  --pico-primary-background: #5cbde6;
+  --pico-primary-border: #5cbde6;
+  --pico-primary-underline: rgba(92, 189, 230, .5);
+  --pico-primary-hover: #8fd3ef;
+  --pico-primary-hover-background: #8fd3ef;
+  --pico-primary-hover-border: #8fd3ef;
+  --pico-primary-focus: rgba(92, 189, 230, .4);
+  --pico-primary-inverse: #0b2230;
 }
+
+/* Botones secundarios (por ejemplo "Cerrar sesión") en el gris azulado del logo:
+   texto blanco sobre #3d5a68, 7,3:1. */
+:root {
+  --pico-secondary-background: #3d5a68;
+  --pico-secondary-border: #3d5a68;
+  --pico-secondary-hover-background: #2f4753;
+  --pico-secondary-hover-border: #2f4753;
+  --pico-secondary-inverse: #fff;
+}
+
+/* Formas suaves, como el logo. */
+:root { --pico-border-radius: var(--kimun-radio); }
+article { box-shadow: var(--kimun-sombra); }
+
+/* --- Barra superior ------------------------------------------------------------------------ */
+
+body > header {
+  padding-block: 0;
+  margin-bottom: var(--pico-spacing);
+  background: var(--kimun-celeste-suave);
+  border-bottom: 1px solid var(--kimun-celeste-borde);
+  border-radius: 0 0 var(--kimun-radio) var(--kimun-radio);
+}
+body > header li { padding-block: .4rem; }
+body > header form, body > header button { margin: 0; }
+
+.marca {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  color: var(--kimun-tinta);
+  text-decoration: none;
+}
+.marca img { border-radius: .6rem; }
+
+/* --- Ficha (spec task3-ficha-nino, sección 6) --------------------------------------------- */
 
 .nucleo-ficha {
   border-top: 1px solid var(--pico-muted-border-color);

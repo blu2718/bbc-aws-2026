@@ -3,14 +3,15 @@
 {% block head %}
 <style>
   /* Las señales llevan color y también texto, por accesibilidad: el color nunca es la única pista. */
-  .senal { display: block; margin-top: .25rem; padding: .1rem .35rem; border-radius: .25rem; font-size: .8rem; line-height: 1.3; }
-  .senal-aviso { background: #fff3cd; color: #4d3800; border-left: .25rem solid #b38600; }
-  .senal-alerta { background: #f8d7da; color: #5c0f17; border-left: .25rem solid #b02a37; font-weight: 600; }
+  .senal { display: block; margin-top: .25rem; padding: .1rem .35rem; border-radius: .25rem; font-size: .8rem; line-height: 1.3; font-weight: normal; }
+  /* Colores en registro.css. */
+  .senal-aviso { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); border-left: .25rem solid var(--kimun-aviso-borde); }
+  .senal-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); font-weight: 600; }
   .datos { display: block; margin-top: .25rem; font-size: .75rem; color: var(--pico-muted-color); }
   .tabla-curso th[scope="row"] { position: sticky; left: 0; background: var(--pico-background-color); z-index: 1; }
   .tabla-curso td, .tabla-curso th { vertical-align: top; min-width: 7rem; }
   .tabla-curso th[scope="row"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
-  .sin-observaciones th, .sin-observaciones td { background: #fff3cd; color: #4d3800; }
+  .sin-observaciones th, .sin-observaciones td { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); }
   .distribucion td.mayoria { font-weight: 700; text-decoration: underline; }
   .navegacion-quincena { display: flex; gap: 1rem; flex-wrap: wrap; }
 </style>

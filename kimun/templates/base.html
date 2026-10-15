@@ -5,7 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Registro pedagógico{% endblock %}</title>
   {# Pico.css y HTMX con versión fija en static/vendor/ (sin CDN). Para actualizar, reemplazar el archivo y la ruta. #}
+  <link rel="icon" href="{% static 'registro/img/logo.svg' %}" type="image/svg+xml">
+  <link rel="icon" href="{% static 'registro/img/favicon-32.png' %}" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="{% static 'registro/img/apple-touch-icon.png' %}">
+  <meta name="theme-color" content="#5cbde6">
   <link rel="stylesheet" href="{% static 'vendor/pico-2.1.1.min.css' %}">
+  <link rel="stylesheet" href="{% static 'registro/registro.css' %}">
   <script src="{% static 'vendor/htmx-2.0.11.min.js' %}" defer></script>
   {% block head %}{% endblock %}
 </head>
@@ -14,7 +19,12 @@
   <header class="container">
     <nav aria-label="Principal">
       <ul>
-        <li><a href="{% url 'inicio' %}"><strong>Registro pedagógico</strong></a></li>
+        <li>
+          <a href="{% url 'inicio' %}" class="marca">
+            <img src="{% static 'registro/img/logo.svg' %}" alt="" width="40" height="40">
+            <strong>Registro pedagógico</strong>
+          </a>
+        </li>
       </ul>
       {% if user.is_authenticated %}
         <ul>
