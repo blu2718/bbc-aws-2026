@@ -13,6 +13,7 @@ urlpatterns = [
     path("capturas/<int:captura_id>/original/", views_registro.original, name="captura_original"),
     # Registro de notas escritas (Task 5)
     path("cursos/<int:curso_id>/capturar/", views_captura.capturar, name="capturar"),
+    path("cursos/<int:curso_id>/capturar/audio/", views_captura.capturar_audio, name="capturar_audio"),
     path("cursos/<int:curso_id>/capturar/recientes/", views_captura.capturas_recientes, name="capturas_recientes"),
     path("capturas/<int:captura_id>/reintentar/", views_captura.reintentar_captura, name="captura_reintentar"),
     path("cursos/<int:curso_id>/metas/", views.metas, name="metas"),

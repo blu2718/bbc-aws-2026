@@ -9,7 +9,7 @@
         <li id="captura-{{ captura.pk }}">
           {{ captura.creada|date:"j \d\e F, H:i" }} · <strong>{{ captura.get_estado_display }}</strong>
           {% if captura.estado == "procesada" %}· {{ captura.cantidad_observaciones }} observaci{{ captura.cantidad_observaciones|pluralize:"ón,ones" }}{% endif %}
-          <br>{{ captura.texto_original|truncatechars:80 }}
+          <br>{% if captura.tipo == "audio" %}Audio{% if captura.texto_extraido %}: «{{ captura.texto_extraido|truncatechars:80 }}»{% endif %}{% else %}{{ captura.texto_original|truncatechars:80 }}{% endif %}
           {% if captura.estado == "error" %}
             {# El detalle (captura.error) puede traer datos de AWS: queda en el log y en el admin. #}
             <br><small>No se pudo procesar la nota. Puedes reintentar.</small>

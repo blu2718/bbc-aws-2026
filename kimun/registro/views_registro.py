@@ -26,6 +26,7 @@ from .ia import ClienteBedrock
 from .models import Captura, Observacion
 from .pantallas import ninos_mencionados, observaciones_para_tarjetas, tarjetas_suceso
 from .permisos import cursos_de, cursos_donde_registra, puede_validar
+from .views_captura import respuesta_audio
 
 RECIENTES = 3
 # Errores que indican que este servidor no está conectado a Bedrock (no un problema de la nota).
@@ -150,6 +151,9 @@ def original(request, captura_id):
     captura = _captura(request.user, captura_id, cursos_de)
     if not captura.archivo:
         raise Http404("La captura no tiene archivo.")
+    if captura.tipo == Captura.Tipo.AUDIO:
+        # Con rangos de bytes (206): Safari no reproduce un <audio> sin ellos.
+        return respuesta_audio(request, captura)
     extension = os.path.splitext(captura.archivo.name)[1].lower()
     respuesta = FileResponse(captura.archivo.open("rb"), content_type=TIPOS_MIME.get(extension, "application/octet-stream"))
     respuesta["Content-Disposition"] = "inline"

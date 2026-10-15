@@ -14,9 +14,14 @@
           {{ captura.get_tipo_display }} de {{ captura.autora.get_full_name|default:captura.autora.username }}
           <small>· {{ captura.creada|date:"j \d\e F, H:i" }} · {{ grupo.total }} observaci{{ grupo.total|pluralize:"ón,ones" }}</small>
         </h2>
+        {% if captura.tipo == "audio" and captura.archivo %}
+          <audio controls preload="none" src="{% url 'captura_original' captura.pk %}" aria-label="Audio original de la captura">
+            <a href="{% url 'captura_original' captura.pk %}">Descargar el audio original</a>
+          </audio>
+        {% endif %}
         {% if captura.texto_original or captura.texto_extraido %}
           <details>
-            <summary>Ver lo registrado</summary>
+            <summary>{% if captura.tipo == "audio" %}Ver la transcripción{% else %}Ver lo registrado{% endif %}</summary>
             <p>{{ captura.texto_original|default:captura.texto_extraido|linebreaksbr }}</p>
           </details>
         {% endif %}
