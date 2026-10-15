@@ -1,0 +1,33 @@
+{% comment %}
+Evolución de un núcleo: gráfico SVG y tabla equivalente, por accesibilidad (PLAN.md, Task 3).
+Recibe `evolucion`, un registro.grafico.Evolucion. Uso en la ficha:
+  {% include "registro/_evolucion.html" with evolucion=evoluciones.LV %}
+{% endcomment %}
+{% if evolucion.puntos %}
+<figure class="evolucion">
+  {{ evolucion.svg }}
+  <figcaption>Niveles validados en {{ evolucion.nucleo.nombre }}. Nivel actual: {{ evolucion.actual.texto }}.</figcaption>
+</figure>
+<details>
+  <summary>Ver la evolución como tabla</summary>
+  <div class="overflow-auto">
+    <table>
+      <caption>Niveles validados en {{ evolucion.nucleo.nombre }}</caption>
+      <thead>
+        <tr><th scope="col">Fecha</th><th scope="col">Nivel</th><th scope="col">Comentario</th></tr>
+      </thead>
+      <tbody>
+        {% for punto in evolucion.puntos %}
+          <tr>
+            <td style="white-space: nowrap"><time datetime="{{ punto.fecha|date:'Y-m-d' }}">{{ punto.fecha|date:"d-m-Y" }}</time></td>
+            <td>{{ punto.texto }}</td>
+            <td>{{ punto.comentario|default:"–" }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</details>
+{% else %}
+<p>Sin niveles validados en {{ evolucion.nucleo.nombre }}.</p>
+{% endif %}

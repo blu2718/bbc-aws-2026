@@ -1,5 +1,5 @@
 # bbc-aws-2026
-Hackathon Breaking Barriers 2026 · Desafío 1 Fundación Integra. El plan está en `PLAN.md`.
+Hackathon Breaking Barriers 2026 · Desafío 1 Fundación Integra. El plan está en `PLAN.md`; las fuentes y sus hallazgos, en `contexto/`, y los servicios AWS de la cuenta, en `docs/investigacion_servicios.md`.
 
 La app web (Django) vive en `kimun/`. Los datos compartidos (`datos/`) y los scripts (`scripts/`) quedan en la raíz.
 
@@ -36,8 +36,8 @@ Tests: `pytest` (dentro de `kimun/`). Variables de entorno: ver `kimun/.env.exam
 | `kimun/registro/management/commands/cargar_demo.py` | Currículo, semestres y curso de demo con 15 niños ficticios |
 | `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login y tabla del curso |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
-| `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo) y `demo_curso.json` |
-| `scripts/extraer_curriculo.py` | Regenera el currículo desde el PDF: `python -X utf8 scripts/extraer_curriculo.py --todos` (requiere `pdftotext` de Poppler; en Windows, `winget install oschwartz10612.Poppler`) |
+| `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json` |
+| `scripts/extraer_curriculo.py` | Regenera el currículo desde el PDF, que no se versiona: descargarlo desde <https://www.curriculumnacional.cl/614/articles-210511_programa.pdf> a `contexto/programa-pedagogico-transicion-mineduc.pdf` y correr `python -X utf8 scripts/extraer_curriculo.py --todos` (requiere `pdftotext` de Poppler; en Windows, `winget install oschwartz10612.Poppler`) |
 
 La cantidad de niveles (hoy 8) se define en la rúbrica de cada nivel educativo, no en el código: nunca usar un 8 fijo. Para el máximo, usar `Rubrica.nivel_maximo(nivel_educativo)`.
 

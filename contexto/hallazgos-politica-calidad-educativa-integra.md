@@ -1,6 +1,6 @@
 # Hallazgos: Política de Calidad Educativa de Integra (2017)
 
-- Autores: Fabián Pereira y Julio Yáñez, 14 de octubre de 2026. Este archivo unifica `informe-politica-calidad-integra-2017.md` con la versión anterior de estos hallazgos.
+- Autores: Fabián Pereira y Julio Yáñez, 14 de octubre de 2026.
 - Fuente: <https://integra.cl/wp-content/uploads/2018/03/POLITICA-DE-CALIDAD-EDUCATIVA-2017-2.pdf> (120 páginas, segunda edición).
 - Autor del documento: Fundación Integra, 2017.
 - Derechos: "Derechos reservados, prohibida su reproducción" (Registro de Propiedad Intelectual 262448). Por eso el PDF no está en el repositorio, que es público; se descarga desde la fuente.
@@ -47,7 +47,7 @@ Lectura para el proyecto:
 
 - La app trabaja sobre la fuente que Integra considera fundamental: la observación.
 - La "movilidad de los aprendizajes" es justo lo que registra nuestro historial de niveles validados.
-- El instrumento de 8 niveles probablemente sucede al IEA, pero falta confirmarlo.
+- El instrumento de 8 niveles probablemente sucede al IEA, pero falta confirmarlo. En su versión pública de 2018, el IEA se organizaba en los 8 núcleos de las Bases Curriculares, calificaba indicadores como incipiente, en desarrollo o adquirido, asignaba un nivel por núcleo (Inicial, Intermedio o Final) con umbrales de cantidad de indicadores, y lo aplicaba el equipo de aula 3 veces al año (abril, agosto y noviembre). La rúbrica nueva no usa umbrales de cantidad (respuesta de Integra).
 - En sala cuna ya existe una escala psicomotora (EEDP). La app no debe presentarse como instrumento de tamizaje clínico: complementa los instrumentos existentes, no los reemplaza.
 
 ### 2. Los resultados de evaluación alimentan la planificación (pp. 86–89)
@@ -103,12 +103,12 @@ Lectura: las educadoras escribirán libremente. Si un registro sugiere una posib
 ### 8. Personas y equipos
 
 - **Bienestar laboral.** La política sostiene que los equipos bien tratados cuidan mejor, y pone la "calidad de vida laboral" como eje estratégico (pp. 36, 106 y 110). Respalda el KPI del desafío: reducir horas de escritorio también es bienestar de las trabajadoras.
-- **Roles.** La planificación la lideran la directora y las educadoras, con reflexión colaborativa del equipo. A futuro, la app debería distinguir roles: educadora, técnica y directora.
+- **Roles.** La planificación la lideran la directora y las educadoras, con reflexión colaborativa del equipo. La app distingue educadora, asistente y directora.
 - **Gestión.** Integra declara un "sistema integrado" que conecta los niveles nacional, regional y de jardín (p. 61). Paneles agregados y anonimizados para directoras y equipos regionales son coherentes con eso y sirven como argumento de escalabilidad.
 
 ## Qué no trae
 
-- La rúbrica de 8 niveles ni el contenido del IEA (indicadores, escalas, umbrales).
+- La rúbrica de niveles de Integra ni el contenido detallado del IEA (indicadores, escalas, umbrales).
 - Cómo registrar o procesar observaciones.
 - Vocabulario curricular vigente.
 
@@ -126,15 +126,16 @@ La última columna indica si `PLAN.md` ya las recoge.
 | Ficha con los núcleos cruzados para ver brechas simultáneas | Sí (Task 3) |
 | Complementar, no reemplazar, EEDP, IEA y PLAEP-R; no presentarse como tamizaje clínico | Parcial: falta decirlo explícitamente en el pitch |
 | Vista de grupo con cobertura de núcleos por quincena | Sí (Task 2) |
-| Roles y reflexión en equipo | Parcial: el MVP cubre solo a la educadora |
+| Roles y reflexión en equipo | Parcial: educadora (revisa y valida), asistentes (registran) y directora (Task 12); sin reflexión en equipo dentro de la app |
 | Barrera de protección de derechos: detectar posibles vulneraciones y derivarlas al protocolo, sin procesarlas como evaluación | No |
 | Mostrar fortalezas y talentos, no solo vacíos | No |
 | Voz del niño: intereses, preferencias y palabras | Descartado por el equipo |
 | Resumen para familias, validado por la educadora | Fuera del MVP |
-| Paneles agregados y anonimizados para directoras y regiones | Fuera del MVP |
+| Panel del jardín para la directora | Task 12, si alcanza el tiempo |
+| Paneles regionales y nacionales | Fuera del MVP (pitch) |
 
 ## Preguntas para la directora de educación
 
-1. ¿El instrumento de 8 niveles reemplaza al IEA "Evaluar para aprender"?
-2. ¿La EEDP se sigue aplicando en sala cuna? ¿La herramienta debería convivir con ella?
-3. ¿Hay un protocolo vigente para cuando un registro sugiere una vulneración de derechos? ¿Qué debería hacer la herramienta en ese caso?
+Las preguntas sobre el IEA y la EEDP están en "Preguntas pendientes para Integra" de `PLAN.md` (pregunta 11). Queda una que no está ahí:
+
+1. ¿Hay un protocolo vigente para cuando un registro sugiere una vulneración de derechos? ¿Qué debería hacer la herramienta en ese caso?

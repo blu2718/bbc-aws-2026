@@ -1,6 +1,6 @@
 import pytest
 from django.contrib.auth import get_user_model
-from django.core.management import call_command
+from django.core.management import CommandError, call_command
 
 from registro.models import (
     Curso,
@@ -36,14 +36,22 @@ def cargada(db, monkeypatch):
 
 
 def test_carga_curriculo_y_rubrica(cargada):
-    rubrica = Rubrica.objects.get()
-    assert (rubrica.nivel_educativo, rubrica.cantidad_niveles, rubrica.provisoria) == (NivelEducativo.TRANSICION, 8, True)
+    rubrica = Rubrica.objects.get(nivel_educativo=NivelEducativo.TRANSICION)
+    assert (rubrica.cantidad_niveles, rubrica.provisoria) == (8, True)
     assert Nucleo.objects.count() == 8
     assert ObjetivoAprendizaje.objects.count() == 85
-    assert DescriptorNivel.objects.count() == 8 * 8
-    assert not DescriptorNivel.objects.filter(provisorio=False).exists()
+    transicion = DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.TRANSICION)
+    assert transicion.count() == 8 * 8
+    # IA viene de la rúbrica de Integra; los otros 7 núcleos siguen provisorios.
+    assert set(transicion.filter(provisorio=False).values_list("nucleo__sigla", flat=True)) == {"IA"}
+    assert transicion.get(nucleo__sigla="IA", nivel=3).nombre == "Desarrollando"
     assert Manifestacion.objects.filter(anio="NT1").exists()
     assert Manifestacion.objects.filter(anio="NT2").exists()
+
+
+def test_carga_la_rubrica_de_integra_en_los_3_niveles_educativos(cargada):
+    assert Rubrica.objects.count() == 3
+    assert DescriptorNivel.objects.filter(nucleo__sigla="IA", provisorio=False).count() == 3 * 8
 
 
 def test_cada_nucleo_trae_su_trayectoria(cargada):
@@ -80,18 +88,29 @@ def test_correr_dos_veces_no_duplica(cargada):
     assert _conteos() == antes
 
 
-def test_volver_a_cargar_respeta_la_rubrica_editada(cargada):
-    """Si alguien pasa la rúbrica a 9 niveles en el panel, cargar_demo no la devuelve a 8."""
-    Rubrica.objects.update(cantidad_niveles=9)
-    d = DescriptorNivel.objects.filter(nivel=3).first()
+def test_volver_a_cargar_respeta_los_descriptores_editados(cargada):
+    """Un descriptor editado en el panel (no provisorio) no vuelve al texto provisorio."""
+    d = DescriptorNivel.objects.get(nivel_educativo=NivelEducativo.TRANSICION, nucleo__sigla="LV", nivel=3)
     d.descripcion, d.provisorio, d.pasos_sugeridos = "Texto de Integra", False, "Observar X"
     d.save()
 
     call_command("cargar_demo", verbosity=0)
 
-    assert Rubrica.objects.get().cantidad_niveles == 9
     d.refresh_from_db()
     assert (d.descripcion, d.provisorio, d.pasos_sugeridos) == ("Texto de Integra", False, "Observar X")
+
+
+def test_si_la_rubrica_cambia_de_cantidad_de_niveles_falla_sin_cambiar_nada(cargada):
+    """Si alguien pasa Transición a 9 niveles en el panel, cargar_demo no la devuelve a 8 ni deja
+    la rúbrica de Integra (8 niveles) a medias: avisa que hay que igualarlas."""
+    Rubrica.objects.filter(nivel_educativo=NivelEducativo.TRANSICION).update(cantidad_niveles=9)
+    antes = _conteos()
+
+    with pytest.raises(CommandError, match="trae 8 niveles y la de la app tiene 9"):
+        call_command("cargar_demo", verbosity=0)
+
+    assert Rubrica.nivel_maximo(NivelEducativo.TRANSICION) == 9
+    assert _conteos() == antes
 
 
 def test_sin_demo_password_genera_y_muestra_contrasenas(db, monkeypatch, capsys):
@@ -116,7 +135,8 @@ def test_el_admin_abre_las_fichas(cargada, admin_client):
         f"/admin/registro/nino/{Nino.objects.first().pk}/change/",
         f"/admin/registro/objetivoaprendizaje/{ObjetivoAprendizaje.objects.first().pk}/change/",
         f"/admin/registro/curso/{Curso.objects.get().pk}/change/",
-        f"/admin/registro/rubrica/{Rubrica.objects.get().pk}/change/",
+        f"/admin/registro/rubrica/{Rubrica.objects.get(nivel_educativo=NivelEducativo.TRANSICION).pk}/change/",
+        f"/admin/registro/descriptornivel/{DescriptorNivel.objects.filter(provisorio=False).first().pk}/change/",
     ]
     for url in urls:
         assert admin_client.get(url).status_code == 200, url
