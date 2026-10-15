@@ -12,10 +12,7 @@
 
 Un curso o una captura ajenos responden 404, como en el resto de la app.
 """
-import os
-
 from django.contrib.auth.decorators import login_required
-from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -26,7 +23,6 @@ from .ia import ClienteBedrock
 from .models import Captura, Observacion
 from .pantallas import ninos_mencionados, observaciones_para_tarjetas, tarjetas_suceso
 from .permisos import cursos_de, cursos_donde_registra, puede_validar
-from .views_captura import respuesta_audio
 
 RECIENTES = 3
 # Errores que indican que este servidor no está conectado a Bedrock (no un problema de la nota).
@@ -34,10 +30,6 @@ PISTAS_SIN_CONEXION = (
     "Unable to locate credentials", "No module named 'boto3'", "ExpiredToken", "security token",
     "AccessDenied", "Could not connect to the endpoint",
 )
-TIPOS_MIME = {
-    ".jpg": "image/jpeg", ".png": "image/png", ".gif": "image/gif", ".webp": "image/webp",
-    ".webm": "audio/webm", ".ogg": "audio/ogg", ".m4a": "audio/mp4", ".wav": "audio/wav", ".mp3": "audio/mpeg",
-}
 
 
 def _es_htmx(request):
@@ -138,24 +130,3 @@ def reintentar(request, captura_id):
     if not _es_htmx(request):
         return redirect("captura", captura_id=captura.pk)
     return render(request, "registro/_estado_captura.html", _contexto_captura(request, captura))
-
-
-@login_required
-@require_GET
-def original(request, captura_id):
-    """La foto o el audio original, después de revisar que la usuaria ve el curso.
-
-    En desarrollo se sirve desde el disco. Con S3 (Task 8) se reemplaza por una
-    URL prefirmada de 5 minutos.
-    """
-    captura = _captura(request.user, captura_id, cursos_de)
-    if not captura.archivo:
-        raise Http404("La captura no tiene archivo.")
-    if captura.tipo == Captura.Tipo.AUDIO:
-        # Con rangos de bytes (206): Safari no reproduce un <audio> sin ellos.
-        return respuesta_audio(request, captura)
-    extension = os.path.splitext(captura.archivo.name)[1].lower()
-    respuesta = FileResponse(captura.archivo.open("rb"), content_type=TIPOS_MIME.get(extension, "application/octet-stream"))
-    respuesta["Content-Disposition"] = "inline"
-    respuesta["Cache-Control"] = "private, max-age=300"
-    return respuesta

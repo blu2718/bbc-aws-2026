@@ -1,29 +1,24 @@
-"""De una captura de texto a observaciones pendientes (PLAN.md, Task 5 y "Flujo de procesamiento").
+"""De una captura (nota, foto o audio) a observaciones pendientes (PLAN.md, Tasks 5, 8 y 9, "Flujo de procesamiento").
 
 Lo usa `manage.py procesar_capturas`:
 
 1. `tomar_siguiente()` toma una captura pendiente con una actualización condicional
    (`pendiente` → `procesando`, sumando `intentos`). Si dos procesos van por la misma,
    solo a uno le resulta y el otro sigue con la siguiente.
-2. `procesar()` llama a `separar()`, empareja cada nombre con `coincidencia.py` y crea
-   las observaciones en estado pendiente, todo en una transacción.
-3. Si `separar()` falla, la captura queda en `error` con el motivo (en el log y en el
-   admin; a quien registró se le muestra un mensaje genérico); `reintentar()` la
-   devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
+2. `procesar()` obtiene el texto con `lectura.texto_para_separar()`: la nota tal cual,
+   la foto leída con Claude (Task 8) o el audio transcrito con Transcribe, con los
+   nombres del curso como vocabulario (Task 9). Luego llama a `separar()`, empareja cada
+   nombre con `coincidencia.py` y crea las observaciones en estado pendiente, todo en
+   una transacción.
+3. Si la lectura o `separar()` fallan, la captura queda en `error` con el motivo (en el
+   log y en el admin; a quien registró se le muestra un mensaje genérico); `reintentar()`
+   la devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
    recupera las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA).
 
-Las fotos (Task 8) primero se transcriben con Claude (`ia.lectura.leer_foto`, con
-`[ilegible]` en vez de adivinar) y los audios (Task 9) con `ia.transcripcion` (con los
-nombres del curso como vocabulario). Lo leído o transcrito queda en `texto_extraido` y
-pasa por la misma separación que una nota escrita, junto con lo que se escribió al
-adjuntar el archivo. Si después falla la separación, al reintentar no se vuelve a leer
-la foto ni a transcribir el audio.
-
-Además del proceso de fondo, la página de cada captura (pantalla II de
-diseno-interfaz.jpg) procesa al abrirse los textos y las fotos con
-`procesar_si_pendiente()`. La actualización condicional de `tomar()` evita que los dos
-procesen la misma. Los audios los procesa solo el proceso de fondo: Transcribe por
-lotes puede tardar más que el timeout de gunicorn (60 s) y el de CloudFront (30 s).
+Las fotos y los audios no se conservan: apenas se leen, el texto queda en
+`texto_extraido` y el archivo se borra. Un reintento después de leerlos usa ese texto y
+no vuelve a llamar a Claude ni a Transcribe. Si la lectura falla, el archivo se conserva
+para reintentar; si no es una foto o un audio válido, se borra (`lectura.ArchivoInvalido`).
 """
 import logging
 from datetime import date, timedelta
@@ -34,10 +29,10 @@ from django.utils import timezone
 
 from .coincidencia import emparejar
 from .curriculo import leer_curriculo, leer_curriculo_de
-from .ia import ClienteBedrock, ClienteTranscribe, ErrorSeparacion, ErrorTranscripcion, separar
-from .ia.lectura import ErrorLectura, leer_foto
+from .ia import ClienteBedrock, ErrorSeparacion, ErrorTranscripcion, separar
 from .ia.separacion import normalizar_codigo_oa
-from .ia.transcripcion import frases_vocabulario
+# frases_del_curso y prefijo_vocabulario se usan también en `preparar_vocabularios`.
+from .lectura import ArchivoInvalido, frases_del_curso, prefijo_vocabulario, texto_para_separar  # noqa: F401
 from .models import Captura, Efecto, NivelEducativo, Nucleo, ObjetivoAprendizaje, Observacion
 
 logger = logging.getLogger(__name__)
@@ -110,40 +105,6 @@ def reintentar_errores():
     return errores + atascadas
 
 
-def prefijo_vocabulario(curso):
-    """Nombre base del vocabulario de Transcribe del curso (los permisos exigen `kimun-*`)."""
-    return f"kimun-curso-{curso.pk}"
-
-
-def frases_del_curso(ninos):
-    """Nombre completo, nombre de pila y apodos de cada niño, listos para el vocabulario."""
-    nombres = []
-    for nino in ninos:
-        nombres.append(nino.nombre)
-        nombres.extend(nino.nombre.split()[:1])
-        nombres.extend(alias for alias in (nino.alias or []) if isinstance(alias, str))
-    return frases_vocabulario(nombres)
-
-
-def _texto_de_audio(captura, ninos, transcriptor):
-    """Transcribe el audio y guarda el texto. Si ya estaba transcrito (reintento), lo reutiliza."""
-    if captura.texto_extraido.strip():
-        return captura.texto_extraido
-    if not captura.archivo:
-        raise ErrorTranscripcion("La captura de audio no tiene archivo.")
-    with captura.archivo.storage.open(captura.archivo.name, "rb") as archivo:
-        audio = archivo.read()
-    texto = transcriptor.transcribir(
-        audio,
-        id_trabajo=f"kimun-captura-{captura.pk}-{captura.intentos}",
-        prefijo_vocabulario=prefijo_vocabulario(captura.curso),
-        frases=frases_del_curso(ninos),
-    )
-    captura.texto_extraido = texto
-    captura.save(update_fields=["texto_extraido", "actualizada"])
-    return texto
-
-
 def _marcar_error(captura, motivo):
     captura.estado = Captura.Estado.ERROR
     captura.error = motivo
@@ -196,39 +157,19 @@ def _catalogo_del_curso(curso, catalogo=None):
     return leer_curriculo_de(nivel)
 
 
-def _texto_a_separar(captura, ninos, cliente, transcriptor):
-    """El texto escrito o, en una foto o un audio, lo leído o transcrito más lo que se escribió al adjuntarlo.
-
-    La foto se lee y el audio se transcribe una sola vez: si la separación falla y se
-    reintenta, se reusa `texto_extraido`.
-    """
-    if captura.tipo == Captura.Tipo.AUDIO:
-        _texto_de_audio(captura, ninos, transcriptor or ClienteTranscribe())
-    elif captura.tipo == Captura.Tipo.FOTO:
-        if not captura.texto_extraido:
-            if not captura.archivo:
-                raise ErrorLectura("La captura de foto no tiene archivo.")
-            with captura.archivo.open("rb") as archivo:
-                imagen = archivo.read()
-            captura.texto_extraido = leer_foto(imagen, cliente=cliente)
-            captura.save(update_fields=["texto_extraido", "actualizada"])
-    else:
-        return captura.texto_original or captura.texto_extraido
-    partes = (captura.texto_extraido, captura.texto_original)
-    return "\n\n".join(p.strip() for p in partes if p and p.strip())
-
-
 def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
     """Separa una captura ya tomada y crea sus observaciones pendientes.
 
-    Los audios se transcriben antes con `transcriptor` (por defecto, `ClienteTranscribe()`).
+    Las fotos se leen antes con `cliente` y los audios se transcriben con `transcriptor`
+    (por defecto, `ClienteTranscribe()`); en ambos casos el archivo se borra después.
     Devuelve la lista de observaciones creadas (puede ser vacía si la nota no
     describe ninguna), o None si la captura quedó en error.
     """
     curso = captura.curso
     ninos = list(curso.ninos.all())
     try:
-        texto = _texto_a_separar(captura, ninos, cliente, transcriptor)
+        # La foto o el audio se leen aquí (el texto se guarda y el archivo se borra); una nota se usa tal cual.
+        texto = texto_para_separar(captura, cliente=cliente, transcriptor=transcriptor, ninos=ninos)
         separadas = separar(
             texto,
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
@@ -247,9 +188,14 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
             captura.estado = Captura.Estado.PROCESADA
             captura.error = ""
             captura.save(update_fields=["estado", "error", "actualizada"])
-    except (ErrorSeparacion, ErrorLectura, ErrorTranscripcion) as error:
+    except (ErrorSeparacion, ErrorTranscripcion) as error:
         logger.warning("Captura %s quedó con error: %s", captura.pk, error)
         _marcar_error(captura, str(error))
+        return None
+    except ArchivoInvalido as error:
+        # Sin archivo, o no es una foto o un audio aceptado (ya se borró): reintentar no lo arregla.
+        logger.warning("Captura %s: el archivo no se puede leer: %s", captura.pk, error)
+        _marcar_error(captura, f"Archivo inválido: {error}")
         return None
     except Exception as error:
         # Un error inesperado no debe dejar la captura en "procesando" para siempre.
@@ -270,9 +216,9 @@ def procesar_pendientes(cliente=None, catalogo=None, transcriptor=None):
 def procesar_si_pendiente(captura, cliente=None):
     """Toma y procesa la captura si está pendiente y nadie más la tomó. True si la procesó esta llamada.
 
-    La usa la página de la captura, que espera ahí el resultado de Bedrock. Los audios
-    no se toman aquí: Transcribe tarda más que el timeout de la página y los procesa
-    el proceso de fondo.
+    La usa la página de la captura (pantalla II de diseno-interfaz.jpg), que espera ahí
+    el resultado de Bedrock. Los audios no se toman aquí: Transcribe tarda más que el
+    timeout de la página y los procesa el proceso de fondo.
     """
     if captura.tipo == Captura.Tipo.AUDIO or not tomar(captura.pk):
         return False

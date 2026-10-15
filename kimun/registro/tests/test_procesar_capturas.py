@@ -292,7 +292,17 @@ def test_tomar_siguiente_salta_la_que_otro_proceso_acaba_de_tomar(curso, educado
     assert _estado(primera) == PROCESANDO and primera.intentos == 1
 
 
-# Las fotos (Task 8) se prueban en test_capturas.py y los audios (Task 9) en test_captura_audio.py.
+# Las fotos (test_captura_foto.py) y los audios (test_captura_audio.py) también se procesan.
+
+
+def test_una_foto_sin_archivo_queda_en_error_sin_llamar_al_modelo(curso, educadora, ninos, oas):
+    foto = _captura(curso, educadora, "", tipo=Captura.Tipo.FOTO)
+
+    cliente = _procesar()
+
+    assert _estado(foto) == ERROR
+    assert "Archivo inválido" in foto.error
+    assert cliente.llamadas == []
 
 
 def test_procesar_una_captura_ya_tomada(curso, educadora, ninos, oas):

@@ -17,6 +17,9 @@ staticfiles/
 # Documentos fuente (se descargan desde su origen, no se versionan)
 contexto/*.pdf
 
+# Fotos de los post-its de prueba (Task 8): se toman en el momento, no se versionan
+datos/eval/fotos/
+
 # Secretos y configuración local
 .env
 .env.*

@@ -196,21 +196,7 @@ def test_permisos_de_la_captura(client, curso, educadora, asistente_del_curso, d
     client.force_login(otra_educadora)
     assert client.get(url).status_code == 404
     assert client.post(procesar, headers=HTMX).status_code == 404
-    assert client.get(reverse("captura_original", args=[captura.pk])).status_code == 404
 
-
-def test_el_original_se_sirve_solo_a_quien_ve_el_curso(client, curso, educadora, otra_educadora):
-    client.force_login(educadora)
-    _registrar(client, curso, foto=SimpleUploadedFile("p.jpg", JPEG, content_type="image/jpeg"))
-    captura = Captura.objects.get()
-    url = reverse("captura_original", args=[captura.pk])
-
-    respuesta = client.get(url)
-    assert respuesta.status_code == 200 and respuesta["Content-Type"] == "image/jpeg"
-    assert b"".join(respuesta.streaming_content) == JPEG
-
-    client.force_login(otra_educadora)
-    assert client.get(url).status_code == 404
 
 
 def test_otro_error_de_bedrock_muestra_el_mensaje_general(client, curso, educadora, con_bedrock_falso):

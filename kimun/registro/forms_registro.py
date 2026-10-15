@@ -10,42 +10,31 @@ from uuid import uuid4
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .ia.lectura import formato_de_imagen
+from .ia.foto import EXTENSIONES as EXTENSIONES_FOTO
+from .ia.foto import TAMANO_MAXIMO, detectar_formato
+from .ia.transcripcion import formato_audio
 from .models import Captura
 
-MAX_MB_FOTO = 10
+# Las mismas reglas que las Tasks 8 y 9: el límite de imagen de Bedrock y los formatos de Transcribe.
+MAX_MB_FOTO = TAMANO_MAXIMO / 1_000_000
 MAX_MB_AUDIO = 20
 LARGO_TEXTO = 4000
-EXTENSIONES = {
-    "jpeg": "jpg", "png": "png", "gif": "gif", "webp": "webp",
-    "webm": "webm", "ogg": "ogg", "mp4": "m4a", "wav": "wav", "mp3": "mp3",
-}
+EXTENSIONES = EXTENSIONES_FOTO | {f: f for f in ("webm", "ogg", "mp4", "m4a", "wav", "mp3", "flac", "amr")}
+
+
+def formato_de_imagen(cabecera):
+    return detectar_formato(cabecera)
 
 
 def formato_de_audio(cabecera):
-    """'webm', 'ogg', 'mp4', 'wav' o 'mp3' según los primeros bytes; None si no es uno de esos.
-
-    Son formatos que acepta Transcribe y que graban los navegadores (WebM/Opus en
-    Android, MP4 en iPhone).
-    """
-    if cabecera.startswith(b"\x1a\x45\xdf\xa3"):
-        return "webm"
-    if cabecera.startswith(b"OggS"):
-        return "ogg"
-    if cabecera[4:8] == b"ftyp":
-        return "mp4"
-    if cabecera[:4] == b"RIFF" and cabecera[8:12] == b"WAVE":
-        return "wav"
-    if cabecera.startswith(b"ID3") or cabecera[:2] in (b"\xff\xfb", b"\xff\xf3", b"\xff\xf2"):
-        return "mp3"
-    return None
+    return formato_audio(cabecera)
 
 
 def _revisar_archivo(archivo, maximo_mb, detectar, mensaje):
     if not archivo:
         return None
-    if archivo.size > maximo_mb * 1024 * 1024:
-        raise ValidationError(f"El archivo pesa más de {maximo_mb} MB.")
+    if archivo.size > maximo_mb * 1_000_000:
+        raise ValidationError(f"El archivo pesa más de {maximo_mb:g} MB.")
     cabecera = archivo.read(16)
     archivo.seek(0)
     formato = detectar(cabecera)

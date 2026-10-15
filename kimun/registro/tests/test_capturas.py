@@ -1,4 +1,6 @@
-"""Lo que agrega la interfaz al procesamiento de la Task 5: fotos, efecto y procesar desde la página.
+"""Lo que agrega la interfaz al procesamiento: efecto y procesar desde la página.
+
+Las fotos se prueban en test_captura_foto.py (Task 8).
 
 El resto (tomar, reintentar, emparejar, el comando) se prueba en test_procesar_capturas.py.
 """
@@ -103,42 +105,6 @@ def test_desde_la_pagina_se_reintenta_un_error_o_una_atascada(curso_con_ninos, e
     assert reintentar_desde_la_pagina(captura)
 
 
-def test_una_foto_se_lee_una_vez_y_despues_se_separa(curso_con_ninos, educadora, settings, tmp_path):
-    settings.MEDIA_ROOT = tmp_path
-    captura = Captura(curso=curso_con_ninos, autora=educadora, tipo=Captura.Tipo.FOTO, texto_original="En el patio.")
-    captura.archivo.save("postit.jpg", ContentFile(JPEG), save=False)
-    captura.save()
-    cliente = ClienteFalso({"texto": "Pedro clasificó hojas [ilegible]"}, "no es json")
-
-    procesar_si_pendiente(captura, cliente)
-
-    captura.refresh_from_db()
-    assert captura.estado == Captura.Estado.ERROR  # falló la separación, no la lectura
-    assert captura.texto_extraido == "Pedro clasificó hojas [ilegible]"
-    lectura, separacion = cliente.llamadas
-    assert lectura["imagenes"] == [("jpeg", JPEG)]
-    assert "Pedro clasificó hojas [ilegible]" in separacion["mensaje"] and "En el patio." in separacion["mensaje"]
-
-    # Al reintentar no se vuelve a leer la foto: solo se separa.
-    reintentar_desde_la_pagina(captura)
-    otro = ClienteFalso({"observaciones": [cruda("Pedro")]})
-    procesar_si_pendiente(captura, otro)
-    captura.refresh_from_db()
-    assert captura.estado == Captura.Estado.PROCESADA and len(otro.llamadas) == 1
-    assert captura.observaciones.get().nino.nombre == "Pedro Salinas"
-
-
-def test_una_foto_que_no_es_imagen_queda_con_error(curso_con_ninos, educadora, settings, tmp_path):
-    settings.MEDIA_ROOT = tmp_path
-    captura = Captura(curso=curso_con_ninos, autora=educadora, tipo=Captura.Tipo.FOTO)
-    captura.archivo.save("x.jpg", ContentFile(b"<html>"), save=False)
-    captura.save()
-    cliente = ClienteFalso()
-
-    procesar_si_pendiente(captura, cliente)
-
-    captura.refresh_from_db()
-    assert captura.estado == Captura.Estado.ERROR and not cliente.llamadas
 
 
 def test_el_audio_espera_la_transcripcion(curso_con_ninos, educadora, settings, tmp_path):

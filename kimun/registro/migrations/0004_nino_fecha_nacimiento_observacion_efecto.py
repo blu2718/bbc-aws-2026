@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('registro', '0002_descriptor_rubrica_integra'),
+        ('registro', '0003_captura_archivo_ruta_aleatoria'),
     ]
 
     operations = [

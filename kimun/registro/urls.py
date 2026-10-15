@@ -10,9 +10,10 @@ urlpatterns = [
     path("capturas/<int:captura_id>/", views_registro.captura, name="captura"),
     path("capturas/<int:captura_id>/procesar/", views_registro.procesar, name="captura_procesar"),
     path("capturas/<int:captura_id>/procesar/reintentar/", views_registro.reintentar, name="captura_reintentar_suceso"),
-    path("capturas/<int:captura_id>/original/", views_registro.original, name="captura_original"),
-    # Registro de notas escritas (Task 5)
+    # Registro de capturas: nota escrita (Task 5), foto (Task 8) y audio (Task 9).
+    # Las fotos y los audios no se sirven: se borran apenas se leen.
     path("cursos/<int:curso_id>/capturar/", views_captura.capturar, name="capturar"),
+    path("cursos/<int:curso_id>/capturar/foto/", views_captura.capturar_foto, name="capturar_foto"),
     path("cursos/<int:curso_id>/capturar/audio/", views_captura.capturar_audio, name="capturar_audio"),
     path("cursos/<int:curso_id>/capturar/recientes/", views_captura.capturas_recientes, name="capturas_recientes"),
     path("capturas/<int:captura_id>/reintentar/", views_captura.reintentar_captura, name="captura_reintentar"),

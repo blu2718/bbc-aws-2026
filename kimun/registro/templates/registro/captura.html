@@ -7,17 +7,14 @@
   {% if puede_registrar %}<p class="volver"><a href="{% url 'registrar' curso.pk %}">← Nuevo registro</a></p>{% endif %}
 
   <div class="burbuja">
-    {% if captura.archivo and captura.tipo == "foto" %}
-      <a href="{% url 'captura_original' captura.pk %}" target="_blank" rel="noopener">
-        <img src="{% url 'captura_original' captura.pk %}" alt="Foto del registro (se abre en otra pestaña)" loading="lazy">
-      </a>
-    {% elif captura.archivo and captura.tipo == "audio" %}
-      <audio controls preload="none" src="{% url 'captura_original' captura.pk %}">Tu navegador no puede reproducir el audio.</audio>
+    {# Las fotos y los audios no se muestran: se borran apenas se leen y queda el texto (registro/lectura.py). #}
+    {% if captura.tipo != "texto" %}
+      <p class="burbuja-tipo">{% if captura.tipo == "foto" %}📷 Foto{% else %}🎙 Audio{% endif %}{% if captura.texto_extraido %} · el archivo ya se leyó y se borró{% elif captura.archivo %} · esperando su lectura{% endif %}</p>
     {% endif %}
     {% if captura.texto_original %}<p>«{{ captura.texto_original|linebreaksbr }}»</p>{% endif %}
     {% if captura.texto_extraido %}
       <details>
-        <summary>Texto leído de la foto</summary>
+        <summary>{% if captura.tipo == "audio" %}Transcripción del audio{% else %}Texto leído de la foto{% endif %}</summary>
         <p>{{ captura.texto_extraido|linebreaksbr }}</p>
       </details>
     {% endif %}

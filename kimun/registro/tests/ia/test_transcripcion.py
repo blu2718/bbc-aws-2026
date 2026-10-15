@@ -79,9 +79,16 @@ class S3Falso:
         self.texto = texto
         self.subidos = {}
         self.leidos = []
+        self.borrados = []
+        self.error_al_borrar = None
 
     def put_object(self, Bucket, Key, Body, ContentType):
         self.subidos[Key] = {"bucket": Bucket, "cuerpo": Body, "tipo": ContentType}
+
+    def delete_object(self, Bucket, Key):
+        if self.error_al_borrar:
+            raise self.error_al_borrar
+        self.borrados.append(Key)
 
     def get_object(self, Bucket, Key):
         self.leidos.append(Key)
@@ -309,3 +316,49 @@ def test_cada_intento_es_un_trabajo_con_otro_nombre():
 def test_el_bucket_sale_del_entorno(monkeypatch):
     monkeypatch.setenv("KIMUN_BUCKET", "bucket-del-entorno")
     assert ClienteTranscribe().bucket == "bucket-del-entorno"
+
+
+# --- El audio y la salida no se conservan en el bucket -----------------------------------
+
+
+def test_al_terminar_se_borran_del_bucket_el_audio_y_la_salida():
+    transcribe, s3 = TranscribeFalso(), S3Falso()
+    cliente, _ = _cliente(transcribe, s3)
+
+    assert _transcribir(cliente) == TEXTO
+
+    (clave_audio,) = s3.subidos
+    assert s3.borrados == [clave_audio, transcribe.trabajos[0]["OutputKey"]]
+
+
+@pytest.mark.parametrize("estados", [["IN_PROGRESS", "FAILED"], ["IN_PROGRESS"]])
+def test_si_la_transcripcion_falla_o_no_termina_igual_se_borra_el_audio(estados):
+    transcribe, s3 = TranscribeFalso(estados=estados), S3Falso()
+    cliente, _ = _cliente(transcribe, s3, tiempo_maximo=30.0)
+
+    with pytest.raises(ErrorTranscripcion):
+        _transcribir(cliente)
+
+    (clave_audio,) = s3.subidos
+    assert clave_audio in s3.borrados
+
+
+def test_si_no_se_puede_iniciar_el_trabajo_se_borra_el_audio_subido():
+    transcribe, s3 = TranscribeFalso(), S3Falso()
+    transcribe.error_al_iniciar = ErrorAws("AccessDeniedException")
+    cliente, _ = _cliente(transcribe, s3)
+
+    with pytest.raises(ErrorTranscripcion):
+        _transcribir(cliente)
+
+    assert s3.borrados == list(s3.subidos)
+
+
+def test_si_falla_el_borrado_en_el_bucket_la_transcripcion_no_se_pierde(caplog):
+    transcribe, s3 = TranscribeFalso(), S3Falso()
+    s3.error_al_borrar = ErrorAws("AccessDenied")
+    cliente, _ = _cliente(transcribe, s3)
+
+    with caplog.at_level(logging.WARNING, logger="registro.ia.transcripcion"):
+        assert _transcribir(cliente) == TEXTO
+    assert "No se pudo borrar" in caplog.text
