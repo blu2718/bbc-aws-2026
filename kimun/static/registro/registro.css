@@ -1,39 +1,66 @@
 /* Estilos de Kimün sobre Pico.css. Se carga en base.html, en todas las páginas.
 
-   La paleta sale del logo (static/registro/img/logo.svg): el celeste #5cbde6
-   del fondo y el blanco de la araucaria y los niños. El celeste tiene poco
-   contraste con texto blanco (2,1:1), así que se usa como fondo con texto
-   oscuro (#14313d, 6,4:1); para enlaces y textos se usa un azul más profundo
-   de la misma familia (#0b6f96, 5,6:1 sobre blanco).
+   La paleta sale del logo de Integra (docs/marca/logo-integra.jpg), en versión
+   pastel y suave. Los colores del logo son azul #0060a8, rojo #e41818, verde
+   #48b400, amarillo #fccc00 y el gris #606060 del texto "INTEGRA":
+   - Azul: el celeste pastel (#a0c9e9) de botones y fondos, con texto oscuro de
+     la misma familia (#142f43, 7,9:1). Para enlaces, un azul profundo (#125a91,
+     7,3:1 sobre blanco).
+   - Gris: botones secundarios y la etiqueta "provisoria" (#606060, 6,3:1 con blanco).
+   - Amarillo, rojo y verde: los avisos, las alertas y lo que está bien, siempre
+     con texto oscuro sobre un fondo pastel de su color.
+   - Los cuatro juntos, en pastel, en la franja bajo la barra superior (como los
+     trazos del logo de Integra). Es solo decoración: no lleva información.
 
-   Los colores de las señales tienen contraste de al menos 4,5:1 con su fondo
-   en modo claro y oscuro (#13171f). El color siempre va acompañado de texto. */
+   Contraste: todo texto tiene al menos 4,5:1 con su fondo, en modo claro y en
+   oscuro (#13171f), y los bordes de las señales 3:1. El color siempre va
+   acompañado de texto. */
 
 :root {
-  /* Logo */
-  --kimun-celeste: #5cbde6;        /* el del logo: solo como fondo */
-  --kimun-celeste-hover: #43acd9;  /* texto #14313d encima: 5,3:1 */
-  --kimun-celeste-suave: #e8f6fc;  /* bandas y fondos suaves */
-  --kimun-celeste-borde: #b9e3f5;
-  --kimun-azul: #0b6f96;           /* enlaces: 5,6:1 sobre blanco, 5,1:1 sobre celeste suave */
-  --kimun-tinta: #14313d;          /* texto sobre celeste: 6,4:1 */
-  --kimun-fondo: #f7fbfe;          /* fondo de página, blanco apenas celeste */
+  /* Azul de Integra, en pastel */
+  --kimun-celeste: #a0c9e9;        /* fondo de botones y del avatar del curso: texto #142f43 encima 7,9:1 */
+  --kimun-celeste-hover: #88b8dd;  /* texto #142f43 encima: 6,6:1 */
+  --kimun-celeste-suave: #ecf5fb;  /* bandas y fondos suaves: texto 12,5:1 */
+  --kimun-celeste-medio: #daeaf6;  /* hover sobre celeste suave */
+  --kimun-celeste-borde: #c9deee;
+  --kimun-celeste-claro: #f5f9fc;  /* citas y fondo del gráfico */
+  --kimun-azul: #125a91;           /* enlaces: 7,3:1 sobre blanco, 6,6:1 sobre celeste suave */
+  --kimun-azul-hover: #0d4773;
+  --kimun-tinta: #142f43;          /* texto sobre celeste */
+  --kimun-fondo: #fafcfd;          /* fondo de página, blanco apenas celeste */
+  --kimun-linea: #dbe4eb;          /* bordes de tarjetas */
   --kimun-radio: .75rem;
-  --kimun-sombra: 0 1px 2px rgba(20, 49, 61, .06), 0 6px 18px rgba(20, 49, 61, .07);
+  --kimun-sombra: 0 1px 2px rgba(20, 47, 67, .06), 0 6px 18px rgba(20, 47, 67, .07);
+
+  /* Gris de Integra */
+  --kimun-gris: #606060;           /* 6,3:1 con blanco */
+  --kimun-gris-oscuro: #484c51;
+  --kimun-gris-suave: #eef1f4;     /* texto #484c51 encima: 7,6:1 */
+  --kimun-texto-tenue: #484c51;    /* pie de la burbuja y etiquetas del gráfico */
+
+  /* Los cuatro colores del logo en pastel (franja decorativa) */
+  --integra-azul-pastel: #a0c9e9;
+  --integra-rojo-pastel: #f5b0ad;
+  --integra-verde-pastel: #b6dd9d;
+  --integra-amarillo-pastel: #fcde7e;
 
   /* Señales: texto sobre el fondo de la página */
-  --kimun-aviso: #7a4a00;      /* 7,4:1 sobre blanco */
-  --kimun-alerta: #a3122a;     /* 7,8:1 sobre blanco */
-  --kimun-ok: #1e6b35;         /* 6,5:1 sobre blanco */
-  --kimun-provisoria: #3d5a68; /* gris azulado del logo: 7,3:1 sobre blanco */
+  --kimun-aviso: #754200;      /* amarillo: 8,3:1 sobre blanco */
+  --kimun-alerta: #a51c18;     /* rojo: 7,6:1 sobre blanco */
+  --kimun-ok: #326412;         /* verde: 7,1:1 sobre blanco */
+  --kimun-provisoria: var(--kimun-gris);
 
-  /* Señales en caja (tabla del curso): fondo suave, texto oscuro y borde */
-  --kimun-aviso-fondo: #fdf3dc;  /* texto 10,1:1 */
-  --kimun-aviso-texto: #4d3800;
-  --kimun-aviso-borde: #b38600;
-  --kimun-alerta-fondo: #fbe4e6; /* texto 11,3:1 */
-  --kimun-alerta-texto: #5c0f17;
-  --kimun-alerta-borde: #b02a37;
+  /* Señales en caja: fondo pastel, texto oscuro y borde */
+  --kimun-aviso-fondo: #fef2cd;  /* texto 10,6:1 */
+  --kimun-aviso-texto: #4c3300;
+  --kimun-aviso-borde: #987916;  /* 3,7:1 sobre su fondo */
+  --kimun-aviso-linea: #f4df9a;  /* borde suave de cajas informativas */
+  --kimun-aviso-claro: #fffbf0;
+  --kimun-alerta-fondo: #fde6e5; /* texto 11,4:1 */
+  --kimun-alerta-texto: #5b1310;
+  --kimun-alerta-borde: #cc3833; /* 4,2:1 sobre su fondo */
+  --kimun-alerta-linea: #f5bebc;
+  --kimun-ok-fondo: #e3f4d7;     /* texto verde 6,1:1 */
 }
 
 /* Variables de Pico con la paleta del logo. Modo claro: automático y forzado. */
@@ -43,14 +70,14 @@
     --pico-primary: var(--kimun-azul);
     --pico-primary-background: var(--kimun-celeste);
     --pico-primary-border: var(--kimun-celeste);
-    --pico-primary-underline: rgba(11, 111, 150, .45);
-    --pico-primary-hover: #085a7a;
+    --pico-primary-underline: rgba(18, 90, 145, .45);
+    --pico-primary-hover: var(--kimun-azul-hover);
     --pico-primary-hover-background: var(--kimun-celeste-hover);
     --pico-primary-hover-border: var(--kimun-celeste-hover);
-    --pico-primary-hover-underline: #085a7a;
-    --pico-primary-focus: rgba(11, 111, 150, .35);
+    --pico-primary-hover-underline: var(--kimun-azul-hover);
+    --pico-primary-focus: rgba(18, 90, 145, .35);
     --pico-primary-inverse: var(--kimun-tinta);
-    --pico-muted-border-color: #d6ecf6;
+    --pico-muted-border-color: var(--kimun-celeste-borde);
   }
 }
 
@@ -59,74 +86,76 @@
   --pico-primary: var(--kimun-azul);
   --pico-primary-background: var(--kimun-celeste);
   --pico-primary-border: var(--kimun-celeste);
-  --pico-primary-underline: rgba(11, 111, 150, .45);
-  --pico-primary-hover: #085a7a;
+  --pico-primary-underline: rgba(18, 90, 145, .45);
+  --pico-primary-hover: var(--kimun-azul-hover);
   --pico-primary-hover-background: var(--kimun-celeste-hover);
   --pico-primary-hover-border: var(--kimun-celeste-hover);
-  --pico-primary-hover-underline: #085a7a;
-  --pico-primary-focus: rgba(11, 111, 150, .35);
+  --pico-primary-hover-underline: var(--kimun-azul-hover);
+  --pico-primary-focus: rgba(18, 90, 145, .35);
   --pico-primary-inverse: var(--kimun-tinta);
-  --pico-muted-border-color: #d6ecf6;
+  --pico-muted-border-color: var(--kimun-celeste-borde);
 }
 
-/* Modo oscuro: el celeste del logo sí sirve como texto (8,4:1 sobre #13171f). */
+/* Modo oscuro: el celeste pastel sí sirve como texto (9,5:1 sobre #13171f). */
 @media only screen and (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --kimun-celeste-suave: #16252e;  /* texto celeste encima: 7,4:1 */
-    --kimun-celeste-borde: #24414f;
-    --kimun-azul: #5cbde6;
-    --kimun-tinta: #c9e6f3;
-    --kimun-aviso: #ffc66d;
-    --kimun-alerta: #ff9aa8;
-    --kimun-ok: #8fe0a6;
-    --kimun-provisoria: #a9c3d0;     /* 9,8:1 */
-    --kimun-aviso-fondo: #3a2f12;    /* texto 9,7:1 */
-    --kimun-aviso-texto: #ffd98a;
-    --kimun-alerta-fondo: #3d1a20;   /* texto 10,1:1 */
-    --kimun-alerta-texto: #ffc2ca;
-    --pico-primary: #5cbde6;
-    --pico-primary-background: #5cbde6;
-    --pico-primary-border: #5cbde6;
-    --pico-primary-underline: rgba(92, 189, 230, .5);
-    --pico-primary-hover: #8fd3ef;
-    --pico-primary-hover-background: #8fd3ef;
-    --pico-primary-hover-border: #8fd3ef;
-    --pico-primary-focus: rgba(92, 189, 230, .4);
-    --pico-primary-inverse: #0b2230;  /* 7,7:1 sobre el celeste */
+    --kimun-celeste-suave: #18252f;  /* texto celeste encima: 8,3:1 */
+    --kimun-celeste-borde: #2e4556;
+    --kimun-celeste-medio: #213443;
+    --kimun-azul: #8ec3eb;
+    --kimun-tinta: #dae7f1;
+    --kimun-aviso: #fbd96a;
+    --kimun-alerta: #fc9f9c;
+    --kimun-ok: #aadd88;
+    --kimun-provisoria: #b6bdc3;     /* 9,5:1 */
+    --kimun-aviso-fondo: #342c14;    /* texto 10,7:1 */
+    --kimun-aviso-texto: #fce188;
+    --kimun-alerta-fondo: #361817;   /* texto 10,1:1 */
+    --kimun-alerta-texto: #fdbcb9;
+    --pico-primary: #8ec3eb;
+    --pico-primary-background: #8ec3eb;
+    --pico-primary-border: #8ec3eb;
+    --pico-primary-underline: rgba(142, 195, 235, .5);
+    --pico-primary-hover: #b3d8f4;
+    --pico-primary-hover-background: #b3d8f4;
+    --pico-primary-hover-border: #b3d8f4;
+    --pico-primary-focus: rgba(142, 195, 235, .4);
+    --pico-primary-inverse: #0b1e2d;  /* 9,0:1 sobre el celeste */
   }
 }
 
 [data-theme="dark"] {
-  --kimun-celeste-suave: #16252e;
-  --kimun-celeste-borde: #24414f;
-  --kimun-azul: #5cbde6;
-  --kimun-tinta: #c9e6f3;
-  --kimun-aviso: #ffc66d;
-  --kimun-alerta: #ff9aa8;
-  --kimun-ok: #8fe0a6;
-  --kimun-provisoria: #a9c3d0;
-  --kimun-aviso-fondo: #3a2f12;
-  --kimun-aviso-texto: #ffd98a;
-  --kimun-alerta-fondo: #3d1a20;
-  --kimun-alerta-texto: #ffc2ca;
-  --pico-primary: #5cbde6;
-  --pico-primary-background: #5cbde6;
-  --pico-primary-border: #5cbde6;
-  --pico-primary-underline: rgba(92, 189, 230, .5);
-  --pico-primary-hover: #8fd3ef;
-  --pico-primary-hover-background: #8fd3ef;
-  --pico-primary-hover-border: #8fd3ef;
-  --pico-primary-focus: rgba(92, 189, 230, .4);
-  --pico-primary-inverse: #0b2230;
+  --kimun-celeste-suave: #18252f;
+  --kimun-celeste-borde: #2e4556;
+  --kimun-celeste-medio: #213443;
+  --kimun-azul: #8ec3eb;
+  --kimun-tinta: #dae7f1;
+  --kimun-aviso: #fbd96a;
+  --kimun-alerta: #fc9f9c;
+  --kimun-ok: #aadd88;
+  --kimun-provisoria: #b6bdc3;
+  --kimun-aviso-fondo: #342c14;
+  --kimun-aviso-texto: #fce188;
+  --kimun-alerta-fondo: #361817;
+  --kimun-alerta-texto: #fdbcb9;
+  --pico-primary: #8ec3eb;
+  --pico-primary-background: #8ec3eb;
+  --pico-primary-border: #8ec3eb;
+  --pico-primary-underline: rgba(142, 195, 235, .5);
+  --pico-primary-hover: #b3d8f4;
+  --pico-primary-hover-background: #b3d8f4;
+  --pico-primary-hover-border: #b3d8f4;
+  --pico-primary-focus: rgba(142, 195, 235, .4);
+  --pico-primary-inverse: #0b1e2d;
 }
 
-/* Botones secundarios (por ejemplo "Cerrar sesión") en el gris azulado del logo:
-   texto blanco sobre #3d5a68, 7,3:1. */
+/* Botones secundarios (por ejemplo "Cerrar sesión") en el gris de Integra:
+   texto blanco sobre #606060, 6,3:1. */
 :root {
-  --pico-secondary-background: #3d5a68;
-  --pico-secondary-border: #3d5a68;
-  --pico-secondary-hover-background: #2f4753;
-  --pico-secondary-hover-border: #2f4753;
+  --pico-secondary-background: var(--kimun-gris);
+  --pico-secondary-border: var(--kimun-gris);
+  --pico-secondary-hover-background: var(--kimun-gris-oscuro);
+  --pico-secondary-hover-border: var(--kimun-gris-oscuro);
   --pico-secondary-inverse: #fff;
 }
 
@@ -192,6 +221,15 @@ body > header form, body > header button { margin: 0; }
   background: rgba(255, 255, 255, .94);
   border-bottom: 1px solid var(--kimun-celeste-borde);
   backdrop-filter: blur(6px);
+}
+/* Franja decorativa con los cuatro trazos del logo de Integra, en pastel. */
+.barra-app::after {
+  content: "";
+  display: block;
+  height: 4px;
+  background: linear-gradient(90deg,
+    var(--integra-azul-pastel) 0 25%, var(--integra-rojo-pastel) 25% 50%,
+    var(--integra-verde-pastel) 50% 75%, var(--integra-amarillo-pastel) 75% 100%);
 }
 .barra-app > nav { max-width: 64rem; margin-inline: auto; padding-inline: .75rem; }
 .barra-app li { padding-block: .4rem; }
@@ -279,7 +317,7 @@ dialog.menu-lateral > article > footer.menu-pie {
   font-weight: 600;
   text-decoration: none;
 }
-.menu-secciones a:hover, .menu-secciones a:focus-visible { background: #d5effa; }
+.menu-secciones a:hover, .menu-secciones a:focus-visible { background: var(--kimun-celeste-medio); }
 
 .menu-seccion h2 { font-size: 1rem; margin: 0 0 .25rem; color: var(--kimun-tinta); }
 .menu-ayuda { font-size: .8rem; color: var(--pico-muted-color); margin: 0 0 .5rem; }
@@ -388,9 +426,9 @@ dialog.menu-lateral > article > footer.menu-pie {
 }
 .composer-barra textarea:focus { box-shadow: none; }
 .boton-adjuntar, .boton-microfono { margin: 0; border: 0; background: var(--kimun-celeste-suave); color: var(--kimun-tinta); }
-.boton-adjuntar:hover, .boton-microfono:hover { background: #d5effa; color: var(--kimun-tinta); }
+.boton-adjuntar:hover, .boton-microfono:hover { background: var(--kimun-celeste-medio); color: var(--kimun-tinta); }
 input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); outline-offset: 2px; }
-.boton-microfono[aria-pressed=true] { background: #fde2e5; color: var(--kimun-alerta); }
+.boton-microfono[aria-pressed=true] { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta); }
 .boton-enviar { border: 0; background: var(--kimun-celeste); color: var(--kimun-tinta); }
 .composer-estado { min-height: 0; margin: 0 .5rem .35rem; font-size: .85rem; color: var(--pico-muted-color); }
 .composer-estado:empty { display: none; }
@@ -424,14 +462,14 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .burbuja img { display: block; max-height: 18rem; margin-bottom: .5rem; border-radius: .8rem; }
 .burbuja audio { width: 100%; margin-bottom: .5rem; }
 .burbuja details { margin-bottom: .4rem; font-size: .9rem; }
-.burbuja-pie { margin: 0; font-size: .78rem; text-align: right; color: #4a5a63; }
+.burbuja-pie { margin: 0; font-size: .78rem; text-align: right; color: var(--kimun-texto-tenue); }
 
 .estado-captura { display: flex; flex-direction: column; gap: .9rem; }
 .resumen-captura { margin: 0; font-size: .9rem; color: var(--pico-muted-color); }
 .procesando { padding: .85rem 1rem; border: 1px dashed var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: #fff; }
 .procesando p { margin: 0; }
-.aviso { margin: 0; padding: .75rem 1rem; border: 1px solid #f0d9a8; border-radius: .85rem; background: #fff7e6; color: #5c3d00; }
-.aviso-error { padding: .75rem 1rem; border: 1px solid #f3c2c8; border-radius: .85rem; background: #fdecee; color: #5c0f17; }
+.aviso { margin: 0; padding: .75rem 1rem; border: 1px solid var(--kimun-aviso-linea); border-radius: .85rem; background: var(--kimun-aviso-claro); color: var(--kimun-aviso-texto); }
+.aviso-error { padding: .75rem 1rem; border: 1px solid var(--kimun-alerta-linea); border-radius: .85rem; background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); }
 .aviso-error p { margin-bottom: .5rem; }
 .aviso-error button { margin: 0; }
 .detalle-error { font-size: .8rem; overflow-wrap: anywhere; }
@@ -451,20 +489,20 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .suceso-quien { flex: 1; min-width: 0; }
 .suceso-quien h2 { margin: 0; font-size: 1.1rem; }
 .suceso-quien p { margin: 0; font-size: .85rem; color: var(--pico-muted-color); }
-.estado-obs { flex: none; padding: .15rem .55rem; border-radius: 999px; background: #eef2f5; color: #333d47; font-size: .75rem; white-space: nowrap; }
-.estado-pendiente { background: #fff1d6; color: #6b4100; }
-.estado-aceptada { background: #d9f2e1; color: #1e6b35; }
+.estado-obs { flex: none; padding: .15rem .55rem; border-radius: 999px; background: var(--kimun-gris-suave); color: var(--kimun-gris-oscuro); font-size: .75rem; white-space: nowrap; }
+.estado-pendiente { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso); }
+.estado-aceptada { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
 .suceso-datos { margin: 0 0 .5rem; }
 .suceso-datos dt { margin-top: .6rem; color: var(--kimun-azul); font-size: .75rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .suceso-datos dd { margin: .1rem 0 0; }
-.suceso-datos blockquote { margin: .25rem 0; padding: .5rem .8rem; border-left: .25rem solid var(--kimun-celeste); background: #f5fbfe; font-style: normal; }
+.suceso-datos blockquote { margin: .25rem 0; padding: .5rem .8rem; border-left: .25rem solid var(--kimun-celeste); background: var(--kimun-celeste-claro); font-style: normal; }
 .habilidades { margin: .15rem 0; padding-left: 1.1rem; }
 .habilidades li { margin-bottom: .1rem; }
 .oas { margin: .25rem 0 0; font-size: .85rem; }
 .efecto { display: inline-block; padding: .1rem .6rem; border-radius: 999px; font-size: .85rem; font-weight: 600; }
-.efecto-avance { background: #d3f0dc; color: #1e6b35; }          /* 5,4:1 */
-.efecto-por_reforzar { background: #ffe3b0; color: #7a4a00; }    /* 6,0:1 */
-.efecto-sin_dato { background: #eef2f5; color: #333d47; }
+.efecto-avance { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }          /* 6,1:1 */
+.efecto-por_reforzar { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso); }  /* 7,4:1 */
+.efecto-sin_dato { background: var(--kimun-gris-suave); color: var(--kimun-gris-oscuro); }  /* 7,6:1 */
 .pregunta-kimun { padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-suave); color: var(--kimun-tinta); }
 .pregunta-kimun p { margin-bottom: .5rem; }
 .pregunta-kimun textarea { margin-bottom: .5rem; background: #fff; }
@@ -479,7 +517,7 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .perfil-breve .suceso-cabecera { margin: 0; }
 .perfil-breve h3 { margin: 0; font-size: 1.05rem; }
 .perfil-breve [role=button] { margin: 0; padding: .35rem .8rem; font-size: .85rem; }
-.sugerencia { margin: .5rem 0; padding: .5rem .8rem; border: 1px dashed #efcf8a; border-radius: .85rem; background: #fffaf0; }
+.sugerencia { margin: .5rem 0; padding: .5rem .8rem; border: 1px dashed var(--kimun-aviso-linea); border-radius: .85rem; background: var(--kimun-aviso-claro); }
 .sugerencia summary { font-weight: 600; }
 .sugerencia p { margin: .4rem 0 0; }
 
@@ -499,14 +537,14 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
   box-shadow: var(--kimun-sombra);
 }
 .perfil-seccion > h2 { font-size: 1.2rem; color: var(--kimun-tinta); }
-.radar-figura { margin: 0 auto 1rem; padding: .5rem 0; border-radius: 1.5rem; background: radial-gradient(circle at 50% 48%, #f3fafd 0, #fff 70%); text-align: center; }
-.radar { color: #3b4a52; }
+.radar-figura { margin: 0 auto 1rem; padding: .5rem 0; border-radius: 1.5rem; background: radial-gradient(circle at 50% 48%, var(--kimun-celeste-claro) 0, #fff 70%); text-align: center; }
+.radar { color: var(--kimun-texto-tenue); }
 .radar .radar-etiqueta { font-weight: 500; }
 .radar .radar-nivel { fill: var(--kimun-azul); }
-.radar-figura figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem; font-size: .85rem; color: #3b4a52; }
+.radar-figura figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem; font-size: .85rem; color: var(--kimun-texto-tenue); }
 .leyenda { display: inline-flex; align-items: center; gap: .4rem; }
 .leyenda::before { content: ""; display: inline-block; flex: none; }
-.leyenda-nino::before { width: 1.6rem; height: .8rem; border-radius: 999px; background: linear-gradient(90deg, #c6e9f8, #ffe3a8, #cdeed6, #f9d3e3); border: 1.5px solid #23799e; }
+.leyenda-nino::before { width: 1.6rem; height: .8rem; border-radius: 999px; background: linear-gradient(90deg, #cde3f3, #fdeaaa, #d5ebc6, #fad2d1); border: 1.5px solid #125a91; }
 .leyenda-mediana::before { width: .7rem; height: .7rem; border-radius: 50%; background: #fff; border: 2px solid #4a5160; }
 .leyenda-esperado::before { width: 1.6rem; height: 0; border-top: 3px dotted #b36b00; }
 

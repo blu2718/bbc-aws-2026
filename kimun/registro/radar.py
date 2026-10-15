@@ -32,11 +32,12 @@ ANCHO_MAXIMO = "34rem"
 MINIMO_EJES = 3
 
 # Pétalos: relleno pastel y borde del mismo tono, oscuro (al menos 3:1 sobre blanco).
+# Los cuatro primeros son los colores del logo de Integra en pastel (ver registro.css).
 PETALOS = (
-    ("#c6e9f8", "#23799e"),  # celeste del logo
-    ("#ffe3a8", "#9a6508"),
-    ("#cdeed6", "#2d7a45"),
-    ("#f9d3e3", "#a3416b"),
+    ("#cde3f3", "#125a91"),  # azul
+    ("#fdeaaa", "#9a6508"),  # amarillo
+    ("#d5ebc6", "#326412"),  # verde
+    ("#fad2d1", "#a51c18"),  # rojo
     ("#e0d7f7", "#6250ad"),
     ("#ffd8c6", "#ad5426"),
     ("#dcf0c0", "#55791f"),
