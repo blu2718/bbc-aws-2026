@@ -11,6 +11,7 @@ Si hay más de un candidato el resultado es "ambiguo"; si no hay ninguno, "desco
 En los dos casos la observación queda sin niño y la educadora lo resuelve en la revisión.
 """
 import difflib
+import re
 import unicodedata
 from dataclasses import dataclass
 
@@ -46,6 +47,14 @@ def normalizar(texto):
     return " ".join(sin_tildes.casefold().split())
 
 
+_ARTICULO = re.compile(r"^(el|la|los|las) (?=\S)")
+
+
+def sin_articulo(normalizado):
+    """'la rubi' -> 'rubi'. En Chile se dice "el Benja" o "la Rubi", y así llega de un audio transcrito."""
+    return _ARTICULO.sub("", normalizado)
+
+
 def claves(nino):
     """Formas normalizadas con que se puede nombrar al niño: nombre completo, de pila y alias."""
     completo = normalizar(nino.nombre)
@@ -75,7 +84,7 @@ def emparejar(nombre_detectado, ninos, umbral=None):
     - umbral: entre 0 y 1; por defecto `settings.COINCIDENCIA_UMBRAL` o UMBRAL_POR_DEFECTO.
     """
     umbral = umbral_configurado() if umbral is None else umbral
-    buscado = normalizar(nombre_detectado)
+    buscado = sin_articulo(normalizar(nombre_detectado))
     ninos = list(ninos)
     if not buscado:
         return Coincidencia(None, DESCONOCIDO)

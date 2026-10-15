@@ -197,4 +197,6 @@ def aceptar_todas_captura(request, captura_id):
         # Se vuelve a dibujar toda la revisión: la captura puede tener notas en la sección de contexto.
         contexto = _contexto_revision(captura.curso) | {"parcial": True}
         return render(request, "registro/_revision_contenido.html", contexto)
+    if _vista(request) == VISTA_SUCESO:
+        return redirect("captura", captura_id=captura.pk)
     return redirect(_url_revision(captura.curso))

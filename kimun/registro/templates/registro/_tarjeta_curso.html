@@ -1,0 +1,51 @@
+{% load kimun %}
+{% comment %}
+Algo que hizo todo el curso ("todos bailaron"): hay una observación por niño, con la misma cita, núcleos y OA.
+Se muestran juntas en una tarjeta. La educadora las acepta todas de una vez o revisa a cada niño en la revisión.
+Recibe `del_curso` ([pantallas.TarjetaSuceso]) y `captura`.
+{% endcomment %}
+{% with primera=del_curso.0 %}
+  <article class="suceso suceso-curso" aria-labelledby="curso-{{ captura.pk }}-titulo">
+    <header class="suceso-cabecera">
+      <span class="avatar avatar-curso" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26" focusable="false"><circle cx="8" cy="9" r="3" fill="currentColor"/><circle cx="16" cy="9" r="3" fill="currentColor"/><path d="M2.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5M10.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5" fill="currentColor"/></svg>
+      </span>
+      <div class="suceso-quien">
+        <h2 id="curso-{{ captura.pk }}-titulo">Todo el curso</h2>
+        <p>Queda en la ficha de {{ del_curso|length }} niño{{ del_curso|length|pluralize:"s" }} · <time datetime="{{ primera.obs.fecha|date:'Y-m-d' }}">{{ primera.obs.fecha|date:"j \d\e F" }}</time></p>
+      </div>
+      {% if del_curso_pendientes %}<span class="estado-obs estado-pendiente">{{ del_curso_pendientes }} pendiente{{ del_curso_pendientes|pluralize }}</span>{% else %}<span class="estado-obs estado-aceptada">Revisadas</span>{% endif %}
+    </header>
+    <dl class="suceso-datos">
+      <dt>Lo que pasó</dt>
+      <dd><blockquote>{{ primera.obs.cita }}</blockquote></dd>
+      <dt>Habilidad identificada</dt>
+      <dd>
+        {% for n in primera.nucleos %}<strong>{{ n.nucleo.nombre }}</strong>{% if not forloop.last %}, {% endif %}{% empty %}Sin núcleo identificado.{% endfor %}
+        {% if primera.oas %}<p class="oas">{% for oa in primera.oas %}<abbr title="{{ oa.texto }}">{{ oa.codigo }}</abbr>{% if not forloop.last %}, {% endif %}{% endfor %}</p>{% endif %}
+      </dd>
+      <dt>Efecto en sus OA</dt>
+      <dd><span class="efecto efecto-{{ primera.obs.efecto }}">{{ primera.obs.get_efecto_display }}</span></dd>
+      <dt>Niños y niñas</dt>
+      <dd>
+        <ul class="ninos-del-curso">
+          {% for t in del_curso %}
+            <li><a href="{% url 'ficha' t.obs.nino.pk %}"><span class="avatar avatar-chico" aria-hidden="true" style="--fondo-avatar: {{ t.obs.nino.nombre|color_avatar }}">{{ t.obs.nino.nombre|iniciales }}</span>{{ t.obs.nino.nombre }}</a>{% if t.obs.estado != "pendiente" %} <small>({{ t.obs.get_estado_display|lower }})</small>{% endif %}</li>
+          {% endfor %}
+        </ul>
+      </dd>
+    </dl>
+    {% if puede_validar and del_curso_pendientes %}
+      <footer class="acciones">
+        <form method="post" action="{% url 'captura_aceptar_todas' captura.pk %}">
+          {% csrf_token %}
+          <input type="hidden" name="vista" value="suceso">
+          <button type="submit">Aceptar para todo el curso</button>
+        </form>
+        <a role="button" class="secondary outline" href="{% url 'revision' captura.curso_id %}#captura-{{ captura.pk }}">Revisar niño por niño</a>
+      </footer>
+    {% elif del_curso_pendientes %}
+      <p class="ayuda">La educadora lo revisará antes de que cuente en las fichas.</p>
+    {% endif %}
+  </article>
+{% endwith %}

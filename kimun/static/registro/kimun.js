@@ -202,7 +202,13 @@
     // Audio: solo si el navegador puede grabar (requiere HTTPS o localhost).
     const puedeGrabar = microfono && audio && window.MediaRecorder && navigator.mediaDevices &&
       typeof navigator.mediaDevices.getUserMedia === "function";
-    if (!puedeGrabar) return;
+    if (!puedeGrabar) {
+      // Con http://<ip>:8000 desde el teléfono el navegador no da el micrófono: se avisa en vez de esconderlo sin más.
+      if (microfono && !window.isSecureContext) {
+        decir("Para grabar audio, abre Kimün con https:// (la dirección de CloudFront).");
+      }
+      return;
+    }
     microfono.hidden = false;
     let grabador = null;
     let partes = [];

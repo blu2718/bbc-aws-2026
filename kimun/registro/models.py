@@ -412,6 +412,9 @@ class Captura(models.Model):
     texto_extraido = models.TextField(blank=True, help_text="Texto leído de la foto o transcrito del audio.")
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
     error = models.TextField(blank=True)
+    pregunta = models.TextField(
+        blank=True, help_text="Si al ordenar faltó contexto clave, lo que Claude le pregunta a quien registró.",
+    )
     intentos = models.PositiveSmallIntegerField(default=0)
     creada = models.DateTimeField(auto_now_add=True)
     actualizada = models.DateTimeField(auto_now=True)

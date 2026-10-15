@@ -17,12 +17,15 @@ Separación de notas (Task 5):
   una observación de más, como sobrantes.
 - Apoyo, fecha e interpretación: solo sobre las observaciones encontradas, porque
   las que faltan ya restan arriba.
-- Una nota con error de Bedrock cuenta todas sus observaciones como faltantes y
-  no entra en los tiempos.
+- Una nota con error de Bedrock (o de Transcribe) cuenta todas sus observaciones
+  como faltantes y no entra en los tiempos.
+- Audios (Task 9): además, la tasa de error de palabras entre lo dictado y lo que
+  transcribió Transcribe, y los segundos de transcripción.
 
 Propuesta de nivel (Task 7): `metricas_propuestas` y `casos_propuesta_ia` quedan
 listas para cuando exista la propuesta.
 """
+import re
 from dataclasses import dataclass, field
 from statistics import mean, median
 from types import SimpleNamespace
@@ -95,10 +98,15 @@ class ResultadoNota:
     id: str
     esperadas: list
     obtenidas: list = field(default_factory=list)
+    # Tiempo total de la captura: transcripción (si es audio) más separación.
     segundos: float = None
     tokens_entrada: int = None
     tokens_salida: int = None
     error: str = None
+    # Solo en audios: lo que se dictó, lo que entendió Transcribe y cuánto tardó.
+    texto_dictado: str = None
+    transcripcion: str = None
+    segundos_transcripcion: float = None
 
 
 def ninos_del_curso(demo):
@@ -170,6 +178,27 @@ def diferencias(esperada, obtenida):
     return difs
 
 
+def _palabras(texto):
+    """Palabras sin tildes, mayúsculas ni puntuación: "¡Rubí, ven!" -> ["rubi", "ven"]."""
+    return re.sub(r"[^\w\s]", " ", normalizar(texto)).split()
+
+
+def errores_palabras(referencia, hipotesis):
+    """(ediciones, palabras de la referencia) entre lo dictado y lo transcrito.
+
+    Ediciones = palabras cambiadas, sobrantes o faltantes (distancia de Levenshtein por
+    palabras). Ediciones / palabras es la tasa de error de palabras (WER).
+    """
+    ref, hip = _palabras(referencia), _palabras(hipotesis)
+    previa = list(range(len(hip) + 1))
+    for i, palabra in enumerate(ref, start=1):
+        actual = [i]
+        for j, otra in enumerate(hip, start=1):
+            actual.append(min(previa[j] + 1, actual[j - 1] + 1, previa[j - 1] + (palabra != otra)))
+        previa = actual
+    return previa[-1], len(ref)
+
+
 def costo_usd(modelo, tokens_entrada, tokens_salida):
     """Costo de una llamada en USD; None si no se conoce el precio del modelo o faltan tokens."""
     precio = PRECIOS_POR_MILLON.get(modelo)
@@ -222,6 +251,11 @@ def metricas_separacion(resultados, modelo=None):
 
     sin_error = [r for r in resultados if r.error is None]
     costos = [costo_usd(modelo, r.tokens_entrada, r.tokens_salida) for r in sin_error]
+    transcritas = [r for r in resultados if r.transcripcion is not None and r.texto_dictado]
+    palabras = None
+    if transcritas:
+        ediciones, total = map(sum, zip(*(errores_palabras(r.texto_dictado, r.transcripcion) for r in transcritas)))
+        palabras = {"ediciones": ediciones, "palabras": total, "tasa_error": ediciones / total if total else None}
     return {
         "notas": len(resultados),
         "notas_con_error": len(resultados) - len(sin_error),
@@ -238,6 +272,9 @@ def metricas_separacion(resultados, modelo=None):
         "tokens_entrada": _resumen([r.tokens_entrada for r in sin_error]),
         "tokens_salida": _resumen([r.tokens_salida for r in sin_error]),
         "costo_usd": _resumen(costos),
+        # Solo en audios (None con notas de texto).
+        "errores_palabras": palabras,
+        "segundos_transcripcion": _resumen([r.segundos_transcripcion for r in resultados]),
     }
 
 

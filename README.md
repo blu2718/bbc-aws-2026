@@ -39,7 +39,9 @@ Variables de entorno: ver `kimun/.env.example`.
 .\.venv\Scripts\python.exe manage.py evaluar --json $env:TEMP\eval.json       # guarda lo obtenido (fuera del repo)
 ```
 
-Cómo se cuenta, en `kimun/registro/evaluacion.py`: una observación que falta resta en niños y en cobertura; una de más, en precisión; dejar sin niño un nombre ambiguo o desconocido (las dos Sofías, Abel) es lo correcto. Cada observación esperada trae en `nino` el niño que debe quedar asignado. La propuesta de nivel (Task 7), las fotos (Task 8) y los audios (Task 9) se suman cuando existan; `casos_propuesta_ia` ya arma los 8 casos con el segundo ejemplo de cada nivel de IA (el que el prompt de la Task 7 no debe mostrar).
+Audios (Task 9): `manage.py generar_audios` crea con Polly `datos/eval/audios/<id>.mp3`, uno por nota, rotando las 4 voces es-US (usa `texto_audio`, la nota como se dictaría, si la nota lo trae). Ya están versionados; solo hace falta volver a generarlos si cambia el set (`--forzar`). Después, `manage.py evaluar --fuente audio` transcribe cada audio con Transcribe y el vocabulario de nombres del curso (`kimun-eval-*`), y mide lo mismo que con texto más el error de palabras de la transcripción. Requiere `KIMUN_BUCKET` (salida `NombreBucket` del stack `kimun-mvp`) o `--bucket`. La primera vez el vocabulario tarda unos minutos en quedar listo y esa corrida va sin él.
+
+Cómo se cuenta, en `kimun/registro/evaluacion.py`: una observación que falta resta en niños y en cobertura; una de más, en precisión; dejar sin niño un nombre ambiguo o desconocido (las dos Sofías, Abel) es lo correcto. Cada observación esperada trae en `nino` el niño que debe quedar asignado. La propuesta de nivel (Task 7) y las fotos (Task 8) se suman cuando existan; `casos_propuesta_ia` ya arma los 8 casos con el segundo ejemplo de cada nivel de IA (el que el prompt de la Task 7 no debe mostrar).
 
 ## Tests
 
@@ -78,7 +80,7 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/registro/grafico.py` | SVG de la evolución de niveles por núcleo, con tabla equivalente en `_evolucion.html` |
 | `kimun/registro/permisos.py` | `cursos_de(usuario)` para ver, `cursos_donde_registra` para capturar y `cursos_que_valida` para revisar y validar: filtro obligatorio en toda vista con datos de un curso. `ninos_de` y `ninos_que_valida` hacen lo mismo para la ficha |
 | `kimun/registro/management/commands/cargar_demo.py` | Currículo, semestres y curso de demo con 15 niños ficticios, niveles históricos y unas 40 observaciones aceptadas (fechas contadas desde el día de la carga, o desde `--hoy AAAA-MM-DD`) |
-| `kimun/registro/evaluacion.py`, `kimun/registro/management/commands/evaluar.py` | Métricas de calidad de la IA (Task 10): funciones puras y el comando que las corre contra Bedrock con el set de `datos/eval/` |
+| `kimun/registro/evaluacion.py`, `kimun/registro/management/commands/evaluar.py`, `generar_audios.py` | Métricas de calidad de la IA (Task 10): funciones puras, el comando que las corre contra Bedrock (y Transcribe, con `--fuente audio`) con el set de `datos/eval/`, y la generación de los audios de prueba con Polly |
 | `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
 | `kimun/static/registro/registro.css` | Estilos de toda la app: paleta del logo (celeste `#5cbde6`) sobre Pico y colores de las señales con contraste ≥ 4,5:1 |
