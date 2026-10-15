@@ -107,10 +107,11 @@ def curso(request, curso_id):
     })
 
 
-def _pagina_ficha(request, nino, formularios=None):
+def _pagina_ficha(request, nino, formularios=None, formularios_propuesta=None, errores_propuesta=None):
     """Perfil del niño (diseno-interfaz.jpg, pantalla IV): gráfico por núcleo, historial y detalle por núcleo."""
     hoy = timezone.localdate()
-    ficha = armar_ficha(nino, request.user, hoy=hoy, formularios=formularios)
+    ficha = armar_ficha(nino, request.user, hoy=hoy, formularios=formularios,
+                        formularios_propuesta=formularios_propuesta, errores_propuesta=errores_propuesta)
     radar, esperado = radar_de_la_ficha(ficha, Rubrica.nivel_maximo(nino.curso.nivel_educativo))
     return render(request, "registro/ficha.html", {
         "ficha": ficha,
@@ -123,8 +124,9 @@ def _pagina_ficha(request, nino, formularios=None):
     })
 
 
-def _parcial_nucleo(request, nino, sigla, mensaje="", formularios=None):
-    ficha = armar_ficha(nino, request.user, formularios=formularios)
+def _parcial_nucleo(request, nino, sigla, mensaje="", formularios=None, formularios_propuesta=None, error_propuesta=""):
+    ficha = armar_ficha(nino, request.user, formularios=formularios, formularios_propuesta=formularios_propuesta,
+                        errores_propuesta={sigla: error_propuesta})
     contexto = {"nf": ficha.nucleo(sigla), "ficha": ficha, "mensaje": mensaje}
     return render(request, "registro/_nucleo_ficha.html", contexto)
 

@@ -84,7 +84,7 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/templates/`, `kimun/registro/templates/` | Plantillas base, login, tabla del curso, resumen del jardín (`jardin.html`), ficha del niño (`ficha.html` y `_nucleo_ficha.html`, que HTMX reemplaza al fijar un nivel), metas y revisión (`revision.html`; `_tarjeta_revision.html` es lo que HTMX reemplaza en cada acción) |
 | `kimun/static/vendor/` | Pico.css y HTMX con versión fija (sin CDN) |
 | `kimun/static/registro/registro.css` | Estilos de toda la app sobre Pico: los colores del logo de Integra en pastel (azul, rojo, verde, amarillo y gris), con texto de contraste ≥ 4,5:1 en modo claro y oscuro |
-| `kimun/static/registro/img/` | Logo de Kimün (`logo.svg`, `logo-512.png`) y favicons, sacados de `docs/marca/logo-kimun.pdf` |
+| `kimun/static/registro/img/` | Logo de Kimün (`logo.svg`, `logo-512.png`) y favicons, sacados de `docs/marca/logo-kimun.pdf` con el fondo cambiado a `#579bce` (azul de Integra suavizado; las siluetas blancas quedan a 3:1) |
 | `docs/marca/` | Originales de marca: `logo-kimun.pdf` (Canva) y `logo-integra.jpg`, del que sale la paleta |
 | `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json`. En `eval/`, las notas (`notas_separacion.json`) y los post-its (`postits_fotos.json`) de prueba; las fotos van en `eval/fotos/<id>.jpg`, sin versionar |
 | `scripts/probar_separacion.py`, `scripts/probar_foto.py` | Prueban la separación y la lectura de fotos contra Bedrock real y comparan con el set de `datos/eval/` |

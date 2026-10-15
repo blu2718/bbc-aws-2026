@@ -10,16 +10,17 @@ muestren siempre las mismas señales.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 
 from django.utils import timezone
+from django.db.models import OuterRef, Prefetch, Subquery
 
 from .alertas import DIAS_DATOS_RECIENTES, EstadoDatos, tabla_del_curso
 from .cobertura import CoberturaOA, cobertura_del_nino
 from .forms import FijarNivelForm, etiqueta_nivel
 from .grafico import Evolucion, evolucion_del_nino
-from .models import DescriptorNivel, NivelValidado, Nino, Nucleo, Observacion, Rubrica
+from .models import DescriptorNivel, NivelValidado, Nino, Nucleo, Observacion, PropuestaNivel, Rubrica
 from .permisos import puede_validar
 
 AVISOS_DATOS = {
@@ -56,6 +57,13 @@ class NucleoFicha:
     cobertura: list[CoberturaOA]
     observaciones: list[Observacion]              # aceptadas, no grupales, más recientes primero
     form: FijarNivelForm | None                   # solo para la educadora del curso
+    propuesta: PropuestaNivel | None = None
+    texto_propuesto: str = ""
+    evidencia_propuesta: list = field(default_factory=list)
+    form_propuesta: FijarNivelForm | None = None
+    validacion_propuesta: NivelValidado | None = None
+    texto_validado_propuesta: str = ""
+    error_propuesta: str = ""
 
     @property
     def pasos_sugeridos(self) -> str:
@@ -138,7 +146,7 @@ def descriptores_del_nucleo(nivel_educativo, nucleo):
     return {d.nivel: d for d in DescriptorNivel.objects.filter(nivel_educativo=nivel_educativo, nucleo=nucleo)}
 
 
-def armar_ficha(nino, usuario, hoy=None, formularios=None):
+def armar_ficha(nino, usuario, hoy=None, formularios=None, formularios_propuesta=None, errores_propuesta=None):
     """Ficha completa del niño. Cantidad fija de consultas.
 
     - formularios: {sigla: FijarNivelForm ligado}, para volver a mostrar uno con
@@ -146,6 +154,8 @@ def armar_ficha(nino, usuario, hoy=None, formularios=None):
     """
     hoy = hoy or timezone.localdate()
     formularios = formularios or {}
+    formularios_propuesta = formularios_propuesta or {}
+    errores_propuesta = errores_propuesta or {}
     curso = nino.curso
     nivel_educativo = curso.nivel_educativo
     nivel_maximo = Rubrica.nivel_maximo(nivel_educativo)
@@ -169,6 +179,16 @@ def armar_ficha(nino, usuario, hoy=None, formularios=None):
         .order_by("-fecha", "-creada", "-id")
     )
     situaciones = _situaciones(curso, hoy).get(nino.pk, {})
+    propuestas = {}
+    if valida:
+        ultima = PropuestaNivel.objects.filter(nino=nino, nucleo_id=OuterRef("nucleo_id")).order_by("-creada", "-pk")
+        candidatas = PropuestaNivel.objects.filter(nino=nino, pk=Subquery(ultima.values("pk")[:1])).select_related(
+            "resuelta_por",
+        ).prefetch_related(
+            Prefetch("observaciones_citadas", queryset=Observacion.objects.only("pk").order_by("pk"), to_attr="_citas_ficha"),
+            Prefetch("validaciones", queryset=NivelValidado.objects.order_by("pk"), to_attr="_validaciones_ficha"),
+        )
+        propuestas = {p.nucleo_id: p for p in candidatas}
 
     resultado = []
     for nucleo in nucleos:
@@ -181,6 +201,23 @@ def armar_ficha(nino, usuario, hoy=None, formularios=None):
             form = formularios.get(nucleo.sigla) or FijarNivelForm(
                 prefix=nucleo.sigla, initial={"nivel": nivel}, nivel_maximo=nivel_maximo, descriptores=del_nucleo,
             )
+        propuesta = propuestas.get(nucleo.pk)
+        observaciones_nucleo = [o for o in observaciones if nucleo.pk in _nucleos_de(o)]
+        form_propuesta, evidencia_propuesta, validacion_propuesta = None, [], None
+        texto_propuesto, texto_validado = "", ""
+        if propuesta:
+            if propuesta.nivel is not None:
+                texto_propuesto = etiqueta_nivel(propuesta.nivel, None if propuesta.rubrica_provisoria else del_nucleo.get(propuesta.nivel))
+            citadas = {o.pk for o in propuesta._citas_ficha}
+            evidencia_propuesta = [o for o in observaciones_nucleo if o.pk in citadas]
+            validacion_propuesta = next(iter(propuesta._validaciones_ficha), None)
+            if validacion_propuesta:
+                texto_validado = etiqueta_nivel(validacion_propuesta.nivel, del_nucleo.get(validacion_propuesta.nivel))
+            if propuesta.estado == PropuestaNivel.Estado.LISTA and propuesta.evidencia_suficiente:
+                form_propuesta = formularios_propuesta.get(propuesta.pk) or FijarNivelForm(
+                    prefix=f"propuesta-{propuesta.pk}", initial={"nivel": propuesta.nivel},
+                    nivel_maximo=nivel_maximo, descriptores=del_nucleo,
+                )
         resultado.append(NucleoFicha(
             nucleo=nucleo,
             actual=actual,
@@ -191,7 +228,10 @@ def armar_ficha(nino, usuario, hoy=None, formularios=None):
             situacion=situaciones.get(nucleo.sigla),
             evolucion=evoluciones[nucleo.sigla],
             cobertura=cobertura.get(nucleo.sigla, []),
-            observaciones=[o for o in observaciones if nucleo.pk in _nucleos_de(o)],
+            observaciones=observaciones_nucleo,
             form=form,
+            propuesta=propuesta, texto_propuesto=texto_propuesto, evidencia_propuesta=evidencia_propuesta,
+            form_propuesta=form_propuesta, validacion_propuesta=validacion_propuesta,
+            texto_validado_propuesta=texto_validado, error_propuesta=errores_propuesta.get(nucleo.sigla, ""),
         ))
     return Ficha(nino=nino, nucleos=resultado, puede_validar=valida)
