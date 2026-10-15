@@ -24,6 +24,11 @@ MAPEO_PROVISORIO = [
 NIVELES_PROVISORIOS = len(MAPEO_PROVISORIO)
 
 
+def nombre_provisorio(nivel):
+    """Nombre de un nivel de la rúbrica provisoria. Los de Integra traen el suyo ("Desarrollando")."""
+    return f"Nivel {nivel}"
+
+
 def descriptores_provisorios(nucleo, cantidad_niveles=NIVELES_PROVISORIOS):
     """Devuelve [(nivel, descripción)] para un núcleo de Transición, hasta cantidad_niveles."""
     resultado = []
