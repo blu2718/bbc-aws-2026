@@ -4,23 +4,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}Registro pedagógico{% endblock %}</title>
-  {# Frontend: Pico.css y HTMX van en static/vendor/ con versión fija (sin CDN). #}
+  {# Pico.css y HTMX con versión fija en static/vendor/ (sin CDN). Para actualizar, reemplazar el archivo y la ruta. #}
+  <link rel="stylesheet" href="{% static 'vendor/pico-2.1.1.min.css' %}">
+  <script src="{% static 'vendor/htmx-2.0.11.min.js' %}" defer></script>
   {% block head %}{% endblock %}
 </head>
-<body>
-  <header>
+{# HTMX envía el token CSRF en todas sus peticiones. #}
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <header class="container">
     <nav aria-label="Principal">
-      <a href="{% url 'inicio' %}">Registro pedagógico</a>
+      <ul>
+        <li><a href="{% url 'inicio' %}"><strong>Registro pedagógico</strong></a></li>
+      </ul>
       {% if user.is_authenticated %}
-        <span>{{ user.get_full_name|default:user.username }}</span>
-        <form method="post" action="{% url 'logout' %}">
-          {% csrf_token %}
-          <button type="submit">Cerrar sesión</button>
-        </form>
+        <ul>
+          <li>{{ user.get_full_name|default:user.username }}</li>
+          <li>
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="secondary">Cerrar sesión</button>
+            </form>
+          </li>
+        </ul>
       {% endif %}
     </nav>
   </header>
-  <main id="contenido">
+  <main id="contenido" class="container">
     {% if messages %}
       <ul role="status">
         {% for message in messages %}<li>{{ message }}</li>{% endfor %}
