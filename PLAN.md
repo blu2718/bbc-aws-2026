@@ -17,8 +17,9 @@ La educadora siempre decide el nivel.
 ### Modelo pedagógico
 
 - 3 niveles educativos (sala cuna, medio, transición), cada uno con 8 núcleos y 8 niveles por núcleo.
-- Núcleos (Bases Curriculares 2018): Identidad y Autonomía, Convivencia y Ciudadanía, Corporalidad y Movimiento, Lenguaje Verbal, Lenguajes Artísticos, Exploración del Entorno Natural, Comprensión del Entorno Sociocultural, Pensamiento Matemático.
-- La rúbrica se guarda por nivel educativo, porque puede variar entre ellos. La demo usa solo nivel medio, con una rúbrica provisoria ficticia que se reemplaza cuando Integra entregue la real.
+- Núcleos (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA.
+- La rúbrica se guarda por nivel educativo, porque puede variar entre ellos. La demo usa solo Transición (NT1 y NT2, 4 a 6 años), con una rúbrica provisoria derivada de las conductas observables del Programa Pedagógico de Transición (ver `contexto/hallazgos-programa-pedagogico-transicion.md`). Se reemplaza cuando Integra entregue la real.
+- Mapeo provisorio de niveles: 1 = lo esperado al iniciar NT1; 2 a 4 = conductas de NT1, desde "con ayuda" hasta "autónomo"; 5 a 7 = lo mismo con las conductas de NT2; 8 = conductas de NT2 de forma autónoma (lo esperado al egresar).
 - Todo niño entra al sistema en nivel 1 en los 8 núcleos. Solo la educadora cambia niveles.
 - El tiempo se mide en semestres escolares, con fechas editables.
 - Nivel esperado: tabla por curso, editable por la educadora, según el semestre de permanencia del niño. Valores por defecto: 1, 3, 5 y 7 para los semestres 1 a 4; al egresar se espera 8. No se asume que el avance sea lineal.
@@ -29,6 +30,7 @@ La educadora siempre decide el nivel.
 
 - La educadora registra desde su teléfono personal, con conexión: texto, foto (post-it o trabajo del niño) o audio corto. Sin video y sin grabación continua.
 - Una nota que menciona a varios niños genera una observación por niño.
+- Cada observación se etiqueta con sus núcleos y, cuando se pueda, con sus OA ("OA 4 LV"). Registra el nivel de apoyo (autónomo, con ayuda, parcial, no lo realiza o sin dato) y separa lo que el niño hizo o dijo de la interpretación de la educadora, como el registro anecdótico del programa.
 - Las notas sobre el grupo completo (por ejemplo, "bajó la asistencia") quedan como contexto del curso y no se usan para evaluar.
 - Los nombres se emparejan con la lista del curso, tolerando variantes de escritura (Naiara/Nayara). Si un nombre es ambiguo o desconocido, decide la educadora.
 - El sistema propone un nivel actual por núcleo considerando toda la evidencia aceptada y citando las observaciones que lo respaldan. La educadora acepta, fija otro nivel o rechaza. Nada se aplica solo.
@@ -36,7 +38,7 @@ La educadora siempre decide el nivel.
 
 ### Alcance
 
-- Dentro: perspectiva de la educadora (su curso), un curso de 15 niños cargados a mano, datos 100% ficticios.
+- Dentro: perspectiva de la educadora (su curso), nivel Transición, un curso de 15 niños cargados a mano, datos 100% ficticios.
 - Fuera del MVP (se mencionan en el pitch): vistas de directora y nacional, sugerencias de actividades, informes a familias, video, modo sin conexión, carga masiva de niños y otros niveles educativos.
 
 ### Equipo
@@ -47,7 +49,9 @@ La educadora siempre decide el nivel.
 ### Supuestos pendientes de confirmar
 
 - La tabla de metas es por curso, no por niño.
+- El mapeo provisorio de niveles a las conductas de NT1 y NT2 es una hipótesis nuestra.
 - La rúbrica real y la referencia institucional del nivel esperado se piden a la directora de educación el jueves.
+- El dataset sintético E-1 de la organización (`dataset-publico/`) usa otra rúbrica: 0 a 36 meses, 9 niveles y 5 dominios, con nivel esperado por edad. `contexto/PLAN_PIPELINE_IA.md` se basa en él. Falta decidir si la app también debe cargar ese catálogo, porque este plan supone 8 niveles por núcleo y nivel esperado por semestre.
 
 ## Contexto
 
@@ -65,6 +69,15 @@ La educadora siempre decide el nivel.
 - Pide registro objetivo: separar lo que el niño dijo o hizo de la interpretación.
 - "Aprendizajes emergentes": una observación puede tocar núcleos distintos de los que buscaba la actividad.
 - El documento presenta la documentación como un acto reflexivo. Mensaje para el pitch: eliminamos transcribir y ordenar, no la reflexión pedagógica.
+
+### Programa Pedagógico de Transición (MINEDUC, 2019)
+
+PDF en `contexto/programa-pedagogico-transicion-mineduc.pdf`; detalle en `contexto/hallazgos-programa-pedagogico-transicion.md`.
+
+- Confirma los 8 núcleos y trae los 85 OA de Transición, cada uno con conductas observables separadas para NT1 y NT2: unas 500 en total, entre 1.000 y 2.000 palabras por núcleo. Caben en el prompt sin búsqueda vectorial.
+- Por núcleo describe lo esperado al iniciar NT1 y cómo continúa en Enseñanza Básica.
+- Trae formatos de registro (anecdótico, con foco en núcleo y OA, fotográfico) y una escala según autonomía: autónomo, con ayuda, parcial con ayuda, no lo realiza.
+- No trae los 8 niveles de Integra ni cubre sala cuna o nivel medio.
 
 ### Por verificar durante la implementación
 
@@ -103,19 +116,20 @@ flowchart LR
 
 1. La captura queda pendiente.
 2. Se pasa a texto. El texto escrito se usa tal cual. Las fotos las lee Claude, que marca `[ilegible]` en vez de adivinar. Los audios los transcribe Transcribe, con los nombres del curso como vocabulario personalizado, y el resultado queda en nuestro bucket.
-3. Claude separa el texto en observaciones y devuelve JSON (tool use obligatorio): nombre detectado, fecha, cita literal, núcleos y si es una nota grupal.
+3. Claude separa el texto en observaciones y devuelve JSON (tool use obligatorio): nombre detectado, fecha, cita literal, núcleos, OA, nivel de apoyo, interpretación de la educadora (si la hay) y si es una nota grupal. El prompt incluye el catálogo de los 85 OA (código y texto).
 4. Los nombres se emparejan con la lista del curso en nuestro código, no en el modelo, usando alias y comparación aproximada (difflib). Así el resultado es predecible y testeable.
 5. La educadora revisa: acepta, edita o descarta cada observación y resuelve nombres ambiguos.
-6. Para proponer un nivel se envían a Claude los descriptores del núcleo, el nivel validado actual y las observaciones aceptadas, con códigos en lugar de nombres. Claude devuelve nivel, observaciones citadas, justificación breve y si la evidencia es suficiente. Se valida que el nivel esté entre 1 y 8 y que las citas correspondan a observaciones enviadas.
+6. Para proponer un nivel se envían a Claude las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1, el mapeo de niveles, el nivel validado actual y las observaciones aceptadas con su nivel de apoyo, con códigos en lugar de nombres. Claude devuelve nivel, observaciones citadas, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida que el nivel esté entre 1 y 8 y que las citas correspondan a observaciones enviadas.
 7. Las alertas se calculan cada vez que se piden; no se guardan.
 
 ### Entidades
 
-- `Nucleo`; `DescriptorNivel` (nivel educativo, núcleo, nivel 1–8, descripción, conductas observables).
+- `Nucleo` (nombre, sigla); `DescriptorNivel` (nivel educativo, núcleo, nivel 1–8, descripción; generado con el mapeo provisorio).
+- `ObjetivoAprendizaje` (nivel educativo, núcleo, número, texto; se cita como "OA 4 LV"); `Manifestacion` (OA, año NT1 o NT2, texto observable).
 - `Jardin`; `Curso` (nivel educativo, educadora); `Semestre` (inicio, fin); `MetaSemestre` (curso, semestre de permanencia, nivel esperado).
 - `Nino` (curso, nombre, alias, código seudónimo, fecha de ingreso).
 - `Captura` (tipo, archivo, texto extraído, estado, error).
-- `Observacion` (captura, niño o vacío, nombre detectado, fecha, cita literal, núcleos, grupal, estado).
+- `Observacion` (captura, niño o vacío, nombre detectado, fecha, cita literal, interpretación, núcleos, OA, nivel de apoyo, grupal, estado).
 - `PropuestaNivel` (niño, núcleo, nivel, justificación, observaciones citadas, estado).
 - `NivelValidado` (niño, núcleo, nivel, fecha, validado por, propuesta de origen). Forma el historial; el nivel actual es el más reciente.
 
@@ -135,16 +149,17 @@ flowchart LR
 - Objetivo: el proyecto corre en local con el modelo pedagógico cargado.
 - Guía:
   - Proyecto `config` y app `registro`, con versiones fijas en `requirements.txt`.
-  - Modelos `Nucleo`, `DescriptorNivel`, `Jardin`, `Curso`, `Semestre`, `MetaSemestre`, `Nino` y `NivelValidado`, con restricciones (nivel entre 1 y 8, unicidad) y registrados en el panel de administración.
+  - Modelos `Nucleo`, `DescriptorNivel`, `ObjetivoAprendizaje`, `Manifestacion`, `Jardin`, `Curso`, `Semestre`, `MetaSemestre`, `Nino` y `NivelValidado`, con restricciones (nivel entre 1 y 8, unicidad) y registrados en el panel de administración.
+  - `datos/curriculo_transicion.json`, extraído de `contexto/programa-pedagogico-transicion-mineduc.pdf` con `scripts/extraer_curriculo.py` (pdftotext más parseo) y revisado a mano: 8 núcleos con sigla y trayectoria, 85 OA y sus conductas de NT1 y NT2. Lo puede hacer la persona de IA en paralelo.
   - Al crear un niño se crea automáticamente su nivel 1 en los 8 núcleos.
   - Comando `cargar_demo`, que se puede correr varias veces sin duplicar datos, y que carga desde `datos/`:
-    - los 8 núcleos y la rúbrica provisoria de nivel medio (8×8, marcada como ficticia);
+    - los 8 núcleos, los 85 OA con sus conductas y la rúbrica provisoria de Transición (8×8, generada con el mapeo provisorio y marcada como provisoria);
     - semestres desde 2025-2 hasta 2026-2;
-    - 1 jardín y 1 curso de 15 niños, con casos difíciles (Naiara/Nayara, dos Sofías, ingresos en distintos semestres);
+    - 1 jardín y 1 curso de Transición de 15 niños, con casos difíciles (Naiara/Nayara, dos Sofías, ingresos en distintos semestres);
     - una usuaria educadora de prueba.
   - Login de Django. `.gitignore` que excluya la base de datos, `.env` y los archivos subidos.
-- Tests: restricciones de los modelos, que `cargar_demo` no duplique datos y que se cree el nivel 1 inicial.
-- Demo: después de `cargar_demo`, el panel de administración muestra el curso, los niños y la rúbrica.
+- Tests: restricciones de los modelos, que `cargar_demo` no duplique datos, que se cree el nivel 1 inicial y que el currículo tenga 8 núcleos y 85 OA, cada uno con conductas de NT1 y NT2.
+- Demo: después de `cargar_demo`, el panel de administración muestra el curso, los niños, los OA y la rúbrica.
 
 ### Task 2: Nivel esperado, brechas y vista del curso
 
@@ -193,20 +208,20 @@ flowchart LR
 - Objetivo: una nota escrita genera observaciones pendientes, una por niño.
 - Guía:
   - Cliente de Bedrock en `registro/ia/bedrock.py`: API Converse con tool use obligatorio, modelo elegido por variable de entorno, reintentos con espera creciente y tiempo máximo; reemplazable por un cliente falso en los tests.
-  - Prompt de separación en un archivo del repo. Recibe texto, fecha de captura, nombres de pila del curso como pista y lista de núcleos. Devuelve una lista de {nombre_detectado, fecha, cita_literal, núcleos[], grupal}. Se valida el JSON.
+  - Prompt de separación en un archivo del repo. Recibe texto, fecha de captura, nombres de pila del curso como pista y el catálogo de núcleos y OA. Devuelve una lista de {nombre_detectado, fecha, cita_literal, interpretacion, núcleos[], oas[], apoyo, grupal}. Se valida el JSON y se descartan los códigos de OA que no existen.
   - `registro/coincidencia.py`: normaliza (tildes, mayúsculas), revisa alias exactos y luego comparación aproximada con difflib sobre un umbral. Si hay ambigüedad, la observación queda sin niño asignado.
   - `manage.py procesar_capturas`: bucle que toma una captura pendiente a la vez con una actualización condicional (dos procesos no toman la misma), registra estado y error visibles y permite reintentar.
   - Formulario para capturar texto.
-  - Unas 20 notas de prueba con el resultado esperado en `datos/eval/`.
+  - Unas 20 notas de prueba, escritas a partir de conductas del programa, con el resultado esperado (niños, núcleos, OA y apoyo) en `datos/eval/`.
   - Prototipar el prompt con las notas de `contexto/ocr-presentacion.md`.
-- Tests: Naiara/Nayara se reconocen como la misma niña; "Sofía" queda ambigua porque hay dos; un nombre desconocido queda sin asignar; una nota sobre 3 niños genera 3 observaciones; una nota grupal queda como contexto; un JSON inválido marca error y permite reintentar.
+- Tests: Naiara/Nayara se reconocen como la misma niña; "Sofía" queda ambigua porque hay dos; un nombre desconocido queda sin asignar; una nota sobre 3 niños genera 3 observaciones; una nota grupal queda como contexto; un código de OA inexistente se descarta; un JSON inválido marca error y permite reintentar.
 - Demo: se escribe "Pedro y Emilio clasificaron hojas por color" y aparecen 2 observaciones pendientes.
 
 ### Task 6: Pantalla de revisión
 
 - Objetivo: la educadora revisa lo pendiente en segundos desde el teléfono.
 - Guía:
-  - Observaciones pendientes del curso agrupadas por captura, cada una con niño, fecha, cita y núcleos editables. Si no tiene niño asignado, se elige de una lista.
+  - Observaciones pendientes del curso agrupadas por captura, cada una con niño, fecha, cita, interpretación, núcleos, OA y nivel de apoyo editables. Si no tiene niño asignado, se elige de una lista.
   - Acciones con HTMX: aceptar, editar, descartar y "aceptar todas" por captura.
   - Las notas grupales van en una sección de contexto.
   - Contador de pendientes en la barra de navegación.
@@ -220,7 +235,7 @@ flowchart LR
 - Guía:
   - Modelo `PropuestaNivel`.
   - `registro/ia/seudonimo.py` reemplaza en las citas todos los nombres y alias del curso por códigos.
-  - El prompt incluye los descriptores del núcleo para el nivel educativo del niño, el nivel validado actual y las observaciones aceptadas (id, fecha, cita). La salida es nivel, ids citados, justificación breve y si la evidencia es suficiente. Se valida (nivel 1–8, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
+  - El prompt incluye, para el nivel educativo del niño, las conductas de NT1 y NT2 del núcleo, lo esperado al iniciar NT1 y el mapeo de niveles; además, el nivel validado actual y las observaciones aceptadas (id, fecha, cita, OA y nivel de apoyo). La salida es nivel, ids citados, conductas del programa que se observan, justificación breve y si la evidencia es suficiente. Se valida (nivel 1–8, citas dentro de las enviadas). Si la evidencia no alcanza, se muestra "faltan observaciones" en vez de un nivel.
   - Se pide una propuesta automáticamente al aceptar observaciones nuevas de ese núcleo, y con un botón en la ficha. La procesa el proceso de fondo.
   - En la ficha: propuesta con citas enlazadas. La educadora acepta (crea un `NivelValidado` ligado a la propuesta), fija otro nivel o rechaza. Nunca se aplica sola.
 - Tests: ningún nombre del curso aparece en lo enviado a Bedrock; validación de la respuesta; flujo de aceptar y rechazar con cliente falso.
@@ -253,7 +268,7 @@ flowchart LR
 
 - Objetivo: cifras de precisión para el pitch y prompts afinados.
 - Guía:
-  - `manage.py evaluar` corre todo el set de prueba (texto, fotos y audios) contra Bedrock real y mide: porcentaje de niños bien asignados, precisión y cobertura de núcleos, porcentaje de propuestas a ±1 nivel del esperado y tiempo por captura.
+  - `manage.py evaluar` corre todo el set de prueba (texto, fotos y audios) contra Bedrock real y mide: porcentaje de niños bien asignados, precisión y cobertura de núcleos y de OA, porcentaje de propuestas a ±1 nivel del esperado y tiempo por captura.
   - Iterar los prompts y comparar Sonnet 5 con Haiku 4.5 en calidad, latencia y costo.
 - Tests: las métricas se calculan bien sobre resultados conocidos (con cliente falso).
 - Demo: tabla de resultados.
@@ -264,7 +279,7 @@ flowchart LR
 - Guía:
   - Volver a cargar los datos de demo en producción.
   - Guion: nota, foto y audio → revisión → propuesta → validación → tabla, mostrando el tiempo que toma.
-  - Láminas: problema (4 h semanales por educadora), solución, demo, privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales), cifras de la Task 10, cómo escala (vistas de directora y nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
+  - Láminas: problema (4 h semanales por educadora), solución, demo, rúbrica (basada en el Programa Pedagógico de Transición del MINEDUC y reemplazable por la de Integra), privacidad (códigos en vez de nombres, originales cifrados, la educadora decide, ley de datos personales), cifras de la Task 10, cómo escala (vistas de directora y nacional, video, modo sin conexión, informes a familias, otros niveles educativos).
   - Verificar la política de datos de Bedrock y la vigencia de la Ley 21.719 antes de citarlas.
   - Para el costo, usar la calculadora de precios de AWS.
   - Grabar un video de respaldo. Congelar el código a las 11:00.
@@ -277,12 +292,12 @@ flowchart LR
 | Backend | 1, 2 (lógica), 3 (lógica), 7 (flujo) |
 | Frontend 1 | 3 (ficha), 6, 9 (grabación) |
 | Frontend 2 | 2 (tabla), 8 (cámara), 11 (láminas) |
-| IA | 5, 7 (prompt), 8 (lectura de fotos), 9 (Transcribe), 10 |
+| IA | 1 (currículo), 5, 7 (prompt), 8 (lectura de fotos), 9 (Transcribe), 10 |
 | Eléctrica | 4, 11 (guion y video), apoyo en 9 |
 
 Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden trabajar en paralelo sobre los mismos modelos.
 
-- Miércoles en la noche: Task 1; se empiezan la 2, la 4 y los prompts de la 5.
+- Miércoles en la noche: Task 1 (incluida la extracción del currículo); se empiezan la 2, la 4 y los prompts de la 5.
 - Jueves:
   - 09:00, reunión con la directora de educación.
   - 13:00, tareas 2 a 5 listas y URL en vivo.
@@ -297,3 +312,4 @@ Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden traba
 3. ¿Qué protocolo siguen cuando detectan un rezago?
 4. ¿Las familias firman un consentimiento para fotos y audios?
 5. Mostrarle la pantalla de revisión y preguntar si la usarían así en la sala.
+6. ¿El instrumento de 8 niveles se construyó sobre los OA y las conductas del Programa Pedagógico de Transición del MINEDUC? ¿Le hace sentido nuestro mapeo provisorio de niveles?
