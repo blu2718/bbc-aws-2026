@@ -1,8 +1,15 @@
+import os
+from datetime import date, timedelta
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
+from django.db import transaction
 
+from registro.alertas import EstadoDatos, Gravedad, tabla_del_curso
+from registro.cobertura import cobertura_del_nino, cobertura_quincena_del_curso, oas_sin_evidencia, quincena_de
 from registro.models import (
+    Captura,
     Curso,
     DescriptorNivel,
     Manifestacion,
@@ -12,14 +19,16 @@ from registro.models import (
     Nino,
     Nucleo,
     ObjetivoAprendizaje,
+    Observacion,
     Rubrica,
     Semestre,
 )
 
 MODELOS = [
     Rubrica, Nucleo, ObjetivoAprendizaje, Manifestacion, DescriptorNivel, Semestre, Curso, MetaSemestre, Nino,
-    NivelValidado,
+    NivelValidado, Captura, Observacion,
 ]
+HOY = date(2026, 10, 16)  # día de la demo
 
 
 def _conteos():
@@ -29,10 +38,32 @@ def _conteos():
     }
 
 
+@pytest.fixture(scope="module")
+def _demo_del_modulo(django_db_setup, django_db_blocker):
+    """Corre cargar_demo una sola vez para todo el módulo (tarda unos 2 s) y lo deshace al final.
+
+    La carga queda dentro de una transacción abierta. Cada test, con el
+    fixture `db`, corre en un savepoint dentro de ella y se deshace al
+    terminar, así que los tests que vuelven a cargar o editan datos no afectan
+    a los demás.
+    """
+    password_anterior = os.environ.get("DEMO_PASSWORD")
+    os.environ["DEMO_PASSWORD"] = "clave-demo-de-prueba"
+    try:
+        with django_db_blocker.unblock(), transaction.atomic():
+            call_command("cargar_demo", verbosity=0, hoy=HOY)
+            yield
+            transaction.set_rollback(True)
+    finally:
+        if password_anterior is None:
+            os.environ.pop("DEMO_PASSWORD", None)
+        else:
+            os.environ["DEMO_PASSWORD"] = password_anterior
+
+
 @pytest.fixture
-def cargada(db, monkeypatch):
+def cargada(_demo_del_modulo, db, monkeypatch):
     monkeypatch.setenv("DEMO_PASSWORD", "clave-demo-de-prueba")
-    call_command("cargar_demo", verbosity=0)
 
 
 def test_carga_curriculo_y_rubrica(cargada):
@@ -63,7 +94,9 @@ def test_cada_nucleo_trae_su_trayectoria(cargada):
 def test_carga_curso_de_15_ninos_con_nivel_inicial(cargada):
     curso = Curso.objects.get()
     assert curso.ninos.count() == 15
-    assert NivelValidado.objects.count() == 15 * 8
+    iniciales = NivelValidado.objects.filter(validado_por__isnull=True)
+    assert iniciales.count() == 15 * 8
+    assert set(iniciales.values_list("nivel", flat=True)) == {1}
     assert list(curso.metas.values_list("semestre_permanencia", "nivel_esperado")) == [(1, 1), (2, 3), (3, 5), (4, 7)]
     assert Semestre.objects.count() == 3
 
@@ -113,9 +146,10 @@ def test_si_la_rubrica_cambia_de_cantidad_de_niveles_falla_sin_cambiar_nada(carg
     assert _conteos() == antes
 
 
-def test_sin_demo_password_genera_y_muestra_contrasenas(db, monkeypatch, capsys):
+def test_sin_demo_password_genera_y_muestra_contrasenas(cargada, monkeypatch, capsys):
     monkeypatch.delenv("DEMO_PASSWORD", raising=False)
-    call_command("cargar_demo")
+    # Las usuarias ya existen (carga del módulo): --cambiar-password las vuelve a fijar.
+    call_command("cargar_demo", cambiar_password=True)
     salida = capsys.readouterr().out
     assert "Contraseña de educadora:" in salida
     assert "Contraseña de asistente:" in salida
@@ -140,3 +174,95 @@ def test_el_admin_abre_las_fichas(cargada, admin_client):
     ]
     for url in urls:
         assert admin_client.get(url).status_code == 200, url
+
+
+# --- Datos de demo de la Task 2 -----------------------------------------------------------
+
+
+def _celda(tabla, nombre, sigla):
+    fila = next(f for f in tabla.filas if f.nino.nombre == nombre)
+    return fila.celdas[[n.sigla for n in tabla.nucleos].index(sigla)]
+
+
+def test_demo_trae_unas_40_observaciones_aceptadas_con_nucleos_y_oa(cargada):
+    individuales = Observacion.objects.filter(estado=Observacion.Estado.ACEPTADA, grupal=False)
+    assert 35 <= individuales.count() <= 45
+    assert all(o.nucleos.exists() and o.oas.exists() for o in individuales)
+    # Cada OA etiquetado va con su núcleo.
+    for o in individuales:
+        assert set(o.oas.values_list("nucleo", flat=True)) <= set(o.nucleos.values_list("pk", flat=True))
+    grupal = Observacion.objects.get(grupal=True)
+    assert grupal.nino is None and not grupal.nucleos.exists()
+    assert Captura.objects.filter(autora__username="asistente").exists()
+
+
+def test_demo_muestra_un_nino_bajo_sus_pares_en_lenguaje(cargada):
+    tabla = tabla_del_curso(Curso.objects.get(), hoy=HOY)
+    lv = _celda(tabla, "Matías Lagos", "LV")
+    assert (lv.nivel, lv.pares.gravedad, lv.esperado.gravedad) == (2, Gravedad.ALERTA, Gravedad.ALERTA)
+    assert lv.pares.texto == "Revisar: 3 niveles bajo la mediana del curso"
+
+
+def test_demo_muestra_todos_los_estados(cargada):
+    tabla = tabla_del_curso(Curso.objects.get(), hoy=HOY)
+    celdas = [c for f in tabla.filas for c in f.celdas]
+    assert {c.gravedad for c in celdas} == {Gravedad.NORMAL, Gravedad.AVISO, Gravedad.ALERTA}
+    assert {c.datos for c in celdas} == {EstadoDatos.AL_DIA, EstadoDatos.DESACTUALIZADO, EstadoDatos.SIN_DATOS}
+    # Los semestres de permanencia varían: ingresos en 2025-2, 2026-1 y 2026-2.
+    assert {f.semestre for f in tabla.filas} == {1, 2, 3}
+    # La gran mayoría no tiene alertas: las señales se destacan.
+    assert sum(1 for c in celdas if c.gravedad != Gravedad.NORMAL) <= 8
+
+
+def test_demo_en_ia_usa_los_nombres_de_integra_y_benjamin_esta_en_desarrollando(cargada):
+    tabla = tabla_del_curso(Curso.objects.get(), hoy=HOY)
+    ia = _celda(tabla, "Benjamín Soto", "IA")
+    assert ia.texto_nivel == "3 · Desarrollando"
+    assert ia.esperado.texto == "Observar: 2 niveles bajo lo esperado"
+    assert _celda(tabla, "Benjamín Soto", "LV").texto_nivel == "5"  # rúbrica provisoria
+
+
+def test_demo_tiene_historial_de_niveles(cargada):
+    matias = Nino.objects.get(nombre="Matías Lagos")
+    historial = list(matias.niveles.filter(nucleo__sigla="LV").order_by("fecha").values_list("nivel", flat=True))
+    assert historial == [1, 1, 2, 2]
+    assert matias.niveles.filter(comentario="Revisión de septiembre").count() == 8
+
+
+def test_demo_deja_oa_sin_evidencia_a_proposito(cargada):
+    cobertura = cobertura_del_nino(Nino.objects.get(nombre="Matías Lagos"))
+    assert oas_sin_evidencia(cobertura["LV"])
+    assert not any(c.cantidad for c in cobertura["CES"])
+    con_evidencia = ObjetivoAprendizaje.objects.filter(observaciones__estado=Observacion.Estado.ACEPTADA).distinct()
+    assert 0 < con_evidencia.count() < ObjetivoAprendizaje.objects.count()
+
+
+def test_demo_la_quincena_actual_tiene_nucleos_sin_observaciones(cargada):
+    cobertura = cobertura_quincena_del_curso(Curso.objects.get(), quincena_de(HOY))
+    assert any(c.sin_observaciones for c in cobertura)
+    assert any(not c.sin_observaciones for c in cobertura)
+
+
+def test_las_observaciones_de_ia_no_copian_los_ejemplos_de_integra(cargada):
+    ejemplos = {
+        e for d in DescriptorNivel.objects.filter(nucleo__sigla="IA", provisorio=False) for e in d.ejemplos
+    }
+    citas = set(Observacion.objects.filter(nucleos__sigla="IA").values_list("cita", flat=True))
+    assert citas and not citas & ejemplos
+
+
+def test_volver_a_cargar_otro_dia_mueve_las_fechas_sin_duplicar(cargada):
+    antes = _conteos()
+    call_command("cargar_demo", verbosity=0, hoy=HOY + timedelta(days=3))
+    assert _conteos() == antes
+    assert Observacion.objects.order_by("-fecha").first().fecha == HOY + timedelta(days=3)
+
+
+def test_volver_a_cargar_conserva_un_nivel_fijado_a_mano(cargada):
+    benjamin = Nino.objects.get(nombre="Benjamín Soto")
+    ia = Nucleo.objects.get(sigla="IA")
+    NivelValidado.objects.create(
+        nino=benjamin, nucleo=ia, nivel=4, fecha=HOY, validado_por=Curso.objects.get().educadora
+    )
+    call_command("cargar_demo", verbosity=0, hoy=HOY)
+    assert benjamin.nivel_actual(ia).nivel == 4

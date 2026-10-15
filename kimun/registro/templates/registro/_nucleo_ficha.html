@@ -18,7 +18,7 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
   {% if nf.situacion %}
     <ul class="situacion">
       <li>Nivel esperado: {{ nf.situacion.esperado|default:"–" }}</li>
-      <li>Mediana del curso: {{ nf.situacion.mediana_curso|floatformat:"-1"|default:"–" }}</li>
+      <li>Mediana del curso: {{ nf.situacion.texto_mediana }}</li>
       {% for senal in nf.situacion.senales %}
         <li class="senal senal-{{ senal.gravedad.value }}">{{ senal.texto }}</li>
       {% endfor %}

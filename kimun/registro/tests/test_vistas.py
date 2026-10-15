@@ -61,3 +61,130 @@ def test_una_directora_de_otro_jardin_recibe_404(client, curso, directora):
     Jardin.objects.create(nombre="Otro jardín", directora=directora)
     client.force_login(directora)
     assert client.get(reverse("curso", args=[curso.pk])).status_code == 404
+
+
+# --- Vista del curso con alertas y quincena (PLAN.md, Task 2) ---------------------------
+
+from datetime import timedelta  # noqa: E402
+
+import pytest  # noqa: E402
+from django.utils import timezone  # noqa: E402
+
+from registro.cobertura import quincena_de  # noqa: E402
+from registro.models import (  # noqa: E402
+    Captura,
+    Curso,
+    MetaSemestre,
+    NivelEducativo,
+    NivelValidado,
+    Nucleo,
+    Observacion,
+    Rubrica,
+    Semestre,
+)
+
+
+@pytest.fixture
+def semestres_alrededor_de_hoy(db):
+    """Un semestre que empezó hace un año y sigue abierto: todos están en su semestre 1."""
+    hoy = timezone.localdate()
+    Semestre.objects.create(nombre="actual", inicio=hoy - timedelta(days=365), fin=hoy + timedelta(days=60))
+
+
+@pytest.fixture
+def curso_con_ninos(curso, nucleos, semestres_alrededor_de_hoy):
+    MetaSemestre.objects.create(curso=curso, semestre_permanencia=1, nivel_esperado=5)
+    hoy = timezone.localdate()
+    ninos = [
+        Nino.objects.create(curso=curso, nombre=n, fecha_ingreso=hoy - timedelta(days=300))
+        for n in ["Pedro Salinas", "Emilio Vargas", "Rubí Contreras", "Matías Lagos"]
+    ]
+    for nino in ninos:
+        for nucleo in nucleos:
+            nivel = 2 if (nino.nombre == "Matías Lagos" and nucleo.sigla == "LV") else 5
+            NivelValidado.objects.create(nino=nino, nucleo=nucleo, nivel=nivel, fecha=hoy - timedelta(days=10))
+    return ninos
+
+
+def _observar(curso, autora, nino, fecha, nucleos):
+    captura = Captura.objects.create(curso=curso, autora=autora, tipo=Captura.Tipo.TEXTO, texto_original="x")
+    obs = Observacion.objects.create(
+        captura=captura, nino=nino, fecha=fecha, cita="x", estado=Observacion.Estado.ACEPTADA
+    )
+    obs.nucleos.set(nucleos)
+    return obs
+
+
+def _html(client, curso, **params):
+    respuesta = client.get(reverse("curso", args=[curso.pk]), params)
+    assert respuesta.status_code == 200
+    return respuesta.content.decode()
+
+
+def test_la_tabla_muestra_la_alerta_como_texto_de_sugerencia(client, curso, educadora, curso_con_ninos):
+    client.force_login(educadora)
+    html = _html(client, curso)
+    assert "Revisar: 3 niveles bajo la mediana del curso" in html
+    assert "Revisar: 3 niveles bajo lo esperado" in html
+    assert 'class="senal senal-alerta"' in html
+    assert "Semestre 1 · se espera 5" in html
+    # Nadie tiene observaciones todavía.
+    assert "Sin datos" in html
+
+
+def test_la_tabla_muestra_la_distribucion_con_las_columnas_de_la_rubrica(client, curso, educadora, curso_con_ninos):
+    client.force_login(educadora)
+    html = _html(client, curso)
+    assert "Nivel 8</th>" in html and "Nivel 9</th>" not in html
+
+    Rubrica.objects.filter(nivel_educativo=NivelEducativo.TRANSICION).update(cantidad_niveles=9)
+    assert "Nivel 9</th>" in _html(client, curso)
+
+
+def test_el_resumen_de_la_quincena_destaca_los_nucleos_sin_observaciones(client, curso, educadora, curso_con_ninos, nucleos):
+    ia, lv, pm = nucleos
+    hoy = timezone.localdate()
+    _observar(curso, educadora, curso_con_ninos[0], hoy, [lv])
+    client.force_login(educadora)
+
+    html = _html(client, curso)
+
+    assert "2 de 3 núcleos sin observaciones en esta quincena" in html
+    assert html.count('class="sin-observaciones"') == 2
+    assert "(actual)" in html
+
+
+def test_se_puede_volver_a_una_quincena_anterior(client, curso, educadora, curso_con_ninos, nucleos):
+    ia, lv, pm = nucleos
+    anterior = quincena_de(timezone.localdate()).anterior()
+    _observar(curso, educadora, curso_con_ninos[0], anterior.inicio, [ia, lv, pm])
+    client.force_login(educadora)
+
+    html = _html(client, curso, quincena=anterior.inicio.isoformat())
+
+    assert "Todos los núcleos tienen observaciones en esta quincena." in html
+    assert "(actual)" not in html
+    assert "Volver a la quincena actual" in html
+    # En la quincena actual esa observación no cuenta.
+    assert "3 de 3 núcleos sin observaciones" in _html(client, curso)
+
+
+@pytest.mark.parametrize("valor", ["no-es-fecha", "2999-01-01", ""])
+def test_una_quincena_invalida_o_futura_muestra_la_actual(client, curso, educadora, curso_con_ninos, valor):
+    client.force_login(educadora)
+    assert "(actual)" in _html(client, curso, quincena=valor)
+
+
+def test_la_vista_funciona_con_10_nucleos_y_9_niveles(client, db, educadora, jardin, semestres_alrededor_de_hoy):
+    Rubrica.objects.create(nivel_educativo=NivelEducativo.MEDIO, cantidad_niveles=9)
+    for i in range(10):
+        Nucleo.objects.create(sigla=f"K{i}", nombre=f"Núcleo {i}", orden=i)
+    curso = Curso.objects.create(jardin=jardin, nombre="Medio A", nivel_educativo=NivelEducativo.MEDIO, educadora=educadora)
+    Nino.objects.create(curso=curso, nombre="Pedro", fecha_ingreso=timezone.localdate())
+    client.force_login(educadora)
+
+    html = _html(client, curso)
+
+    assert "K9</abbr>" in html
+    assert "Nivel 9</th>" in html
+    assert "10 de 10 núcleos sin observaciones" in html

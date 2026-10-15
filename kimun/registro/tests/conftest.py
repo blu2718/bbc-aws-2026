@@ -1,4 +1,3 @@
-import sys
 from datetime import date
 
 import pytest
@@ -105,12 +104,6 @@ def directora_del_jardin(jardin, directora):
     jardin.directora = directora
     jardin.save()
     return directora
-
-
-@pytest.fixture
-def sin_alertas(monkeypatch):
-    """Simula que registro/alertas.py (Task 2) no existe."""
-    monkeypatch.setitem(sys.modules, "registro.alertas", None)
 
 
 @pytest.fixture

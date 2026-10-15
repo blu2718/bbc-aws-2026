@@ -1,21 +1,27 @@
 """Ficha del niño (Task 3, spec task3-ficha-nino): acceso, rúbrica, evidencia y situación del curso.
 
-La situación (esperado, mediana y señales) viene de `alertas.py`, de la Task 2.
-Se prueba que la ficha funciona sin ese módulo y que, con un doble que cumple
-la interfaz de la spec, la muestra.
+La situación (esperado, mediana y señales) sale de `alertas.tabla_del_curso`
+(Task 2), la misma que usa la tabla del curso.
 """
-import builtins
-import sys
-from datetime import date
-from types import ModuleType, SimpleNamespace
+from datetime import date, timedelta
 
 import pytest
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
 
-from registro.ficha import _situaciones, armar_ficha
-from registro.models import DescriptorNivel, NivelEducativo, NivelValidado, Nino, ObjetivoAprendizaje, Observacion
+from registro.ficha import armar_ficha
+from registro.models import (
+    DescriptorNivel,
+    MetaSemestre,
+    NivelEducativo,
+    NivelValidado,
+    Nino,
+    ObjetivoAprendizaje,
+    Observacion,
+    Semestre,
+)
 from registro.permisos import ninos_que_valida
 
 JUNIO = date(2026, 6, 1)
@@ -158,7 +164,7 @@ def test_escapa_citas_y_comentarios(client, nino, educadora, nucleos, observar_e
     assert "<b>ok</b>" not in html
 
 
-def test_la_cantidad_de_consultas_no_crece(nino, educadora, nucleos, observar_en, sin_alertas):
+def test_la_cantidad_de_consultas_no_crece(nino, educadora, nucleos, observar_en):
     def contar():
         fresco = Nino.objects.get(pk=nino.pk)
         with CaptureQueriesContext(connection) as consultas:
@@ -179,61 +185,72 @@ def test_la_cantidad_de_consultas_no_crece(nino, educadora, nucleos, observar_en
 # --- Situación del curso (alertas.py, Task 2) ---------------------------------------------------
 
 
-def test_sin_alertas_la_ficha_omite_esperado_mediana_y_senales(client, nino, educadora, sin_alertas):
+@pytest.fixture
+def rezagado(curso, nucleos, educadora, observar_en):
+    """Un niño en su semestre 3 (esperado 5) con nivel 1 en IA, y dos pares en nivel 4 (mediana 4).
+
+    LV tiene una observación de hace 20 días; IA y PM nunca tuvieron.
+    """
+    hoy = timezone.localdate()
+    ingreso = hoy - timedelta(days=400)
+    for i, (inicio, fin) in enumerate([(0, 150), (180, 330), (360, 430)], start=1):
+        Semestre.objects.create(nombre=f"S{i}", inicio=ingreso + timedelta(days=inicio),
+                                fin=ingreso + timedelta(days=fin))
+    for semestre, nivel in {1: 1, 2: 3, 3: 5, 4: 7}.items():
+        MetaSemestre.objects.create(curso=curso, semestre_permanencia=semestre, nivel_esperado=nivel)
+    ia, lv, _pm = nucleos
+    nino = Nino.objects.create(curso=curso, nombre="Rubí Contreras", fecha_ingreso=ingreso)
+    for nombre in ("Par Uno", "Par Dos"):
+        par = Nino.objects.create(curso=curso, nombre=nombre, fecha_ingreso=ingreso)
+        NivelValidado.objects.create(nino=par, nucleo=ia, nivel=4, fecha=hoy, validado_por=educadora)
+    observar_en(nino, hoy - timedelta(days=20), [lv])
+    return nino
+
+
+def test_la_ficha_muestra_esperado_mediana_senales_y_avisos(client, rezagado, educadora):
     client.force_login(educadora)
-    respuesta = _ficha(client, nino)
-    assert respuesta.status_code == 200
-    html = respuesta.content.decode()
-    assert "Nivel esperado" not in html and "Mediana del curso" not in html and "senal-" not in html
-    assert all(nf.situacion is None for nf in armar_ficha(nino, educadora).nucleos)
-
-
-def _doble_alertas(nino_id):
-    """Módulo con la interfaz de la spec (sección 2): situacion_del_curso, SituacionNucleo y Senal."""
-    alerta = SimpleNamespace(tipo="esperado", brecha=4, gravedad=SimpleNamespace(value="alerta"),
-                             texto="Revisar: 4 niveles bajo lo esperado")
-    aviso = SimpleNamespace(tipo="pares", brecha=2, gravedad=SimpleNamespace(value="aviso"),
-                            texto="Revisar: 2 niveles bajo sus pares")
-    ia = SimpleNamespace(nivel=1, esperado=5, mediana_curso=3.5, senales=[alerta, aviso],
-                         datos=SimpleNamespace(value="desactualizados"))
-    lv = SimpleNamespace(nivel=1, esperado=5, mediana_curso=1, senales=[], datos=SimpleNamespace(value="sin_datos"))
-    llamadas = []
-
-    def situacion_del_curso(curso, hoy=None):
-        llamadas.append(curso)
-        return {nino_id: {"IA": ia, "LV": lv}}
-
-    modulo = ModuleType("registro.alertas")
-    modulo.situacion_del_curso = situacion_del_curso
-    return modulo, llamadas
-
-
-def test_con_alertas_la_ficha_muestra_la_situacion(client, nino, educadora, monkeypatch):
-    doble, llamadas = _doble_alertas(nino.pk)
-    monkeypatch.setitem(sys.modules, "registro.alertas", doble)
-    client.force_login(educadora)
-    html = _ficha(client, nino).content.decode()
-    assert len(llamadas) == 1
+    html = _ficha(client, rezagado).content.decode()
 
     ia = _seccion(html, "IA", "LV")
-    assert "Nivel esperado: 5" in ia and "Mediana del curso: 3,5" in ia
+    assert "Nivel esperado: 5" in ia and "Mediana del curso: 4" in ia
+    assert 'class="senal senal-alerta">Revisar: 3 niveles bajo la mediana del curso' in ia
     assert 'class="senal senal-alerta">Revisar: 4 niveles bajo lo esperado' in ia
-    assert 'class="senal senal-aviso">Revisar: 2 niveles bajo sus pares' in ia
-    assert "Sin observaciones aceptadas en los últimos 14 días" in ia
-    assert "Sin observaciones aceptadas en este núcleo" in _seccion(html, "LV", "PM")
-    # PM no viene en el resultado: sin bloque de situación.
-    assert "Nivel esperado" not in _seccion(html, "PM")
+    assert ia.index("bajo la mediana del curso") < ia.index("bajo lo esperado")  # pares primero
+    assert "Sin observaciones aceptadas en este núcleo" in ia
+
+    lv = _seccion(html, "LV", "PM")
+    assert "Mediana del curso: 1" in lv
+    assert "bajo la mediana del curso" not in lv
+    assert "Sin observaciones aceptadas en los últimos 14 días" in lv
 
 
-def test_un_error_dentro_de_alertas_no_se_oculta(curso, monkeypatch):
-    monkeypatch.delitem(sys.modules, "registro.alertas", raising=False)
-    importar = builtins.__import__
+def test_subir_un_nivel_a_mano_hace_desaparecer_la_alerta(client, rezagado, educadora):
+    client.force_login(educadora)
+    respuesta = client.post(reverse("fijar_nivel", args=[rezagado.pk, "IA"]), {"IA-nivel": "4"},
+                            HTTP_HX_REQUEST="true")
+    html = respuesta.content.decode()
+    assert "Nivel guardado: 4." in html
+    assert "senal-alerta" not in html
+    assert "bajo la mediana del curso" not in html and "bajo lo esperado" not in html
+    assert "Sin observaciones aceptadas en este núcleo" in html  # el aviso de datos sigue
 
-    def importar_con_falla(nombre, *args, **kwargs):
-        if nombre == "alertas" and args and args[-1] == 1:
-            raise ModuleNotFoundError("No module named 'boto3'", name="boto3")
-        return importar(nombre, *args, **kwargs)
 
-    monkeypatch.setattr(builtins, "__import__", importar_con_falla)
-    with pytest.raises(ModuleNotFoundError):
-        _situaciones(curso, date(2026, 10, 15))
+def test_editar_metas_cambia_las_alertas(client, rezagado, curso, educadora):
+    client.force_login(educadora)
+    assert "Revisar: 4 niveles bajo lo esperado" in _ficha(client, rezagado).content.decode()
+
+    metas = {"semestre_1": "1", "semestre_2": "1", "semestre_3": "1", "semestre_4": "7"}
+    client.post(reverse("metas", args=[curso.pk]), metas)
+
+    ia = _seccion(_ficha(client, rezagado).content.decode(), "IA", "LV")
+    assert "Nivel esperado: 1" in ia
+    assert "bajo lo esperado" not in ia
+    assert "Revisar: 3 niveles bajo la mediana del curso" in ia  # la de pares no depende de las metas
+
+
+def test_la_ficha_y_la_tabla_del_curso_muestran_las_mismas_senales(client, rezagado, curso, educadora):
+    client.force_login(educadora)
+    tabla = client.get(reverse("curso", args=[curso.pk])).content.decode()
+    ficha = _ficha(client, rezagado).content.decode()
+    for texto in ("Revisar: 3 niveles bajo la mediana del curso", "Revisar: 4 niveles bajo lo esperado"):
+        assert texto in tabla and texto in ficha
