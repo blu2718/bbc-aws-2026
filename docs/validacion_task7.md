@@ -23,7 +23,7 @@ Verificación local completada sobre `task7`, con las correcciones locales de Ki
 
 Kiro había corregido los alias explícitos de las dos Sofías de la demo, el enlace para actualizar sin JavaScript, la presentación de solicitudes listas y los diagnósticos de error sin mensajes crudos. Sus pruebas adicionales pasaron con la suite completa.
 
-Se completó `scripts/probar_propuesta.py` para limitar la prueba real a un solo intento, impedir su uso sobre la base habitual, exigir como máximo una solicitud pendiente y ejecutar el modo simulado sin buscar credenciales. El procedimiento está en el README.
+Se completó `scripts/probar_propuesta.py` para limitar la prueba real a un solo intento, impedir su uso sobre la base habitual, exigir como máximo una solicitud pendiente y ejecutar el modo simulado sin buscar credenciales. El procedimiento está en [task7.md](task7.md).
 
 ## Pendiente de AWS
 
