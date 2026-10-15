@@ -1,7 +1,8 @@
 """Registro de notas escritas (PLAN.md, Task 5).
 
-Registran la educadora y las asistentes del curso (`cursos_donde_registra`). La
-directora o una educadora de otro curso reciben 404. La nota queda pendiente y
+Registran la educadora, las asistentes del curso y la directora del jardín
+(`cursos_donde_registra`). Una educadora de otro curso o la directora de otro
+jardín reciben 404. La revisión sigue siendo solo de la educadora del curso. La nota queda pendiente y
 `manage.py procesar_capturas` la separa en observaciones para la revisión.
 
 Debajo del formulario va la lista de las últimas capturas de la usuaria en el curso,

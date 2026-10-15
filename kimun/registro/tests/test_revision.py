@@ -152,6 +152,25 @@ def test_solo_la_educadora_del_curso_revisa(client, request, curso, nota, quien)
     assert Observacion.objects.filter(captura=captura, estado=PENDIENTE).count() == 4
 
 
+def test_la_directora_registra_pero_no_revisa(client, curso, educadora, directora_del_jardin, nota):
+    """Aunque registre notas en el curso, ni sus observaciones ni las de la educadora las revisa ella."""
+    client.force_login(directora_del_jardin)
+    client.post(_url("capturar", curso), {"texto": "Pedro armó una torre de bloques"})
+    suya = Captura.objects.get(autora=directora_del_jardin, curso=curso)
+    Captura.objects.filter(pk=suya.pk).update(estado=Captura.Estado.PROCESADA)  # como si ya se hubiera procesado
+    obs_suya = _obs(suya, nota["pedro"].nino, cita="Armó una torre de bloques.")
+
+    assert client.get(_url("revision", curso)).status_code == 404
+    for obs in (obs_suya, nota["pedro"]):
+        assert client.post(_url("observacion_aceptar", obs)).status_code == 404
+        assert _estado(obs) == PENDIENTE
+    for captura in (suya, nota["captura"]):
+        assert client.post(_url("captura_aceptar_todas", captura)).status_code == 404
+    assert contar_pendientes(directora_del_jardin) == 0
+    assert Observacion.objects.filter(estado=PENDIENTE).count() == 5
+    assert contar_pendientes(educadora) == 5
+
+
 def test_una_educadora_no_puede_actuar_sobre_observaciones_de_otro_curso(client, jardin, otra_educadora, nota):
     """Aunque tenga su propio curso, las observaciones de otro curso responden 404."""
     Curso.objects.create(jardin=jardin, nombre="Transición B", nivel_educativo=NivelEducativo.TRANSICION, educadora=otra_educadora)

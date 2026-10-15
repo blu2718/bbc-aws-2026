@@ -6,7 +6,7 @@ from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 
-from registro.models import Captura, Curso, NivelEducativo, Observacion
+from registro.models import Captura, Curso, Jardin, NivelEducativo, Observacion
 
 HTMX = {"HX-Request": "true"}
 POLLING = 'hx-trigger="every '
@@ -48,9 +48,29 @@ def test_la_educadora_y_la_asistente_registran_en_su_curso(client, request, curs
     assert captura.texto_original == "Pedro y Emilio clasificaron hojas por color"
 
 
-@pytest.mark.parametrize("quien", ["otra_educadora", "directora_del_jardin", "asistente"])
+def test_la_directora_registra_en_los_cursos_de_su_jardin(client, curso, otro_curso, directora_del_jardin):
+    """Información nueva de Integra: la directora también registra, en cualquier curso de su jardín."""
+    client.force_login(directora_del_jardin)
+    for sala in (curso, otro_curso):
+        assert client.get(_url("capturar", sala)).status_code == 200, sala
+        texto = f"Visité {sala.nombre}: armaron una torre de bloques"
+        respuesta = client.post(_url("capturar", sala), {"texto": texto}, follow=True)
+        assert "Nota guardada." in respuesta.content.decode(), sala
+        captura = Captura.objects.get(curso=sala)
+        assert (captura.autora, captura.tipo, captura.estado) == (directora_del_jardin, Captura.Tipo.TEXTO, Captura.Estado.PENDIENTE)
+        assert captura.texto_original == texto
+    assert Captura.objects.count() == 2
+
+
+@pytest.fixture
+def directora_de_otro_jardin(directora):
+    Jardin.objects.create(nombre="Otro jardín", directora=directora)
+    return directora
+
+
+@pytest.mark.parametrize("quien", ["otra_educadora", "asistente", "directora_de_otro_jardin"])
 def test_no_se_puede_registrar_en_un_curso_ajeno(client, request, curso, quien):
-    """La directora ve el curso pero no registra; la otra educadora y una asistente de otro curso, tampoco."""
+    """Una educadora de otro curso, una asistente de otro curso y la directora de otro jardín reciben 404."""
     client.force_login(request.getfixturevalue(quien))
     assert client.get(_url("capturar", curso)).status_code == 404
     assert client.post(_url("capturar", curso), {"texto": "Nota en un curso ajeno"}).status_code == 404
@@ -70,12 +90,18 @@ def test_una_nota_vacia_no_se_guarda(client, curso, educadora):
     assert not Captura.objects.exists()
 
 
-def test_la_tabla_del_curso_enlaza_al_formulario_solo_a_quien_registra(client, curso, asistente_del_curso, directora_del_jardin):
+def test_la_tabla_del_curso_enlaza_al_formulario_solo_a_quien_registra(client, curso, asistente_del_curso, directora_del_jardin, django_user_model):
     enlace = f'href="{_url("capturar", curso)}"'
     client.force_login(asistente_del_curso)
     assert enlace in client.get(_url("curso", curso)).content.decode()
     client.force_login(directora_del_jardin)
-    assert enlace not in client.get(_url("curso", curso)).content.decode()
+    html = client.get(_url("curso", curso)).content.decode()
+    assert enlace in html
+    assert _url("revision", curso) not in html and _url("metas", curso) not in html
+    otra_directora = django_user_model.objects.create_user("elena", password="clave-de-prueba-123")
+    Jardin.objects.create(nombre="Otro jardín", directora=otra_directora)
+    client.force_login(otra_directora)
+    assert client.get(_url("curso", curso)).status_code == 404
 
 
 # --- Lista de las últimas capturas ----------------------------------------------------------

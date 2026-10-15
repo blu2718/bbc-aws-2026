@@ -239,6 +239,7 @@ def test_la_directora_ve_el_resumen_con_la_alerta_de_la_sala_rezagada(client, tr
     assert '<th scope="row">Lenguaje Verbal</th>' in html
     for sala in (a, b, c):
         assert f'href="{reverse("curso", args=[sala.pk])}"' in html
+        assert f'href="{reverse("capturar", args=[sala.pk])}"' in html  # la directora también registra
     # Las alertas van antes que la tabla.
     assert html.index("Sugerencias de revisión") < html.index('class="tabla-jardin"')
 

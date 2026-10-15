@@ -59,6 +59,7 @@
               <th scope="col">
                 <a href="{% url 'curso' c.pk %}">{{ c.nombre }}</a>
                 <small>{{ c.cantidad_ninos }} niño{{ c.cantidad_ninos|pluralize }}</small>
+                <small><a href="{% url 'capturar' c.pk %}" aria-label="Registrar una nota en {{ c.nombre }}">Registrar una nota</a></small>
               </th>
             {% endfor %}
           </tr>
