@@ -1,0 +1,294 @@
+{
+  "fuente": "Fundación Integra, rúbrica de progresión (borrador entregado el 15-10-2026)",
+  "provisorio": false,
+  "rubricas": [
+    {
+      "nivel_educativo": "sala_cuna",
+      "nivel_educativo_nombre": "Sala Cuna",
+      "nucleo": "Identidad y Autonomía",
+      "sigla": "IA",
+      "niveles": [
+        {
+          "nivel": 1,
+          "nombre": "Comenzando",
+          "descripcion": "Expresa necesidades corporales básicas (hambre, sueño, incomodidad) mediante el llanto, vocalizaciones o movimientos globales del cuerpo. Reacciona de manera refleja ante estímulos afectivos del adulto.",
+          "conducta": "Llora cuando siente hambre o mojado; se calma parcialmente al ser alzado.",
+          "ejemplos": [
+            "Durante el cambio de pañal, patalea y vocaliza fuerte; al escuchar la voz del adulto conocido, reduce la intensidad del llanto.",
+            "Al escuchar la voz de su figura de apego, gira la cabeza o mueve brazos y piernas."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 2,
+          "nombre": "Explorando",
+          "descripcion": "Manifiesta satisfacción ante la proximidad y el afecto de adultos significativos. Comienza a diferenciar sensaciones agradables de desagradables mediante respuestas corporales diferenciadas.",
+          "conducta": "Sonríe o emite sonidos de placer al ser acariciado; gira la cabeza o cierra la boca ante un alimento que rechaza.",
+          "ejemplos": [
+            "Al ser tomado en brazos por su educadora, apoya la cabeza en su hombro y se relaja.",
+            "Durante la alimentación, escupe o cierra la boca ante una textura que no le agrada; abre la boca ante una de su preferencia."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 3,
+          "nombre": "Desarrollando",
+          "descripcion": "Reconoce algunas emociones en adultos significativos y reacciona frente a ellas. Manifiesta preferencias incipientes por situaciones, objetos o juegos mediante la atención sostenida o el rechazo activo.",
+          "conducta": "Observa con atención el rostro de un adulto que sonríe; se inquieta o llora ante un rostro que expresa enojo o tristeza.",
+          "ejemplos": [
+            "Al ver que su educadora se ríe mientras le habla, el bebé sonríe y vocaliza.",
+            "Entre varios objetos en el suelo, gatea repetidamente hacia un sonajero y lo toma; ignora una pelota que está a su lado."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 4,
+          "nombre": "Afianzando",
+          "descripcion": "Incorpora progresivamente rutinas básicas de alimentación, vigilia, sueño e higiene dentro del contexto educativo, con apoyo del adulto. Reconoce su nombre cuando es llamado.",
+          "conducta": "Colabora pasivamente en la rutina de alimentación (abre la boca, extiende los brazos); se tranquiliza cuando se le anticipa la siesta.",
+          "ejemplos": [
+            "Al escuchar “vamos a dormir” acompañado de la manta habitual, se recuesta o cierra los ojos.",
+            "Al escuchar su nombre, voltea la cabeza o extiende los brazos hacia quien lo llama."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 5,
+          "nombre": "Integrando",
+          "descripcion": "Reconoce algunos rasgos distintivos de su identidad: su nombre y su imagen física en el espejo. Manifiesta preferencias claras y sostenidas por objetos o juegos específicos.",
+          "conducta": "Se señala a sí mismo en el espejo o toca su reflejo; busca repetidamente un juguete específico.",
+          "ejemplos": [
+            "Frente al espejo, al ser llamado por su nombre, sonríe y toca su propia imagen reflejada.",
+            "En el rincón de juegos, elige siempre el mismo set de bloques y lo manipula de manera sostenida."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 6,
+          "nombre": "Ampliando",
+          "descripcion": "Manifiesta interés por nuevas situaciones u objetos, ampliando su repertorio de acción habitual. Expresa agrado o desagrado de manera más intencionada y diferenciada.",
+          "conducta": "Se desplaza hacia un objeto o rincón nuevo; rechaza activamente una actividad que no le interesa.",
+          "ejemplos": [
+            "Al introducir un nuevo material en la sala (por ejemplo, una caja sensorial), se acerca, lo explora y vocaliza con entusiasmo.",
+            "Ante una actividad de pintura, empuja el papel o gira el cuerpo para indicar “no quiero”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 7,
+          "nombre": "Consolidando",
+          "descripcion": "Diferencia progresivamente su propia imagen de la de los demás. Manifiesta preferencias sostenidas que comunica mediante gestos, vocalizaciones o palabras incipientes.",
+          "conducta": "Distingue su imagen en el espejo de la del adulto; señala o nombra (con vocalización) el objeto que desea.",
+          "ejemplos": [
+            "Frente al espejo, toca su nariz y luego la del adulto, mostrando diferenciación.",
+            "Al ofrecerle dos opciones de juego, señala con el dedo el que prefiere y emite un sonido afirmativo."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 8,
+          "nombre": "Profundizando",
+          "descripcion": "Integra las rutinas básicas con mayor autonomía, anticipando algunos momentos del día. Expresa su identidad incipiente mediante la afirmación de posesión y preferencia.",
+          "conducta": "Anticipa la rutina de alimentación (se dirige a su silla, busca su babero); dice “mío” o toma posesión de un objeto.",
+          "ejemplos": [
+            "Al escuchar la señal de la colación, camina hacia la mesa y busca su lugar.",
+            "Cuando otro niño toma su juguete, lo agarra con fuerza y vocaliza “¡mío!”."
+          ],
+          "orientaciones": null
+        }
+      ]
+    },
+    {
+      "nivel_educativo": "medio",
+      "nivel_educativo_nombre": "Nivel Medio",
+      "nucleo": "Identidad y Autonomía",
+      "sigla": "IA",
+      "niveles": [
+        {
+          "nivel": 1,
+          "nombre": "Comenzando",
+          "descripcion": "Representa verbal y corporalmente emociones básicas en sus juegos, aunque de manera difusa. Manifiesta disposición inicial para separarse de los adultos significativos sin angustia intensa.",
+          "conducta": "En el juego simbólico, expresa alegría o enojo de forma corporal (saltar, fruncir el ceño); se despide del adulto con apoyo.",
+          "ejemplos": [
+            "Al llegar al jardín, se aferra brevemente a la mano de su madre, pero ingresa a la sala tras ser recibido por su educadora.",
+            "En el rincón de la casa, alimenta a un muñeco diciendo “¡come, come!” con entonación de enojo."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 2,
+          "nombre": "Explorando",
+          "descripcion": "Reconoce en sí mismo y en otras personas emociones como tristeza, miedo, alegría y rabia. Actúa con progresiva independencia en acciones cotidianas simples.",
+          "conducta": "Nombra o señala emociones en sí mismo y en pares; realiza acciones como sacar su vaso o guardar su mochila con mínima ayuda.",
+          "ejemplos": [
+            "Al ver a un compañero llorar, dice “está triste” y lo señala.",
+            "Después del almuerzo, lleva su plato a la bandeja siguiendo la rutina establecida."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 3,
+          "nombre": "Desarrollando",
+          "descripcion": "Manifiesta disposición para regular sus emociones en función de las necesidades propias y de algunos acuerdos grupales. Comienza a comunicar rasgos de su identidad: nombre, género, características corporales.",
+          "conducta": "Ante un conflicto, busca al adulto o intenta esperar su turno con recordatorio; dice “yo soy niña” o “tengo el pelo corto”.",
+          "ejemplos": [
+            "Cuando otro niño le quita un bloque, dice “no” y busca a la educadora en lugar de empujar.",
+            "Durante la asamblea, dice “yo me llamo [nombre] y soy niño”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 4,
+          "nombre": "Afianzando",
+          "descripcion": "Aprecia sus características identitarias, fortalezas y habilidades. Manifiesta satisfacción y confianza al comunicar desafíos alcanzados.",
+          "conducta": "Muestra orgulloso sus logros (torre construida, salto realizado); expresa “¡lo logré!” o “mira lo que hice”.",
+          "ejemplos": [
+            "Después de saltar desde una pequeña altura, dice a su educadora “¡mira, salté solito!”.",
+            "Al terminar un dibujo, lo sostiene en alto y dice “este es mi dibujo bonito”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 5,
+          "nombre": "Integrando",
+          "descripcion": "Manifiesta progresiva independencia en prácticas de alimentación, vestimenta e higiene corporal, con apoyo decreciente del adulto. Identifica alimentos y prácticas de su familia y comunidad.",
+          "conducta": "Come solo con cuchara derramando poco; intenta abotonarse; identifica “la sopa que hace mi abuela”.",
+          "ejemplos": [
+            "Durante el almuerzo, usa la cuchara de manera autónoma y pide ayuda solo para cortar.",
+            "Al hablar de celebraciones familiares, dice “en mi casa comemos pan amasado para las fiestas patrias”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 6,
+          "nombre": "Ampliando",
+          "descripcion": "Representa sus pensamientos y experiencias atribuyendo significados a objetos y elementos de su entorno, usando la imaginación en el juego. Regula sus emociones en función de acuerdos grupales con mayor frecuencia.",
+          "conducta": "En el juego, transforma un bloque en “teléfono” o una caja en “casa”; espera su turno en juegos reglados.",
+          "ejemplos": [
+            "En el rincón de construcción, dice “este palo es una varita mágica” y lo usa para “convertir” a sus compañeros en animales.",
+            "En un juego de ronda, respeta el turno sin recordatorio del adulto."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 7,
+          "nombre": "Consolidando",
+          "descripcion": "Regula sus emociones considerando las necesidades propias, las de los demás y los acuerdos establecidos, verbalizando el motivo. Se identifica con su grupo familiar y cultural.",
+          "conducta": "Expresa “estoy enojado porque me quitó el juguete” y luego propone una solución; dice “en mi familia somos cuatro”.",
+          "ejemplos": [
+            "Durante un conflicto, dice “no me gusta que me empujes, podemos turnarnos” y busca al adulto solo si la situación escala.",
+            "En una conversación grupal, comparte “mi mamá es de otro país, habla distinto”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 8,
+          "nombre": "Profundizando",
+          "descripcion": "Integra habilidades de autorregulación y autonomía en proyectos de juego más complejos. Manifiesta una imagen positiva de sí mismo, reconociendo sus capacidades y desafíos pendientes.",
+          "conducta": "Organiza un juego con roles asignados y regula su comportamiento para sostenerlo; dice “todavía no me sale el nudo, pero estoy aprendiendo”.",
+          "ejemplos": [
+            "En el juego sociodramático “el restaurante”, asigna roles, espera su turno para “cocinar” y resuelve conflictos con diálogo.",
+            "Al intentar abotonarse, dice “me cuesta, pero lo estoy intentando”."
+          ],
+          "orientaciones": null
+        }
+      ]
+    },
+    {
+      "nivel_educativo": "transicion",
+      "nivel_educativo_nombre": "Transición",
+      "nucleo": "Identidad y Autonomía",
+      "sigla": "IA",
+      "niveles": [
+        {
+          "nivel": 1,
+          "nombre": "Comenzando",
+          "descripcion": "Comunica emociones y sentimientos provocados por narraciones o situaciones observadas, con apoyo del adulto. Manifiesta confianza inicial ante situaciones nuevas con acompañamiento.",
+          "conducta": "Al escuchar un cuento, dice “el lobo me da miedo” o “estoy contento porque ganó el niño”; explora un espacio nuevo si un adulto o par conocido lo acompaña.",
+          "ejemplos": [
+            "Después de escuchar un relato, expresa “yo me pongo triste cuando el personaje se pierde”.",
+            "En una visita a un espacio nuevo del jardín, camina de la mano de un compañero."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 2,
+          "nombre": "Explorando",
+          "descripcion": "Reconoce emociones y sentimientos en otras personas, observadas directamente o a través de TICs. Identifica algunas de sus capacidades y las aplica en acciones concretas.",
+          "conducta": "Dice “mi amigo está enojado porque no le prestaron el camión”; realiza una tarea que se le da bien (dibujar, correr) y lo verbaliza.",
+          "ejemplos": [
+            "Al ver una imagen de un niño llorando en un video, dice “está triste porque se cayó”.",
+            "Al preparar la mesa para la colación, dice “yo soy bueno para poner los vasos”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 3,
+          "nombre": "Desarrollando",
+          "descripcion": "Propone juegos y actividades orientándose a sus intereses. Regula y adapta su comportamiento en función de las necesidades de los demás y de las normas de funcionamiento grupal.",
+          "conducta": "Dice “juguemos a las escondidas, yo cuento”; espera su turno y respeta las reglas del juego sin recordatorio constante.",
+          "ejemplos": [
+            "En el patio, propone “hagamos una carrera de obstáculos, yo pongo las sillas”.",
+            "En un juego de mesa, espera su turno y dice “te toca a ti”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 4,
+          "nombre": "Afianzando",
+          "descripcion": "Adquiere confianza ante situaciones, personas o experiencias nuevas, regulando su expresión emocional. Identifica algunas condiciones que caracterizan ambientes saludables y de cuidado personal.",
+          "conducta": "Se integra a un grupo nuevo o actividad desconocida con creciente seguridad; identifica “el jabón mata los bichitos” y lo relaciona con lavarse las manos.",
+          "ejemplos": [
+            "En una actividad con un material desconocido (arcilla), lo explora sin retraerse y dice “esto es pegajoso pero me gusta”.",
+            "Al toser, se cubre con el antebrazo y dice “así no contagio a mis amigos”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 5,
+          "nombre": "Integrando",
+          "descripcion": "Manifiesta progresiva independencia y responsabilidad en el cuidado de su cuerpo, de sí mismo y de sus pertenencias. Anticipa algunas de sus acciones, organizándolas para llevar a cabo sus iniciativas.",
+          "conducta": "Organiza sus materiales para una actividad antes de comenzar; cuida sus pertenencias y las de otros.",
+          "ejemplos": [
+            "Antes de pintar, dice “primero pongo el delantal, después el papel y después los pinceles”.",
+            "Al terminar de jugar, guarda los bloques en su lugar sin que se le solicite."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 6,
+          "nombre": "Ampliando",
+          "descripcion": "Manifiesta seguridad para sostener sus ideas, enriqueciéndolas con aportes de otros, y lleva a cabo sus proyectos personales y colectivos. Se responsabiliza gradualmente de sus actos, estableciendo relaciones entre acciones y consecuencias.",
+          "conducta": "Defiende su idea en una discusión grupal (“yo creo que la torre debe ir aquí porque…”); reconoce “si no guardo los colores, se pierden”.",
+          "ejemplos": [
+            "En la planificación de un proyecto de aula, dice “yo quiero hacer el cartel y puedo dibujar las letras”.",
+            "Al derramar agua, dice “yo lo hice, voy a buscar la esponja”."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 7,
+          "nombre": "Consolidando",
+          "descripcion": "Propone ideas y estrategias para resolver situaciones que afectan sus iniciativas y proyectos. Manifiesta iniciativa en la configuración de ambientes que le producen bienestar y agrado.",
+          "conducta": "Ante un obstáculo, sugiere “podemos pedirle a la tía más tijeras” o “yo puedo cortar con la mía y tú pegas”; organiza un rincón de lectura con cojines y lo mantiene.",
+          "ejemplos": [
+            "Al faltar material para el proyecto, dice “podemos usar las cajas del rincón de construcción”.",
+            "Decide con sus pares reorganizar el rincón de arte para tener más espacio y lo hace con supervisión mínima."
+          ],
+          "orientaciones": null
+        },
+        {
+          "nivel": 8,
+          "nombre": "Profundizando",
+          "descripcion": "Regula flexiblemente sus emociones y adapta su comportamiento considerando las necesidades de los demás y las normas grupales, logrando coherencia entre sus acciones y sus intenciones. Persevera en la realización de sus proyectos, buscando los medios para concretarlos.",
+          "conducta": "Ante un conflicto complejo, propone una solución que considera ambas partes; persiste en una tarea difícil (armar un rompecabezas, terminar un proyecto) buscando alternativas ante la frustración.",
+          "ejemplos": [
+            "En una discusión sobre reglas del juego, dice “si todos gritamos no nos escuchamos, mejor levantamos la mano”.",
+            "Al no lograr ensartar una cuenta, prueba con otra mano o pide ayuda, y continúa hasta lograrlo."
+          ],
+          "orientaciones": null
+        }
+      ]
+    }
+  ]
+}
