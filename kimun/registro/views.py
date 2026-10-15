@@ -69,13 +69,15 @@ def curso(request, curso_id):
     })
 
 
-def _pagina_ficha(request, nino, formularios=None):
-    ficha = armar_ficha(nino, request.user, formularios=formularios)
+def _pagina_ficha(request, nino, formularios=None, formularios_propuesta=None, errores_propuesta=None):
+    ficha = armar_ficha(nino, request.user, formularios=formularios,
+                        formularios_propuesta=formularios_propuesta, errores_propuesta=errores_propuesta)
     return render(request, "registro/ficha.html", {"ficha": ficha, "curso": nino.curso})
 
 
-def _parcial_nucleo(request, nino, sigla, mensaje="", formularios=None):
-    ficha = armar_ficha(nino, request.user, formularios=formularios)
+def _parcial_nucleo(request, nino, sigla, mensaje="", formularios=None, formularios_propuesta=None, error_propuesta=""):
+    ficha = armar_ficha(nino, request.user, formularios=formularios, formularios_propuesta=formularios_propuesta,
+                        errores_propuesta={sigla: error_propuesta})
     contexto = {"nf": ficha.nucleo(sigla), "ficha": ficha, "mensaje": mensaje}
     return render(request, "registro/_nucleo_ficha.html", contexto)
 

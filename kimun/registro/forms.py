@@ -10,7 +10,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
 
-from .models import NIVEL_MIN, MetaSemestre, NivelValidado, texto_nivel
+from .models import NIVEL_MIN, MetaSemestre, texto_nivel
 
 # Valores por defecto de la tabla de metas (PLAN.md, "Nivel esperado").
 METAS_POR_DEFECTO = {1: 1, 2: 3, 3: 5, 4: 7}
@@ -110,9 +110,11 @@ class FijarNivelForm(forms.Form):
         queda en el formulario).
         """
         try:
-            return NivelValidado.objects.create(
-                nino=nino, nucleo=nucleo, nivel=self.cleaned_data["nivel"], fecha=hoy,
-                validado_por=usuaria, comentario=self.cleaned_data["comentario"],
+            from .propuestas import fijar_nivel_manual
+
+            return fijar_nivel_manual(
+                nino, nucleo, usuaria, nivel=self.cleaned_data["nivel"], hoy=hoy,
+                comentario=self.cleaned_data["comentario"],
             )
         except ValidationError as error:
             self.add_error(None, error.messages)

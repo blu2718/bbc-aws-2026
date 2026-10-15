@@ -455,10 +455,13 @@ class Observacion(models.Model):
 class PropuestaNivel(ValidaNivelMixin, models.Model):
     class Estado(models.TextChoices):
         SOLICITADA = "solicitada", "Solicitada"
+        PROCESANDO = "procesando", "Procesando"
         LISTA = "lista", "Lista para revisar"
         ACEPTADA = "aceptada", "Aceptada"
+        AJUSTADA = "ajustada", "Resuelta con otro nivel"
         RECHAZADA = "rechazada", "Rechazada"
         ERROR = "error", "Error"
+        OBSOLETA = "obsoleta", "Obsoleta"
 
     nino = models.ForeignKey(Nino, on_delete=models.CASCADE, related_name="propuestas")
     nucleo = models.ForeignKey(Nucleo, on_delete=models.CASCADE, related_name="propuestas")
@@ -472,6 +475,27 @@ class PropuestaNivel(ValidaNivelMixin, models.Model):
     modelo = models.CharField(max_length=120, blank=True, help_text="Modelo de Bedrock que la generó.")
     estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.SOLICITADA)
     error = models.TextField(blank=True)
+    nivel_referencia = models.ForeignKey(
+        "NivelValidado", on_delete=models.SET_NULL, null=True, blank=True,
+        related_name="propuestas_de_referencia",
+        help_text="Nivel validado al preparar la entrada de la propuesta.",
+    )
+    huella_entrada = models.CharField(
+        max_length=64, blank=True, help_text="SHA-256 de evidencia, rúbrica y contexto; no guarda las citas.",
+    )
+    rubrica_provisoria = models.BooleanField(
+        null=True, blank=True, help_text="Procedencia al generar; vacío si aún no se preparó la entrada.",
+    )
+    version_prompt = models.CharField(max_length=80, blank=True)
+    procesamiento_iniciado = models.DateTimeField(null=True, blank=True)
+    token_procesamiento = models.UUIDField(null=True, blank=True, editable=False)
+    intentos = models.PositiveIntegerField(default=0)
+    uso_modelo = models.JSONField(default=dict, blank=True, help_text="Métricas de uso devueltas por el cliente.")
+    resuelta_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True,
+        related_name="propuestas_resueltas",
+    )
+    resuelta_en = models.DateTimeField(null=True, blank=True)
     creada = models.DateTimeField(auto_now_add=True)
     actualizada = models.DateTimeField(auto_now=True)
 
@@ -483,6 +507,29 @@ class PropuestaNivel(ValidaNivelMixin, models.Model):
             models.CheckConstraint(
                 condition=Q(nivel__isnull=True) | _nivel_desde_1(), name="propuesta_nivel_desde_1"
             ),
+            models.UniqueConstraint(
+                fields=["nino", "nucleo"], condition=Q(estado__in=["solicitada", "procesando"]),
+                name="propuesta_solicitud_activa_unica",
+            ),
+            models.CheckConstraint(
+                condition=(Q(evidencia_suficiente=False, nivel__isnull=True)
+                           | Q(evidencia_suficiente=True, nivel__isnull=False)),
+                name="propuesta_nivel_coherente",
+            ),
+            models.CheckConstraint(
+                condition=~Q(estado__in=["aceptada", "ajustada"]) | Q(evidencia_suficiente=True, nivel__isnull=False),
+                name="propuesta_resuelta_con_nivel",
+            ),
+            models.CheckConstraint(
+                condition=(~Q(estado="procesando")
+                           | Q(procesamiento_iniciado__isnull=False, intentos__gte=1)),
+                name="propuesta_procesando_con_inicio",
+            ),
+            models.CheckConstraint(
+                condition=(Q(resuelta_por__isnull=True, resuelta_en__isnull=True)
+                           | Q(resuelta_por__isnull=False, resuelta_en__isnull=False)),
+                name="propuesta_resolucion_completa",
+            ),
         ]
 
     def __str__(self):
@@ -490,6 +537,45 @@ class PropuestaNivel(ValidaNivelMixin, models.Model):
 
     def nivel_educativo_para_validar(self):
         return self.nino.curso.nivel_educativo
+
+    def _validar_contrato(self):
+        if self.estado not in self.Estado.values:
+            raise ValidationError({"estado": "Estado de propuesta desconocido."})
+        if self.evidencia_suficiente != (self.nivel is not None):
+            raise ValidationError({"nivel": "La evidencia suficiente requiere un nivel; si no alcanza, debe quedar vacío."})
+        if self.estado == self.Estado.PROCESANDO and (
+            self.procesamiento_iniciado is None or self.intentos < 1
+        ):
+            raise ValidationError("El procesamiento requiere fecha de inicio y al menos un intento.")
+        if self.nivel_referencia_id is not None:
+            referencia = self.nivel_referencia
+            if (referencia.nino_id, referencia.nucleo_id) != (self.nino_id, self.nucleo_id):
+                raise ValidationError({"nivel_referencia": "El nivel de referencia debe ser del mismo niño y núcleo."})
+        if bool(self.resuelta_por_id) != (self.resuelta_en is not None):
+            raise ValidationError("La resolución requiere usuaria y fecha juntas.")
+        if self.estado in (self.Estado.ACEPTADA, self.Estado.AJUSTADA, self.Estado.RECHAZADA):
+            if not self.resuelta_por_id or self.resuelta_en is None:
+                raise ValidationError("La resolución requiere usuaria y fecha.")
+        if self.estado in (self.Estado.ACEPTADA, self.Estado.AJUSTADA):
+            if not self.evidencia_suficiente or self.nivel is None:
+                raise ValidationError("No se puede aceptar una propuesta sin evidencia suficiente y nivel.")
+            anterior = type(self).objects.filter(pk=self.pk).values_list("estado", flat=True).first()
+            # Una resolución histórica no pierde validez al registrarse su NivelValidado.
+            if anterior in (self.Estado.ACEPTADA, self.Estado.AJUSTADA) and anterior != self.estado:
+                raise ValidationError("La propuesta ya fue resuelta.")
+            if anterior not in (self.Estado.ACEPTADA, self.Estado.AJUSTADA):
+                from .propuestas import entrada_vigente
+
+                if anterior != self.Estado.LISTA or not entrada_vigente(self):
+                    raise ValidationError("Solo se puede aceptar una propuesta lista con entrada vigente.")
+
+    def clean(self):
+        super().clean()
+        self._validar_contrato()
+
+    def save(self, *args, **kwargs):
+        self._validar_contrato()
+        super().save(*args, **kwargs)
 
 
 class NivelValidado(ValidaNivelMixin, models.Model):
@@ -516,6 +602,8 @@ class NivelValidado(ValidaNivelMixin, models.Model):
         indexes = [models.Index(fields=["nino", "nucleo", "fecha"])]
         constraints = [
             models.CheckConstraint(condition=_nivel_desde_1(), name="nivel_validado_desde_1"),
+            models.UniqueConstraint(fields=["propuesta"], condition=Q(propuesta__isnull=False),
+                                    name="nivel_validado_propuesta_unica"),
         ]
 
     def __str__(self):

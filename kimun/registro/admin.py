@@ -120,6 +120,11 @@ class ObservacionAdmin(admin.ModelAdmin):
 
 @admin.register(models.PropuestaNivel)
 class PropuestaNivelAdmin(admin.ModelAdmin):
-    list_display = ["nino", "nucleo", "nivel", "evidencia_suficiente", "estado", "creada"]
-    list_filter = ["estado", "nucleo"]
+    list_display = ["nino", "nucleo", "nivel", "evidencia_suficiente", "estado", "intentos", "creada"]
+    list_filter = ["estado", "nucleo", "rubrica_provisoria"]
     filter_horizontal = ["observaciones_citadas"]
+    readonly_fields = [
+        "nivel_referencia", "huella_entrada", "rubrica_provisoria", "version_prompt",
+        "procesamiento_iniciado", "token_procesamiento", "intentos", "uso_modelo",
+        "resuelta_por", "resuelta_en", "creada", "actualizada",
+    ]

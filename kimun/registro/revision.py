@@ -12,11 +12,12 @@ from dataclasses import dataclass, field
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, F, Q
 from django.utils import timezone
 
 from .models import Captura, Nino, Nucleo, ObjetivoAprendizaje, Observacion
 from .permisos import cursos_que_valida
+from .propuestas import solicitar_propuesta
 
 MENSAJE_SIN_NINO = "Elige a qué niño o niña corresponde antes de aceptarla."
 
@@ -117,12 +118,35 @@ def puede_aceptarse(obs):
     return obs.grupal or obs.nino_id is not None
 
 
-def aceptar(obs):
-    """Acepta una observación pendiente. Una individual necesita niño asignado."""
+def _aceptar(obs):
     if not puede_aceptarse(obs):
         raise ValidationError(MENSAJE_SIN_NINO)
-    obs.estado = Observacion.Estado.ACEPTADA
-    obs.save(update_fields=["estado", "actualizada"])
+    if obs.nino_id and obs.nino.curso_id != obs.captura.curso_id:
+        raise ValidationError("El niño debe pertenecer al curso de la captura.")
+    modificada = Observacion.objects.filter(pk=obs.pk, estado=Observacion.Estado.PENDIENTE,
+                                            nino_id=obs.nino_id, grupal=obs.grupal).update(
+        estado=Observacion.Estado.ACEPTADA, actualizada=timezone.now(),
+    )
+    obs.refresh_from_db()
+    return bool(modificada)
+
+
+def _destinos(obs):
+    if obs.grupal or obs.nino_id is None:
+        return []
+    ids = set(obs.nucleos.values_list("pk", flat=True)) | set(obs.oas.filter(
+        nivel_educativo=obs.nino.curso.nivel_educativo,
+    ).values_list("nucleo_id", flat=True))
+    return [(obs.nino, nucleo) for nucleo in Nucleo.objects.filter(pk__in=ids).order_by("pk")]
+
+
+@transaction.atomic
+def aceptar(obs):
+    """Acepta y solicita propuestas en la misma transacción; repetir no duplica trabajos."""
+    Observacion.objects.filter(pk=obs.pk).update(actualizada=F("actualizada"))
+    if _aceptar(obs):
+        for nino, nucleo in _destinos(obs):
+            solicitar_propuesta(nino, nucleo, reintentar=True)
 
 
 def descartar(obs):
@@ -133,11 +157,18 @@ def descartar(obs):
 @transaction.atomic
 def aceptar_todas(captura):
     """Acepta las pendientes de la captura que se pueden aceptar. Devuelve (aceptadas, sin niño)."""
+    Captura.objects.filter(pk=captura.pk).update(actualizada=F("actualizada"))
     pendientes = list(captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE))
     listas = [o for o in pendientes if puede_aceptarse(o)]
+    destinos, aceptadas = {}, 0
     for obs in listas:
-        aceptar(obs)
-    return len(listas), len(pendientes) - len(listas)
+        if _aceptar(obs):
+            aceptadas += 1
+            for nino, nucleo in _destinos(obs):
+                destinos[(nino.pk, nucleo.pk)] = (nino, nucleo)
+    for nino, nucleo in destinos.values():
+        solicitar_propuesta(nino, nucleo, reintentar=True)
+    return aceptadas, len(pendientes) - len(listas)
 
 
 # --- Formularios ------------------------------------------------------------------------
