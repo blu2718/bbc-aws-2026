@@ -1,0 +1,40 @@
+{
+  "_nota": "Datos 100% ficticios para la demo. Las fechas de los semestres son editables en el panel de administración.",
+  "semestres": [
+    {"nombre": "2025-2", "inicio": "2025-07-28", "fin": "2025-12-19"},
+    {"nombre": "2026-1", "inicio": "2026-03-02", "fin": "2026-07-03"},
+    {"nombre": "2026-2", "inicio": "2026-07-20", "fin": "2026-12-18"}
+  ],
+  "jardin": "Jardín Infantil Los Aromos (ficticio)",
+  "curso": {
+    "nombre": "Transición Mayor A",
+    "nivel_educativo": "transicion",
+    "metas": {"1": 1, "2": 3, "3": 5, "4": 7}
+  },
+  "educadora": {
+    "usuario": "educadora",
+    "nombre": "Carolina",
+    "apellido": "Demo",
+    "email": "educadora@example.com"
+  },
+  "asistentes": [
+    {"usuario": "asistente", "nombre": "Valentina", "apellido": "Demo", "email": "asistente@example.com"}
+  ],
+  "ninos": [
+    {"nombre": "Pedro Salinas", "alias": [], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Emilio Vargas", "alias": [], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Rubí Contreras", "alias": ["Rubi"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Naiara Fuentes", "alias": ["Nayara", "Naia"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Sofía Rojas", "alias": ["Sofi R"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Sofía Muñoz", "alias": ["Sofi M"], "fecha_ingreso": "2026-03-02"},
+    {"nombre": "Benjamín Soto", "alias": ["Benja"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Martina Díaz", "alias": ["Marti"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Agustín Pérez", "alias": ["Agus"], "fecha_ingreso": "2025-09-15"},
+    {"nombre": "Isidora Reyes", "alias": ["Isi"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Tomás Herrera", "alias": ["Tomi"], "fecha_ingreso": "2026-03-02"},
+    {"nombre": "Antonella Castro", "alias": ["Anto"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Matías Lagos", "alias": ["Mati"], "fecha_ingreso": "2025-07-28"},
+    {"nombre": "Josefa Morales", "alias": ["Jose"], "fecha_ingreso": "2026-07-20"},
+    {"nombre": "Gaspar Núñez", "alias": [], "fecha_ingreso": "2025-07-28"}
+  ]
+}
