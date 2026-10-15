@@ -137,3 +137,95 @@ def test_la_cantidad_de_consultas_no_crece_con_las_observaciones(nino, oas, obse
     with django_assert_max_num_queries(3):
         cobertura = cobertura_del_nino(nino)
     assert _por_codigo(cobertura)["OA 2 LV"] == (20, date(2026, 10, 20))
+
+
+# --- Resumen de la quincena (PLAN.md, Task 2) -----------------------------------------
+
+from registro.cobertura import Quincena, cobertura_quincena, cobertura_quincena_del_curso, quincena_de  # noqa: E402
+
+
+@pytest.mark.parametrize(
+    "fecha, inicio, fin",
+    [
+        (date(2026, 10, 1), date(2026, 10, 1), date(2026, 10, 15)),
+        (date(2026, 10, 15), date(2026, 10, 1), date(2026, 10, 15)),
+        (date(2026, 10, 16), date(2026, 10, 16), date(2026, 10, 31)),
+        (date(2026, 10, 31), date(2026, 10, 16), date(2026, 10, 31)),
+        (date(2026, 9, 30), date(2026, 9, 16), date(2026, 9, 30)),
+        (date(2026, 2, 28), date(2026, 2, 16), date(2026, 2, 28)),
+        (date(2028, 2, 29), date(2028, 2, 16), date(2028, 2, 29)),  # año bisiesto
+    ],
+)
+def test_quincena_va_del_1_al_15_y_del_16_a_fin_de_mes(fecha, inicio, fin):
+    assert quincena_de(fecha) == Quincena(inicio, fin)
+
+
+def test_quincena_anterior_y_siguiente_cruzan_meses_y_anios():
+    marzo = quincena_de(date(2026, 3, 1))
+    assert marzo.anterior() == Quincena(date(2026, 2, 16), date(2026, 2, 28))
+    assert marzo.anterior().anterior() == Quincena(date(2026, 2, 1), date(2026, 2, 15))
+    assert quincena_de(date(2026, 1, 3)).anterior() == Quincena(date(2025, 12, 16), date(2025, 12, 31))
+    assert quincena_de(date(2026, 12, 20)).siguiente() == Quincena(date(2027, 1, 1), date(2027, 1, 15))
+    assert quincena_de(date(2026, 10, 15)).siguiente() == Quincena(date(2026, 10, 16), date(2026, 10, 31))
+
+
+def test_quincena_contiene_sus_bordes():
+    q = quincena_de(date(2026, 10, 20))
+    assert q.contiene(date(2026, 10, 16)) and q.contiene(date(2026, 10, 31))
+    assert not q.contiene(date(2026, 10, 15)) and not q.contiene(date(2026, 11, 1))
+
+
+def _nucleo(pk, sigla):
+    return SimpleNamespace(pk=pk, sigla=sigla)
+
+
+def test_cobertura_quincena_cuenta_observaciones_y_ninos_por_nucleo():
+    lv, pm, ia = _nucleo(1, "LV"), _nucleo(2, "PM"), _nucleo(3, "IA")
+    q = quincena_de(date(2026, 10, 1))
+    evidencias = [
+        # (observación, niño, fecha, núcleo)
+        (10, 1, date(2026, 10, 1), 1),
+        (10, 1, date(2026, 10, 1), 1),  # la misma observación por núcleo y por OA cuenta una vez
+        (11, 1, date(2026, 10, 15), 1),
+        (12, 2, date(2026, 10, 3), 1),
+        (12, 2, date(2026, 10, 3), 2),
+        (13, 3, date(2026, 10, 16), 3),  # fuera de la quincena
+        (14, 3, date(2026, 9, 30), 3),  # fuera de la quincena
+    ]
+
+    resultado = cobertura_quincena([lv, pm, ia], evidencias, q)
+
+    assert [(c.nucleo.sigla, c.observaciones, c.ninos, c.sin_observaciones) for c in resultado] == [
+        ("LV", 3, 2, False),
+        ("PM", 1, 1, False),
+        ("IA", 0, 0, True),
+    ]
+
+
+def test_cobertura_quincena_del_curso_cuenta_solo_aceptadas_individuales_del_curso(
+    curso, nino, otro_nino, nucleos, oas, observar, educadora, jardin
+):
+    from registro.models import Curso
+
+    ia, lv, pm = nucleos
+    q = quincena_de(date(2026, 10, 5))
+
+    def obs(n, fecha, nucleos_obs=(), oas_obs=(), **kw):
+        o = observar(n, fecha, oas_obs, **kw)
+        o.nucleos.set(nucleos_obs)
+        return o
+
+    obs(nino, date(2026, 10, 2), [lv], [oas["LV1"]])
+    obs(otro_nino, date(2026, 10, 3), oas_obs=[oas["PM1"]])  # PM sale del OA
+    obs(nino, date(2026, 10, 4), [ia], estado=Observacion.Estado.PENDIENTE)
+    obs(None, date(2026, 10, 4), [ia], grupal=True)
+    obs(nino, date(2026, 10, 16), [ia])  # quincena siguiente
+    otro_curso = Curso.objects.create(
+        jardin=jardin, nombre="Otro", nivel_educativo=NivelEducativo.TRANSICION, educadora=educadora
+    )
+    ajeno = Nino.objects.create(curso=otro_curso, nombre="Ajeno", fecha_ingreso=date(2026, 3, 2))
+    obs(ajeno, date(2026, 10, 4), [ia])
+
+    resultado = {c.nucleo.sigla: (c.observaciones, c.ninos) for c in cobertura_quincena_del_curso(curso, q)}
+
+    assert resultado == {"IA": (0, 0), "LV": (1, 1), "PM": (1, 1)}
