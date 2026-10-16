@@ -17,6 +17,8 @@ este bloque. La ordena `procesar_capturas` en segundo plano: la página nunca es
             <button type="submit">Agregar y volver a ordenar</button>
           </form>
           <p class="ayuda">Se reemplazan las observaciones pendientes de esta nota por las nuevas.</p>
+        {% elif puede_registrar %}
+          <p class="ayuda">Para sumar ese dato, regístralo como una nota nueva.</p>
         {% endif %}
       </div>
     {% endif %}

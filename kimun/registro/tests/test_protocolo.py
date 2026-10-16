@@ -36,12 +36,29 @@ def test_el_protocolo_del_repo_es_valido_y_lo_ven_educadora_y_directora():
 
 
 @pytest.mark.parametrize("contenido", ["{no es json", {"pasos": []}, {"pasos": [{"texto": "sin título"}]},
-                                       {"pasos": [{"titulo": "Informar"}], "destinatarios": ["asistente"]}])
+                                       {"pasos": [{"titulo": "Informar"}], "destinatarios": ["asistente"]},
+                                       # Tipos raros: antes daban 500 en todas las páginas (context processor).
+                                       {"pasos": [{"titulo": None}], "destinatarios": ["directora"]},
+                                       {"pasos": 5, "destinatarios": ["directora"]},
+                                       {"pasos": [{"titulo": "Informar"}], "destinatarios": 5}])
 def test_un_protocolo_que_no_sirve_usa_los_pasos_minimos(monkeypatch, tmp_path, caplog, contenido):
     _con_protocolo(monkeypatch, tmp_path, contenido)
     with caplog.at_level(logging.ERROR):
         assert leer_protocolo() is PROTOCOLO_MINIMO
     assert "pasos mínimos" in caplog.text
+
+
+def test_validar_tolera_texto_nulo_y_solo_un_false_explicito_lo_deja_definitivo():
+    p = validar({"pasos": [{"titulo": "Informar", "texto": None}], "destinatarios": ["directora"], "provisorio": "false"})
+    assert p.pasos[0].texto == "" and p.provisorio is True
+    assert validar({"pasos": [{"titulo": "Informar"}], "destinatarios": ["directora"], "provisorio": False}).provisorio is False
+
+
+def test_los_pasos_del_jardin_no_dejan_lineas_vacias_ni_se_comen_numeros():
+    assert ProtocoloJardin(pasos="1.\n-\n* \n2. Avisar\n1.5 horas para informar").lista_de_pasos() == [
+        "Avisar", "1.5 horas para informar",
+    ]
+    assert ProtocoloJardin(pasos="1.\n2)").lista_de_pasos() == []
 
 
 def test_validar_ignora_destinatarios_desconocidos():

@@ -132,11 +132,11 @@ def _poner_en_resguardo(captura, senal):
         Observacion.todas.filter(captura=captura).update(
             estado=Observacion.Estado.DESCARTADA, actualizada=timezone.now()
         )
-        AvisoProteccion.objects.update_or_create(
-            captura=captura,
-            defaults={"senal": senal, "estado": AvisoProteccion.Estado.PENDIENTE, "motivo": "",
-                      "resuelto_por": None, "resuelto_en": None},
-        )
+        aviso, creado = AvisoProteccion.objects.get_or_create(captura=captura, defaults={"senal": senal})
+        if not creado and aviso.estado == AvisoProteccion.Estado.PENDIENTE:
+            aviso.senal = senal
+            aviso.save(update_fields=["senal"])
+        # Un aviso ya resuelto no se reabre: quién lo resolvió y cuándo queda registrado.
         captura.estado = Captura.Estado.EN_RESGUARDO
         captura.error = ""
         captura.pregunta = ""
@@ -229,8 +229,11 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
             [n.nombre for n in ninos],
             _catalogo_del_curso(curso, catalogo),
             cliente=cliente,
+            # Si ya dijeron "No es una vulneración", no se vuelve a preguntar: con el mismo
+            # prompt el modelo la marcaría de nuevo y la nota quedaría sin observaciones.
+            revisar_vulneracion=not _descartada_como_vulneracion(captura),
         )
-        if separacion.senal is not None and not _descartada_como_vulneracion(captura):
+        if separacion.senal is not None:
             _poner_en_resguardo(captura, separacion.senal)
             return []
         separadas, pregunta = separacion.observaciones, separacion.pregunta

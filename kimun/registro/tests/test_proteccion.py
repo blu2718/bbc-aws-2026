@@ -184,14 +184,53 @@ def test_no_es_una_vulneracion_exige_motivo_y_reprocesa(client, aviso, directora
     client.post(reverse("aviso_resolver", args=[aviso.pk]), {"accion": "no_es", "motivo": "Era un juego de roles"})
     aviso.refresh_from_db()
     assert (aviso.estado, aviso.motivo) == (AvisoProteccion.Estado.NO_ES, "Era un juego de roles")
-    # Vuelve a la cola y, aunque el modelo la marque otra vez, se procesa como cualquier otra.
+    # Vuelve a la cola y se separa como cualquier otra: el prompt ya no pide marcarla y,
+    # aunque el modelo la marque igual, sus observaciones se usan (antes quedaba con 0).
     captura = tomar_siguiente()
     assert captura.pk == aviso.captura_id
-    respuesta = MARCADA | {"posible_vulneracion": False, "senal": None, "observaciones": [_obs_normal()]}
-    assert len(procesar(captura, cliente=ClienteFalso(MARCADA), catalogo=CATALOGO)) == 0
-    Captura.objects.filter(pk=captura.pk).update(estado=Captura.Estado.PENDIENTE)
-    assert len(procesar(tomar_siguiente(), cliente=ClienteFalso(respuesta), catalogo=CATALOGO)) == 1
+    cliente = ClienteFalso(MARCADA | {"observaciones": [_obs_normal()]})
+    assert len(procesar(captura, cliente=cliente, catalogo=CATALOGO)) == 1
+    prompt = cliente.llamadas[0]["system"]
+    assert "## Posible vulneración de derechos" not in prompt and "## Nota ya revisada" in prompt
     assert Captura.objects.get(pk=captura.pk).estado == Captura.Estado.PROCESADA
+    aviso.refresh_from_db()
+    assert aviso.estado == AvisoProteccion.Estado.NO_ES and aviso.resuelto_por == directora_del_jardin
+
+
+def test_resolver_un_aviso_ya_resuelto_no_pisa_quien_lo_resolvio(client, aviso, directora_del_jardin, educadora):
+    """Dos personas resuelven a la vez: la segunda llega con el aviso todavía pendiente en memoria."""
+    from registro import views_proteccion
+
+    client.force_login(directora_del_jardin)
+    client.post(reverse("aviso_resolver", args=[aviso.pk]), {"accion": "protocolo"})
+    pendiente_en_memoria = AvisoProteccion.objects.get(pk=aviso.pk)
+    pendiente_en_memoria.estado = AvisoProteccion.Estado.PENDIENTE
+    client.force_login(educadora)
+    original = views_proteccion.get_object_or_404
+    views_proteccion.get_object_or_404 = lambda *a, **k: pendiente_en_memoria
+    try:
+        client.post(reverse("aviso_resolver", args=[aviso.pk]), {"accion": "no_es", "motivo": "Era un juego"})
+    finally:
+        views_proteccion.get_object_or_404 = original
+    aviso.refresh_from_db()
+    assert (aviso.estado, aviso.resuelto_por) == (AvisoProteccion.Estado.PROTOCOLO, directora_del_jardin)
+    assert Captura.objects.get(pk=aviso.captura_id).estado == Captura.Estado.EN_RESGUARDO
+
+
+def test_a_una_nota_con_aviso_no_se_le_suma_contexto(client, aviso, directora_del_jardin, educadora):
+    """Después de "No es una vulneración" la nota ya no se revisa al reordenarla: el contexto va en una nota nueva."""
+    client.force_login(directora_del_jardin)
+    client.post(reverse("aviso_resolver", args=[aviso.pk]), {"accion": "no_es", "motivo": "Era un juego de roles"})
+    procesar(tomar_siguiente(), cliente=ClienteFalso(_normal(_obs_normal()) | {"pregunta": "¿Quién más jugó?"}),
+             catalogo=CATALOGO)
+    captura = Captura.objects.get(pk=aviso.captura_id)
+    assert captura.estado == Captura.Estado.PROCESADA and captura.pregunta
+    client.force_login(educadora)
+    client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "Dijo que su tío le pega"})
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PROCESADA and "tío" not in captura.texto_original
+    pagina = client.get(reverse("captura", args=[captura.pk])).content.decode()
+    assert "regístralo como una nota nueva" in pagina
 
 
 # --- Exclusión de la evaluación ---------------------------------------------------------

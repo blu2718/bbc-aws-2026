@@ -52,19 +52,29 @@ def validar(datos):
     """Protocolo a partir del JSON. Lanza ValueError si no sirve."""
     if not isinstance(datos, dict):
         raise ValueError("el protocolo debe ser un objeto JSON")
+    pasos_crudos = datos.get("pasos") or []
+    if not isinstance(pasos_crudos, list):
+        raise ValueError("pasos debe ser una lista")
     pasos = []
-    for i, paso in enumerate(datos.get("pasos") or [], start=1):
-        titulo = paso.get("titulo", "").strip() if isinstance(paso, dict) else ""
-        if not titulo:
+    for i, paso in enumerate(pasos_crudos, start=1):
+        titulo = paso.get("titulo") if isinstance(paso, dict) else None
+        if not isinstance(titulo, str) or not titulo.strip():
             raise ValueError(f"el paso {i} no tiene título")
-        pasos.append(Paso(titulo, str(paso.get("texto", "")).strip()))
+        texto = paso.get("texto")
+        pasos.append(Paso(titulo.strip(), texto.strip() if isinstance(texto, str) else ""))
     if not pasos:
         raise ValueError("el protocolo no trae pasos")
-    destinatarios = tuple(d for d in datos.get("destinatarios") or [] if d in DESTINATARIOS_VALIDOS)
+    destinatarios_crudos = datos.get("destinatarios") or []
+    if not isinstance(destinatarios_crudos, list):
+        raise ValueError("destinatarios debe ser una lista")
+    destinatarios = tuple(d for d in destinatarios_crudos if isinstance(d, str) and d in DESTINATARIOS_VALIDOS)
     if not destinatarios:
         # El aviso nunca puede quedar sin nadie que lo vea.
         raise ValueError(f"destinatarios debe incluir al menos uno de {DESTINATARIOS_VALIDOS}")
-    return Protocolo(tuple(pasos), str(datos.get("fuente", "")).strip(), bool(datos.get("provisorio", True)), destinatarios)
+    fuente = datos.get("fuente")
+    # Solo un false explícito lo marca como definitivo ("false" como texto sigue siendo provisorio).
+    provisorio = datos.get("provisorio", True) is not False
+    return Protocolo(tuple(pasos), fuente.strip() if isinstance(fuente, str) else "", provisorio, destinatarios)
 
 
 def leer_protocolo(ruta=None):
