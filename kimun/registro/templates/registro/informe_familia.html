@@ -6,8 +6,10 @@
 {# Informe para la familia (registro/informe.py). Sin IA: solo lo que la educadora validó. Una página al imprimir. #}
 <div class="informe-acciones no-imprimir">
   <p class="volver"><a href="{% url 'ficha' informe.nino.pk %}">← Volver a la ficha</a></p>
+  <div class="informe-barra">
   <button type="button" data-imprimir>Imprimir o guardar en PDF</button>
   <p class="ayuda">Revisa el informe antes de compartirlo. No incluye comparaciones con otros niños ni señales de revisión, y las citas no nombran a otros niños.</p>
+  </div>
 </div>
 
 <article class="informe">

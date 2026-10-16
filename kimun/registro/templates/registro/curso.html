@@ -8,13 +8,14 @@
   <h1>{{ curso.nombre }}</h1>
   <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ tabla.filas|length }} niños y niñas</p>
   {% if puede_registrar or puede_validar or es_directora %}
-    <p class="acciones">
-      {% if puede_registrar %}<a role="button" href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
+    {# Enlaces sin atributos extra: test_revision compara el <a> exacto. El aspecto de botón sale de .botones-enlace. #}
+    <p class="acciones botones-enlace">
+      {% if puede_registrar %}<a class="principal" href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
       {% if puede_validar %}
-        <a role="button" class="secondary outline" href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a>
-        <a role="button" class="secondary outline" href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
+        <a href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a>
+        <a href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
       {% endif %}
-      {% if es_directora %}<a role="button" class="secondary outline" href="{% url 'jardin' curso.jardin.pk %}">Resumen del jardín</a>{% endif %}
+      {% if es_directora %}<a href="{% url 'jardin' curso.jardin.pk %}">Resumen del jardín</a>{% endif %}
     </p>
   {% endif %}
 </header>

@@ -509,7 +509,10 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .resumen-captura { margin: 0; font-size: .9rem; color: var(--pico-muted-color); }
 /* Informe para la familia (informe_familia.html): una página al imprimir. */
 .informe-acciones { margin-bottom: 1rem; }
-.informe-acciones button { margin: 0 0 .5rem; }
+.informe-barra { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; max-width: 48rem; margin: 0 auto; }
+.informe-barra button { width: auto; margin: 0; }
+.informe-barra .ayuda { flex: 1 1 18rem; margin: 0; }
+.informe-acciones .volver { max-width: 48rem; margin-inline: auto; }
 .informe { max-width: 48rem; margin: 0 auto; padding: 1.25rem 1.4rem; border: 1px solid var(--kimun-linea); border-radius: var(--kimun-radio); background: #fff; box-shadow: var(--kimun-sombra); }
 .informe-cabecera { display: flex; gap: .85rem; align-items: center; margin-bottom: .75rem; }
 .informe-cabecera img { border-radius: .7rem; }
@@ -518,7 +521,7 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .informe-intro { font-size: .95rem; }
 .informe-nucleo { padding: .5rem 0; border-top: 1px solid var(--kimun-linea); break-inside: avoid; }
 .informe-nucleo h2 { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: .25rem 0; font-size: 1.05rem; color: var(--kimun-tinta); }
-.informe-nivel { margin-left: auto; font-size: .85rem; font-weight: 600; color: var(--kimun-azul); }
+.informe-nivel { margin-left: auto; padding: .05rem .55rem; border-radius: 999px; background: var(--kimun-celeste-suave); font-size: .8rem; font-weight: 600; color: var(--kimun-azul); white-space: nowrap; }
 .informe-nucleo p, .informe-nucleo li { margin-bottom: .2rem; font-size: .92rem; }
 .informe-nucleo ul { margin: 0 0 .3rem; }
 .informe-subtitulo { margin: .35rem 0 .1rem; font-weight: 600; font-size: .85rem !important; color: var(--kimun-azul); }
@@ -712,8 +715,10 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .detalle-nucleo > summary { padding: .55rem 0; font-weight: 600; }
 .detalle-nucleo .nucleo-ficha { border-top: 0; padding-top: 0; }
 
-.lista-cursos li { margin-bottom: .5rem; }
-.lista-cursos .acciones { display: inline; }
+.lista-cursos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); margin: 0; padding: 0; }
+.lista-cursos li { list-style: none; margin: 0; }
+.lista-cursos h2 { margin: 0 0 .15rem; font-size: 1.15rem; color: var(--kimun-tinta); }
+.lista-cursos .acciones [role=button] { padding: .45rem 1rem; font-size: .95rem; }
 .tarjeta-login { max-width: 24rem; margin: 2rem auto; }
 .tarjeta-login > header { text-align: center; }
 .tarjeta-login img { border-radius: 1.5rem; margin-bottom: .5rem; }
@@ -765,6 +770,13 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 /* --- Revisión de observaciones (Task 6) --- */
 
 .obs { margin-bottom: 1rem; scroll-margin-top: var(--pico-spacing); }
+/* Un grupo por captura en la revisión: título del tamaño de una tarjeta, no de la página. */
+.grupo-revision { margin-bottom: 1.75rem; padding-top: 1rem; border-top: 1px solid var(--kimun-linea); }
+.titulo-grupo { margin: 0 0 .35rem; font-size: 1.1rem; line-height: 1.35; color: var(--kimun-tinta); }
+.titulo-grupo small { display: block; font-size: .85rem; font-weight: 400; color: var(--pico-muted-color); }
+.grupo-revision > form { margin-bottom: 1rem; }
+.grupo-revision > form button { width: auto; }
+.grupo-revision > details { margin-bottom: .75rem; font-size: .95rem; }
 .obs > header { display: flex; flex-wrap: wrap; gap: .25rem .5rem; align-items: baseline; }
 .obs blockquote { margin: .5rem 0; }
 .obs dl { display: grid; grid-template-columns: max-content 1fr; gap: .1rem .75rem; margin: 0 0 .75rem; font-size: .9rem; }
@@ -838,6 +850,14 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .lista-sugerencias .senal { display: block; margin: 0 0 .2rem; padding: .4rem .6rem; font-size: .9rem; }
 .tarjeta > .aviso, .tarjeta > .mensaje-ok { margin-bottom: .75rem; }
 .encabezado-pagina .acciones [role=button] { padding: .45rem 1rem; font-size: .95rem; }
+/* Enlaces con aspecto de botón cuando la plantilla no puede llevar role="button" (curso.html). */
+.botones-enlace a {
+  display: inline-block; padding: .45rem 1rem; border: 1px solid var(--kimun-gris); border-radius: var(--kimun-radio);
+  color: var(--kimun-gris-oscuro); font-size: .95rem; text-decoration: none;
+}
+.botones-enlace a:hover, .botones-enlace a:focus-visible { background: var(--kimun-gris-suave); }
+.botones-enlace a.principal { border-color: var(--kimun-celeste); background: var(--kimun-celeste); color: var(--kimun-tinta); }
+.botones-enlace a.principal:hover, .botones-enlace a.principal:focus-visible { background: var(--kimun-celeste-hover); }
 @media (max-width: 575px) {
   .tabla-curso td, .tabla-curso th, .tabla-jardin td, .tabla-jardin th { min-width: 5.75rem; }
   .pagina-tabla .tarjeta { padding-inline: .8rem; }

@@ -1,23 +1,24 @@
 {% extends "base.html" %}
 {% block titulo %}Mis cursos{% endblock %}
 {% block contenido %}
-<h1>Mis cursos</h1>
+<header class="encabezado-pagina"><h1>Mis cursos</h1></header>
 {% for j in jardines %}
-  <p><a href="{% url 'jardin' j.pk %}">Resumen de {{ j.nombre }}</a>: compara las salas de tu jardín.</p>
+  <p class="mensajes"><a href="{% url 'jardin' j.pk %}">Resumen de {{ j.nombre }}</a>: compara las salas de tu jardín.</p>
 {% endfor %}
 {% if cursos %}
   <ul class="lista-cursos">
     {% for curso in cursos %}
-      <li>
-        <strong>{{ curso.nombre }}</strong>, {{ curso.jardin.nombre }}
-        <span class="acciones">
-          {% if curso.pk in registra %}<a href="{% url 'registrar' curso.pk %}">Registrar</a> ·{% endif %}
-          <a href="{% url 'curso' curso.pk %}">Tabla del curso</a>
-        </span>
+      <li class="tarjeta">
+        <h2>{{ curso.nombre }}</h2>
+        <p class="ayuda">{{ curso.jardin.nombre }}</p>
+        <p class="acciones">
+          {% if curso.pk in registra %}<a role="button" href="{% url 'registrar' curso.pk %}">Registrar</a>{% endif %}
+          <a role="button" class="secondary outline" href="{% url 'curso' curso.pk %}">Tabla del curso</a>
+        </p>
       </li>
     {% endfor %}
   </ul>
 {% else %}
-  <p>No tienes cursos asignados.</p>
+  <p class="aviso">No tienes cursos asignados.</p>
 {% endif %}
 {% endblock %}

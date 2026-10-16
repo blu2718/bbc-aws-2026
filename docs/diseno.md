@@ -75,7 +75,7 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 | Pasos | `.pasos` (lista numerada) | Solo para secuencias reales |
 | Cita | `.cita-nota` | Nota tal como se registró |
 | Caja suave | `.bandeja-propuestas`, `.resumen-nota`, `.pregunta-kimun` | Fondo celeste claro, sin sombra |
-| Botones | `button`, `[role=button]` (primario celeste), `.secondary` (gris), `.secondary.outline` (borde) | Uno primario por bloque |
+| Botones | `button`, `[role=button]` (primario celeste), `.secondary` (gris), `.secondary.outline` (borde); `.botones-enlace a` / `a.principal` cuando el `<a>` no puede llevar atributos | Uno primario por bloque |
 | Botón ícono | `.boton-icono` | Círculo de 2,75 rem (área táctil de 44 px) |
 | Etiquetas de estado | `.estado-obs` (+ `.estado-pendiente`, `.estado-aceptada`), `.efecto-*`, `.apoyo`, `.etiqueta-referencia`, `.etiqueta-provisoria`, `.etiqueta-sin-evidencia` | Píldoras con texto |
 | Señales | `.senal` + `.senal-aviso` / `.senal-alerta` | Caja con borde izquierdo de color y texto |
@@ -160,8 +160,8 @@ Ordenado por impacto en la demo:
 | 5a | Task 13: avisos en `.tarjeta` con `.lista-enlaces` y píldora «Por atender»; aviso con `.aviso-proteccion` (borde rojo, pasos numerados `.pasos`), la nota en `.cita-nota`, el formulario de resolver en tarjeta con «No es una vulneración» como botón de borde; protocolo con `.encabezado-pagina`, formulario en tarjeta; resguardo en el suceso como caja roja suave | `style(proteccion)` | hecho, tests `test_proteccion` y `test_protocolo` pasan |
 | 5b | Vista del jardín: `.encabezado-pagina` con el protocolo como botón de borde, sugerencias y tabla en `.tarjeta`, explicación en `<details class="como-leer">`, estilos en línea movidos a `registro.css` (`body.pagina-tabla`) | `style(jardin)` | hecho, `test_jardin` pasa |
 | 5c | Tabla del curso: acciones como botones (una primaria), cada sección en `.tarjeta`, resúmenes como `.aviso`/`.mensaje-ok`, explicaciones en `como-leer`, estilos en línea movidos a `registro.css`. Orden de secciones sin cambiar: `test_frecuencia` corta el HTML entre `titulo-frecuencia` y `titulo-tabla` | `style(curso)` | hecho, tests de vistas, frecuencia, propuestas, metas y bordes pasan |
-| 5d | Bandeja, informe, inicio, revisión, metas | | pendiente |
-| 6 | Títulos de revisión | | pendiente |
+| 5d | Revisión: `.encabezado-pagina`, grupos `.grupo-revision` con título `.titulo-grupo` (1,1 rem, fecha en segunda línea), «Aceptar todas» del ancho de su texto. Informe: botón y ayuda en una fila (`.informe-barra`), nivel como píldora. Inicio: cursos como tarjetas con botones. Metas: formulario en tarjeta. Curso: acciones con `.botones-enlace` (sin `role`, porque `test_revision` compara el `<a>` exacto) | `style(pantallas)` | hecho, tests de revisión, metas, ficha, vistas, perfil, frecuencia y propuestas pasan |
+| 6 | Títulos de revisión | `style(pantallas)` | hecho (junto con 5d) |
 
 Pantallas para mirar primero: registrar y suceso (celular), tabla del curso, vista del jardín, aviso de protección.
 
