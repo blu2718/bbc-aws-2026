@@ -3,11 +3,13 @@
 {% block titulo %}Registrar · {{ curso.nombre }}{% endblock %}
 {% block head %}<script src="{% static 'registro/captura_foto.js' %}" defer></script>{% endblock %}
 {% block contenido %}
-<p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
+<p class="volver"><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
+<header class="encabezado-pagina">
 <h1>¿Qué quieres registrar?</h1>
 <p>Las fotos y los audios no se guardan: se borran apenas se leen y solo queda el texto, que revisas antes de que cuente.</p>
+</header>
 
-<section aria-labelledby="titulo-nota">
+<section class="tarjeta" aria-labelledby="titulo-nota">
   <h2 id="titulo-nota">Una nota escrita</h2>
   <form method="post" action="{% url 'capturar' curso.pk %}">
     {% csrf_token %}
@@ -19,7 +21,7 @@
   </form>
 </section>
 
-<section aria-labelledby="titulo-foto">
+<section class="tarjeta" aria-labelledby="titulo-foto">
   <h2 id="titulo-foto">Una foto de una nota</h2>
   <form method="post" action="{% url 'capturar_foto' curso.pk %}" enctype="multipart/form-data" data-captura-foto>
     {% csrf_token %}
@@ -37,7 +39,7 @@
   </form>
 </section>
 
-<section aria-labelledby="titulo-audio">
+<section class="tarjeta" aria-labelledby="titulo-audio">
   <h2 id="titulo-audio">Dictar una nota</h2>
   {# Sin JavaScript queda el campo de archivo (en Android abre la grabadora del teléfono). grabar.js agrega los botones. #}
   <form id="form-audio" method="post" action="{% url 'capturar_audio' curso.pk %}" enctype="multipart/form-data">
