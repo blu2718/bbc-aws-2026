@@ -16,6 +16,8 @@ staticfiles/
 
 # Documentos fuente (se descargan desde su origen, no se versionan)
 contexto/*.pdf
+# FAQ de Integra de los tres retos (resumido en PLAN.md, "FAQ de Integra")
+contexto/faq_integra.json
 
 # Fotos de los post-its de prueba (Task 8): se toman en el momento, no se versionan
 datos/eval/fotos/

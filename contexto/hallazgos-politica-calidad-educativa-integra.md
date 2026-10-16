@@ -5,6 +5,7 @@
 - Autor del documento: Fundación Integra, 2017.
 - Derechos: "Derechos reservados, prohibida su reproducción" (Registro de Propiedad Intelectual 262448). Por eso el PDF no está en el repositorio, que es público; se descarga desde la fuente.
 - Las páginas citadas coinciden con las del PDF.
+- Más detalle: `guia-politica-calidad.md` (guía completa para agentes, con la "Brújula" y lo que exige cada sección a Kimün) y `resumen-politica-calidad.md` (resumen ejecutivo para el equipo).
 
 ## Qué es
 
@@ -88,7 +89,7 @@ Lectura:
 
 Pide mecanismos pertinentes y oportunos frente a vulneraciones de derechos, con prevención, protección y "trabajo en red para la atención especializada y derivación de casos" (p. 79).
 
-Lectura: las educadoras escribirán libremente. Si un registro sugiere una posible vulneración, como señales de maltrato, la app no debe procesarlo como evidencia de aprendizaje ni mostrarlo en paneles. Debe avisar a la educadora para que active el protocolo institucional.
+Lectura: las educadoras escribirán libremente. Si un registro sugiere una posible vulneración, como señales de maltrato, la app no debe procesarlo como evidencia de aprendizaje ni mostrarlo en paneles. Debe avisar a la educadora para que active el protocolo institucional. Desarrollo en la sección 12 de `guia-politica-calidad.md` y en el anexo "Protección de derechos y vulneraciones" de `enciclopedia-bases-curriculares.md`, que define qué constituye maltrato a partir de los protocolos públicos de la JUNJI. Diseño en la Task 13 de `PLAN.md`.
 
 ### 6. Inclusión, talentos y protagonismo
 
@@ -127,15 +128,13 @@ La última columna indica si `PLAN.md` ya las recoge.
 | Complementar, no reemplazar, EEDP, IEA y PLAEP-R; no presentarse como tamizaje clínico | Parcial: falta decirlo explícitamente en el pitch |
 | Vista de grupo con cobertura de núcleos por quincena | Sí (Task 2) |
 | Roles y reflexión en equipo | Parcial: educadora (revisa y valida), asistentes (registran) y directora (Task 12); sin reflexión en equipo dentro de la app |
-| Barrera de protección de derechos: detectar posibles vulneraciones y derivarlas al protocolo, sin procesarlas como evaluación | No |
+| Barrera de protección de derechos: detectar posibles vulneraciones y derivarlas al protocolo, sin procesarlas como evaluación | Planificado (Task 13) |
 | Mostrar fortalezas y talentos, no solo vacíos | No |
 | Voz del niño: intereses, preferencias y palabras | Descartado por el equipo |
 | Resumen para familias, validado por la educadora | Fuera del MVP |
 | Panel del jardín para la directora | Task 12, si alcanza el tiempo |
 | Paneles regionales y nacionales | Fuera del MVP (pitch) |
 
-## Preguntas para la directora de educación
+## Preguntas abiertas
 
-Las preguntas sobre el IEA y la EEDP están en "Preguntas pendientes para Integra" de `PLAN.md` (pregunta 11). Queda una que no está ahí:
-
-1. ¿Hay un protocolo vigente para cuando un registro sugiere una vulneración de derechos? ¿Qué debería hacer la herramienta en ese caso?
+Las preguntas sobre el IEA y la EEDP y sobre el protocolo ante vulneraciones de derechos están en "Preguntas pendientes para Integra" de `PLAN.md` (preguntas 8 y 9).

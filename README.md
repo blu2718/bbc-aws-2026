@@ -3,6 +3,8 @@
 # bbc-aws-2026
 Hackathon Breaking Barriers 2026 · Desafío 1 Fundación Integra. El plan está en `PLAN.md`; las fuentes y sus hallazgos, en `contexto/`, y los servicios AWS de la cuenta, en `docs/investigacion_servicios.md`.
 
+Para entender el dominio, empezar por los resúmenes de `contexto/`: `resumen-politica-calidad.md` (la Política de Calidad Educativa de Integra, el faro del proyecto) y `resumen-bases-curriculares.md` (la malla curricular). Las versiones completas, pensadas para agentes, son `guia-politica-calidad.md` y `enciclopedia-bases-curriculares.md`.
+
 La app web (Django) vive en `kimun/`. Los datos compartidos (`datos/`) y los scripts (`scripts/`) quedan en la raíz.
 
 ## Desarrollo local

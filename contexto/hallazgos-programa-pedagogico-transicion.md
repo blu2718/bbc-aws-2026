@@ -15,7 +15,7 @@ Está dirigido sobre todo a establecimientos sin programa propio. Integra tiene 
 
 ### 1. Trae los 8 núcleos oficiales
 
-Son los mismos de las Bases Curriculares. Integra confirmó que su rúbrica tendrá 10; la demo usa estos 8 hasta tener su lista.
+Son los mismos de las Bases Curriculares. La rúbrica de Integra apunta a 10 y la cantidad puede cambiar (FAQ de Integra); la demo usa estos 8 hasta tener su lista.
 
 | Ámbito | Núcleo | Sigla | OA | Conductas observables | Páginas |
 |---|---|---|---:|---:|---|
@@ -98,4 +98,4 @@ Cada núcleo tiene una "Trayectoria educativa" con dos partes:
 
 ## Preguntas abiertas
 
-Si los demás núcleos de Integra seguirán la lógica de IA y si el mapeo provisorio les parece razonable está en "Preguntas pendientes para Integra" de `PLAN.md` (pregunta 10).
+Si los demás núcleos de Integra seguirán la lógica de IA y si el mapeo provisorio les parece razonable está en "Preguntas pendientes para Integra" de `PLAN.md` (pregunta 7).
