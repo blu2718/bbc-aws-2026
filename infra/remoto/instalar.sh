@@ -118,18 +118,28 @@ ln -sfn "$RELEASE_DIR" "$ACTUAL.nuevo"
 mv -T "$ACTUAL.nuevo" "$ACTUAL"
 
 echo "==> Servicios systemd"
-install -m 0644 "$RELEASE_DIR/infra/systemd/kimun-web.service" "$RELEASE_DIR/infra/systemd/kimun-worker.service" \
-    /etc/systemd/system/
+# kimun-web (Gunicorn), kimun-worker (procesar_capturas: separa notas, lee fotos
+# y transcribe audios) y kimun-propuestas (procesar_propuestas: propuestas de nivel).
+SERVICIOS=(kimun-web kimun-worker kimun-propuestas)
+for servicio in "${SERVICIOS[@]}"; do
+    install -m 0644 "$RELEASE_DIR/infra/systemd/$servicio.service" /etc/systemd/system/
+done
 systemctl daemon-reload
-systemctl enable kimun-web
-systemctl restart kimun-web
-# El worker nunca se habilita aquí (procesar_capturas aún no está en main).
-# Si ya lo habilitaron a mano, se reinicia con el código nuevo.
-if systemctl is-enabled --quiet kimun-worker; then
-    systemctl restart kimun-worker
-else
-    echo "kimun-worker instalado y deshabilitado (ver infra/README.md)."
-fi
+for servicio in "${SERVICIOS[@]}"; do
+    systemctl enable "$servicio"
+    systemctl restart "$servicio"
+done
+# Unos segundos para que un servicio que se cae al partir no pase como activo
+# (con Restart=always quedaría en "activating" esperando el reinicio).
+sleep 5
+for servicio in "${SERVICIOS[@]}"; do
+    if ! systemctl is-active --quiet "$servicio"; then
+        echo "$servicio no quedó activo ($(systemctl is-active "$servicio" || true))." >&2
+        journalctl -u "$servicio" -n 50 --no-pager >&2 || true
+        exit 1
+    fi
+    echo "$servicio: activo"
+done
 
 echo "==> Health check local"
 codigo=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 \
@@ -157,6 +167,7 @@ find "$RELEASES" -mindepth 1 -maxdepth 1 -type d -name 'kimun-*' -printf '%T@ %p
 
 echo "==> Resumen"
 echo "Release activo: $activo"
-echo "kimun-web: $(systemctl is-active kimun-web)"
-echo "kimun-worker: $(systemctl is-enabled kimun-worker 2>/dev/null || true)"
+for servicio in "${SERVICIOS[@]}"; do
+    echo "$servicio: $(systemctl is-active "$servicio" || true)"
+done
 echo "SQLite journal_mode: $(manage shell --no-imports -c "from django.db import connection; c = connection.cursor(); c.execute('PRAGMA journal_mode'); print(c.fetchone()[0])" | tail -n 1)"

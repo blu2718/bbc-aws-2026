@@ -1,0 +1,27 @@
+# kimun-propuestas: genera en segundo plano las propuestas de nivel que pide la
+# educadora desde la ficha o que se encolan al aceptar observaciones (Task 7, Bedrock).
+# Lo instala, habilita y reinicia infra/remoto/instalar.sh en cada despliegue.
+# Logs: journalctl -u kimun-propuestas
+[Unit]
+Description=kimun-propuestas - procesar_propuestas
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=kimun
+Group=kimun
+WorkingDirectory=/opt/kimun/actual/kimun
+EnvironmentFile=/etc/kimun/kimun.env
+# Sin búfer de salida: así journald recibe cada línea al momento.
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/kimun/venv/bin/python manage.py procesar_propuestas --intervalo 5
+Restart=always
+RestartSec=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/kimun
+
+[Install]
+WantedBy=multi-user.target

@@ -48,7 +48,7 @@ scripts/desplegar.sh [--recargar-demo] [--permitir-cambios]
 - `--recargar-demo`: corre `cargar_demo` aunque ya haya cursos. Por defecto solo corre si la base no tiene ningún curso. No borra datos: actualiza los de demo.
 - `--permitir-cambios`: empaqueta el árbol de trabajo (versionados y no ignorados) aunque haya cambios sin commit. Sin la opción, el script aborta si hay cambios.
 - Variables: `KIMUN_STACK` (`kimun-mvp`), `KIMUN_REGION` (`us-east-1`), `KIMUN_PARAMETRO_SECRET` (`/kimun/django-secret-key`).
-- Las contraseñas de `educadora` y `asistente` se muestran una sola vez, en la salida del primer despliegue (cuando `cargar_demo` crea las usuarias).
+- `cargar_demo` imprime la contraseña de cada usuaria solo cuando la crea (no cambia las que ya existen). En el primer despliegue salen todas; en un `--recargar-demo` sobre una base anterior a la Task 12 salen las de `directora`, `educadora_b` y `educadora_c`, que son nuevas. Quedan en la salida del despliegue y en el historial de comandos de SSM.
 
 ## En la instancia
 
@@ -66,25 +66,18 @@ Para restaurar: la instancia no puede leer `respaldos/`. Desde tu máquina, copi
 
 ```bash
 aws s3 cp s3://<bucket>/releases/<archivo>.gz /tmp/ && gunzip /tmp/<archivo>.gz
-sudo systemctl stop kimun-web kimun-worker
+sudo systemctl stop kimun-web kimun-worker kimun-propuestas
 sudo install -o kimun -g kimun -m 0640 /tmp/<archivo> /var/lib/kimun/db.sqlite3
 sudo rm -f /var/lib/kimun/db.sqlite3-wal /var/lib/kimun/db.sqlite3-shm
-sudo systemctl start kimun-web
+sudo systemctl start kimun-web kimun-worker kimun-propuestas
 ```
 
 ## Servicios y logs
 
-- `kimun-web`: Gunicorn en el puerto 8000, 3 workers, timeout 60 s. Units en `infra/systemd/`.
+Units en `infra/systemd/`. `instalar.sh` instala, habilita y reinicia los tres en cada despliegue; si alguno no queda activo, el despliegue falla y muestra las últimas 50 líneas de su `journalctl`.
+
+- `kimun-web`: Gunicorn en el puerto 8000, 3 workers, timeout 60 s.
+- `kimun-worker`: `manage.py procesar_capturas --intervalo 5`. Separa las notas en observaciones, lee las fotos y transcribe los audios (Bedrock y Transcribe).
+- `kimun-propuestas`: `manage.py procesar_propuestas --intervalo 5`. Genera las propuestas de nivel que pide la educadora o que se encolan al aceptar observaciones (Task 7, Bedrock).
 - Sin SSH: entrar con `aws ssm start-session --target <InstanciaId> --region us-east-1` (o mandar comandos con `aws ssm send-command`).
-- `systemctl status kimun-web`, `journalctl -u kimun-web -f`.
-
-## Activar el worker
-
-`kimun-worker` (`manage.py procesar_capturas --intervalo 5`) queda instalado y deshabilitado. Cuando `procesar_capturas` llegue a main, desplegar y luego, en la instancia:
-
-```bash
-sudo systemctl enable --now kimun-worker
-journalctl -u kimun-worker -f
-```
-
-Los despliegues siguientes lo reinician solos.
+- `systemctl status kimun-web kimun-worker kimun-propuestas`; logs con `journalctl -u <servicio> -f`.
