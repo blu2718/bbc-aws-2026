@@ -62,6 +62,8 @@
   --kimun-alerta-borde: #cc3833; /* 4,2:1 sobre su fondo */
   --kimun-alerta-linea: #f5bebc;
   --kimun-ok-fondo: #e3f4d7;     /* texto verde 6,1:1 */
+  --kimun-ok-claro: #f5fbf0;     /* fondo de «Qué observar después»: texto verde 6,8:1 */
+  --kimun-ok-linea: #bfdfa8;
 }
 
 /* Variables de Pico con la paleta del logo. Modo claro: automático y forzado. */
@@ -833,8 +835,16 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .evento-etiquetas { font-size: .85rem; }
 .nivel-validado { display: inline-block; margin: .15rem .35rem .15rem 0; padding: .05rem .5rem; border-radius: 999px; background: var(--kimun-celeste-suave); }
 
-.detalle-nucleo { margin-bottom: .6rem; padding: .2rem .9rem; border: 1px solid var(--kimun-linea); border-radius: .85rem; background: #fff; }
-.detalle-nucleo > summary { padding: .55rem 0; font-weight: 600; }
+/* Detalle por núcleo: borde izquierdo e ícono del color del núcleo, como en la flor y los escalones. */
+.detalle-nucleo { margin-bottom: .6rem; padding: .2rem .9rem; border: 1px solid var(--kimun-linea); border-left: .3rem solid var(--nucleo); border-radius: .85rem; background: #fff; }
+.detalle-nucleo > summary { display: flex; align-items: center; gap: .55rem; padding: .55rem 0; line-height: 1.35; font-weight: 600; color: var(--kimun-tinta); }
+.detalle-nucleo > summary::after { margin-left: auto; }
+.detalle-nucleo > summary .icono-nucleo { color: var(--nucleo); }
+.detalle-nucleo[open] > summary { border-bottom: 1px solid var(--kimun-linea); margin-bottom: .5rem; }
+/* Dentro del detalle, los subtítulos son de tarjeta, no de página. */
+.nucleo-ficha > hgroup h2 { font-size: 1.3rem; }
+.nucleo-ficha h3 { margin: 1.25rem 0 .4rem; font-size: 1.05rem; font-weight: 700; color: var(--kimun-tinta); }
+@media (max-width: 575px) { .detalle-nucleo { padding-inline: .7rem; } }
 .detalle-nucleo .nucleo-ficha { border-top: 0; padding-top: 0; }
 
 .lista-cursos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); margin: 0; padding: 0; }
@@ -876,10 +886,15 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .sin-evidencia td:last-child { color: var(--kimun-aviso); }
 
 /* Qué observar para avanzar (registro/avanzar.py). */
-.para-avanzar { margin: 1rem 0; padding: .75rem 1rem; border: 1px dashed var(--kimun-aviso-linea); border-radius: .85rem; background: var(--kimun-aviso-claro); }
-.para-avanzar h3 { margin-top: 0; }
-.para-avanzar h4 { margin: .9rem 0 .2rem; font-size: 1rem; }
-.para-avanzar-meta { margin-bottom: .4rem; }
+/* «Qué observar después»: el siguiente paso, en verde de avance y con borde lleno (lo demás del detalle es
+   blanco), para que se distinga de un vistazo de la rúbrica actual y de las señales. */
+.para-avanzar { margin: 1.25rem 0; padding: .9rem 1rem; border: 1px solid var(--kimun-ok-linea); border-left: .4rem solid var(--kimun-ok); border-radius: .85rem; background: var(--kimun-ok-claro); }
+.para-avanzar h3 { display: flex; align-items: center; gap: .45rem; margin-top: 0; color: var(--kimun-ok); }
+.para-avanzar h3::before { content: ""; flex: none; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--kimun-ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 17h5v-5h4V7h5' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 80% no-repeat; }
+.para-avanzar h4 { margin: .9rem 0 .2rem; font-size: 1rem; color: var(--kimun-tinta); }
+.para-avanzar-meta { margin-bottom: .5rem; }
+.para-avanzar ul { padding-left: 1.1rem; }
+.para-avanzar-meta strong { padding: .1rem .55rem; border-radius: 999px; background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
 .para-avanzar .ayuda { margin: .25rem 0 .5rem; }
 .conductas-oa { margin: .4rem 0; }
 .conductas-oa p { margin: 0; font-weight: 600; }

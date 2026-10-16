@@ -34,6 +34,7 @@ Sale del logo de Integra (`docs/marca/logo-integra.jpg`) en versión pastel. Tod
 | `--kimun-alerta*` | `#a51c18`, fondo `#fde6e5`, texto `#5b1310`, borde `#cc3833` | Señal roja: «Revisar», errores, protección de derechos |
 | `--kimun-naranjo` | `#b35400` | Íconos «observar» del menú lateral |
 | `--kimun-ok` / `--kimun-ok-fondo` | `#326412` / `#e3f4d7` | Lo que está bien: aceptada, avance, autónomo |
+| `--kimun-ok-claro` / `--kimun-ok-linea` | `#f5fbf0` / `#bfdfa8` | Segunda pasada: fondo y borde de «Qué observar después» (texto verde 6,8:1) |
 | `--integra-*-pastel` | azul `#a0c9e9`, rojo `#f5b0ad`, verde `#b6dd9d`, amarillo `#fcde7e` | Solo la franja decorativa bajo la barra superior |
 
 ### Colores por núcleo (segunda pasada)
@@ -158,6 +159,11 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   una fila con avatar de 2,6 rem, nombre en tinta y negrita y una flecha «↓» que dice que lleva a su tarjeta
   más abajo; los núcleos son chips del color del núcleo. Si un niño sale en dos observaciones aparece dos
   veces, como antes: agruparlo pedía tocar `pantallas.resumen_captura`.
+- **Detalle por núcleo:** cada `details.detalle-nucleo` lleva la clase de su núcleo: borde izquierdo e ícono
+  de su color, el mismo de la flor. Los subtítulos internos bajan a tamaño de tarjeta (h3 1,05 rem).
+- **«Qué observar después»** (`.para-avanzar`) deja el amarillo punteado (se confundía con las señales) y pasa a
+  verde de avance con borde izquierdo lleno, un ícono de escalón en el título y el nivel siguiente como píldora
+  («Para avanzar a 3»). Es lo único verde dentro del detalle, así se encuentra de un vistazo.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -258,6 +264,7 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 | 0 | `git merge origin/main`: conflictos en aviso, curso, informe y protocolo, todos de texto o clases; se conservaron ambos lados. La compactación de `.tabla-curso` que main traía en `<style>` se movió a `registro.css` | merge | hecho; tests de instrumentos, historial, informe, vistas, protección, protocolo, revisión y frecuencia pasan (211) |
 | 1 | Gráfico de flor, nivel general y escalones por núcleo; Fredoka y colores por núcleo | `style(ficha): flor` | hecho; `test_ficha`, `test_perfil`, `test_vistas`, `test_instrumentos` pasan |
 | 3 | Resumen de la nota: tarjeta, cifras destacadas, una fila por niño con avatar grande y chips de núcleo | `style(resumen)` | hecho; `test_registrar`, `test_capturas`, `test_revision`, `test_vistas` pasan |
+| 4 | Ficha: detalle por núcleo con su color e ícono, subtítulos de tarjeta, «Qué observar después» en verde | `style(ficha): detalle` | hecho; `test_ficha`, `test_fijar_nivel`, `test_perfil`, `test_propuestas_decision`, `test_propuestas_solicitud` pasan |
 | 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
 
 ## Cómo seguir

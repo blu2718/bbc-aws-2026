@@ -100,8 +100,8 @@
   <h2 id="titulo-detalle">Detalle por núcleo</h2>
   <p class="ayuda">La rúbrica del nivel actual y del siguiente, la evolución, la evidencia por OA y las observaciones{% if ficha.puede_validar %}, y el formulario para fijar el nivel{% endif %}.</p>
   {% for nf in ficha.nucleos %}
-    <details class="detalle-nucleo" data-detalle="{{ nf.nucleo.sigla }}"{% if nf.form.is_bound %} open{% endif %}>
-      <summary>{{ nf.nucleo.nombre }} · {{ nf.texto_actual }}</summary>
+    <details class="detalle-nucleo nucleo-{{ nf.nucleo.sigla }}" data-detalle="{{ nf.nucleo.sigla }}"{% if nf.form.is_bound %} open{% endif %}>
+      <summary>{% with icono=nf.nucleo.sigla|icono_nucleo %}{% if icono %}<span class="icono-nucleo" aria-hidden="true" style="-webkit-mask-image: url('{{ icono }}'); mask-image: url('{{ icono }}')"></span>{% endif %}{% endwith %}{{ nf.nucleo.nombre }} · {{ nf.texto_actual }}</summary>
       {% include "registro/_nucleo_ficha.html" with nf=nf %}
     </details>
   {% endfor %}
