@@ -841,3 +841,7 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
   .tabla-curso td, .tabla-curso th, .tabla-jardin td, .tabla-jardin th { min-width: 5.75rem; }
   .pagina-tabla .tarjeta { padding-inline: .8rem; }
 }
+/* Foco visible en los enlaces con forma de tarjeta o botón. */
+.lista-enlaces a:focus-visible, .botones-enlace a:focus-visible, .bandeja-lista a:focus-visible, .recientes a:focus-visible {
+  outline: 3px solid var(--kimun-azul); outline-offset: 2px;
+}
