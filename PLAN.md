@@ -17,7 +17,7 @@ La educadora siempre decide el nivel.
 ### Modelo pedagógico
 
 - 3 niveles educativos (sala cuna, medio, transición). Según las Bases Curriculares, cada nivel abarca 2 años y sus OA describen lo esperado al final del tramo: 50 en sala cuna, 71 en medio y 85 en transición.
-- La cantidad de núcleos y de niveles puede cambiar en el tiempo: hoy las Bases Curriculares fijan 8 núcleos y la herramienta de Integra apunta a 10; hoy hay 8 niveles por núcleo y se evalúa pasar a 9 (FAQ de Integra y `contexto/respuestas-integra.md`). Integra pide poder ajustar ambos parámetros y cargar la rúbrica sin importar cuántos sean. Por eso son un dato de la rúbrica, editable, y nada en el código asume 8.
+- La cantidad de núcleos y de niveles puede cambiar en el tiempo: hoy las Bases Curriculares fijan 8 núcleos y la herramienta de Integra apunta a 10; hoy hay 8 niveles por núcleo y se evalúa pasar a 9 (FAQ de Integra y `contexto/faq_integra_2.md`). Integra pide poder ajustar ambos parámetros y cargar la rúbrica sin importar cuántos sean. Por eso son un dato de la rúbrica, editable, y nada en el código asume 8.
 - El nivel es por núcleo: cada núcleo tiene sus propios niveles, no hay un nivel general compartido. Si se necesita un nivel general del niño, Integra sugiere usar el promedio de sus núcleos.
 - Núcleos de la demo (Bases Curriculares 2018, confirmados por el Programa Pedagógico de Transición del MINEDUC): Identidad y Autonomía (IA), Convivencia y Ciudadanía (CC), Corporalidad y Movimiento (CM), Lenguaje Verbal (LV), Lenguajes Artísticos (LA), Exploración del Entorno Natural (EEN), Comprensión del Entorno Sociocultural (CES), Pensamiento Matemático (PM). En Transición suman 85 OA. Son los únicos con OA oficiales; se reemplazan por los de Integra cuando entregue su rúbrica, sean 8, 10 u otra cantidad.
 - La rúbrica se guarda por nivel educativo, porque varía entre ellos: la de Integra trae textos distintos para sala cuna, medio y transición, y en cada uno los niveles van del 1 al 8. La demo principal usa Transición (NT1 y NT2, 4 a 6 años). Hay dos demos opcionales más chicas para sala cuna y medio (ver Alcance).
@@ -79,7 +79,7 @@ La Política de Calidad de Integra pide "mecanismos pertinentes y oportunos para
 ### Alcance
 
 - Dentro: perspectiva de la educadora (su curso, con comparación con pares y evolución individual), registro por asistentes, aviso ante posibles vulneraciones de derechos (Task 13), nivel Transición, un curso de 15 niños cargados a mano, datos 100% ficticios.
-- Dentro, como demo secundaria: un curso de sala cuna (`datos/demo_sala_cuna.json`, 6 niños, 0 a 2 años) y uno de nivel medio (`datos/demo_medio.json`, 6 niños, 2 a 4 años), que se cargan con `cargar_demo --demo` después de la principal. Sus OA vienen de las Bases Curriculares (`datos/curriculo_sala_cuna.json`, 50 OA, y `datos/curriculo_medio.json`, 71 OA, generados con `scripts/extraer_oa_bases.py`) y no traen conductas observables por año, así que no tienen rúbrica provisoria: en esos niveles solo IA tiene rúbrica (la de Integra). Sirven para mostrar que la app no está atada a Transición.
+- Dentro, como demo secundaria: un curso de sala cuna (`datos/demo_sala_cuna.json`, 6 niños, 0 a 2 años) y uno de nivel medio (`datos/demo_medio.json`, 6 niños, 2 a 4 años), que se cargan con `cargar_demo --demo` después de la principal. Sus OA vienen de las Bases Curriculares (`datos/curriculo_sala_cuna.json`, 50 OA, y `datos/curriculo_medio.json`, 71 OA, generados con `scripts/extraer_oa_bases.py`) y no traen conductas observables por año. Por eso su rúbrica provisoria es otra: 8 niveles que describen cuántas conductas de los OA del núcleo muestra el niño y con cuánta ayuda, y la propuesta de nivel recibe los OA del nivel en vez de la trayectoria NT1/NT2. IA usa la rúbrica de Integra. Si una base ya existía, la migración `0009_rubricas_provisorias_por_nivel` crea las rúbricas que falten; un núcleo sin rúbrica completa no recibe propuestas, y la ficha lo explica. Sirven para mostrar que la app no está atada a Transición.
 - Dentro si alcanza el tiempo (Task 12; si no, va en el pitch): vista del jardín para la directora, con un segundo curso de Transición en los datos de demo, y registro de capturas por la directora. También, en la tabla del curso y en la ficha, el nivel general del niño como promedio de sus núcleos, marcado como referencia.
 - Fuera del MVP (se mencionan en el pitch): vista nacional, generar pasos a seguir o actividades con IA, informes a familias, video (con consentimiento pedido en la matrícula y la grabación borrada después de extraer la información), modo sin conexión, carga masiva de niños y la rúbrica completa de sala cuna y medio.
 - Descartado por el equipo: un registro propio de la voz del niño (sus intereses, preferencias o autoevaluación).
@@ -114,7 +114,7 @@ Detalle de modelos, límites, formatos y precios en `docs/investigacion_servicio
 
 ### Respuestas de Integra por correo
 
-Detalle en `contexto/respuestas-integra.md`.
+Detalle en `contexto/faq_integra_2.md`.
 
 - Confirman el enfoque: la herramienta organiza y propone un nivel con evidencia, y la educadora lo ajusta. Quieren niveles "sí o sí".
 - Piden ver la evolución individual, en qué nivel está la mayoría del curso con alarma para los rezagados, y una alerta para la directora cuando un curso del jardín está bajo los demás del mismo nivel.
@@ -207,7 +207,7 @@ El PDF no se versiona: [fuente](https://www.curriculumnacional.cl/614/articles-2
 - Django 5 con SQLite. En producción se puede cambiar a PostgreSQL en RDS modificando solo la configuración.
 - Interfaz: plantillas de Django + HTMX + Pico.css, guardados en `static/vendor` con versión fija (sin CDN).
 - JavaScript simple para la cámara (input con `capture`) y el micrófono (MediaRecorder).
-- Proceso de fondo como comando de Django (`manage.py procesar_capturas`) que lee la misma base de datos. Sin Celery ni Redis.
+- Proceso de fondo como comando de Django (`manage.py procesar_capturas`) que lee la misma base de datos. Sin Celery ni Redis. La página de la captura solo consulta su estado; nunca llama a Bedrock, porque leer y separar una foto puede pasar los 30 s de CloudFront. El worker revisa cada 2 s y devuelve a la cola las capturas atascadas. Las propuestas de nivel las procesa otro comando, `procesar_propuestas`.
 - Tests con pytest + pytest-django. Dependencias con versiones fijas.
 - AWS: EC2 t3.small (Amazon Linux 2023) con rol IAM, S3 privado, Transcribe es-US, Bedrock (API Converse), CloudFront para HTTPS y SSM para acceso y despliegue (sin SSH). Todo en una plantilla CloudFormation.
 
@@ -262,17 +262,17 @@ flowchart LR
 
 ## Tareas
 
-Estado al jueves 15 de octubre, 20:15:
+Estado al viernes 16 de octubre, 00:05:
 
 | Task | Estado |
 |---|---|
 | 1. Esqueleto | Hecha |
 | 2. Vista del curso | Hecha |
 | 3. Ficha, fijar nivel, metas | Hecha |
-| 4. Infraestructura y despliegue | Infraestructura hecha. La URL corre una versión anterior a las Tasks 8 y 9; falta redesplegar y habilitar `kimun-worker` |
+| 4. Infraestructura y despliegue | Hecha. Cada despliegue habilita y reinicia `kimun-web`, `kimun-worker` y `kimun-propuestas`. La URL corre el release `e6a4653` (jueves 21:16), anterior a las correcciones de casos borde (PR #11); falta redesplegar |
 | 5. Texto y separación | Hecha |
 | 6. Revisión | Hecha |
-| 7. Propuesta de nivel | En curso, rama `task7` |
+| 7. Propuesta de nivel | Hecha |
 | 8. Foto | Hecha |
 | 9. Audio | Hecha, probada contra Transcribe real |
 | 10. Calidad de prompts | Hecha (`manage.py evaluar`, también con audios) |
@@ -498,7 +498,7 @@ Cuando esté lista la Task 1 (miércoles cerca de las 22:00), todos pueden traba
 
 ## Preguntas pendientes para Integra
 
-Las respuestas recibidas por correo están en `contexto/respuestas-integra.md`; las del FAQ, resumidas en Contexto. El FAQ respondió cuántos núcleos usar (los que traiga la rúbrica), si el nivel es por núcleo (sí), cómo ubican al niño en un nivel y si la directora registra (sí).
+Las respuestas recibidas por correo están en `contexto/faq_integra_2.md`; las del FAQ, resumidas en Contexto. El FAQ respondió cuántos núcleos usar (los que traiga la rúbrica), si el nivel es por núcleo (sí), cómo ubican al niño en un nivel y si la directora registra (sí).
 
 1. Sobre la rúbrica de IA que nos pasaron (`datos/rubrica_integra.json`): ¿los niveles 1 a 8 abarcan los 2 años del nivel educativo (NT1 y NT2) y el 8 es lo esperado al egresar? ¿Un niño que ingresa con lo esperado parte en el nivel 1 o en el 2 (como dijo la mentora)? ¿Hay un nivel esperado por semestre? ¿Cuándo llegan las orientaciones (pasos a seguir) y los otros núcleos? ¿Podemos mostrar sus ejemplos al modelo como referencia?
 2. ¿Las asistentes pueden revisar observaciones o validar niveles, o solo registrar? ¿Y la directora?
