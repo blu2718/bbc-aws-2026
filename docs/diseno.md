@@ -167,9 +167,31 @@ Ordenado por impacto en la demo:
 | 6 | Títulos de revisión | `style(pantallas)` | hecho (junto con 5d) |
 | 7 | Capturar (interfaz antigua) en tarjetas; se borró el bloque viejo `body > header` / `.marca` duplicado de `registro.css` | `style(capturar)`, `refactor(estilo)` | hecho, tests de captura pasan |
 
-Pantallas para mirar primero: registrar y suceso (celular), tabla del curso, vista del jardín, aviso de protección.
+| 8 | Foco visible (`outline` azul) en `.lista-enlaces`, `.botones-enlace`, `.bandeja-lista` y `.recientes` | `style(a11y)` | hecho |
+| — | `git merge origin/main` (Task 14, instrumentos): un solo conflicto en `registro.css`, líneas agregadas en los dos lados; se conservaron ambas | merge | hecho, 372 tests de las vistas tocadas y de instrumentos pasan |
 
-Pendiente que requiere tocar código fuera de la interfaz: nada por ahora.
+Capturas: antes en `/tmp/kimun-capturas/antes/`, después (con el merge) en `/tmp/kimun-capturas/despues/`
+(`<celular|escritorio>-<rol>-<pantalla>.png`; `informe.json` lista errores de consola y desbordes: ninguno).
+
+Pantallas para mirar primero (las de la demo):
+1. Registrar en celular (`celular-educadora-registrar.png`) y arrastrar una foto en escritorio
+   (`escritorio-educadora-registrar-arrastre.png`).
+2. Aviso de protección (`celular-educadora-aviso.png`) y avisos.
+3. Vista del jardín de la directora (`escritorio-directora-jardin.png`).
+4. Tabla del curso (`celular-educadora-curso.png`) y revisión.
+5. Botones en celeste en todas las pantallas (arreglo 1): confirmar que el contraste se ve bien en el proyector.
+
+Pendiente:
+- Pantallas nuevas de la Task 14 (instrumento nuevo, resultado, editar, historial de cambios, corregir
+  observación) llegaron con el merge y no se revisaron: usan clases propias (`.tabla-instrumento`,
+  `.lista-cambios`…) sin tarjetas. Siguiente paso natural: `.encabezado-pagina` y `.tarjeta` como en metas.
+- Ficha: «Resumen por núcleo» se desplaza a lo ancho en celular.
+- Botones de archivo en inglés («Choose File») según el idioma del navegador: cambiarlo pide tocar los
+  `<input type=file>` del formulario, se dejó.
+- «Tus últimas notas» (`_capturas_recientes.html`, página antigua de capturar) sigue como lista simple.
+- El orden de las secciones de la tabla del curso no se cambió: `test_frecuencia.py` corta el HTML entre
+  `titulo-frecuencia` y `titulo-tabla`. Para poner «Niveles por núcleo» primero hay que ajustar ese test.
+- Nada quedó bloqueado por tener que tocar vistas, modelos, URLs ni formularios.
 
 ## Cómo seguir
 
