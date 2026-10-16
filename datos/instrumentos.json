@@ -1,0 +1,213 @@
+{
+  "fuente": "contexto/instrumentos-estandarizados.md (investigación del 16-10-2026). Los puntos de corte de EEDP y TEPSI son los publicados en la Norma Técnica del MINSAL; las tablas de normas (conversión a CD o a puntaje T) tienen licencia y no se cargan: esos puntajes se copian de la hoja.",
+  "instrumentos": [
+    {
+      "codigo": "EEDP",
+      "nombre": "Escala de Evaluación del Desarrollo Psicomotor (EEDP)",
+      "ambito": "salud",
+      "provisorio": false,
+      "edad_min_meses": 0,
+      "edad_max_meses": 24,
+      "aplica": "Personal de salud (enfermera) en el control de salud infantil, a los 8 y 18 meses o tras una Pauta Breve alterada.",
+      "nota_ficha": "Tamizaje de salud: lo aplica el centro de salud. El CD sale de tablas de normas; Kimün lo copia de la hoja.",
+      "campos": [
+        {"codigo": "EM", "nombre": "Edad mental (días)", "tipo": "numero", "min": 0, "max": 900, "decimales": 0},
+        {"codigo": "EM_EC", "nombre": "Razón EM/EC", "tipo": "numero", "min": 0, "max": 3, "decimales": 2, "calculo": "razon_edad:EM"},
+        {"codigo": "CD", "nombre": "Coeficiente de desarrollo (CD)", "tipo": "numero", "min": 0, "max": 150, "decimales": 0, "principal": true, "escala_100": true}
+      ],
+      "areas": [
+        {"codigo": "M", "nombre": "Motora"},
+        {"codigo": "L", "nombre": "Lenguaje"},
+        {"codigo": "S", "nombre": "Social"},
+        {"codigo": "C", "nombre": "Coordinación"}
+      ],
+      "campos_area": [
+        {"codigo": "perfil", "nombre": "Perfil", "tipo": "opcion", "opciones": [
+          {"codigo": "acorde", "nombre": "Acorde a su edad"},
+          {"codigo": "deficit", "nombre": "Bajo su edad (déficit)"}
+        ]}
+      ],
+      "categoria": {
+        "nombre": "Resultado",
+        "campo": "CD",
+        "opciones": [
+          {"codigo": "normal", "nombre": "Normal", "texto_ficha": "Dentro de lo esperado", "desde": 85,
+           "siguiente_paso": "Seguir con las experiencias habituales del jardín."},
+          {"codigo": "riesgo", "nombre": "Riesgo", "texto_ficha": "Con seguimiento del centro de salud", "desde": 70,
+           "siguiente_paso": "Conversar con la familia sobre la estimulación y la reevaluación indicadas por el centro de salud, y reforzar en sala las áreas con déficit."},
+          {"codigo": "retraso", "nombre": "Retraso", "texto_ficha": "Con apoyo especializado indicado por el centro de salud", "desde": null,
+           "siguiente_paso": "Coordinar con la familia y el centro de salud el apoyo indicado y cómo acompañarlo en sala."}
+        ]
+      }
+    },
+    {
+      "codigo": "TEPSI",
+      "nombre": "Test de Desarrollo Psicomotor 2-5 años (TEPSI)",
+      "ambito": "salud",
+      "provisorio": false,
+      "edad_min_meses": 24,
+      "edad_max_meses": 60,
+      "aplica": "Personal de salud en el control de salud infantil (alrededor de los 3 años); también profesionales capacitados en contextos educativos.",
+      "nota_ficha": "Los puntajes T salen de tablas de normas; Kimün los copia de la hoja. Los puntajes brutos se suman en Kimün.",
+      "campos": [
+        {"codigo": "PB", "nombre": "Puntaje bruto total", "tipo": "numero", "min": 0, "max": 52, "decimales": 0, "calculo": "suma_areas:PB"},
+        {"codigo": "T", "nombre": "Puntaje T total", "tipo": "numero", "min": 20, "max": 80, "decimales": 0, "principal": true}
+      ],
+      "areas": [
+        {"codigo": "C", "nombre": "Coordinación", "maximos": {"PB": 16}},
+        {"codigo": "L", "nombre": "Lenguaje", "maximos": {"PB": 24}},
+        {"codigo": "M", "nombre": "Motricidad", "maximos": {"PB": 12}}
+      ],
+      "campos_area": [
+        {"codigo": "PB", "nombre": "Puntaje bruto", "tipo": "numero", "min": 0, "max": 24, "decimales": 0},
+        {"codigo": "T", "nombre": "Puntaje T", "tipo": "numero", "min": 20, "max": 80, "decimales": 0}
+      ],
+      "categoria": {
+        "nombre": "Resultado",
+        "campo": "T",
+        "opciones": [
+          {"codigo": "normal", "nombre": "Normal", "texto_ficha": "Dentro de lo esperado", "desde": 40,
+           "siguiente_paso": "Seguir con las experiencias habituales del jardín."},
+          {"codigo": "riesgo", "nombre": "Riesgo", "texto_ficha": "Con seguimiento del centro de salud", "desde": 30,
+           "siguiente_paso": "Conversar con la familia sobre la estimulación y la reevaluación indicadas, y ofrecer en sala más experiencias del subtest que lo requiere."},
+          {"codigo": "retraso", "nombre": "Retraso", "texto_ficha": "Con apoyo especializado indicado por el centro de salud", "desde": null,
+           "siguiente_paso": "Coordinar con la familia y el centro de salud el apoyo indicado y cómo acompañarlo en sala."}
+        ]
+      },
+      "categoria_area": {"campo": "T", "usa": "categoria"}
+    },
+    {
+      "codigo": "PAUTA_BREVE",
+      "nombre": "Pauta Breve de Evaluación del Desarrollo Psicomotor",
+      "ambito": "salud",
+      "provisorio": false,
+      "edad_min_meses": 0,
+      "edad_max_meses": 24,
+      "aplica": "Personal de salud en los controles en que no corresponde EEDP. Si resulta alterada, se aplica EEDP.",
+      "nota_ficha": "Tamizaje rápido de salud.",
+      "campos": [],
+      "areas": [],
+      "campos_area": [],
+      "categoria": {
+        "nombre": "Resultado",
+        "campo": null,
+        "opciones": [
+          {"codigo": "normal", "nombre": "Normal", "texto_ficha": "Dentro de lo esperado",
+           "siguiente_paso": "Seguir con las experiencias habituales del jardín."},
+          {"codigo": "alterada", "nombre": "Alterada", "texto_ficha": "Con evaluación complementaria del centro de salud",
+           "siguiente_paso": "El centro de salud aplica la EEDP. Preguntar a la familia por el resultado cuando lo tengan."}
+        ]
+      }
+    },
+    {
+      "codigo": "IEA",
+      "nombre": "Instrumento de Evaluación de Aprendizajes \"Evaluar para aprender\" (IEA, Integra)",
+      "ambito": "educativo",
+      "provisorio": true,
+      "edad_min_meses": 0,
+      "edad_max_meses": 72,
+      "aplica": "La educadora, en el jardín. Estructura por confirmar con Integra: niveles por núcleo de las Bases Curriculares.",
+      "nota_ficha": "Estructura provisoria: falta confirmarla con el material de Integra.",
+      "campos": [],
+      "areas": [
+        {"codigo": "IA", "nombre": "Identidad y Autonomía"},
+        {"codigo": "CC", "nombre": "Convivencia y Ciudadanía"},
+        {"codigo": "CM", "nombre": "Corporalidad y Movimiento"},
+        {"codigo": "LV", "nombre": "Lenguaje Verbal"},
+        {"codigo": "LA", "nombre": "Lenguajes Artísticos"},
+        {"codigo": "EEN", "nombre": "Exploración del Entorno Natural"},
+        {"codigo": "CES", "nombre": "Comprensión del Entorno Sociocultural"},
+        {"codigo": "PM", "nombre": "Pensamiento Matemático"}
+      ],
+      "campos_area": [
+        {"codigo": "nivel", "nombre": "Nivel", "tipo": "opcion", "opciones": [
+          {"codigo": "inicial", "nombre": "Inicial"},
+          {"codigo": "intermedio", "nombre": "Intermedio"},
+          {"codigo": "final", "nombre": "Final"}
+        ]}
+      ]
+    },
+    {
+      "codigo": "BATTELLE",
+      "nombre": "Inventario de Desarrollo Battelle, tamizaje (BDI-ST2)",
+      "ambito": "educativo",
+      "provisorio": false,
+      "edad_min_meses": 0,
+      "edad_max_meses": 96,
+      "aplica": "Aplicador capacitado. Integra lo usó en 2021 en una muestra nacional; no es de uso habitual.",
+      "nota_ficha": "Tamizaje del desarrollo. El punto de corte de cada escala depende de la edad: Kimün copia de la hoja si la escala se logra.",
+      "campos": [
+        {"codigo": "total", "nombre": "Puntaje total", "tipo": "numero", "min": 0, "max": 200, "decimales": 0, "calculo": "suma_areas:puntaje", "principal": true}
+      ],
+      "areas": [
+        {"codigo": "PS", "nombre": "Personal/Social"},
+        {"codigo": "AD", "nombre": "Adaptativa"},
+        {"codigo": "MO", "nombre": "Motora"},
+        {"codigo": "CO", "nombre": "Comunicación"},
+        {"codigo": "CG", "nombre": "Cognitiva"}
+      ],
+      "campos_area": [
+        {"codigo": "puntaje", "nombre": "Puntaje", "tipo": "numero", "min": 0, "max": 40, "decimales": 0}
+      ],
+      "categoria_area": {
+        "campo": null,
+        "opciones": [
+          {"codigo": "logra", "nombre": "Logra lo esperado para su edad", "texto_ficha": "Dentro de lo esperado"},
+          {"codigo": "no_logra", "nombre": "Bajo el punto de corte", "texto_ficha": "Con seguimiento",
+           "siguiente_paso": "Ofrecer en sala más experiencias de esta escala y observar su avance."}
+        ]
+      }
+    },
+    {
+      "codigo": "ASQ3",
+      "nombre": "Ages and Stages Questionnaires, tercera edición (ASQ-3)",
+      "ambito": "salud",
+      "provisorio": false,
+      "edad_min_meses": 1,
+      "edad_max_meses": 66,
+      "aplica": "Lo responde la familia o cuidador y lo corrige un profesional.",
+      "nota_ficha": "El punto de corte depende del cuestionario de cada edad: Kimün copia la zona de la hoja.",
+      "campos": [],
+      "areas": [
+        {"codigo": "COM", "nombre": "Comunicación"},
+        {"codigo": "MG", "nombre": "Motor grueso"},
+        {"codigo": "MF", "nombre": "Motor fino"},
+        {"codigo": "RP", "nombre": "Resolución de problemas"},
+        {"codigo": "SI", "nombre": "Socio-individual"}
+      ],
+      "campos_area": [
+        {"codigo": "puntaje", "nombre": "Puntaje", "tipo": "numero", "min": 0, "max": 60, "decimales": 1}
+      ],
+      "categoria_area": {
+        "campo": null,
+        "opciones": [
+          {"codigo": "sobre", "nombre": "Sobre el punto de corte", "texto_ficha": "Dentro de lo esperado"},
+          {"codigo": "monitoreo", "nombre": "Zona de monitoreo", "texto_ficha": "Para observar con más atención",
+           "siguiente_paso": "Ofrecer más experiencias de esta área y volver a mirar en unas semanas."},
+          {"codigo": "bajo", "nombre": "Bajo el punto de corte", "texto_ficha": "Con evaluación complementaria",
+           "siguiente_paso": "Conversar con la familia sobre la evaluación complementaria que se indicó."}
+        ]
+      }
+    },
+    {
+      "codigo": "OTRO",
+      "nombre": "Otro instrumento",
+      "ambito": "otro",
+      "provisorio": false,
+      "edad_min_meses": 0,
+      "edad_max_meses": 96,
+      "aplica": "Cualquier instrumento que no está en el catálogo. Se guarda lo que dice la hoja, sin calcular ni categorizar.",
+      "nota_ficha": "Instrumento fuera del catálogo: se muestra tal como lo dice la hoja.",
+      "areas_libres": true,
+      "campos": [
+        {"codigo": "nombre_instrumento", "nombre": "Nombre del instrumento", "tipo": "texto", "max_largo": 200},
+        {"codigo": "resultado", "nombre": "Resultado general", "tipo": "texto", "max_largo": 200}
+      ],
+      "areas": [],
+      "campos_area": [
+        {"codigo": "puntaje", "nombre": "Puntaje", "tipo": "texto", "max_largo": 40},
+        {"codigo": "resultado", "nombre": "Resultado", "tipo": "texto", "max_largo": 120}
+      ]
+    }
+  ]
+}

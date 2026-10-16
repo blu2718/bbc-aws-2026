@@ -41,6 +41,7 @@ from registro.models import (
     Captura,
     Curso,
     Efecto,
+    Instrumento,
     Jardin,
     MetaSemestre,
     NivelEducativo,
@@ -50,12 +51,16 @@ from registro.models import (
     ObjetivoAprendizaje,
     Observacion,
     PropuestaNivel,
+    RegistroCambio,
+    ResultadoInstrumento,
     Semestre,
 )
+from registro.instrumentos import cargar_instrumentos, completar, edad_en_dias, leer_instrumentos
 from registro.propuestas import rubrica_completa, solicitar_propuesta
 from registro.rubrica_integra import cargar_rubrica_integra, leer_rubrica_integra
 
 RUTA_DEMO = Path(settings.DATOS_DIR) / "demo_curso.json"
+RUTA_DEMO_INSTRUMENTOS = Path(settings.DATOS_DIR) / "demo_instrumentos.json"
 CODIGO_OA = re.compile(r"^OA (\d+) ([A-Z]+)$")
 
 
@@ -85,6 +90,7 @@ class Command(BaseCommand):
             self.stderr.write(self.style.WARNING(
                 f"Rúbrica de Integra: se omitió {sigla} en {nivel_educativo} porque ese núcleo no existe."
             ))
+        cargar_instrumentos(leer_instrumentos())
         demo = json.loads(Path(opciones["demo"]).read_text(encoding="utf-8"))
         nivel_demo = demo["curso"]["nivel_educativo"]
         if nivel_demo != NivelEducativo.TRANSICION:
@@ -124,6 +130,8 @@ class Command(BaseCommand):
         aceptadas = self._observaciones(curso, demo.get("observaciones", []), ninos, educadora, usuarias, hoy)
         self._capturas_pendientes(curso, demo.get("capturas_pendientes", []), educadora, usuarias)
         self._propuestas_solicitadas(curso, demo.get("propuestas_solicitadas", []), ninos)
+        if opciones["demo"] == RUTA_DEMO and RUTA_DEMO_INSTRUMENTOS.exists():
+            self._resultados_instrumentos(ninos, educadora)
 
         nombres = ", ".join(u.username for u in todas)
         resumen_otros = "".join(f"; {c} con {c.ninos.count()} niños" for c in otros)
@@ -292,6 +300,28 @@ class Command(BaseCommand):
                 raise CommandError(f"{nucleo.sigla} no tiene una rúbrica completa: no se puede pedir una propuesta.")
             if not PropuestaNivel.objects.filter(nino=nino, nucleo=nucleo).exists():
                 solicitar_propuesta(nino, nucleo)
+
+    def _resultados_instrumentos(self, ninos, educadora):
+        """Resultados ficticios de instrumentos (Task 14), confirmados y con su historial. Idempotente."""
+        from registro.historial import registrar
+
+        datos = json.loads(RUTA_DEMO_INSTRUMENTOS.read_text(encoding="utf-8"))
+        instrumentos = {i.codigo: i for i in Instrumento.objects.all()}
+        for r in datos["resultados"]:
+            nino, instrumento = ninos.get(r["nino"]), instrumentos.get(r["instrumento"])
+            fecha = date.fromisoformat(r["fecha_aplicacion"])
+            if nino is None or instrumento is None or ResultadoInstrumento.objects.filter(
+                nino=nino, instrumento=instrumento, fecha_aplicacion=fecha,
+            ).exists():
+                continue
+            resultado = ResultadoInstrumento.objects.create(
+                nino=nino, instrumento=instrumento, fecha_aplicacion=fecha, origen=r["origen"],
+                aplicado_por=r.get("aplicado_por", ""), observaciones=r.get("observaciones", ""),
+                valores=completar(instrumento.definicion, r["valores"], edad_en_dias(nino.fecha_nacimiento, fecha)),
+                estado=ResultadoInstrumento.Estado.CONFIRMADO, registrado_por=educadora,
+                confirmado_por=educadora, confirmado_en=timezone.now(),
+            )
+            registrar(resultado, RegistroCambio.Accion.CONFIRMAR, usuario=educadora, motivo="Datos de demo.")
 
     def _usuaria(self, datos, cambiar_password):
         User = get_user_model()

@@ -1,0 +1,64 @@
+{# Resultado de un instrumento como se muestra en su página (Task 14). Recibe `resultado` y `resumen`. #}
+{% with defi=resultado.instrumento.definicion %}
+<div class="resultado-instrumento">
+  {% if resumen.categoria %}
+    <p class="resultado-principal">
+      <span class="resultado-texto">{{ resumen.categoria.texto_ficha|default:resumen.categoria.nombre }}</span>
+      {% if resumen.principal and resumen.principal.valor != "–" %} · {{ resumen.principal.nombre }}: <strong>{{ resumen.principal.valor }}</strong>{% endif %}
+      <br><small class="ayuda">Categoría del instrumento: {{ resumen.categoria.nombre }}.</small>
+    </p>
+    {% if resumen.categoria.siguiente_paso %}<p class="siguiente-paso"><strong>Para acompañar:</strong> {{ resumen.categoria.siguiente_paso }}</p>{% endif %}
+  {% elif resumen.principal and resumen.principal.valor != "–" %}
+    <p class="resultado-principal">{{ resumen.principal.nombre }}: <strong>{{ resumen.principal.valor }}</strong></p>
+  {% endif %}
+
+  {% if resumen.campos %}
+    <div class="overflow-auto">
+      <table>
+        <caption>Puntajes generales</caption>
+        <tbody>
+          {% for f in resumen.campos %}
+            <tr><th scope="row">{{ f.nombre }}</th><td>{{ f.valor }}{% if f.calculado and f.calculado != f.valor %} <small class="ayuda">(Kimün calcula {{ f.calculado }})</small>{% endif %}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if resumen.areas %}
+    <div class="overflow-auto">
+      <table>
+        <caption>Por área</caption>
+        <thead>
+          <tr>
+            <th scope="col">Área</th>
+            {% for c in resumen.columnas_area %}<th scope="col">{{ c }}</th>{% endfor %}
+            {% if defi.categoria_area %}<th scope="col">Resultado</th>{% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in resumen.areas %}
+            <tr>
+              <th scope="row">{{ a.nombre }}</th>
+              {% for v in a.valores %}<td>{{ v }}</td>{% endfor %}
+              {% if defi.categoria_area %}<td>{% if a.categoria %}{{ a.categoria.texto_ficha|default:a.categoria.nombre }}{% else %}–{% endif %}</td>{% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if resumen.areas_libres %}
+    <div class="overflow-auto">
+      <table>
+        <caption>Áreas o escalas</caption>
+        <thead><tr><th scope="col">Área</th>{% for c in resumen.columnas_area %}<th scope="col">{{ c }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          {% for a in resumen.areas_libres %}<tr><th scope="row">{{ a.nombre }}</th>{% for v in a.valores %}<td>{{ v }}</td>{% endfor %}</tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+</div>
+{% endwith %}

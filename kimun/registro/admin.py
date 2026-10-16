@@ -131,6 +131,48 @@ class PropuestaNivelAdmin(admin.ModelAdmin):
     ]
 
 
+# --- Instrumentos estandarizados (Task 14) ---------------------------------------------
+
+
+@admin.register(models.Instrumento)
+class InstrumentoAdmin(admin.ModelAdmin):
+    list_display = ["codigo", "nombre", "ambito", "provisorio", "orden"]
+
+
+@admin.register(models.ResultadoInstrumento)
+class ResultadoInstrumentoAdmin(admin.ModelAdmin):
+    """Solo lectura: los cambios se hacen en la app, que los deja en el historial."""
+
+    list_display = ["nino", "instrumento", "fecha_aplicacion", "estado"]
+    list_filter = ["estado", "instrumento"]
+    exclude = ["archivo"]
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(models.RegistroCambio)
+class RegistroCambioAdmin(admin.ModelAdmin):
+    """El historial no se edita ni se borra, tampoco desde el panel."""
+
+    list_display = ["objeto_tipo", "objeto_id", "accion", "usuario_nombre", "creado"]
+    list_filter = ["objeto_tipo", "accion"]
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 @admin.register(models.AvisoProteccion)
 class AvisoProteccionAdmin(admin.ModelAdmin):
     """Task 13. El listado no muestra el texto de la nota."""

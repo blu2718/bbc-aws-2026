@@ -59,6 +59,33 @@ def ninos_que_valida(usuario):
     return Nino.objects.filter(curso__in=cursos_que_valida(usuario))
 
 
+# --- Instrumentos estandarizados (Task 14) -------------------------------------------
+# Un resultado de un instrumento es un dato sensible (puede ser de salud): lo ven solo la
+# educadora del curso y la directora del jardín. Lo carga, corrige y confirma la educadora.
+# Las asistentes no lo ven, aunque vean la ficha.
+
+
+def cursos_que_ven_instrumentos(usuario):
+    if not usuario.is_authenticated:
+        return Curso.objects.none()
+    return Curso.objects.filter(Q(educadora=usuario) | Q(jardin__directora=usuario)).distinct()
+
+
+def resultados_que_ve(usuario):
+    from .models import ResultadoInstrumento
+
+    return ResultadoInstrumento.objects.filter(nino__curso__in=cursos_que_ven_instrumentos(usuario))
+
+
+def resultados_que_edita(usuario):
+    from .models import ResultadoInstrumento
+
+    return ResultadoInstrumento.objects.filter(nino__curso__in=cursos_que_valida(usuario))
+
+
+def puede_ver_instrumentos(usuario, curso):
+    return cursos_que_ven_instrumentos(usuario).filter(pk=curso.pk).exists()
+
 def avisos_que_ve(usuario):
     """Avisos de protección (Task 13) que el usuario puede ver: los de la educadora del curso
     y los de la directora del jardín. Las asistentes, incluida quien registró, no los ven.

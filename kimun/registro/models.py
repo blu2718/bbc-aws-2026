@@ -763,3 +763,202 @@ class NivelValidado(ValidaNivelMixin, models.Model):
 
     def nivel_educativo_para_validar(self):
         return self.nino.curso.nivel_educativo
+
+
+# --- Instrumentos estandarizados (Task 14) -----------------------------------------
+#
+# El catálogo de instrumentos es un dato (datos/instrumentos.json), como la rúbrica:
+# áreas, campos de puntaje, rangos y categorías no están fijos en el código.
+# La lógica (validar, calcular, categorizar) está en `instrumentos.py`.
+
+
+class Instrumento(models.Model):
+    class Ambito(models.TextChoices):
+        SALUD = "salud", "Salud (lo aplica el centro de salud)"
+        EDUCATIVO = "educativo", "Educativo (lo aplica el jardín)"
+        OTRO = "otro", "Otro"
+
+    codigo = models.CharField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=200)
+    ambito = models.CharField(max_length=10, choices=Ambito.choices)
+    definicion = models.JSONField(help_text="Áreas, campos, rangos y categorías (ver datos/instrumentos.json).")
+    provisorio = models.BooleanField(
+        default=False, help_text="La estructura no está confirmada con el material oficial del instrumento.",
+    )
+    orden = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ["orden", "codigo"]
+        verbose_name = "instrumento estandarizado"
+        verbose_name_plural = "instrumentos estandarizados"
+
+    def __str__(self):
+        return f"{self.codigo} · {self.nombre}"
+
+
+def ruta_hoja(instancia, nombre):
+    """originales/hojas/AAAA/MM/<aleatorio>.<ext>, como `ruta_original`: no conserva el nombre subido.
+
+    Bajo `originales/` porque es el único prefijo en que el rol de la instancia escribe y borra.
+    """
+    extension = Path(nombre or "").suffix.lower()
+    if not _EXTENSION_SEGURA.fullmatch(extension):
+        extension = ""
+    return f"originales/hojas/{timezone.localtime():%Y/%m}/{uuid.uuid4().hex}{extension}"
+
+
+class ResultadoInstrumento(models.Model):
+    """El resultado de un instrumento aplicado a un niño, tal como lo trae la hoja.
+
+    No es evidencia de aprendizaje: no entra en la propuesta de nivel, las alertas
+    ni la tabla del curso. Solo se muestra en la ficha (educadora y directora).
+    Cada cambio queda en `RegistroCambio`.
+    """
+
+    class Estado(models.TextChoices):
+        POR_LEER = "por_leer", "Esperando lectura"
+        LEYENDO = "leyendo", "Leyendo la hoja"
+        POR_REVISAR = "por_revisar", "Por revisar"
+        CONFIRMADO = "confirmado", "Confirmado"
+        DESCARTADO = "descartado", "Descartado"
+        ERROR = "error", "No se pudo leer"
+
+    class Origen(models.TextChoices):
+        JARDIN = "jardin", "Aplicado en el jardín"
+        SALUD = "salud", "Del centro de salud (lo trajo la familia)"
+        OTRO = "otro", "Otro"
+
+    nino = models.ForeignKey(Nino, on_delete=models.CASCADE, related_name="resultados_instrumento")
+    instrumento = models.ForeignKey(
+        Instrumento, on_delete=models.PROTECT, null=True, blank=True, related_name="resultados",
+        help_text="Vacío mientras Kimün detecta el instrumento en la hoja.",
+    )
+    estado = models.CharField(max_length=12, choices=Estado.choices, default=Estado.POR_REVISAR)
+    origen = models.CharField(max_length=8, choices=Origen.choices, default=Origen.SALUD)
+    fecha_aplicacion = models.DateField(null=True, blank=True)
+    aplicado_por = models.CharField(
+        max_length=120, blank=True, help_text="Quién aplicó el instrumento (cargo o centro), como figura en la hoja.",
+    )
+    valores = models.JSONField(
+        default=dict, blank=True,
+        help_text='{"campos": {...}, "areas": {"C": {...}}, "categoria": "...", "categorias_area": {...}}',
+    )
+    observaciones = models.TextField(blank=True)
+    avisos = models.JSONField(default=list, blank=True, help_text="Lo que Kimün no pudo leer o no calza.")
+    archivo = models.FileField(
+        upload_to=ruta_hoja, blank=True, max_length=200,
+        help_text="Foto o PDF de la hoja mientras espera ser leída. Se borra apenas se lee.",
+    )
+    error = models.TextField(blank=True)
+    intentos = models.PositiveSmallIntegerField(default=0)
+    registrado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="resultados_registrados",
+    )
+    confirmado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True,
+        related_name="resultados_confirmados",
+    )
+    confirmado_en = models.DateTimeField(null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+    actualizado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-fecha_aplicacion", "-creado"]
+        verbose_name = "resultado de instrumento"
+        verbose_name_plural = "resultados de instrumentos"
+        indexes = [models.Index(fields=["estado", "creado"]), models.Index(fields=["nino", "estado"])]
+        constraints = [
+            models.CheckConstraint(
+                condition=~Q(estado="confirmado") | Q(
+                    instrumento__isnull=False, fecha_aplicacion__isnull=False,
+                    confirmado_por__isnull=False, confirmado_en__isnull=False,
+                ),
+                name="resultado_confirmado_completo",
+            ),
+        ]
+
+    def __str__(self):
+        cual = self.instrumento.codigo if self.instrumento_id else "instrumento por detectar"
+        return f"{self.nino} · {cual} ({self.get_estado_display()})"
+
+
+@receiver(post_delete, sender=ResultadoInstrumento)
+def _borrar_hoja(sender, instance, **kwargs):
+    if instance.archivo:
+        instance.archivo.delete(save=False)
+
+
+# --- Historial de cambios a prueba de adulteración (Task 14) -----------------------
+
+
+class RegistroCambioQuerySet(models.QuerySet):
+    def update(self, **kwargs):
+        raise ValidationError("El historial de cambios no se puede modificar.")
+
+    def delete(self):
+        raise ValidationError("El historial de cambios no se puede borrar.")
+
+
+class RegistroCambio(models.Model):
+    """Una entrada del historial de un dato editable (resultado de instrumento u observación).
+
+    Es de solo agregar: la app no permite modificar ni borrar entradas, y la base de datos
+    rechaza cualquier UPDATE (trigger de la migración 0012). Cada entrada guarda el estado
+    completo antes y después del cambio y un SHA-256 encadenado con la entrada anterior del
+    mismo objeto, así que borrar o alterar una entrada, o cambiar el dato por fuera de la app,
+    se detecta al verificar (`historial.verificar`). No usa claves foráneas para sobrevivir
+    al dato que describe.
+    """
+
+    class Objeto(models.TextChoices):
+        RESULTADO = "resultado", "Resultado de instrumento"
+        OBSERVACION = "observacion", "Observación"
+
+    class Accion(models.TextChoices):
+        CREAR = "crear", "Creado"
+        LECTURA_IA = "lectura_ia", "Leído por Kimün"
+        EDITAR = "editar", "Editado"
+        CONFIRMAR = "confirmar", "Confirmado"
+        DESCARTAR = "descartar", "Descartado"
+        REABRIR = "reabrir", "Vuelto a revisar"
+
+    objeto_tipo = models.CharField(max_length=12, choices=Objeto.choices)
+    objeto_id = models.PositiveIntegerField()
+    curso_id = models.PositiveIntegerField(help_text="Para filtrar por permisos sin clave foránea.")
+    accion = models.CharField(max_length=12, choices=Accion.choices)
+    usuario = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True,
+        related_name="cambios_registrados", help_text="Vacío si lo hizo Kimün (lectura de la hoja).",
+    )
+    usuario_nombre = models.CharField(max_length=150, blank=True)
+    motivo = models.TextField(blank=True)
+    antes = models.JSONField(null=True, blank=True)
+    despues = models.JSONField()
+    creado = models.DateTimeField()
+    hash_anterior = models.CharField(max_length=64, blank=True)
+    hash = models.CharField(max_length=64, unique=True)
+
+    objects = RegistroCambioQuerySet.as_manager()
+
+    class Meta:
+        ordering = ["objeto_tipo", "objeto_id", "creado", "id"]
+        verbose_name = "registro de cambio"
+        verbose_name_plural = "historial de cambios"
+        indexes = [models.Index(fields=["objeto_tipo", "objeto_id", "creado"])]
+        constraints = [
+            # Dos escrituras simultáneas no pueden colgar de la misma entrada: la cadena no se bifurca.
+            models.UniqueConstraint(
+                fields=["objeto_tipo", "objeto_id", "hash_anterior"], name="registro_cambio_cadena_lineal",
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.get_objeto_tipo_display()} #{self.objeto_id}: {self.get_accion_display()} ({self.creado:%Y-%m-%d %H:%M})"
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            raise ValidationError("El historial de cambios no se puede modificar.")
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        raise ValidationError("El historial de cambios no se puede borrar.")

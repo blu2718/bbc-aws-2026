@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block titulo %}{% if resultado.instrumento %}{{ resultado.instrumento.codigo }}{% else %}Instrumento{% endif %} · {{ nino.nombre }}{% endblock %}
+{% block contenido %}
+<p class="volver"><a href="{% url 'ficha' nino.pk %}#titulo-instrumentos">← {{ nino.nombre }}</a></p>
+
+<header>
+  <h1>{% if resultado.instrumento %}{{ resultado.instrumento.nombre }}{% else %}Resultado de un instrumento{% endif %}</h1>
+  <p>
+    {{ nino.nombre }}
+    {% if resultado.fecha_aplicacion %} · aplicado el <time datetime="{{ resultado.fecha_aplicacion|date:'Y-m-d' }}">{{ resultado.fecha_aplicacion|date:"j M Y" }}</time>{% endif %}
+    {% if resumen.edad %} · a los {{ resumen.edad }}{% endif %}
+    <br>{{ resultado.get_origen_display }}{% if resultado.aplicado_por %} · {{ resultado.aplicado_por }}{% endif %}
+    · <span class="etiqueta-referencia">{{ resultado.get_estado_display }}</span>
+    {% if resultado.instrumento.provisorio %} <span class="etiqueta-referencia">estructura provisoria</span>{% endif %}
+  </p>
+  {% if resultado.instrumento.definicion.nota_ficha %}<p class="ayuda">{{ resultado.instrumento.definicion.nota_ficha }}</p>{% endif %}
+</header>
+
+{% if pendiente %}
+  {% include "registro/_instrumento_leyendo.html" %}
+{% elif resultado.estado == "error" %}
+  <div class="aviso-error" role="alert">
+    <p><strong>{{ resultado.error|default:"No se pudo leer la hoja." }}</strong></p>
+    {% if puede_editar %}
+      <div class="acciones">
+        {% if resultado.archivo %}
+          <form method="post" action="{% url 'resultado_instrumento_reintentar' resultado.pk %}">{% csrf_token %}<button type="submit">Reintentar la lectura</button></form>
+        {% endif %}
+        <a role="button" class="secondary outline" href="{% url 'instrumento_nuevo' nino.pk %}">Subir otra hoja o ingresar a mano</a>
+      </div>
+    {% endif %}
+  </div>
+{% else %}
+  {% if resumen.avisos and resultado.estado != "descartado" %}
+    <div class="aviso" role="status">
+      <p><strong>Revisa antes de confirmar{% if resultado.estado == "confirmado" %} o corrige{% endif %}:</strong></p>
+      <ul>{% for a in resumen.avisos %}<li>{{ a }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+  {% if resultado.estado == "por_revisar" %}
+    <p class="ayuda">Kimün leyó la hoja y no guardó la foto. Compara con la hoja en papel y corrige lo que haga falta antes de confirmar: hasta entonces no aparece en la ficha.</p>
+  {% endif %}
+  {% if resultado.instrumento %}{% include "registro/_instrumento_resumen.html" %}{% endif %}
+  {% if resultado.observaciones %}<p><strong>Observaciones de la hoja:</strong> {{ resultado.observaciones }}</p>{% endif %}
+
+  {% if puede_editar and resultado.estado != "descartado" %}
+    <div class="acciones">
+      {% if resultado.estado == "por_revisar" %}
+        <a role="button" href="{% url 'resultado_instrumento_editar' resultado.pk %}">Revisar y confirmar</a>
+      {% else %}
+        <a role="button" class="secondary outline" href="{% url 'resultado_instrumento_editar' resultado.pk %}">Corregir</a>
+      {% endif %}
+    </div>
+    <details class="descartar">
+      <summary>Descartar este resultado</summary>
+      <form method="post" action="{% url 'resultado_instrumento_descartar' resultado.pk %}">
+        {% csrf_token %}
+        <label for="motivo-descartar">Motivo (queda en el historial)</label>
+        <textarea id="motivo-descartar" name="motivo" rows="2" maxlength="500" required placeholder="Por ejemplo: la hoja era de otro niño"></textarea>
+        <button type="submit" class="secondary">Descartar</button>
+      </form>
+    </details>
+  {% endif %}
+{% endif %}
+
+<p class="ayuda">Este resultado no se usa para proponer niveles ni para las alertas del curso: es información para acompañar mejor a {{ nino.nombre.split.0 }}. Lo ven solo la educadora del curso y la directora del jardín.</p>
+
+{% include "registro/_historial_cambios.html" %}
+{% endblock %}

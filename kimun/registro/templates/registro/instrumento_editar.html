@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block titulo %}{{ instrumento.codigo }} · {{ nino.nombre }}{% endblock %}
+{% block contenido %}
+{% if resultado %}
+  <p class="volver"><a href="{% url 'resultado_instrumento' resultado.pk %}">← Volver al resultado</a></p>
+{% else %}
+  <p class="volver"><a href="{% url 'instrumento_nuevo' nino.pk %}">← Elegir otro instrumento</a></p>
+{% endif %}
+
+<h1>{% if modo == "corregir" %}Corregir{% elif modo == "revisar" %}Revisar{% else %}Ingresar{% endif %}: {{ instrumento.nombre }}</h1>
+<p>{{ nino.nombre }}{% if instrumento.definicion.nota_ficha %} · <span class="ayuda">{{ instrumento.definicion.nota_ficha }}</span>{% endif %}</p>
+
+{% if modo == "revisar" %}
+  {% if resumen.avisos %}
+    <div class="aviso" role="status"><p><strong>Kimün avisa:</strong></p><ul>{% for a in resumen.avisos %}<li>{{ a }}</li>{% endfor %}</ul></div>
+  {% endif %}
+  <form method="get" class="cambiar-instrumento">
+    <label for="cambiar-instrumento">¿Es otro instrumento?</label>
+    <select id="cambiar-instrumento" name="instrumento">
+      {% for i in instrumentos %}<option value="{{ i.codigo }}"{% if i.pk == instrumento.pk %} selected{% endif %}>{{ i.nombre }}</option>{% endfor %}
+    </select>
+    <button type="submit" class="secondary outline">Cambiar</button>
+  </form>
+{% endif %}
+{% if modo == "corregir" %}
+  <p class="ayuda">Este resultado ya está confirmado. La corrección queda en el historial con su motivo, junto con el dato anterior.</p>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.version }}
+  {% if resultado %}<input type="hidden" name="instrumento" value="{{ instrumento.codigo }}">{% endif %}
+  {% if form.non_field_errors %}<div class="aviso-error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+
+  <fieldset>
+    <legend>Aplicación</legend>
+    {% include "registro/_campo.html" with campo=form.fecha_aplicacion %}
+    {% include "registro/_campo.html" with campo=form.origen %}
+    {% include "registro/_campo.html" with campo=form.aplicado_por %}
+  </fieldset>
+
+  {% if form.campos_globales or form.categoria %}
+    <fieldset>
+      <legend>Resultado general</legend>
+      {% for campo in form.campos_globales %}
+        {% include "registro/_campo.html" with campo=campo %}
+        {% if campo.help_text %}<small class="ayuda">{{ campo.help_text }}</small>{% endif %}
+      {% endfor %}
+      {% if form.categoria %}
+        {% include "registro/_campo.html" with campo=form.categoria %}
+        {% if instrumento.definicion.categoria.campo %}<small class="ayuda">Si lo dejas en «Sin dato», Kimün lo calcula con los puntos de corte publicados del instrumento.</small>{% endif %}
+      {% endif %}
+    </fieldset>
+  {% endif %}
+
+  {% with grupos=form.grupos_area %}
+    {% if grupos %}
+      <fieldset>
+        <legend>Por área</legend>
+        <div class="overflow-auto">
+          <table class="tabla-formulario">
+            <thead><tr><th scope="col">Área</th>{% for c in form.columnas_area %}<th scope="col">{{ c }}</th>{% endfor %}</tr></thead>
+            <tbody>
+              {% for area, campos in grupos %}
+                <tr>
+                  <th scope="row">{{ area.nombre }}</th>
+                  {% for campo in campos %}
+                    <td>
+                      <label for="{{ campo.id_for_label }}" class="visualmente-oculto">{{ area.nombre }}: {{ campo.label }}</label>
+                      {{ campo }}
+                      {% if campo.errors %}<small class="error" role="alert">{{ campo.errors|join:" " }}</small>{% endif %}
+                    </td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+    {% endif %}
+  {% endwith %}
+
+  {% with filas=form.filas_libres %}
+    {% if filas %}
+      <fieldset>
+        <legend>Áreas o escalas de la hoja</legend>
+        <div class="overflow-auto">
+          <table class="tabla-formulario">
+            <thead><tr><th scope="col">Área o escala</th>{% for c in form.columnas_area %}<th scope="col">{{ c }}</th>{% endfor %}</tr></thead>
+            <tbody>
+              {% for fila in filas %}
+                <tr>{% for campo in fila %}<td><label for="{{ campo.id_for_label }}" class="visualmente-oculto">Fila {{ forloop.parentloop.counter }}: {{ campo.label }}</label>{{ campo }}</td>{% endfor %}</tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </fieldset>
+    {% endif %}
+  {% endwith %}
+
+  {% include "registro/_campo.html" with campo=form.observaciones %}
+  {% if form.motivo.field.required %}
+    {% include "registro/_campo.html" with campo=form.motivo %}
+    <small class="ayuda">{{ form.motivo.help_text }}</small>
+  {% endif %}
+
+  <div class="acciones">
+    {% if modo == "revisar" %}
+      <button type="submit" name="confirmar" value="1">Guardar y confirmar</button>
+      <button type="submit" class="secondary outline">Guardar sin confirmar</button>
+    {% elif modo == "corregir" %}
+      <button type="submit">Guardar corrección</button>
+    {% else %}
+      <button type="submit">Guardar y confirmar</button>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

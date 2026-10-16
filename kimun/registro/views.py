@@ -23,7 +23,7 @@ from .ficha import armar_ficha, descriptores_del_nucleo
 from .informe import armar_informe
 from .frecuencia import frecuencia_del_curso
 from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, etiqueta_nivel, nombres_comunes
-from .models import DescriptorNivel, Nucleo, Rubrica, texto_nivel
+from .models import DescriptorNivel, Nucleo, RegistroCambio, Rubrica, texto_nivel
 from .permisos import (
     cursos_de,
     cursos_donde_registra,
@@ -36,6 +36,7 @@ from .permisos import (
 from .pantallas import historial_del_nino, propuestas_por_decidir, texto_edad
 from .radar import radar_de_la_ficha
 from .revision import resumen_pendientes
+from .views_instrumentos import resultados_de_la_ficha
 
 
 def _es_htmx(request):
@@ -127,6 +128,11 @@ def _pagina_ficha(request, nino, formularios=None, formularios_propuesta=None, e
         "esperado": esperado,
         "historial": historial_del_nino(nino),
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=nino.curso_id).exists(),
+        # Instrumentos estandarizados (Task 14): None si quien mira no debe verlos (asistentes).
+        "instrumentos": resultados_de_la_ficha(nino, request.user),
+        "obs_con_cambios": set(RegistroCambio.objects.filter(
+            objeto_tipo=RegistroCambio.Objeto.OBSERVACION, curso_id=nino.curso_id,
+        ).values_list("objeto_id", flat=True)),
     })
 
 

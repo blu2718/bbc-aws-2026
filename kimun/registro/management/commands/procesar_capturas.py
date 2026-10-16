@@ -1,7 +1,8 @@
 """Proceso de fondo: separa las capturas pendientes en observaciones (Tasks 5 y 9).
 
 Las notas escritas van directo a la separación; las fotos se leen antes con Claude y
-los audios se transcriben con Transcribe (requiere `KIMUN_BUCKET`). Es el único que
+los audios se transcriben con Transcribe (requiere `KIMUN_BUCKET`). También lee las hojas
+de resultados de instrumentos estandarizados (Task 14, `registro/instrumentos.py`). Es el único que
 llama a Bedrock por una captura: la página solo consulta el estado. En el bucle,
 las capturas atascadas en procesando vuelven solas a la cola.
 
@@ -19,6 +20,7 @@ from django.core.management.base import BaseCommand, CommandError
 
 from registro.curriculo import leer_curriculo
 from registro.ia import ClienteBedrock, ClienteTranscribe
+from registro.instrumentos import procesar_lecturas_pendientes, recuperar_lecturas_atascadas
 from registro.procesamiento import (
     UMBRAL_PROCESANDO_ATASCADA, procesar_pendientes, recuperar_atascadas, reintentar_errores,
 )
@@ -71,6 +73,15 @@ class Command(BaseCommand):
                         self.stdout.write(
                             f"Captura #{captura.pk}: {len(creadas)} observaciones pendientes ({sin_nino} sin niño)."
                         )
+                # Hojas de instrumentos estandarizados (Task 14): se leen con el mismo cliente de Bedrock.
+                if not una_vez:
+                    recuperar_lecturas_atascadas()
+                for resultado, ok in procesar_lecturas_pendientes(cliente=cliente):
+                    if ok:
+                        self.stdout.write(f"Hoja de instrumento #{resultado.pk}: leída, por revisar.")
+                    else:
+                        errores += 1
+                        self.stderr.write(f"Hoja de instrumento #{resultado.pk}: error: {resultado.error}")
                 if una_vez:
                     break
                 time.sleep(intervalo)

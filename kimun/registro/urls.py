@@ -1,6 +1,8 @@
 from django.urls import path
 
-from . import views, views_captura, views_propuestas, views_proteccion, views_registro, views_revision
+from . import (
+    views, views_captura, views_instrumentos, views_propuestas, views_proteccion, views_registro, views_revision,
+)
 
 urlpatterns = [
     path("", views.inicio, name="inicio"),
@@ -39,6 +41,17 @@ urlpatterns = [
     path("observaciones/<int:obs_id>/aceptar/", views_revision.aceptar_observacion, name="observacion_aceptar"),
     path("observaciones/<int:obs_id>/descartar/", views_revision.descartar_observacion, name="observacion_descartar"),
     path("capturas/<int:captura_id>/aceptar-todas/", views_revision.aceptar_todas_captura, name="captura_aceptar_todas"),
+    # Instrumentos estandarizados (Task 14) y correcciones con historial
+    path("ninos/<int:nino_id>/instrumentos/nuevo/", views_instrumentos.nuevo, name="instrumento_nuevo"),
+    path("ninos/<int:nino_id>/instrumentos/nuevo/<str:codigo>/", views_instrumentos.nuevo_manual, name="instrumento_manual"),
+    path("instrumentos/<int:resultado_id>/", views_instrumentos.resultado, name="resultado_instrumento"),
+    path("instrumentos/<int:resultado_id>/estado/", views_instrumentos.estado, name="resultado_instrumento_estado"),
+    path("instrumentos/<int:resultado_id>/editar/", views_instrumentos.editar, name="resultado_instrumento_editar"),
+    path("instrumentos/<int:resultado_id>/descartar/", views_instrumentos.descartar, name="resultado_instrumento_descartar"),
+    path("instrumentos/<int:resultado_id>/reintentar/", views_instrumentos.reintentar, name="resultado_instrumento_reintentar"),
+    path("observaciones/<int:obs_id>/corregir/", views_instrumentos.corregir_observacion, name="observacion_corregir"),
+    path("observaciones/<int:obs_id>/retirar/", views_instrumentos.retirar_observacion, name="observacion_retirar"),
+    path("observaciones/<int:obs_id>/historial/", views_instrumentos.historial_observacion, name="observacion_historial"),
     # Avisos ante posibles vulneraciones de derechos (Task 13)
     path("avisos/", views_proteccion.avisos, name="avisos"),
     path("avisos/<int:aviso_id>/", views_proteccion.aviso, name="aviso"),

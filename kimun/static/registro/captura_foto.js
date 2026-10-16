@@ -75,6 +75,12 @@
       estado.textContent = "";
       return;
     }
+    if (archivo.type && archivo.type.indexOf("image/") !== 0) {
+      // Un PDF (hoja de un instrumento, Task 14) se sube tal cual.
+      vista.hidden = true;
+      estado.textContent = "Archivo listo para subir (" + Math.max(1, Math.round(archivo.size / 1024)) + " KB).";
+      return;
+    }
     boton.disabled = true;
     estado.textContent = "Preparando la foto…";
     achicar(archivo)

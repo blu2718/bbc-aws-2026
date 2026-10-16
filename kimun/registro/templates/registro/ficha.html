@@ -70,6 +70,8 @@
               {% if e.efecto != "sin_dato" %}<span class="efecto efecto-{{ e.efecto }}">{{ e.efecto_texto }}</span>{% endif %}
               {% for n in e.nucleos %}{{ n.nombre }}{% if not forloop.last %} · {% endif %}{% endfor %}
               · <a href="{% url 'captura' e.captura_id %}">Ver registro</a>
+              {% if ficha.puede_validar %} · <a href="{% url 'observacion_corregir' e.obs_id %}">Corregir</a>{% endif %}
+              {% if e.obs_id in obs_con_cambios %} · <a href="{% url 'observacion_historial' e.obs_id %}">Cambios</a>{% endif %}
             </p>
           {% else %}
             <p><strong>Niveles validados</strong>{% if e.autora %} por {{ e.autora }}{% endif %}{% if e.detalle %}: {{ e.detalle }}{% endif %}</p>
@@ -82,6 +84,8 @@
     <p>Todavía no hay sucesos aceptados ni niveles validados.</p>
   {% endif %}
 </section>
+
+{% if instrumentos %}{% include "registro/_instrumentos_ficha.html" %}{% endif %}
 
 <section class="perfil-seccion" aria-labelledby="titulo-detalle">
   <h2 id="titulo-detalle">Detalle por núcleo</h2>

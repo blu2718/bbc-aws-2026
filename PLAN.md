@@ -248,9 +248,13 @@ flowchart LR
 - `Observacion` (captura, niño o vacío, nombre detectado, fecha, cita literal, interpretación, núcleos, OA, nivel de apoyo, grupal, estado).
 - `PropuestaNivel` (niño, núcleo, nivel, justificación, observaciones citadas, estado).
 - `NivelValidado` (niño, núcleo, nivel, fecha, validado por, propuesta de origen). Forma el historial; el nivel actual es el más reciente.
+- `Instrumento` (código, nombre, ámbito salud o educativo, definición en JSON con áreas, campos, rangos y categorías, provisorio); `ResultadoInstrumento` (niño, instrumento, estado, origen, fecha de aplicación, aplicado por, valores en JSON, observaciones, avisos, hoja mientras se lee, quién registró y confirmó). No es evidencia de aprendizaje (Task 14).
+- `RegistroCambio` (tipo y id del objeto, curso, acción, usuaria, motivo, estado antes y después, fecha, hash encadenado con el anterior). Historial de solo agregar de resultados y observaciones aceptadas (Task 14).
 - `AvisoProteccion` (captura, tipo de señal, estado: pendiente, derivado o descartado, motivo del descarte, resuelto por, fecha). Lo ven solo la educadora del curso y la directora del jardín.
 
 ### Seguridad y privacidad
+
+- Los resultados de instrumentos estandarizados (muchos son tamizajes de salud) los ven solo la educadora del curso y la directora del jardín; las asistentes no. La hoja se borra apenas se lee, como las fotos. Toda edición queda en un historial de solo agregar que la base de datos protege contra UPDATE y que se verifica con una cadena de hashes (Task 14).
 
 - Todas las vistas piden login. La educadora y las asistentes solo ven sus cursos, y la directora los cursos de su jardín (filtro en todas las consultas). Registran capturas la educadora, las asistentes y la directora (esta última desde la Task 12). Solo la educadora revisa observaciones y valida niveles. El panel de administración es solo para staff.
 - Las fotos y los audios no se muestran ni se conservan: quedan en S3 solo hasta que se leen y entonces se borran, junto con la copia que usa Transcribe y su salida. De ellos solo queda el texto en la base de datos.
@@ -279,6 +283,7 @@ Estado al viernes 16 de octubre, 01:30:
 | 11. Demo final y pitch | Viernes |
 | 12. Vista de la directora | Hecha (PR #9) |
 | 13. Protección de derechos | Hecha: aviso a la educadora y la directora, captura en resguardo y fuera de toda evaluación, set de 6 notas en `manage.py evaluar --proteccion`. Cada jardín debe tener su protocolo (Circular 860): la directora lo carga en `/jardines/<id>/protocolo/` y el aviso muestra esos pasos. Mientras no lo cargue, se usan los provisorios de `datos/protocolo_proteccion.json` (paráfrasis de la JUNJI y Código Procesal Penal), que quedan también como referencia. Quién recibe el aviso sale de ese archivo |
+| 14. Instrumentos estandarizados e historial de cambios | Hecha (rama `task14-instrumentos`): resultados de EEDP, TEPSI, Pauta Breve, ASQ-3, Battelle, IEA (provisorio) u otro en la ficha, cargados desde la foto o el PDF de la hoja (Claude la lee y se borra) o a mano; corrección posterior con motivo e historial a prueba de adulteración, también para observaciones aceptadas. Probado contra Bedrock real con un PDF de TEPSI |
 | Extras antes de la demo | Hechas, sin IA nueva ni migraciones: qué observar para avanzar (ficha y tarjeta del suceso), resumen «De esta nota saqué…» en la captura, bandeja de propuestas por decidir en el curso, nivel general como referencia (promedio de los núcleos), nivel de apoyo en la ficha e informe imprimible para la familia (solo la educadora; los demás niños sin nombre). `cargar_demo` deja 2 notas pendientes y 3 propuestas solicitadas para que los workers las procesen con Bedrock real |
 
 ### Task 1: Esqueleto Django, modelo de datos y datos de demo
@@ -478,6 +483,21 @@ Estado al viernes 16 de octubre, 01:30:
 - Tests: una nota marcada no genera observaciones y crea un aviso; la asistente y otra educadora reciben 404 en el aviso; la directora del jardín lo ve; "No es una vulneración" exige motivo y reprocesa la captura; una captura en resguardo no cambia la ficha, las alertas, la cobertura ni la propuesta del niño; el texto no aparece en los registros (con `caplog`); con cliente falso, `pregunta` llega en null cuando hay marca.
 - Demo: se escribe "Tomás llegó con un moretón en el brazo y dijo que su papá le pegó con la correa". En vez de observaciones aparece un aviso con los pasos del protocolo, y la ficha de Tomás no cambia. Una nota sobre dos niños que se empujaron por un juguete se procesa normal, como convivencia.
 
+### Task 14: Instrumentos estandarizados en la ficha e historial de cambios
+
+- Objetivo: la educadora agrega a la ficha el resultado de un instrumento estandarizado (el TEPSI o la EEDP que la familia trae del control de salud, o uno aplicado en el jardín), Kimün lo lee de la hoja, ella lo revisa y lo puede corregir después. Ningún dato editable cambia sin dejar rastro.
+- Investigación en `contexto/instrumentos-estandarizados.md`. EEDP, TEPSI y Pauta Breve los aplica el centro de salud: en el jardín se transcriben. Los puntos de corte publicados (EEDP: CD ≥ 85 normal, 70 a 84 riesgo, ≤ 69 retraso; TEPSI: T ≥ 40, 30 a 39, ≤ 29, total y por subtest) se usan para calcular o contrastar; las tablas de normas tienen licencia y no se cargan, así que el CD y los puntajes T se copian de la hoja. La estructura del IEA de Integra no está verificada: va marcada como provisoria.
+- Hecho:
+  - Catálogo como dato (`datos/instrumentos.json` → `Instrumento.definicion`): áreas, campos con rango, cálculos (suma de brutos, razón EM/EC) y categorías con cortes. Se carga en `cargar_demo`, igual que la rúbrica. Agregar un instrumento no requiere código.
+  - `registro/instrumentos.py`: valida y normaliza lo leído (coma decimal, CD escrito como 0,92, rangos por área), calcula lo que no necesita tablas, completa la categoría si falta y avisa si la de la hoja no calza con su puntaje, si la edad al aplicar queda fuera del rango del instrumento, si el nombre o la fecha de nacimiento de la hoja no son los del niño, y lo que no se pudo leer.
+  - Lectura con Claude (`registro/ia/instrumento.py`, `prompts/lectura_instrumento.md`): foto o PDF (bloque `document` de Converse), identifica el instrumento y copia sin calcular. La lee `procesar_capturas` en segundo plano; la hoja queda en `originales/hojas/` solo hasta leerla.
+  - Pantallas (`views_instrumentos.py`): subir la hoja o ingresar a mano; revisar y confirmar (con cambio de instrumento si Kimün se equivocó); corregir un resultado confirmado con motivo obligatorio; descartar con motivo. En la ficha, una sección "Evaluaciones estandarizadas" por instrumento y fecha, para ver la evolución, con el resultado en lenguaje de apoyo ("Con seguimiento del centro de salud") y la categoría oficial solo en el detalle. No entra en la propuesta de nivel, las alertas, la tabla del curso ni la vista del jardín.
+  - Historial (`registro/historial.py`): cada cambio guarda el estado completo antes y después, quién, cuándo y por qué, encadenado con SHA-256. La app no modifica ni borra entradas, la base rechaza los UPDATE (trigger de la migración 0012) y el panel de administración es de solo lectura. Cada pantalla verifica la cadena y avisa si se borró o alteró una entrada o si el dato se cambió por fuera de la app. Dos ediciones a la vez no se pisan: se rechaza la que parte de una versión vieja.
+  - Las observaciones ya aceptadas también se corrigen o se retiran de la ficha con motivo y el mismo historial ("Corregir" y "Cambios" en el historial de la ficha).
+- Límite conocido: quien tenga acceso de escritura a la base y conozca el algoritmo podría rehacer la cadena entera. Para cerrarlo habría que guardar el último hash fuera de la base (por ejemplo, en S3 con bloqueo de objetos).
+- Tests: `test_instrumentos.py`, `test_historial.py` y `test_vistas_instrumentos.py` (cortes publicados, cálculos, coherencia, lectura con cliente falso y borrado de la hoja, permisos, corrección con motivo, conflicto de versiones, adulteración detectada).
+- Demo: en la ficha de Emilio, dos TEPSI (Lenguaje con seguimiento y, en la reevaluación, dentro de lo esperado). Se sube el PDF de una hoja, aparece leída y por revisar con sus avisos, se confirma y queda en la ficha; luego se corrige un puntaje con motivo y el historial muestra antes, después y "Historial íntegro".
+
 ## Reparto y horario
 
 | Rol | Tareas |
@@ -509,5 +529,5 @@ Las respuestas recibidas por correo están en `contexto/faq_integra_2.md`; las d
 5. El consentimiento que se pediría en la matrícula, ¿cubre también fotos de trabajos y audios dictados por la educadora? (Ya decidimos aplicarles la regla del video: se borran apenas se extrae el texto.)
 6. Mostrarles la pantalla de revisión y preguntar si la usarían así en la sala.
 7. La rúbrica de IA retoma la redacción de los OA de las Bases Curriculares. ¿Los demás núcleos seguirán la misma lógica? Mientras no lleguen, ¿les parece razonable nuestro mapeo provisorio basado en las conductas del Programa Pedagógico de Transición?
-8. ¿El instrumento reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna?
+8. ¿El instrumento reemplaza al IEA "Evaluar para aprender"? ¿La EEDP se sigue aplicando en sala cuna? ¿Qué instrumentos estandarizados registran hoy los jardines (TEPSI, EEDP, PLAEP, IEA) y cómo es la hoja del IEA (indicadores, niveles por núcleo)? Con eso se completa `datos/instrumentos.json` (Task 14).
 9. ¿Cuál es el protocolo vigente de Integra ante una posible vulneración de derechos (qué se considera vulneración, a quién se informa y en qué plazo, qué registro oficial se usa)? ¿Les parece bien que Kimün marque esas notas, las saque de la evaluación y avise a la educadora y a la directora? ¿Debe avisar a alguien más (por ejemplo, la dupla psicosocial o la oficina regional)? ¿Cuánto tiempo debería guardar la app la nota original?

@@ -1,0 +1,45 @@
+{# Instrumentos estandarizados en la ficha (Task 14). Solo los ven la educadora del curso y la directora. #}
+<section class="perfil-seccion" aria-labelledby="titulo-instrumentos">
+  <h2 id="titulo-instrumentos">Evaluaciones estandarizadas</h2>
+  <p class="ayuda">Resultados de instrumentos como el TEPSI o la EEDP, tal como los trae la hoja. Son información para acompañar mejor a {{ ficha.nino.nombre.split.0 }}: no cambian sus niveles ni las alertas del curso. Los ven solo la educadora y la directora.</p>
+
+  {% if instrumentos.pendientes and instrumentos.puede_editar %}
+    <ul class="pendientes-instrumento">
+      {% for r in instrumentos.pendientes %}
+        <li><a href="{% url 'resultado_instrumento' r.pk %}">{% if r.instrumento %}{{ r.instrumento.codigo }}{% else %}Hoja subida{% endif %} · {{ r.get_estado_display }}</a></li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% for instrumento, lista in instrumentos.grupos %}
+    <div class="overflow-auto">
+      <table class="tabla-instrumento">
+        <caption>{{ instrumento.nombre }}{% if instrumento.provisorio %} <span class="etiqueta-referencia">estructura provisoria</span>{% endif %}</caption>
+        <thead>
+          <tr><th scope="col">Fecha</th><th scope="col">Edad</th><th scope="col">Puntaje</th><th scope="col">Resultado</th><th scope="col"><span class="visualmente-oculto">Detalle</span></th></tr>
+        </thead>
+        <tbody>
+          {% for r, resumen in lista %}
+            <tr>
+              <td><time datetime="{{ r.fecha_aplicacion|date:'Y-m-d' }}">{{ r.fecha_aplicacion|date:"j M Y" }}</time></td>
+              <td>{{ resumen.edad|default:"–" }}</td>
+              <td>{% if resumen.principal %}{{ resumen.principal.nombre }}: {{ resumen.principal.valor }}{% else %}–{% endif %}</td>
+              <td>
+                {% if resumen.categoria %}{{ resumen.categoria.texto_ficha|default:resumen.categoria.nombre }}{% else %}–{% endif %}
+                {% for a in resumen.areas %}{% if a.destacar %}<br><small>{{ a.nombre }}: {{ a.categoria.texto_ficha|default:a.categoria.nombre }}</small>{% endif %}{% endfor %}
+                {% if resumen.avisos %}<br><small class="ayuda">Revisar: {{ resumen.avisos|length }} aviso{{ resumen.avisos|length|pluralize }}</small>{% endif %}
+              </td>
+              <td><a href="{% url 'resultado_instrumento' r.pk %}">Ver{% if instrumentos.puede_editar %} o corregir{% endif %}</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% empty %}
+    <p>Todavía no hay resultados de instrumentos.</p>
+  {% endfor %}
+
+  {% if instrumentos.puede_editar %}
+    <p><a role="button" class="secondary outline" href="{% url 'instrumento_nuevo' ficha.nino.pk %}">Agregar el resultado de un instrumento</a></p>
+  {% endif %}
+</section>
