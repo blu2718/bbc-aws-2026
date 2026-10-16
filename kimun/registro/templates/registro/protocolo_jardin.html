@@ -1,17 +1,19 @@
 {% extends "base.html" %}
 {% block titulo %}Protocolo de protección · {{ jardin.nombre }}{% endblock %}
 {% block contenido %}
-<p><a href="{% url 'jardin' jardin.pk %}">← {{ jardin.nombre }}</a></p>
+<p class="volver"><a href="{% url 'jardin' jardin.pk %}">← {{ jardin.nombre }}</a></p>
+<header class="encabezado-pagina">
 <h1>Protocolo de protección de derechos</h1>
 <p>Cuando una nota podría describir una vulneración de derechos, Kimün avisa a la educadora del curso y a ti, y muestra estos pasos. Copia aquí los pasos del protocolo de actuación del reglamento interno del jardín.</p>
+</header>
 
 {% if actual %}
-  <p role="status">Protocolo vigente: {{ actual.nombre_documento|default:"sin nombre" }}, actualizado por {{ actual.actualizado_por.get_full_name|default:actual.actualizado_por.username }} el {{ actual.actualizado|date:"j \d\e F \d\e Y, H:i" }}.</p>
+  <p class="mensajes" role="status">Protocolo vigente: {{ actual.nombre_documento|default:"sin nombre" }}, actualizado por {{ actual.actualizado_por.get_full_name|default:actual.actualizado_por.username }} el {{ actual.actualizado|date:"j \d\e F \d\e Y, H:i" }}.</p>
 {% else %}
-  <p role="status">El jardín todavía no carga su protocolo. Mientras tanto, los avisos muestran los pasos provisorios de abajo.</p>
+  <p class="aviso" role="status">El jardín todavía no carga su protocolo. Mientras tanto, los avisos muestran los pasos provisorios de abajo.</p>
 {% endif %}
 
-<form method="post">
+<form class="tarjeta" method="post">
   {% csrf_token %}
   <label for="{{ form.nombre_documento.id_for_label }}">{{ form.nombre_documento.label }}</label>
   {{ form.nombre_documento }}
@@ -23,9 +25,9 @@
   <button type="submit">Guardar protocolo</button>
 </form>
 
-<details>
+<details class="detalle-nucleo">
   <summary>Pasos provisorios (paráfrasis del protocolo de la JUNJI), como punto de partida</summary>
-  <ol>{% for paso in provisorio.pasos %}<li><strong>{{ paso.titulo }}.</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>{% endfor %}</ol>
+  <ol class="pasos">{% for paso in provisorio.pasos %}<li><strong>{{ paso.titulo }}.</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>{% endfor %}</ol>
   {% if provisorio.fuente %}<p class="ayuda">Fuente: {{ provisorio.fuente }}</p>{% endif %}
 </details>
 {% endblock %}

@@ -621,7 +621,8 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .perfil-cabecera p { margin: 0; color: var(--pico-muted-color); }
 .perfil-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin-top: .6rem !important; }
 .perfil-acciones [role=button] { margin: 0; padding: .45rem 1rem; }
-.perfil-seccion {
+/* .tarjeta es el mismo bloque fuera del perfil: sección con título sobre fondo blanco. */
+.perfil-seccion, .tarjeta {
   margin-bottom: 1.25rem;
   padding: 1rem 1.1rem;
   border: 1px solid var(--kimun-linea);
@@ -629,7 +630,52 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
   background: #fff;
   box-shadow: var(--kimun-sombra);
 }
-.perfil-seccion > h2 { font-size: 1.2rem; color: var(--kimun-tinta); }
+.perfil-seccion > h2, .tarjeta > h2 { font-size: 1.2rem; color: var(--kimun-tinta); }
+.tarjeta > h2:first-child, .tarjeta > h3:first-child { margin-top: 0; }
+.tarjeta > :last-child { margin-bottom: 0; }
+
+/* --- Piezas comunes de las pantallas ------------------------------------------------------------- */
+
+/* Título de la página con su bajada. */
+.encabezado-pagina { margin-bottom: 1.25rem; }
+.encabezado-pagina h1 { margin-bottom: .35rem; color: var(--kimun-tinta); }
+.encabezado-pagina p { margin: 0 0 .35rem; max-width: 46rem; color: var(--pico-muted-color); }
+.encabezado-pagina .acciones { margin-top: .75rem; }
+/* Títulos largos (una frase): más chicos para que no ocupen media pantalla en celular. */
+.titulo-largo { font-size: clamp(1.35rem, 5.2vw, 1.85rem); line-height: 1.25; color: var(--kimun-tinta); }
+/* Lista de enlaces como filas de tarjeta (avisos, cursos). */
+.lista-enlaces { display: grid; gap: .45rem; margin: 0; padding: 0; }
+.lista-enlaces li { list-style: none; margin: 0; }
+.lista-enlaces a {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .6rem; padding: .6rem .8rem;
+  border: 1px solid var(--kimun-linea); border-radius: .85rem; background: #fff; color: inherit; text-decoration: none;
+}
+.lista-enlaces a:hover, .lista-enlaces a:focus-visible { border-color: var(--kimun-celeste-borde); background: var(--kimun-celeste-suave); }
+.lista-enlaces small { flex-basis: 100%; color: var(--pico-muted-color); font-size: .82rem; }
+.estado-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); font-weight: 600; }
+/* Pasos numerados (protocolo de protección): son una secuencia de verdad. */
+.pasos { margin: .5rem 0 .75rem; padding-left: 1.4rem; }
+.pasos li { margin-bottom: .45rem; padding-left: .2rem; }
+.pasos li::marker { color: var(--kimun-alerta); font-weight: 700; }
+/* Cita de una nota tal como se registró. */
+.cita-nota { margin: .25rem 0 .5rem; padding: .6rem .9rem; border-left: .25rem solid var(--kimun-celeste); background: var(--kimun-celeste-claro); font-style: normal; }
+
+/* --- Protección de derechos (Task 13) ------------------------------------------------------------ */
+
+.aviso-proteccion {
+  margin-bottom: 1.25rem; padding: 1rem 1.1rem; border: 1px solid var(--kimun-alerta-linea);
+  border-left: .3rem solid var(--kimun-alerta-borde); border-radius: var(--kimun-radio);
+  background: #fff; box-shadow: var(--kimun-sombra);
+}
+.aviso-proteccion > h2 { margin: 0 0 .5rem; font-size: 1.2rem; color: var(--kimun-alerta-texto); }
+.aviso-proteccion > p { margin-bottom: .5rem; }
+.aviso-proteccion > :last-child { margin-bottom: 0; }
+.aviso-proteccion details { margin: .25rem 0 .75rem; }
+.estado-captura .aviso-proteccion { margin-bottom: 0; background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); box-shadow: none; }
+.estado-captura .aviso-proteccion a { color: var(--kimun-alerta-texto); font-weight: 600; }
+p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
+.form-no-es { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--kimun-linea); }
+.tarjeta form button:last-of-type { margin-bottom: .25rem; }
 .radar-figura { margin: 0 auto 1rem; padding: .5rem 0; border-radius: 1.5rem; background: radial-gradient(circle at 50% 48%, var(--kimun-celeste-claro) 0, #fff 70%); text-align: center; }
 .radar { color: var(--kimun-texto-tenue); }
 .radar .radar-etiqueta { font-weight: 500; }

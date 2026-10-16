@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 {% block titulo %}Aviso de protección{% endblock %}
 {% block contenido %}
-<p><a href="{% url 'avisos' %}">← Avisos de protección</a></p>
-<h1>Esta nota podría describir una situación de vulneración de derechos</h1>
+<p class="volver"><a href="{% url 'avisos' %}">← Avisos de protección</a></p>
+<h1 class="titulo-largo">Esta nota podría describir una situación de vulneración de derechos</h1>
 
 <div class="aviso-proteccion" role="note">
   <h2>Qué hacer</h2>
   {% if protocolo.del_jardin %}
     <p class="ayuda">Según {{ protocolo.fuente }}, cargado por {{ protocolo.del_jardin.actualizado_por.get_full_name|default:protocolo.del_jardin.actualizado_por.username }} el {{ protocolo.del_jardin.actualizado|date:"j \d\e F \d\e Y" }}.</p>
   {% endif %}
-  <ol>
+  <ol class="pasos">
     {% for paso in protocolo.pasos %}
       <li><strong>{{ paso.titulo }}{% if paso.texto %}.{% endif %}</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>
     {% endfor %}
@@ -26,34 +26,34 @@
   <p class="ayuda">Kimün no detecta ni califica nada: solo avisa. Esta nota no se usa para evaluar y no aparece en la ficha, la tabla del curso ni la vista del jardín.</p>
 </div>
 
-<section aria-labelledby="titulo-nota">
+<section class="tarjeta" aria-labelledby="titulo-nota">
   <h2 id="titulo-nota">La nota, tal como se registró</h2>
   {% with c=aviso.captura %}
-    <blockquote>{{ c.texto_original|default:c.texto_extraido|linebreaksbr }}</blockquote>
+    <blockquote class="cita-nota">{{ c.texto_original|default:c.texto_extraido|linebreaksbr }}</blockquote>
     <p class="ayuda">{{ c.get_tipo_display }} de {{ c.autora.get_full_name|default:c.autora.username }} · {{ c.curso.nombre }} · {{ c.creada|date:"j \d\e F \d\e Y, H:i" }}</p>
   {% endwith %}
 </section>
 
 {% if aviso.estado == "pendiente" %}
-  <section aria-labelledby="titulo-resolver">
+  <section class="tarjeta" aria-labelledby="titulo-resolver">
     <h2 id="titulo-resolver">Cuando lo hayas atendido</h2>
     <form method="post" action="{% url 'aviso_resolver' aviso.pk %}">
       {% csrf_token %}
       <input type="hidden" name="accion" value="protocolo">
       <button type="submit">Informé a la directora / activé el protocolo</button>
     </form>
-    <form method="post" action="{% url 'aviso_resolver' aviso.pk %}">
+    <form class="form-no-es" method="post" action="{% url 'aviso_resolver' aviso.pk %}">
       {% csrf_token %}
       <input type="hidden" name="accion" value="no_es">
       <label for="motivo-{{ aviso.pk }}">Si no es una vulneración, cuenta brevemente por qué</label>
       <textarea id="motivo-{{ aviso.pk }}" name="motivo" rows="2" maxlength="500" required
                 {% if error_motivo %}aria-invalid="true" aria-describedby="error-motivo"{% endif %}></textarea>
       {% if error_motivo %}<p id="error-motivo" role="alert">{{ error_motivo }}</p>{% endif %}
-      <button type="submit" class="secondary">No es una vulneración</button>
+      <button type="submit" class="secondary outline">No es una vulneración</button>
       <p class="ayuda">La nota se ordenará como cualquier otra.</p>
     </form>
   </section>
 {% else %}
-  <p role="status"><strong>{{ aviso.get_estado_display }}</strong> · {{ aviso.resuelto_por.get_full_name|default:aviso.resuelto_por.username }}, {{ aviso.resuelto_en|date:"j \d\e F, H:i" }}{% if aviso.motivo %}. Motivo: {{ aviso.motivo }}{% endif %}</p>
+  <p class="mensajes" role="status"><strong>{{ aviso.get_estado_display }}</strong> · {{ aviso.resuelto_por.get_full_name|default:aviso.resuelto_por.username }}, {{ aviso.resuelto_en|date:"j \d\e F, H:i" }}{% if aviso.motivo %}. Motivo: {{ aviso.motivo }}{% endif %}</p>
 {% endif %}
 {% endblock %}

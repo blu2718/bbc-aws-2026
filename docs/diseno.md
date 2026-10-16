@@ -69,7 +69,11 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 |---|---|---|
 | Barra superior | `.barra-app`, `.marca`, `.boton-menu`, `#contador-avisos`, `#contador-pendientes` | Fija arriba, franja de cuatro colores debajo |
 | Menú lateral | `dialog.menu-lateral`, `.menu-cabecera`, `.menu-secciones`, `.menu-seccion`, `.lista-ninos`, `.menu-pie` | `<dialog>` modal; lo abre `kimun.js` |
-| Tarjeta | `.perfil-seccion` (sección con título), `.suceso` (tarjeta de registro), `article` de Pico | Fondo blanco, borde `--kimun-linea`, sombra |
+| Tarjeta | `.tarjeta` (= `.perfil-seccion`, sección con título), `.suceso` (tarjeta de registro), `article` de Pico | Fondo blanco, borde `--kimun-linea`, sombra |
+| Encabezado de página | `.encabezado-pagina` (h1 + bajada gris), `.titulo-largo` (h1 que es una frase) | |
+| Lista de enlaces | `.lista-enlaces` (filas tipo tarjeta, `small` en segunda línea) | Avisos, cursos |
+| Pasos | `.pasos` (lista numerada) | Solo para secuencias reales |
+| Cita | `.cita-nota` | Nota tal como se registró |
 | Caja suave | `.bandeja-propuestas`, `.resumen-nota`, `.pregunta-kimun` | Fondo celeste claro, sin sombra |
 | Botones | `button`, `[role=button]` (primario celeste), `.secondary` (gris), `.secondary.outline` (borde) | Uno primario por bloque |
 | Botón ícono | `.boton-icono` | Círculo de 2,75 rem (área táctil de 44 px) |
@@ -93,6 +97,9 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   exacto; en celular se apilan en dos píldoras chicas.
 - Arrastre: causa real era que el `input type=file` oculto no recibe el arrastre y no había manejadores; se arregló
   solo en JS, sin tocar el formulario ni la vista. Solo acepta imágenes: los audios se graban con el micrófono.
+- Protección de derechos: el rojo de alerta solo como borde y numeración; el texto de los pasos queda en tinta
+  normal para que se lea tranquilo. Un solo botón primario («Informé a la directora…»); «No es una vulneración»
+  queda de borde y separado, porque es la acción menos frecuente y pide un motivo.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -147,7 +154,8 @@ Ordenado por impacto en la demo:
 | 2 | Barra superior: contadores como píldoras (rojo pastel avisos, celeste por revisar), apiladas en celular; la barra usa los mismos anchos que `.container` | `fix(barra)` | hecho |
 | 3 | Arrastrar foto: `kimun.js` recibe `dragover`/`drop` en el composer, pone la foto en `[data-foto]` y dispara `change` (mismo camino que «+»); fuera de la barra el drop se ignora para no perder la nota; borde punteado `.composer-soltar` mientras se arrastra | `fix(registrar)` | hecho, probado con Playwright |
 | 4 | Desborde «procesando»: `.procesando p { white-space: normal }` | `fix(suceso)` | hecho |
-| 5 | Pantallas fuera de estilo | | pendiente |
+| 5a | Task 13: avisos en `.tarjeta` con `.lista-enlaces` y píldora «Por atender»; aviso con `.aviso-proteccion` (borde rojo, pasos numerados `.pasos`), la nota en `.cita-nota`, el formulario de resolver en tarjeta con «No es una vulneración» como botón de borde; protocolo con `.encabezado-pagina`, formulario en tarjeta; resguardo en el suceso como caja roja suave | `style(proteccion)` | hecho, tests `test_proteccion` y `test_protocolo` pasan |
+| 5b | Jardín, curso, bandeja, informe, inicio | | pendiente |
 | 6 | Títulos de revisión | | pendiente |
 
 Pantallas para mirar primero: registrar y suceso (celular), tabla del curso, vista del jardín, aviso de protección.
