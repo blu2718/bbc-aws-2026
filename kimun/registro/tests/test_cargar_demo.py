@@ -101,6 +101,18 @@ def test_cada_nucleo_trae_su_trayectoria(cargada):
         assert nucleo.continuidad_basica.startswith("Durante"), nucleo.sigla
 
 
+def test_el_nivel_1_provisorio_es_de_una_linea_y_la_trayectoria_va_como_conducta(cargada):
+    """La opción 1 del formulario para fijar nivel no debe ser un párrafo mientras las demás son una línea."""
+    provisorios = DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.TRANSICION, provisorio=True)
+    lv = Nucleo.objects.get(sigla="LV")
+    nivel_1 = provisorios.get(nucleo=lv, nivel=1)
+    assert nivel_1.descripcion == "Muestra lo esperado al iniciar NT1. Núcleo: Lenguaje Verbal."
+    assert nivel_1.conducta == lv.esperado_inicio_nt1
+    largo_maximo = max(len(d.descripcion) for d in provisorios.exclude(nivel=1))
+    assert len(nivel_1.descripcion) <= largo_maximo
+    assert not provisorios.exclude(nivel=1).exclude(conducta="").exists()
+
+
 def test_carga_curso_de_15_ninos_con_nivel_inicial(cargada):
     curso = _curso_a()
     assert curso.ninos.count() == 15

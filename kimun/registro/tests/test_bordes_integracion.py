@@ -155,6 +155,35 @@ def test_la_migracion_crea_rubricas_y_descriptores_provisorios_faltantes(db, jar
     assert not DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.SALA_CUNA, nucleo=_pm).exists()
 
 
+def test_la_migracion_acorta_el_nivel_1_provisorio_sin_pisar_los_editados(rubrica, nucleos):
+    from django.apps import apps
+
+    migracion = importlib.import_module("registro.migrations.0010_rubrica_provisoria_nivel_1_corto")
+    ia, lv, pm = nucleos
+    for nucleo in nucleos:
+        nucleo.esperado_inicio_nt1 = f"Al iniciar NT1, en {nucleo.nombre}…"
+        nucleo.save()
+    antiguo = {n.sigla: f"Muestra lo esperado al iniciar NT1. {n.esperado_inicio_nt1}" for n in nucleos}
+    crear = DescriptorNivel.objects.create
+    crear(nivel_educativo=NivelEducativo.TRANSICION, nucleo=lv, nivel=1, descripcion=antiguo["LV"])
+    crear(nivel_educativo=NivelEducativo.TRANSICION, nucleo=pm, nivel=1, descripcion="Editado a mano")
+    crear(nivel_educativo=NivelEducativo.TRANSICION, nucleo=ia, nivel=1, descripcion=antiguo["IA"], provisorio=False)
+
+    migracion.acortar(apps, None)
+    migracion.acortar(apps, None)  # repetirla no cambia nada
+
+    def nivel_1(nucleo):
+        return DescriptorNivel.objects.get(nivel_educativo=NivelEducativo.TRANSICION, nucleo=nucleo, nivel=1)
+
+    assert (nivel_1(lv).descripcion, nivel_1(lv).conducta) == (
+        f"Muestra lo esperado al iniciar NT1. Núcleo: {lv.nombre}.", lv.esperado_inicio_nt1)
+    assert (nivel_1(pm).descripcion, nivel_1(pm).conducta) == ("Editado a mano", "")
+    assert (nivel_1(ia).descripcion, nivel_1(ia).conducta) == (antiguo["IA"], "")  # no es provisorio
+
+    migracion.alargar(apps, None)
+    assert (nivel_1(lv).descripcion, nivel_1(lv).conducta) == (antiguo["LV"], "")
+
+
 def test_radar_con_mediana_decimal_sobre_el_maximo():
     """Si la rúbrica se achicó, la mediana del curso puede quedar en x,5 sobre el máximo."""
     ejes = [EjeRadar("IA", "Identidad", 3, "3", mediana=9.5), EjeRadar("LV", "Lenguaje", 2, "2"),

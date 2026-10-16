@@ -49,18 +49,21 @@ def nombre_provisorio(nivel):
 
 
 def descriptores_provisorios(nucleo, cantidad_niveles=NIVELES_PROVISORIOS, nivel_educativo=TRANSICION):
-    """Devuelve [(nivel, descripción)] para un núcleo, hasta cantidad_niveles."""
+    """Devuelve [(nivel, descripción, conducta)] para un núcleo, hasta cantidad_niveles.
+
+    La descripción es siempre una línea, igual en todos los niveles. En Transición, lo
+    esperado al iniciar NT1 (un párrafo del Programa) va como conducta observable del
+    nivel 1: se ve en la ficha, pero no alarga la opción del formulario para fijar nivel.
+    """
     if nivel_educativo != TRANSICION:
         return [
-            (nivel, f"{texto} Núcleo: {nucleo.nombre}.")
+            (nivel, f"{texto} Núcleo: {nucleo.nombre}.", "")
             for nivel, texto in MAPEO_PROVISORIO_OA if nivel <= cantidad_niveles
         ]
     resultado = []
     for nivel, _anio, texto in MAPEO_PROVISORIO:
         if nivel > cantidad_niveles:
             break
-        descripcion = f"{texto} Núcleo: {nucleo.nombre}."
-        if nivel == 1 and nucleo.esperado_inicio_nt1:
-            descripcion = f"{texto} {nucleo.esperado_inicio_nt1}"
-        resultado.append((nivel, descripcion))
+        conducta = nucleo.esperado_inicio_nt1 if nivel == 1 else ""
+        resultado.append((nivel, f"{texto} Núcleo: {nucleo.nombre}.", conducta))
     return resultado
