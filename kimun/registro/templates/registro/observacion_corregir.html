@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block titulo %}Corregir observación · {{ curso.nombre }}{% endblock %}
+{% block contenido %}
+{% if obs.nino_id %}
+  <p class="volver"><a href="{% url 'ficha' obs.nino_id %}#titulo-historial">← {{ obs.nino.nombre }}</a></p>
+{% else %}
+  <p class="volver"><a href="{% url 'captura' obs.captura_id %}">← Volver al registro</a></p>
+{% endif %}
+<h1>Corregir una observación aceptada</h1>
+<p class="ayuda">La corrección queda en el historial con su motivo y el dato anterior. Si la observación cambia de núcleo u OA, las propuestas de nivel que la usaban se vuelven a calcular.</p>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.version }}
+  {% if form.non_field_errors %}<div class="aviso-error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+  <label>{{ form.grupal }} {{ form.grupal.label }}</label>
+  {% include "registro/_campo.html" with campo=form.nino %}
+  {% include "registro/_campo.html" with campo=form.fecha %}
+  {% include "registro/_campo.html" with campo=form.cita %}
+  {% include "registro/_campo.html" with campo=form.interpretacion %}
+  {% include "registro/_campo.html" with campo=form.apoyo %}
+  {% include "registro/_campo.html" with campo=form.efecto %}
+  <fieldset>
+    <legend>{{ form.nucleos.label }}</legend>
+    {% for opcion in form.nucleos %}<label>{{ opcion.tag }} {{ opcion.choice_label }}</label>{% endfor %}
+  </fieldset>
+  <fieldset class="lista-oas">
+    <legend>{{ form.oas.label }}</legend>
+    {% if form.oas.errors %}<small class="error" role="alert">{{ form.oas.errors|join:" " }}</small>{% endif %}
+    {% for nucleo, opciones, hay_marcados in form.oas_por_nucleo %}
+      <details{% if hay_marcados %} open{% endif %}>
+        <summary>{{ nucleo.nombre }} ({{ nucleo.sigla }})</summary>
+        {% for oa, marcado in opciones %}
+          <label><input type="checkbox" name="{{ form.oas.html_name }}" value="{{ oa.pk }}"{% if marcado %} checked{% endif %}> <strong>{{ oa.codigo }}</strong>: {{ oa.texto }}</label>
+        {% endfor %}
+      </details>
+    {% endfor %}
+  </fieldset>
+  {% include "registro/_campo.html" with campo=form.motivo %}
+  <small class="ayuda">{{ form.motivo.help_text }}</small>
+  <div class="acciones"><button type="submit">Guardar corrección</button></div>
+</form>
+
+<details class="descartar">
+  <summary>Retirar esta observación de la ficha</summary>
+  <p class="ayuda">Por ejemplo, si era de otro niño o no ocurrió así. Deja de contar en la ficha, las alertas y las propuestas, pero queda en el historial.</p>
+  <form method="post" action="{% url 'observacion_retirar' obs.pk %}">
+    {% csrf_token %}
+    <label for="motivo-retirar">Motivo</label>
+    <textarea id="motivo-retirar" name="motivo" rows="2" maxlength="500" required></textarea>
+    <button type="submit" class="secondary">Retirar</button>
+  </form>
+</details>
+
+{% include "registro/_historial_cambios.html" %}
+{% endblock %}

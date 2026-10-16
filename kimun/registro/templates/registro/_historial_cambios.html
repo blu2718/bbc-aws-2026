@@ -1,0 +1,36 @@
+{# Historial de cambios de un dato editable (Task 14). Recibe `historial` (EntradaLegible) e `integridad`. #}
+<section class="perfil-seccion historial-cambios" aria-labelledby="titulo-cambios">
+  <h2 id="titulo-cambios">Historial de cambios</h2>
+  <p class="{% if integridad.ok %}integridad-ok{% else %}aviso-error{% endif %}" role="status">
+    {% if integridad.ok %}✓{% else %}⚠{% endif %} {{ integridad.texto }}
+  </p>
+  <p class="ayuda">Cada cambio queda registrado con quién, cuándo y por qué, y no se puede borrar ni editar. Kimün verifica la cadena de cambios cada vez que se abre esta página.</p>
+  {% if historial %}
+    <ol class="lista-cambios">
+      {% for item in historial reversed %}
+        <li>
+          <p>
+            <strong>{{ item.entrada.get_accion_display }}</strong>{% if item.entrada.usuario_id %} por {{ item.entrada.usuario_nombre }}{% endif %}
+            · <time datetime="{{ item.entrada.creado|date:'c' }}">{{ item.entrada.creado|date:"j M Y, H:i" }}</time>
+          </p>
+          {% if item.entrada.motivo %}<p class="motivo">Motivo: {{ item.entrada.motivo }}</p>{% endif %}
+          {% if item.cambios %}
+            <div class="overflow-auto">
+              <table class="tabla-cambios">
+                <thead><tr><th scope="col">Dato</th><th scope="col">Antes</th><th scope="col">Después</th></tr></thead>
+                <tbody>
+                  {% for campo, antes, despues in item.cambios %}
+                    <tr><th scope="row">{{ campo }}</th><td>{{ antes }}</td><td>{{ despues }}</td></tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          {% elif item.entrada.antes is not None %}
+            <p class="ayuda">Sin cambios en los datos.</p>
+          {% endif %}
+          <p class="ayuda huella">Huella: <code>{{ item.entrada.hash|slice:":12" }}</code></p>
+        </li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+</section>

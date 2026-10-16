@@ -726,3 +726,21 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .propuesta-nivel .acciones { margin-block: .75rem; }
 .propuesta-nivel details { margin-block: 1rem; }
 [id^="observacion-"] { scroll-margin-top: var(--pico-spacing); }
+
+/* Instrumentos estandarizados e historial de cambios (Task 14). Sin colores de alarma: el resultado se lee en texto. */
+.resultado-principal { font-size: 1.1rem; }
+.resultado-texto { font-weight: 600; }
+.siguiente-paso { padding: .5rem .75rem; border-left: 4px solid var(--kimun-gris-suave); }
+.tabla-instrumento caption, .resultado-instrumento caption { text-align: left; font-weight: 600; }
+.tabla-formulario input, .tabla-formulario select { margin-bottom: 0; min-width: 6rem; }
+.lista-instrumentos li { margin-bottom: .5rem; }
+.cambiar-instrumento { display: flex; flex-wrap: wrap; gap: .5rem; align-items: end; }
+.cambiar-instrumento select { width: auto; margin-bottom: 0; }
+.cambiar-instrumento button { width: auto; margin-bottom: 0; }
+.descartar { margin-top: 1rem; }
+.integridad-ok { color: var(--kimun-ok); }
+.lista-cambios { padding-left: 1.25rem; }
+.lista-cambios > li { margin-bottom: 1rem; }
+.lista-cambios .motivo { font-style: italic; }
+.tabla-cambios { font-size: .9rem; }
+.huella { margin: 0; }

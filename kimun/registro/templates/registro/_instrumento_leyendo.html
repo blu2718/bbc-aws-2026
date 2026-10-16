@@ -1,0 +1,6 @@
+{# Mientras el proceso de fondo lee la hoja, HTMX vuelve a preguntar cada 3 segundos. Al terminar, recarga la página. #}
+<div id="estado-lectura" class="procesando" role="status" aria-live="polite"
+     hx-get="{% url 'resultado_instrumento_estado' resultado.pk %}" hx-trigger="load delay:3s" hx-target="#estado-lectura" hx-swap="outerHTML">
+  <p aria-busy="true">Leyendo la hoja: identifico el instrumento y copio sus puntajes. Suele tardar entre 10 y 30 segundos…</p>
+  <noscript><p><a href="{% url 'resultado_instrumento' resultado.pk %}">Actualizar</a></p></noscript>
+</div>

@@ -133,7 +133,7 @@ class ClienteBedrock:
         espera = min(self.espera_maxima, self.espera_base * 2 ** (intento - 1))
         return espera + espera * 0.25 * self._azar()
 
-    def invocar_herramienta(self, system, mensaje, herramienta, imagenes=()):
+    def invocar_herramienta(self, system, mensaje, herramienta, imagenes=(), documentos=()):
         """Devuelve el `input` que el modelo pasó a la herramienta (un dict).
 
         `herramienta` es un toolSpec de Converse:
@@ -141,10 +141,13 @@ class ClienteBedrock:
         `imagenes` es una lista de (formato, bytes), con formato "jpeg", "png",
         "gif" o "webp". Van antes del texto en el mismo mensaje. La validación
         de formato y tamaño la hace quien llama (ver `ia/foto.py`).
+        `documentos` es una lista de (nombre, bytes) de PDF (hojas de instrumentos, Task 14).
         Deja en `self.ultimo_uso` los tokens, la latencia del modelo y los intentos.
         """
         nombre = herramienta["name"]
         contenido = [{"image": {"format": formato, "source": {"bytes": datos}}} for formato, datos in imagenes]
+        contenido += [{"document": {"format": "pdf", "name": nombre_doc, "source": {"bytes": datos}}}
+                      for nombre_doc, datos in documentos]
         contenido.append({"text": mensaje})
         pedido = {
             "modelId": self.modelo,

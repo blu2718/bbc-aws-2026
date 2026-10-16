@@ -21,6 +21,7 @@ Los rangos de líneas los genera `python scripts/indice_contexto.py`. Si editas 
 | [`hallazgos-programa-pedagogico-transicion.md`](hallazgos-programa-pedagogico-transicion.md) | Programa Pedagógico de Transición: conductas observables por OA, escala de autonomía, formatos de registro y mapeo de la rúbrica provisoria | Ambos | Para la rúbrica provisoria y el nivel de apoyo. Las conductas en sí están en `datos/curriculo_transicion.json` |
 | [`faq_integra_2.md`](faq_integra_2.md) | Respuestas de Integra por correo y qué cambió para nosotros | Ambos | Para saber qué pidió Integra sobre el alcance, la rúbrica, el rezago y las vistas |
 | [`ocr-presentacion.md`](ocr-presentacion.md) | Texto de la presentación del desafío, con los post-its de ejemplo transcritos | Ambos | Para el problema, el KPI (4 h a 0 h), la escala de 8 niveles y notas reales de ejemplo |
+| [`instrumentos-estandarizados.md`](instrumentos-estandarizados.md) | EEDP, TEPSI, Pauta Breve, IEA, PLAEP, Battelle y ASQ-3: quién los aplica, áreas, puntajes, puntos de corte, qué trae la hoja y licencias | Ambos | Para cargar o mostrar un resultado de un instrumento, o agregar uno a `datos/instrumentos.json` (Task 14) |
 
 Fuera de git: `faq_integra.json` (el FAQ de Integra de los tres retos, resumido en "FAQ de Integra" de `PLAN.md`) y los PDF fuente, que se descargan desde los enlaces de cada archivo.
 
@@ -42,6 +43,7 @@ Fuera de git: `faq_integra.json` (el FAQ de Integra de los tres retos, resumido 
 | Conductas observables de NT1 y NT2, escala de autonomía | `hallazgos-programa-pedagogico-transicion.md`, y `datos/curriculo_transicion.json` |
 | Qué pidió Integra (niveles ajustables, 10 núcleos, rezago relativo a la sala, vista de la directora) | `faq_integra_2.md` y "FAQ de Integra" en `PLAN.md` |
 | Ejemplos reales de notas de las educadoras | `ocr-presentacion.md`, "Diapositiva 5" |
+| Cómo funciona un instrumento estandarizado (puntajes, cortes, quién lo aplica) | `instrumentos-estandarizados.md` |
 | Preguntas abiertas a Integra | `PLAN.md`, "Preguntas pendientes para Integra" |
 
 ## Convenciones
@@ -61,6 +63,7 @@ Fuera de git: `faq_integra.json` (el FAQ de Integra de los tres retos, resumido 
 | [`hallazgos-bases-curriculares.md`](hallazgos-bases-curriculares.md) | 128 | 1.721 |
 | [`hallazgos-politica-calidad-educativa-integra.md`](hallazgos-politica-calidad-educativa-integra.md) | 161 | 1.867 |
 | [`hallazgos-programa-pedagogico-transicion.md`](hallazgos-programa-pedagogico-transicion.md) | 120 | 1.268 |
+| [`instrumentos-estandarizados.md`](instrumentos-estandarizados.md) | 166 | 3.549 |
 | [`ocr-presentacion.md`](ocr-presentacion.md) | 167 | 1.368 |
 | [`resumen-bases-curriculares.md`](resumen-bases-curriculares.md) | 79 | 1.039 |
 | [`resumen-politica-calidad.md`](resumen-politica-calidad.md) | 58 | 967 |

@@ -324,6 +324,7 @@ class Evento:
     efecto: str = ""
     efecto_texto: str = ""
     captura_id: int | None = None
+    obs_id: int | None = None
     niveles: list = field(default_factory=list)  # [(Nucleo, "3 · Desarrollando")]
     autora: str = ""
 
@@ -351,7 +352,7 @@ def historial_del_nino(nino):
         eventos.append(Evento(
             fecha=obs.fecha, tipo="suceso", texto=obs.cita, detalle=obs.interpretacion,
             nucleos=_nucleos_de(obs, orden), efecto=obs.efecto, efecto_texto=obs.get_efecto_display(),
-            captura_id=obs.captura_id,
+            captura_id=obs.captura_id, obs_id=obs.pk,
         ))
 
     revisiones = {}

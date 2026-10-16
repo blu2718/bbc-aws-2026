@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Agregar un instrumento · {{ nino.nombre }}{% endblock %}
+{% block head %}<script src="{% static 'registro/captura_foto.js' %}" defer></script>{% endblock %}
+{% block contenido %}
+<p class="volver"><a href="{% url 'ficha' nino.pk %}#titulo-instrumentos">← {{ nino.nombre }}</a></p>
+<h1>Agregar el resultado de un instrumento</h1>
+<p>Por ejemplo, el TEPSI o la EEDP que la familia trajo del control de salud, o un instrumento que aplicaron en el jardín. Quedará en la ficha de {{ nino.nombre.split.0 }}, visible solo para ti y la directora.</p>
+
+<section aria-labelledby="titulo-subir">
+  <h2 id="titulo-subir">Subir la hoja</h2>
+  <form method="post" enctype="multipart/form-data" data-captura-foto>
+    {% csrf_token %}
+    {% if form.non_field_errors %}<div class="error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+    {% include "registro/_campo.html" with campo=form.instrumento %}
+    {% include "registro/_campo.html" with campo=form.origen %}
+    <label for="{{ form.hoja.id_for_label }}">{{ form.hoja.label }}</label>
+    {{ form.hoja }}
+    <small id="ayuda-hoja">Que se vea la hoja completa, con buena luz. Kimün copia los puntajes y no guarda la foto: la borra apenas la lee. Después revisas lo leído antes de confirmarlo.</small>
+    {% if form.hoja.errors %}<p class="error" role="alert">{{ form.hoja.errors|join:" " }}</p>{% endif %}
+    <p id="estado-foto" class="estado-foto" aria-live="polite" data-estado></p>
+    <img class="vista-previa" alt="Vista previa de la hoja que se va a subir" data-vista-previa hidden>
+    <button type="submit" data-enviar>Subir y leer</button>
+  </form>
+</section>
+
+<section aria-labelledby="titulo-manual">
+  <h2 id="titulo-manual">O ingresar los datos a mano</h2>
+  <ul class="lista-instrumentos">
+    {% for i in instrumentos %}
+      <li>
+        <a href="{% url 'instrumento_manual' nino.pk i.codigo %}">{{ i.nombre }}</a>
+        <br><small class="ayuda">{{ i.definicion.aplica }}</small>
+      </li>
+    {% endfor %}
+  </ul>
+</section>
+{% endblock %}

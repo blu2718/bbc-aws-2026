@@ -391,3 +391,18 @@ def test_volver_a_cargar_no_duplica_las_salas_ni_la_directora(cargada):
     assert get_user_model().objects.filter(username="directora").count() == 1
     jardin.refresh_from_db()
     assert jardin.directora.username == "directora"
+
+
+def test_carga_instrumentos_y_resultados_de_demo_con_historial(cargada):
+    """Task 14: el catálogo de instrumentos y unos resultados confirmados, sin duplicar al recargar."""
+    from registro.historial import verificar
+    from registro.models import Instrumento, ResultadoInstrumento
+
+    assert Instrumento.objects.filter(codigo__in=["EEDP", "TEPSI", "IEA"]).count() == 3
+    resultados = ResultadoInstrumento.objects.filter(estado=ResultadoInstrumento.Estado.CONFIRMADO)
+    assert resultados.count() == 4
+    emilio = resultados.filter(nino__nombre="Emilio Vargas").order_by("fecha_aplicacion")
+    assert [r.valores["categorias_area"]["L"] for r in emilio] == ["riesgo", "normal"]
+    assert all(verificar(r).ok for r in resultados)
+    call_command("cargar_demo", verbosity=0, hoy=HOY)
+    assert ResultadoInstrumento.objects.count() == 4
