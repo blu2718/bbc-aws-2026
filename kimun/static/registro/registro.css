@@ -170,27 +170,6 @@
 :root { --pico-border-radius: var(--kimun-radio); }
 article { box-shadow: var(--kimun-sombra); }
 
-/* --- Barra superior ------------------------------------------------------------------------ */
-
-body > header {
-  padding-block: 0;
-  margin-bottom: var(--pico-spacing);
-  background: var(--kimun-celeste-suave);
-  border-bottom: 1px solid var(--kimun-celeste-borde);
-  border-radius: 0 0 var(--kimun-radio) var(--kimun-radio);
-}
-body > header li { padding-block: .4rem; }
-body > header form, body > header button { margin: 0; }
-
-.marca {
-  display: inline-flex;
-  align-items: center;
-  gap: .55rem;
-  color: var(--kimun-tinta);
-  text-decoration: none;
-}
-.marca img { border-radius: .6rem; }
-
 /* ===== Interfaz de diseno-interfaz.jpg: barra, menú lateral, registrar, suceso y perfil ===== */
 
 /* --- Accesibilidad ----------------------------------------------------------------------- */

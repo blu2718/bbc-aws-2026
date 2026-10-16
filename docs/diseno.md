@@ -148,6 +148,9 @@ Ordenado por impacto en la demo:
    grande en celular.
 7. **Menores:** metas y capturar (interfaz antigua) sin tarjetas; `body > header` y `.marca` definidos dos veces
    en `registro.css`.
+8. **No arreglado:** en la ficha, la tabla «Resumen por núcleo» se desplaza a lo ancho en celular (la última
+   columna se ve cortada hasta deslizar); los botones de archivo dicen «Choose File» según el idioma del navegador;
+   «Tus últimas notas» de la página antigua de capturar sigue como lista simple.
 
 ## Estado del pulido
 
@@ -162,6 +165,7 @@ Ordenado por impacto en la demo:
 | 5c | Tabla del curso: acciones como botones (una primaria), cada sección en `.tarjeta`, resúmenes como `.aviso`/`.mensaje-ok`, explicaciones en `como-leer`, estilos en línea movidos a `registro.css`. Orden de secciones sin cambiar: `test_frecuencia` corta el HTML entre `titulo-frecuencia` y `titulo-tabla` | `style(curso)` | hecho, tests de vistas, frecuencia, propuestas, metas y bordes pasan |
 | 5d | Revisión: `.encabezado-pagina`, grupos `.grupo-revision` con título `.titulo-grupo` (1,1 rem, fecha en segunda línea), «Aceptar todas» del ancho de su texto. Informe: botón y ayuda en una fila (`.informe-barra`), nivel como píldora. Inicio: cursos como tarjetas con botones. Metas: formulario en tarjeta. Curso: acciones con `.botones-enlace` (sin `role`, porque `test_revision` compara el `<a>` exacto) | `style(pantallas)` | hecho, tests de revisión, metas, ficha, vistas, perfil, frecuencia y propuestas pasan |
 | 6 | Títulos de revisión | `style(pantallas)` | hecho (junto con 5d) |
+| 7 | Capturar (interfaz antigua) en tarjetas; se borró el bloque viejo `body > header` / `.marca` duplicado de `registro.css` | `style(capturar)`, `refactor(estilo)` | hecho, tests de captura pasan |
 
 Pantallas para mirar primero: registrar y suceso (celular), tabla del curso, vista del jardín, aviso de protección.
 
