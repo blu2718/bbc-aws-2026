@@ -307,6 +307,16 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 | 7 | Task 14: encabezados, tarjetas, chips de estado e historial de cambios como línea de tiempo | `style(instrumentos)` | hecho; `test_instrumentos`, `test_vistas_instrumentos`, `test_historial`, `test_ficha`, `test_revision` pasan |
 | 8 | Transición corta (0,2 s de opacidad) al reemplazar una tarjeta por una acción (aceptar, descartar, editar, fijar o decidir nivel); no en el polling | `style(htmx)` | hecho; `test_revision`, `test_fijar_nivel` pasan |
 
+Datos de las capturas: la demo no trae una nota con varios niños ni propuestas listas, así que en la base
+temporal (`/tmp/kimun-front.sqlite3`, no en el código) se agregaron 4 observaciones pendientes a la captura 86
+(Gaspar, Rubí ×2, Tomás) y se pasaron las propuestas 1 y 2 a «lista». `cargar_demo` no cambió.
+
+Pendiente de la segunda pasada:
+- Estados vacíos con mensaje amable: no se tocaron los textos (varios tests los comparan); se puede dar estilo
+  común (`.estado-vacio`) sin cambiar el texto.
+- En «De esta nota saqué…» un niño con dos observaciones aparece dos veces.
+- La tabla del curso y la revisión no recibieron cambios visuales en esta pasada más allá de Fredoka y chips.
+
 ## Cómo seguir
 
 1. Cargar la demo en una base temporal y levantar el servidor:
