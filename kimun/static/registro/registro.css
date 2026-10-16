@@ -47,6 +47,7 @@
   /* Señales: texto sobre el fondo de la página */
   --kimun-aviso: #754200;      /* amarillo: 8,3:1 sobre blanco */
   --kimun-alerta: #a51c18;     /* rojo: 7,6:1 sobre blanco */
+  --kimun-naranjo: #b35400;    /* iconos "observar" del menú: 5,0:1 sobre blanco */
   --kimun-ok: #326412;         /* verde: 7,1:1 sobre blanco */
   --kimun-provisoria: var(--kimun-gris);
 
@@ -335,10 +336,16 @@ dialog.menu-lateral > article > footer.menu-pie {
   text-decoration: none;
 }
 .lista-ninos a:hover, .lista-ninos a:focus-visible { background: var(--kimun-celeste-suave); }
-.senales-menu { display: block; font-size: .78rem; line-height: 1.3; }
-.senal-menu { font-weight: 600; margin-right: .4rem; }
-.senal-menu-alerta { color: var(--kimun-alerta); }
-.senal-menu-aviso { color: var(--kimun-aviso); }
+.senales-menu { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .2rem; font-size: .78rem; line-height: 1.3; }
+.senal-menu { font-weight: 600; text-decoration: none; }
+.senal-menu-alerta, .senal-icono-alerta { color: var(--kimun-alerta); }
+.senal-menu-aviso, .senal-icono-aviso { color: var(--kimun-naranjo); }
+/* Icono de núcleo (registro/iconos.py): el PNG es la máscara y el color sale de `color`. */
+.icono-nucleo {
+  display: inline-block; flex: none; width: 1.35rem; height: 1.35rem; background-color: currentColor;
+  -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+}
 .menu-pie { margin-top: auto !important; padding-top: .75rem !important; border-top: 1px solid var(--kimun-linea) !important; }
 .menu-pie p { margin: 0 0 .5rem; font-size: .9rem; }
 .menu-pie button { width: 100%; margin: 0; }

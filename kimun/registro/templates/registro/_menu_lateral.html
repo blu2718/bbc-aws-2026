@@ -36,7 +36,8 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
       {% if presentes %}
         <section class="menu-seccion" aria-labelledby="titulo-presentes">
           <h2 id="titulo-presentes">Para tener presentes</h2>
-          <p class="menu-ayuda">Con más señales de revisión en la tabla del curso. Son sugerencias, no diagnósticos.</p>
+          <p class="menu-ayuda">Con más señales de revisión en la tabla del curso. Son sugerencias, no diagnósticos.
+            Núcleos <strong class="senal-icono-alerta">en rojo, para revisar</strong>; <strong class="senal-icono-aviso">en naranjo, para observar</strong>.</p>
           <ul class="lista-ninos">
             {% for p in presentes %}
               <li>
@@ -44,10 +45,11 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
                   <span class="avatar avatar-chico" aria-hidden="true" style="--fondo-avatar: {{ p.nino.nombre|color_avatar }}">{{ p.nino.nombre|iniciales }}</span>
                   <span>
                     {{ p.nino.nombre }}
-                    <small class="senales-menu">
-                      {% if p.revisar %}<span class="senal-menu senal-menu-alerta">Revisar en {% for n in p.revisar %}{{ n.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
-                      {% if p.observar %}<span class="senal-menu senal-menu-aviso">Observar en {% for n in p.observar %}{{ n.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>{% endif %}
-                    </small>
+                    {# Solo el icono de cada núcleo, en rojo (revisar) o naranjo (observar); el texto queda para lectores de pantalla y al pasar el puntero. #}
+                    <span class="senales-menu">
+                      {% for n in p.revisar %}{% include "registro/_icono_senal.html" with nucleo=n tipo="alerta" accion="Revisar" %}{% endfor %}
+                      {% for n in p.observar %}{% include "registro/_icono_senal.html" with nucleo=n tipo="aviso" accion="Observar" %}{% endfor %}
+                    </span>
                   </span>
                 </a>
               </li>
