@@ -82,7 +82,9 @@
   }
 }
 
-[data-theme="light"] {
+/* Mismo selector que Pico (especificidad 0,2,0) y cargado después: así gana. Con solo [data-theme="light"]
+   (0,1,0) ganaba Pico y los botones salían en su azul #0172ad en vez del celeste de Kimün. */
+:root:not([data-theme=dark]), [data-theme="light"] {
   --pico-background-color: var(--kimun-fondo);
   --pico-primary: var(--kimun-azul);
   --pico-primary-background: var(--kimun-celeste);
@@ -151,8 +153,12 @@
 }
 
 /* Botones secundarios (por ejemplo "Cerrar sesión") en el gris de Integra:
-   texto blanco sobre #606060, 6,3:1. */
-:root {
+   texto blanco sobre #606060, 6,3:1. Mismo selector que Pico para ganarle (ver arriba). */
+:root:not([data-theme=dark]), [data-theme="light"] {
+  --pico-secondary: var(--kimun-gris);
+  --pico-secondary-hover: var(--kimun-gris-oscuro);
+  --pico-secondary-underline: rgba(96, 96, 96, .5);
+  --pico-secondary-focus: rgba(96, 96, 96, .3);
   --pico-secondary-background: var(--kimun-gris);
   --pico-secondary-border: var(--kimun-gris);
   --pico-secondary-hover-background: var(--kimun-gris-oscuro);

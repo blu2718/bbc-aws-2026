@@ -87,6 +87,8 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 (Se completan con cada arreglo; ver [Estado](#estado-del-pulido).)
 
 - Se ordena la identidad que ya existe; no se cambia la paleta ni el logo.
+- Botones primarios en celeste pastel con texto tinta, como ya documentaba `registro.css`: es lo que pedía la
+  identidad y no se veía por un problema de especificidad, no un cambio de paleta.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -137,7 +139,7 @@ Ordenado por impacto en la demo:
 
 | # | Arreglo | Commit | Estado |
 |---|---|---|---|
-| 1 | Paleta de Pico | | pendiente |
+| 1 | Paleta de Pico: overrides con el mismo selector que Pico (`:root:not([data-theme=dark]), [data-theme="light"]`) y `--pico-secondary*` en gris de Integra | `fix(estilo): paleta` | hecho |
 | 2 | Barra superior | | pendiente |
 | 3 | Arrastrar foto | | pendiente |
 | 4 | Desborde «procesando» | | pendiente |
