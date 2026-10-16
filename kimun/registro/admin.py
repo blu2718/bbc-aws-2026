@@ -60,7 +60,7 @@ class MetaSemestreInline(admin.TabularInline):
 class NinoInline(admin.TabularInline):
     model = models.Nino
     extra = 0
-    fields = ["nombre", "alias", "fecha_nacimiento", "fecha_ingreso", "codigo"]
+    fields = ["nombre", "alias", "fecha_nacimiento", "fecha_ingreso", "semestres_previos", "procedencia", "codigo"]
     readonly_fields = ["codigo"]
 
 

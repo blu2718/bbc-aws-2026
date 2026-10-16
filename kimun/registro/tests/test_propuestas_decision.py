@@ -389,4 +389,6 @@ def test_migracion_no_borra_validaciones_duplicadas(lista):
         assert Nivel.objects.filter(pk__in=[v.pk for v in creados]).count() == 2
     finally:
         Nivel.objects.filter(pk__in=[v.pk for v in creados]).delete()
-        MigrationExecutor(connection).migrate([("registro", "0008_captura_pregunta")])
+        # Vuelve a la última migración (no a una fija), para que los tests que siguen tengan todas las columnas.
+        ejecutor = MigrationExecutor(connection)
+        ejecutor.migrate(ejecutor.loader.graph.leaf_nodes())

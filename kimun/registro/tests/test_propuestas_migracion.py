@@ -10,6 +10,12 @@ def _insertar(modelo, **datos):
     return modelo.objects.bulk_create([modelo(**datos)])[0]
 
 
+def _volver_a_la_ultima():
+    """Deja el esquema en la última migración (no en una fija), para que los tests que siguen tengan todas las columnas."""
+    executor = MigrationExecutor(connection)
+    executor.migrate(executor.loader.graph.leaf_nodes())
+
+
 @pytest.mark.django_db(transaction=True)
 def test_migracion_retira_solicitudes_sin_huella_y_conserva_decisiones(nino, nucleos, educadora):
     anterior = [("registro", "0002_descriptor_rubrica_integra")]
@@ -39,7 +45,7 @@ def test_migracion_retira_solicitudes_sin_huella_y_conserva_decisiones(nino, nuc
         assert Nivel.objects.get(pk=validado.pk).propuesta_id == historica.pk
         assert _insertar(Propuesta, **base).estado == "solicitada"
     finally:
-        MigrationExecutor(connection).migrate([("registro", "0008_captura_pregunta")])
+        _volver_a_la_ultima()
 
 
 @pytest.mark.django_db(transaction=True)
@@ -56,4 +62,4 @@ def test_migracion_no_corrige_automaticamente_evidencia_incoherente(nino, nucleo
         assert Propuesta.objects.get(pk=incoherente.pk).nivel == 3
     finally:
         Propuesta.objects.filter(pk=incoherente.pk).delete()
-        MigrationExecutor(connection).migrate([("registro", "0008_captura_pregunta")])
+        _volver_a_la_ultima()

@@ -158,17 +158,28 @@ class Command(BaseCommand):
         for n in ninos_demo:
             nino = Nino.objects.filter(curso=curso, nombre=n["nombre"]).first()
             nacimiento = date.fromisoformat(n["fecha_nacimiento"]) if n.get("fecha_nacimiento") else None
+            # Semestres cursados en otro jardín. Si la educadora ya los cambió en la ficha (queda en el
+            # historial), volver a cargar no los pisa.
+            trayectoria = {
+                "semestres_previos": n.get("semestres_previos", 0), "procedencia": n.get("procedencia", ""),
+            }
             if nino is None:
                 # save() crea el nivel 1 en todos los núcleos.
                 nino = Nino.objects.create(
                     curso=curso, nombre=n["nombre"], alias=n["alias"],
-                    fecha_ingreso=date.fromisoformat(n["fecha_ingreso"]), fecha_nacimiento=nacimiento,
+                    fecha_ingreso=date.fromisoformat(n["fecha_ingreso"]), fecha_nacimiento=nacimiento, **trayectoria,
                 )
             else:
                 nino.alias = n["alias"]
                 nino.fecha_ingreso = date.fromisoformat(n["fecha_ingreso"])
                 nino.fecha_nacimiento = nacimiento
-                nino.save(update_fields=["alias", "fecha_ingreso", "fecha_nacimiento"])
+                campos = ["alias", "fecha_ingreso", "fecha_nacimiento"]
+                if not RegistroCambio.objects.filter(
+                    objeto_tipo=RegistroCambio.Objeto.TRAYECTORIA, objeto_id=nino.pk
+                ).exists():
+                    nino.semestres_previos, nino.procedencia = trayectoria.values()
+                    campos += list(trayectoria)
+                nino.save(update_fields=campos)
             ninos[nino.nombre] = nino
             self._niveles(nino, n.get("niveles", {}), revisiones, educadora)
         return curso, ninos

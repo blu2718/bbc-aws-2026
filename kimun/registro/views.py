@@ -17,13 +17,16 @@ from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
-from .alertas import DIAS_DATOS_RECIENTES, resumen_del_jardin, tabla_del_curso
+from django.db import transaction
+
+from .alertas import DIAS_DATOS_RECIENTES, resumen_del_jardin, semestre_de_permanencia, tabla_del_curso
 from .cobertura import cobertura_quincena_del_curso, quincena_de
 from .ficha import armar_ficha, descriptores_del_nucleo
 from .informe import armar_informe
 from .frecuencia import frecuencia_del_curso
-from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, etiqueta_nivel, nombres_comunes
-from .models import DescriptorNivel, Nucleo, RegistroCambio, Rubrica, texto_nivel
+from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, TrayectoriaForm, etiqueta_nivel, nombres_comunes
+from .historial import entradas, instantanea, registrar
+from .models import DescriptorNivel, Nino, Nucleo, RegistroCambio, Rubrica, Semestre, texto_nivel
 from .permisos import (
     cursos_de,
     cursos_donde_registra,
@@ -34,7 +37,13 @@ from .permisos import (
     puede_editar_lista,
     puede_validar,
 )
-from .pantallas import historial_del_nino, propuestas_por_decidir, texto_edad
+from .pantallas import (
+    DIAS_HISTORIAL_RECIENTE,
+    historial_del_nino,
+    historial_reciente,
+    propuestas_por_decidir,
+    texto_edad,
+)
 from .radar import radar_de_la_ficha
 from .salas import panel_del_jardin
 from .revision import resumen_pendientes
@@ -120,19 +129,36 @@ def curso(request, curso_id):
     })
 
 
-def _pagina_ficha(request, nino, formularios=None, formularios_propuesta=None, errores_propuesta=None):
+def _pagina_ficha(request, nino, formularios=None, formularios_propuesta=None, errores_propuesta=None,
+                  form_trayectoria=None):
     """Perfil del niño (diseno-interfaz.jpg, pantalla IV): gráfico por núcleo, historial y detalle por núcleo."""
     hoy = timezone.localdate()
     ficha = armar_ficha(nino, request.user, hoy=hoy, formularios=formularios,
                         formularios_propuesta=formularios_propuesta, errores_propuesta=errores_propuesta)
     radar, esperado = radar_de_la_ficha(ficha, Rubrica.nivel_maximo(nino.curso.nivel_educativo))
+    # El historial muestra la última semana; "Ver más" (?historial=todo) lo muestra completo.
+    historial = historial_del_nino(nino)
+    historial_completo = request.GET.get("historial") == "todo"
+    visibles = historial if historial_completo else historial_reciente(historial, hoy)
+    if ficha.puede_validar and form_trayectoria is None:
+        form_trayectoria = TrayectoriaForm(instance=nino, prefix="trayectoria")
     return render(request, "registro/ficha.html", {
         "ficha": ficha,
         "curso": nino.curso,
         "edad": texto_edad(nino.fecha_nacimiento, hoy),
+        "semestre": semestre_de_permanencia(
+            nino.fecha_ingreso, hoy, list(Semestre.objects.all()), nino.semestres_previos
+        ),
+        "form_trayectoria": form_trayectoria,
+        "cambios_trayectoria": list(
+            entradas(RegistroCambio.Objeto.TRAYECTORIA, nino.pk).select_related("usuario")
+        ) if ficha.puede_validar else [],
         "radar": radar,
         "esperado": esperado,
-        "historial": historial_del_nino(nino),
+        "historial": visibles,
+        "historial_completo": historial_completo,
+        "historial_ocultos": len(historial) - len(visibles),
+        "dias_historial": DIAS_HISTORIAL_RECIENTE,
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=nino.curso_id).exists(),
         "puede_editar_lista": puede_editar_lista(request.user, nino.curso),
         # Instrumentos estandarizados (Task 14): None si quien mira no debe verlos (asistentes).
@@ -216,3 +242,31 @@ def metas(request, curso_id):
         "semestre_siguiente": SEMESTRES_CON_META + 1,
     }
     return render(request, "registro/metas.html", contexto)
+
+
+@login_required
+@require_POST
+def trayectoria(request, nino_id):
+    """Semestres que el niño cursó en otro jardín o sala cuna (solo la educadora del curso).
+
+    Se suman a su semestre de permanencia, así que cambian su nivel esperado y la señal
+    "bajo lo esperado". Cada cambio queda en el historial a prueba de adulteración (Task 14).
+    """
+    nino = get_object_or_404(ninos_que_valida(request.user).select_related("curso__jardin"), pk=nino_id)
+    antes = instantanea(Nino.objects.get(pk=nino.pk))
+    form = TrayectoriaForm(request.POST, instance=nino, prefix="trayectoria")
+    if not form.is_valid():
+        return _pagina_ficha(request, Nino.objects.select_related("curso__jardin").get(pk=nino.pk),
+                             form_trayectoria=form)
+    with transaction.atomic():
+        nino = form.save()
+        if instantanea(nino) != antes:
+            registrar(nino, RegistroCambio.Accion.EDITAR, usuario=request.user,
+                      motivo=form.cleaned_data.get("motivo", ""), antes=antes)
+    hoy = timezone.localdate()
+    semestre = semestre_de_permanencia(nino.fecha_ingreso, hoy, list(Semestre.objects.all()), nino.semestres_previos)
+    fila = next((f for f in tabla_del_curso(nino.curso, hoy=hoy).filas if f.nino.pk == nino.pk), None)
+    esperado = fila.nivel_esperado if fila else None
+    messages.success(request, f"Trayectoria guardada: está en su semestre {semestre}"
+                              + (f" y se espera el nivel {esperado}." if esperado else "."))
+    return redirect(f"{reverse('ficha', args=[nino.pk])}#trayectoria")

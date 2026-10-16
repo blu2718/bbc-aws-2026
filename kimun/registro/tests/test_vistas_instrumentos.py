@@ -213,7 +213,8 @@ def test_corregir_una_observacion_aceptada_con_motivo(client, educadora, aceptad
     assert aceptada.cita == "ordenó los bloques por color" and aceptada.estado == "aceptada"
     entrada = entradas(RegistroCambio.Objeto.OBSERVACION, aceptada.pk).get()
     assert entrada.antes["cita"] == "ordenó los bloques" and entrada.motivo == "Faltaba el criterio"
-    ficha = client.get(reverse("ficha", args=[nino.pk])).content.decode()
+    # El suceso es de mayo: queda fuera de la última semana y se ve en el historial completo.
+    ficha = client.get(reverse("ficha", args=[nino.pk]), {"historial": "todo"}).content.decode()
     assert reverse("observacion_historial", args=[aceptada.pk]) in ficha
     historial = client.get(reverse("observacion_historial", args=[aceptada.pk])).content.decode()
     assert "Faltaba el criterio" in historial and "Historial íntegro" in historial

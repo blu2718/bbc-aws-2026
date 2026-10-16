@@ -7,7 +7,8 @@
   señales de revisión de la tabla del curso (`alertas.tabla_del_curso`), con
   pocas observaciones o con muchas pendientes (`frecuencia.py`).
 - Pantalla IV (perfil): `historial_del_nino`, sus sucesos aceptados y los
-  niveles que validó la educadora, del más reciente al más antiguo.
+  niveles que validó la educadora, del más reciente al más antiguo. El perfil
+  muestra la última semana (`historial_reciente`) y un botón "Ver más".
 
 Las plantillas solo muestran. Cada función hace una cantidad fija de consultas.
 """
@@ -15,7 +16,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import date
+from datetime import date, timedelta
 
 from .alertas import Gravedad
 from .avanzar import anio_del_nivel, conductas_de_oas, manifestaciones_por_oa
@@ -25,6 +26,7 @@ from .models import DescriptorNivel, NivelValidado, Nucleo, Observacion, Rubrica
 
 SIN_NIVEL = "Sin nivel validado"
 LIMITE_PRESENTES = 8  # alcanza para las señales por núcleo y las de frecuencia de un curso típico
+DIAS_HISTORIAL_RECIENTE = 7  # el perfil muestra la última semana; "Ver más" muestra todo
 
 
 def texto_edad(fecha_nacimiento, hoy):
@@ -372,3 +374,9 @@ def historial_del_nino(nino):
 
     # Estable: el mismo día, los sucesos quedan antes que las revisiones.
     return sorted(eventos, key=lambda e: e.fecha, reverse=True)
+
+
+def historial_reciente(eventos, hoy, dias=DIAS_HISTORIAL_RECIENTE):
+    """Los eventos de los últimos `dias` días contando hoy (con 7: de hoy - 6 días a hoy)."""
+    desde = hoy - timedelta(days=dias - 1)
+    return [e for e in eventos if e.fecha >= desde]
