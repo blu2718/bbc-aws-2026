@@ -4,6 +4,51 @@ Documento de referencia exhaustivo sobre la Política de Calidad Educativa de In
 
 Fuente: <https://integra.cl/wp-content/uploads/2018/03/POLITICA-DE-CALIDAD-EDUCATIVA-2017-2.pdf> (el PDF no se versiona). Resumen para el equipo en `resumen-politica-calidad.md`; implicancias ya cruzadas con `PLAN.md` en `hallazgos-politica-calidad-educativa-integra.md`. Autor: Fundación Integra, 2017. Registro de Propiedad Intelectual 262448, ISBN 978-956-8482-62-6. Textos: Oriele Rossel, Karen Pérez Molina (coord.) y equipo (p. 1). "Derechos reservados, prohibida su reproducción" (p. 1): por eso no se transcribe en bloque; aquí se parafrasea y solo se citan frases breves.
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Cómo usar esta guía](#cómo-usar-esta-guía) · líneas 52–58
+- [Brújula](#brújula) · líneas 60–96
+  - [Principios rectores](#principios-rectores) · líneas 62–77
+  - [Lista de verificación](#lista-de-verificación) · líneas 79–96
+- [1. Declaraciones estratégicas (p. 4)](#1-declaraciones-estratégicas-p-4) · líneas 98–112
+  - [Qué exige a Kimün](#qué-exige-a-kimün) · líneas 108–112
+- [2. Presentaciones y palabras de terceros (pp. 6-9, 15)](#2-presentaciones-y-palabras-de-terceros-pp-6-9-15) · líneas 114–132
+  - [Qué exige a Kimün](#qué-exige-a-kimün-1) · líneas 129–132
+- [3. Por qué una política y qué contiene (pp. 17-21)](#3-por-qué-una-política-y-qué-contiene-pp-17-21) · líneas 134–143
+  - [Qué exige a Kimün](#qué-exige-a-kimün-2) · líneas 140–143
+- [4. Contexto nacional e institucional (cap. 5, pp. 23-29)](#4-contexto-nacional-e-institucional-cap-5-pp-23-29) · líneas 145–152
+  - [Qué exige a Kimün](#qué-exige-a-kimün-3) · líneas 149–152
+- [5. Historia institucional e instrumentos de evaluación (cap. 6, pp. 31-33, y cap. 9.2 eje 4, pp. 89-90)](#5-historia-institucional-e-instrumentos-de-evaluación-cap-6-pp-31-33-y-cap-92-eje-4-pp-89-90) · líneas 154–177
+  - [Qué exige a Kimün](#qué-exige-a-kimün-4) · líneas 173–177
+- [6. Proceso participativo (cap. 6, pp. 31-37)](#6-proceso-participativo-cap-6-pp-31-37) · líneas 179–186
+  - [Qué exige a Kimün](#qué-exige-a-kimün-5) · líneas 183–186
+- [7. Bases: enfoque de derechos e inclusión (cap. 7, pp. 39-42)](#7-bases-enfoque-de-derechos-e-inclusión-cap-7-pp-39-42) · líneas 188–202
+  - [Qué exige a Kimün](#qué-exige-a-kimün-6) · líneas 194–202
+- [8. Concepto de calidad (cap. 8, pp. 45-46)](#8-concepto-de-calidad-cap-8-pp-45-46) · líneas 204–219
+  - [Qué exige a Kimün](#qué-exige-a-kimün-7) · líneas 215–219
+- [9. La política propiamente tal: declaración y condiciones (cap. 8, pp. 46-47)](#9-la-política-propiamente-tal-declaración-y-condiciones-cap-8-pp-46-47) · líneas 221–238
+  - [Qué exige a Kimün](#qué-exige-a-kimün-8) · líneas 234–238
+- [10. Desplegando los conceptos clave (cap. 8.1, pp. 48-62)](#10-desplegando-los-conceptos-clave-cap-81-pp-48-62) · líneas 240–275
+  - [Qué exige a Kimün](#qué-exige-a-kimün-9) · líneas 268–275
+- [11. "Lo esencial de la calidad educativa" (gráfica, pp. 64-65)](#11-lo-esencial-de-la-calidad-educativa-gráfica-pp-64-65) · líneas 277–288
+  - [Qué exige a Kimün](#qué-exige-a-kimün-10) · líneas 286–288
+- [12. Componente 1: Bienestar y Protagonismo de niños y niñas (cap. 9.1, pp. 69-80)](#12-componente-1-bienestar-y-protagonismo-de-niños-y-niñas-cap-91-pp-69-80) · líneas 290–338
+  - [Eje 4 en detalle: Protección de derechos (pp. 78-79)](#eje-4-en-detalle-protección-de-derechos-pp-78-79) · líneas 307–327
+  - [Qué exige a Kimün](#qué-exige-a-kimün-11) · líneas 329–338
+- [13. Componente 2: Educación Transformadora (cap. 9.2, pp. 83-90)](#13-componente-2-educación-transformadora-cap-92-pp-83-90) · líneas 340–366
+  - [Qué exige a Kimün](#qué-exige-a-kimün-12) · líneas 357–366
+- [14. Componente 3: Familias y Comunidades comprometidas con la Educación (cap. 9.3, pp. 93-98)](#14-componente-3-familias-y-comunidades-comprometidas-con-la-educación-cap-93-pp-93-98) · líneas 368–383
+  - [Qué exige a Kimün](#qué-exige-a-kimün-13) · líneas 379–383
+- [15. Componente 4: Personas y Equipos que trabajan por la Educación (cap. 9.4, pp. 101-111)](#15-componente-4-personas-y-equipos-que-trabajan-por-la-educación-cap-94-pp-101-111) · líneas 385–406
+  - [Qué exige a Kimün](#qué-exige-a-kimün-14) · líneas 399–406
+- [16. Glosario](#16-glosario) · líneas 408–434
+- [17. Bibliografía relevante (pp. 114-115)](#17-bibliografía-relevante-pp-114-115) · líneas 436–450
+- [18. Tabla resumen de tensiones con el diseño actual](#18-tabla-resumen-de-tensiones-con-el-diseño-actual) · líneas 452–468
+<!-- indice:fin -->
+
 ## Cómo usar esta guía
 
 Para qué sirve. Es la brújula ética de Kimün. Antes de diseñar una funcionalidad, redactar un prompt, elegir una palabra para la interfaz o decidir una alerta, consulta la "Brújula" y la lista de verificación. Cada sección temática termina en un bloque "Qué exige a Kimün" con reglas de hacer/no hacer y el estado respecto de `PLAN.md`.
@@ -12,28 +57,9 @@ Convención de páginas. Las páginas citadas (p. N) son las del PDF, que coinci
 
 Aviso de vigencia. El documento es de 2017, anterior a las Bases Curriculares de la Educación Parvularia 2018 y al Referente Curricular de Integra 2025. Su vocabulario curricular está desactualizado: usa "aprendizajes esperados" (p. 87), núcleos antiguos como "Relaciones Lógico-matemáticas", "Seres vivos y su entorno" y "Grupos humanos" (p. 87), y "Primer/Segundo Ciclo" (p. 87). No uses ese vocabulario en la app. Lo que no caduca son sus principios: enfoque de derechos, calidad contextual, bienestar, protagonismo, juego, buen trato, inclusión, evaluación por observación sin juicios perentorios. La guía distingue siempre principio (vigente) de vocabulario (caduco).
 
-Índice.
-- Brújula: principios rectores y lista de verificación.
-- 1. Declaraciones estratégicas (visión, misión, valores).
-- 2. Presentaciones y palabras de terceros.
-- 3. Por qué una política y qué contiene.
-- 4. Contexto nacional e institucional.
-- 5. Historia institucional e instrumentos de evaluación.
-- 6. Proceso participativo.
-- 7. Bases: enfoque de derechos e inclusión.
-- 8. Concepto de calidad.
-- 9. La política propiamente tal: declaración y condiciones.
-- 10. Desplegando los conceptos clave (niño, felicidad, convivencia bientratante, PEI, bienestar, aprendizaje oportuno, protagonismo, personas y equipos, ambientes, familias, comunidad, gestión).
-- 11. "Lo esencial de la calidad educativa" (gráfica).
-- 12. Componente 1: Bienestar y Protagonismo (DIT, modelo ecológico, 5 ejes).
-- 13. Componente 2: Educación Transformadora (fundamentos, 4 ejes, evaluación).
-- 14. Componente 3: Familias y Comunidades (5 ejes).
-- 15. Componente 4: Personas y Equipos (fundamentos, 6 ejes).
-- 16. Glosario.
-- 17. Bibliografía relevante.
-- 18. Tabla resumen de tensiones con el diseño actual.
-
 ## Brújula
+
+### Principios rectores
 
 Principios rectores condensados. Aplícalos a cualquier decisión.
 
@@ -49,6 +75,8 @@ Principios rectores condensados. Aplícalos a cualquier decisión.
 10. Las personas y equipos son agentes de cambio social; equipos bien tratados cuidan mejor (pp. 53, 80). La calidad de vida laboral es un eje, no un adorno.
 11. Oferta integral por quincena que cubra todos los núcleos (p. 87). La planificación mira el grupo, no solo al individuo.
 12. Transparencia y rendición de cuentas sobre la gestión (p. 61). La información debe ser clara y accesible.
+
+### Lista de verificación
 
 Lista de verificación (preguntas sí/no para evaluar una funcionalidad, un prompt o un texto de la app).
 
@@ -77,7 +105,8 @@ La p. 4 es una infografía con dibujos de niños (revisada como imagen; el texto
 
 Los valores no vienen con una definición cerrada en la p. 4; su sentido se despliega en el resto del documento (inclusión en pp. 41-42; participación como derecho en pp. 39, 94; apreciación de talentos en pp. 54, 104; transparencia en pp. 61, 107).
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: que cada decisión de producto pueda explicarse como aporte a "niños y niñas aprenden jugando felices" (visión, p. 4). Si una funcionalidad no sirve a eso, revisar su sentido.
 - Hacer: que la app encarne los valores: transparencia (mostrar la evidencia detrás de cada propuesta), apreciación de talentos (destacar fortalezas), inclusión (accesibilidad y sin etiquetas), participación (la educadora decide).
 - No hacer: usar el rango de edad de 2017 ni la misión literal como dato del modelo pedagógico; la demo es Transición. `PLAN.md` ya trabaja en Transición: cumple.
@@ -97,7 +126,8 @@ Palabras de autoridades y expertos. Lo que aportan como señales de valor:
 - Humberto Maturana (p. 9): "sólo una red de cuidado en el amar podrá conectar los derechos de los niños y las niñas al desarrollo humano deseado". El amar y la convivencia como condición del desarrollo.
 - Dra. María Victoria Peralta (p. 15, presentación formal): postular una política de calidad con enfoque de derechos es un desafío mayor; obliga a abordar el tema de forma integral y sistémica, interrelacionando la multiplicidad de factores (niños, familias, educadores, comunidad) en contextos diversos. El enfoque de derechos implica que la educación de calidad es un deber del Estado, no una concesión a "beneficiarios".
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: en el pitch, apoyarse en estas voces para enmarcar la herramienta como aporte a una educación como derecho, centrada en el niño, con soporte a las trabajadoras.
 - No hacer: presentar la herramienta como un fin técnico; el discurso debe ser paidocéntrico y de derechos, no "optimización de procesos" a secas. `PLAN.md` ya alinea el pitch con la definición de calidad (Task 11): cumple.
 
@@ -107,7 +137,8 @@ Por qué una política (cap. 4, pp. 21). Contar con una Política de Calidad Edu
 
 Qué contiene (cap. 3, pp. 17-18). Propósito declarado (p. 18): "garantizar el derecho a una educación parvularia de calidad a los niños y niñas... para que puedan desarrollarse plenamente y ser felices, con el foco en su bienestar, aprendizaje, protagonismo y habilidades para la vida, en un marco de convivencia bientratante". El documento explica por qué se necesita la política, en qué contexto surge, cómo se construyó, la declaración y sus atributos, la gráfica "Lo esencial" y los componentes. La p. 17 recoge la voz de los niños en los diálogos regionales ("Queremos pastito y plantitas, mascotas, decir lo que queremos, que nos hagamos más cariño...").
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: tratar la política como "el lente con el cual se mira la realidad" (p. 66). Kimün es una herramienta para que ese lente se aplique mejor a los datos de aprendizaje.
 - Hacer: que la herramienta sea contextualizable (parámetros editables), coherente con que la política se concreta distinto en cada comunidad (PEI). `PLAN.md` hace la rúbrica, núcleos, niveles y metas un dato editable: cumple.
 
@@ -115,7 +146,8 @@ Qué exige a Kimün.
 
 La calidad en primera infancia es un tema debatido, por su alta inversión y su complejidad teórico-práctica (p. 23). La educación inicial de calidad impacta en aprendizaje, autoestima, cohesión social, superación de pobreza y descenso del gasto público (pp. 23-24). Chile fue pionero (primera escuela de párvulos 1864, primer kindergarten fiscal 1906, JUNJI 1970, Integra 1990). Hitos legales relevantes (pp. 25-27): ratificación de la Convención de los Derechos del Niño (1990, rango constitucional), creación de las Bases Curriculares (BCEP, 2001), LGE 20.370 (2009, educación parvularia como primer nivel del sistema y Sistema Nacional de Aseguramiento de la Calidad con Consejo Nacional de Educación, Agencia de Calidad y Superintendencia), Chile Crece Contigo (Ley 20.379, 2009), obligatoriedad del segundo nivel de transición (Ley 20.710, 2013), Subsecretaría e Intendencia de Educación Parvularia (Ley 20.835, 2015), Desarrollo Profesional Docente (Ley 20.903, 2016).
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: ubicar la herramienta dentro del Sistema de Aseguramiento de la Calidad (la acreditación de jardines es un desafío declarado, p. 62). Argumento de escalabilidad para el pitch.
 - Contexto, sin regla directa: este capítulo es historiográfico. No hay reglas de diseño nuevas más allá de reforzar el marco de derechos.
 
@@ -138,7 +170,8 @@ Principio de evaluación (cita, p. 90): "La evaluación de los aprendizajes de l
 
 Lectura para Kimün. La herramienta trabaja sobre la fuente que Integra considera fundamental, la observación. La "movilidad de los aprendizajes" que mide el IEA es exactamente lo que registra el historial de niveles validados de Kimün. La rúbrica de niveles de Integra probablemente sucede al IEA, pero falta confirmarlo (ver `hallazgos`, preguntas 8-9 de `PLAN.md`). La EEDP es un instrumento psicomotor para sala cuna; Kimün no debe presentarse como tamizaje clínico. Kimün automatiza el primer paso de la evaluación (recoger datos por observación) y prepara el segundo (valorar), pero el juicio valorativo y la decisión siguen siendo humanos.
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: presentar la herramienta como registro de la movilidad de aprendizajes que mide el IEA y complemento de EEDP/IEA/PLAEP-R, no como su reemplazo ni como tamizaje. `PLAN.md`: parcial. El pitch (Task 11) encaja la herramienta en el sistema de evaluación, pero `hallazgos` marca como pendiente decir explícitamente "complementa, no reemplaza, y no es tamizaje clínico". Falta esa frase explícita.
 - Hacer: respetar los tres pasos de la evaluación (recoger, valorar, decidir); la IA solo asiste el primero y el segundo. `PLAN.md`: cumple (la educadora valida).
 - No hacer: comparar a los niños con una norma estandarizada tipo PLAEP-R dentro de la vista de la educadora; el nivel es contextual, por conducta observable. `PLAN.md`: cumple (el nivel sale de la rúbrica y la conducta, no de una norma externa).
@@ -147,7 +180,8 @@ Qué exige a Kimün.
 
 La política se construyó con más de 9.000 personas de la Comunidad Integra: niños, familias, trabajadores y organizaciones sindicales (p. 2). Hubo diálogos regionales (2014, ~2.000 personas), consultas lúdicas a niños, encuentros, entrevistas y consultas a especialistas. Los cuatro componentes vienen de políticas previas construidas participativamente: Bienestar y Protagonismo (de la Política de Bienestar y Protagonismo Infantil, 2012-2013), Educación Transformadora (del Referente Curricular 2014), Familias y Comunidades (de la Política de Participación de Familias y Comunidad, 2011) y Personas y Equipos (del Proyecto Súmate 2015, con más de 7.000 participaciones).
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: honrar que la calidad es construida con la comunidad; validar supuestos con Integra y con las educadoras antes de fijarlos. `PLAN.md` tiene una lista de "Preguntas pendientes para Integra" y marca supuestos: cumple el espíritu.
 - Hacer: incluir la voz de la educadora en el diseño (mostrarle la pantalla de revisión y preguntarle si la usaría, pregunta 6 de `PLAN.md`). `PLAN.md`: planificado.
 
@@ -157,7 +191,10 @@ Enfoque de Derechos. Es la base de toda la política (p. 39). La educación es u
 
 Inclusión (pp. 41-42). Integra se compromete con la inclusión porque la dignidad pasa por considerar a las personas únicas, irrepetibles y diversas. La inclusión implica (p. 42): beneficiar a todos sin etiquetar ni excluir; acceso equitativo con ajustes permanentes; valorar el aporte de cada persona. La educación inclusiva asume que el sistema educativo debe responder a la diversidad modificándose a sí mismo (currículo, métodos, evaluación, normas) en función de las características, necesidades y talentos de los niños, en vez de que el niño se adapte al sistema. El mayor desafío es responder a quienes tienen más riesgo de exclusión (vulnerabilidad social, necesidades educativas especiales, diversidad cultural).
 
-Qué exige a Kimün. Esta es la sección más vinculante para la IA y la redacción.
+### Qué exige a Kimün
+
+Esta es la sección más vinculante para la IA y la redacción.
+
 - Hacer: tratar al niño como sujeto, no como déficit. Las señales y textos describen situaciones a observar, no clasifican al niño como problema. `PLAN.md`: cumple en intención (alertas "redactadas como sugerencias", Task 2), pero ver la tensión del término "rezago".
 - No hacer: etiquetar ("rezagado", "atrasado", "déficit", "bajo rendimiento") como atributo del niño. La política pide "no etiquetar ni excluir" (p. 42). Tensión real: Integra pide en su correo "levantar alarma si tengo niños rezagados" y usa la palabra "rezagados" (`respuestas-integra.md`). Resolución: usar la palabra de Integra en la comunicación interna y en el pitch si es su término, pero en la interfaz dirigida a la educadora redactar como sugerencia de revisión sin adjetivar al niño ("Revisar: 3 niveles bajo sus pares en Lenguaje Verbal"), no "Niño rezagado". Las Bases 2018 piden evaluar "sin juicios perentorios"; es compatible con avisar a la educadora. `PLAN.md` ya adopta esta redacción (Task 2): cumple, pero conviene auditar cada cadena de texto de la UI para que ninguna adjetive al niño.
 - Hacer: diseñar para la diversidad (accesibilidad: color + texto, tabla equivalente al gráfico, pensado primero para celular). `PLAN.md`: cumple (Tasks 2 y 3 exigen color y texto, SVG con tabla equivalente, contraste ≥ 4,5:1).
@@ -175,7 +212,8 @@ Características generales del concepto de calidad (p. 45), extraídas del Conce
 - La calidad se expresa en criterios generales (operan en cualquier experiencia, flexibles y dinámicos) y criterios específicos (propios de cada comunidad, rescatan sus intereses y énfasis).
 - La calidad debe verse desde una perspectiva dinámica o "en desarrollo", de permanente evolución y mejora.
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - No hacer: convertir la calidad en un puntaje cerrado que reemplace el juicio del equipo. La política dice que importa el proceso y que el nivel es contextual. `PLAN.md`: cumple (la IA sugiere con evidencia, no cierra; sin umbrales de cantidad).
 - Hacer: la rúbrica como criterio general flexible, cargable por comunidad; las metas por curso editables como criterio específico. `PLAN.md`: cumple.
 - Hacer: en el pitch, cuidar no vender "medición de calidad". Lo que Kimün hace es registrar la movilidad de aprendizajes y proponer un nivel por conducta observable; la calidad en el sentido de la política es más amplia (clima, participación, buen trato) y no la mide la app. `PLAN.md`: la Task 10 se llama "medición de calidad" pero se refiere a precisión del modelo (asignación de niños, núcleos, OA, nivel), no a la calidad educativa de la política. Mantener esa distinción clara en el pitch para no sobreprometer.
@@ -193,7 +231,8 @@ Las cinco condiciones para lograrla (pp. 46-47). "Para lograr la educación de c
 4. Una estrecha alianza con la comunidad y sus redes.
 5. Un sistema de gestión en completa sintonía con lo anterior, al servicio de los establecimientos: integrado, eficaz, eficiente, transparente, participativo, inclusivo, sostenible y que rinde cuentas.
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: anclar el pitch en la frase central (bienestar, aprendizaje oportuno y pertinente, protagonismo). `PLAN.md`: cumple (Task 11).
 - Hacer: entender que Kimün es, sobre todo, soporte a la condición 1 (dar tiempo y foco a las personas y equipos) y a la condición 5 (un sistema de gestión transparente). `PLAN.md`: cumple (el problema que resuelve es las ~4 h semanales de las educadoras; paneles agregados para la directora, Task 12).
 - No hacer: pretender que la app por sí sola produce "calidad"; las cinco condiciones son humanas y materiales. La app es un instrumento dentro de la condición 5.
@@ -226,7 +265,8 @@ Comunidad (pp. 59-61). Redes comunitarias (instituciones, organizaciones, actore
 
 Sistema de gestión (pp. 60-62). Integrado (conecta nivel nacional, regional y de jardín), eficaz, eficiente, transparente (rinde cuentas con información clara, precisa y oportuna), participativo, inclusivo, sostenible, orientado a la mejora continua y a la acreditación.
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: que la IA y la ficha muestren fortalezas y talentos, no solo vacíos. El protagonismo y la apreciación de talentos lo exigen (pp. 52-54). `PLAN.md`: no explícito; la ficha muestra OA sin evidencia "como sugerencia de qué observar" y la cobertura por OA. Tensión real: el diseño actual pone el foco en los vacíos (OA sin evidencia, brechas, alertas) y poco en lo que el niño ya logra. Resolución: en la ficha, presentar primero el nivel actual con la conducta lograda y los OA con evidencia (fortalezas), y después lo que falta como sugerencia. `hallazgos` ya marca "mostrar fortalezas y talentos" como "No" en `PLAN.md`. Recomendación concreta: reordenar la ficha para que lo logrado sea visible antes que lo pendiente, sin cambiar la lógica de cobertura.
 - Hacer: respetar el ritmo individual y las ventanas de oportunidad: la referencia de nivel esperado es blanda, no una norma rígida; no asumir avance lineal. `PLAN.md`: cumple ("No se asume que el avance sea lineal", "referencia blanda").
 - Hacer: el rol mediador y la zona de desarrollo próximo justifican los "pasos a seguir" y mostrar la conducta del nivel siguiente como referencia de qué observar. `PLAN.md`: cumple (la ficha muestra el nivel siguiente y cargará las orientaciones de Integra; el MVP no genera pasos con IA).
@@ -243,7 +283,8 @@ Revisada como imagen (la p. 64 es una infografía con forma de flor; la p. 65 es
 
 El relato de la p. 65 ("de una oruga nació una bella mariposa que está buscando una flor muy especial") es una explicación poética de la gráfica para niños y familias; el color principal de la flor "era el color de los niños y niñas plenos y felices".
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer: usar esta gráfica mental como mapa: el objetivo es el niño pleno y feliz; Kimün es una pieza del "suelo" (sistema de gestión) que sostiene a los pétalos (en particular, personas y equipos). El pitch puede apoyarse en esta imagen.
 
 ## 12. Componente 1: Bienestar y Protagonismo de niños y niñas (cap. 9.1, pp. 69-80)
@@ -263,7 +304,9 @@ Cinco ejes estratégicos del componente (pp. 75-80):
 4. Protección de derechos (pp. 78-79). Desarrollado abajo, en "Eje 4 en detalle".
 5. Convivencia bientratante (pp. 79-80): educación inclusiva que responda a la diversidad y atienda las necesidades educativas especiales y los talentos individuales; buen trato para los equipos.
 
-Eje 4 en detalle: Protección de derechos (pp. 78-79). Paráfrasis por partes, con citas breves.
+### Eje 4 en detalle: Protección de derechos (pp. 78-79)
+
+Paráfrasis por partes, con citas breves.
 
 - Responsabilidad (p. 78). Integra debe promover el derecho a la educación de los niños según la cobertura comprometida: acceso, permanencia, asistencia y progreso. Aunque son titulares de derechos, por su ciclo de vida necesitan "una acción especial y sistemática por parte del mundo adulto" para que esos derechos se cumplan.
 - Respuesta a la vulneración (p. 78). El sistema debe tener "mecanismos pertinentes y oportunos para responder a situaciones de vulneración", velando por el interés superior del niño y por su continuidad en el sistema educativo "como factor protector". El énfasis está en generar condiciones favorables para que el niño siga aprendiendo. Para la app, mantener al niño en el jardín es parte de protegerlo, y nada en la respuesta debe excluirlo ni exponerlo.
@@ -283,7 +326,10 @@ Qué se desprende para Kimün:
 - El punto (iii) y las denuncias internas reconocen que la vulneración puede ocurrir dentro del jardín, cometida por un adulto del equipo. Un aviso que solo ve quien escribió la nota no basta.
 - La política no define maltrato ni sus tipos. Las definiciones operativas (maltrato físico, psicológico, negligencia y agresión sexual; qué no es maltrato; cómo actuar sin revictimizar) están en el anexo "Protección de derechos y vulneraciones" de `enciclopedia-bases-curriculares.md`, tomadas de los protocolos públicos de la JUNJI. Integra tiene su propio protocolo, que no tenemos (pregunta 9 de `PLAN.md`).
 
-Qué exige a Kimün. Varias reglas de alto impacto.
+### Qué exige a Kimün
+
+Varias reglas de alto impacto.
+
 - Hacer (voz del niño): el protagonismo pide incluir la voz, intereses y preferencias del niño (pp. 52-53, 77). `PLAN.md`: descartado por el equipo ("Descartado por el equipo: un registro propio de la voz del niño"). Tensión real con la política. Resolución honesta: es una decisión de alcance del MVP, no una negación del principio. En el pitch, nombrarla como extensión futura coherente con el protagonismo, no como algo fuera de la visión. No fingir que la app cubre el protagonismo del niño por sí sola.
 - Hacer (protección de derechos): si una nota podría describir una posible vulneración de derechos (un relato del niño, marcas, negligencia, prácticas de un adulto del equipo), Kimün no la usa como evidencia de aprendizaje ni la muestra en vistas agregadas. Avisa a la educadora del curso y a la directora para que activen el protocolo de Integra, sin calificar el hecho, sin nombrar al presunto responsable y sin preguntar detalles que empujen a interrogar al niño (pp. 78-79). `PLAN.md`: planificado (requisito "Protección de derechos" y Task 13). Las definiciones de qué constituye maltrato están en el anexo de `enciclopedia-bases-curriculares.md`.
 - Hacer (DIT, dimensiones cruzadas): como "el retraso de un área de desarrollo puede gatillar el retraso de otras áreas" (p. 71), la ficha debería permitir ver los núcleos juntos para detectar brechas simultáneas. `PLAN.md`: cumple (la ficha muestra todos los núcleos; Task 3).
@@ -308,7 +354,10 @@ Cuatro ejes estratégicos (pp. 86-90):
 3. Planificación educativa (pp. 88-89): proceso sistemático que anticipa y organiza el trabajo; a largo plazo (anual) y a corto plazo (diaria); la realiza el equipo con reflexión crítica, liderada por la directora y las educadoras, considerando las voces de los niños y las familias.
 4. Evaluación educativa (pp. 89-90): ver sección 5 de esta guía (instrumentos EEDP, IEA, SFPP, PLAEP-R y el principio de evaluación por observación).
 
-Qué exige a Kimün. Este componente es el que más directamente justifica la herramienta.
+### Qué exige a Kimün
+
+Este componente es el que más directamente justifica la herramienta.
+
 - Hacer (oferta integral por quincena): la política pide cubrir todos los núcleos en cada quincena (p. 87). `PLAN.md`: cumple fuerte. La vista del grupo por quincena (`cobertura.py`, Task 2) muestra, por núcleo, las observaciones del curso y destaca los núcleos sin observaciones "porque la Política de Calidad de Integra pide una oferta que cubra todos los núcleos en cada quincena". Alineación directa con el eje de organización del tiempo.
 - Hacer (zona de desarrollo próximo): mostrar la conducta del nivel siguiente y, cuando lleguen, las orientaciones de Integra, apunta justo a la ZDP: qué puede lograr el niño con apoyo. `PLAN.md`: cumple (ficha, Task 3; propuesta de nivel considera la progresión "de con ayuda a autónomo", Task 7).
 - Hacer (ventanas de oportunidad / aprendizaje oportuno): el aviso de datos desactualizados (14 días sin observaciones) y la cobertura por OA ayudan a que ningún núcleo quede sin oferta en el momento oportuno. `PLAN.md`: cumple.
@@ -327,7 +376,8 @@ Cinco ejes estratégicos (pp. 95-98):
 4. Gestión integral del conocimiento: perfil de las familias; comunicación corporativa; soportes (libreta de comunicaciones, reuniones, boletines, diario mural).
 5. Articulación con redes comunitarias: trabajo en red; y apoyo a los procesos de transición educativa, donde es relevante "el registro y valoración, entre familias y establecimientos, de su experiencia educativa en los distintos niveles de Integra" (p. 98).
 
-Qué exige a Kimün.
+### Qué exige a Kimün
+
 - Hacer (socializar resultados): la política pide socializar los resultados de aprendizaje con las familias (pp. 59, 96). `PLAN.md`: informes a familias están fuera del MVP, en el pitch. Correcto como alcance, pero es una extensión alineada con la política; nombrarla así.
 - Hacer (transiciones y portabilidad del registro): el historial de niveles validados con su evidencia cumple el rol de registrar y valorar la experiencia educativa del niño en los distintos niveles (p. 98), útil en las transiciones. `PLAN.md`: cumple en estructura (historial de `NivelValidado`); el uso en transiciones es futuro.
 - No hacer: exponer datos del niño a las familias sin validación de la educadora. Si se construyen informes a familias, deben ir validados por la educadora (es coherente con "nada se aplica solo"). `hallazgos`: lo marca así.
@@ -346,7 +396,10 @@ Seis ejes estratégicos (pp. 106-111):
 
 Idea clave para el proyecto (p. 80): "Equipos bien tratados están en mejores condiciones de cuidar", favoreciendo la entrega de una educación de calidad.
 
-Qué exige a Kimün. Este componente respalda el KPI central del desafío.
+### Qué exige a Kimün
+
+Este componente respalda el KPI central del desafío.
+
 - Hacer: el objetivo de reducir las ~4 h semanales de escritorio de las educadoras es, en términos de la política, un aporte a la calidad de vida laboral y al bienestar de los equipos (pp. 55, 80, 110). `PLAN.md`: cumple (es el problema que resuelve). Fuerte argumento para el pitch (impacto social).
 - Hacer: distinguir roles (educadora, asistente, directora) y permisos, coherente con el liderazgo distribuido y los roles del equipo (p. 85). `PLAN.md`: cumple (permisos por rol; `permisos.py`).
 - Hacer: respetar el tiempo de la educadora. Tensión real: añadir una pantalla de revisión y validación agrega trabajo. Resolución: la revisión debe ser rápida (segundos desde el teléfono, "aceptar todas" por captura) para que el saldo neto sea menos trabajo, no más. `PLAN.md`: cumple en intención (Task 6: "revisa lo pendiente en segundos"). Auditar que la carga de revisión no supere el ahorro de transcripción.

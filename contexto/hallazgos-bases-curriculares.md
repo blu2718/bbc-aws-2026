@@ -7,6 +7,22 @@
 - Páginas: se citan las impresas. En el PDF hay que sumar 2.
 - Más detalle: `enciclopedia-bases-curriculares.md` (texto literal del documento y los 206 OA con identificador, para agentes) y `resumen-bases-curriculares.md` (resumen ejecutivo para el equipo).
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Qué es](#qué-es) · líneas 26–39
+- [Por qué es útil](#por-qué-es-útil) · líneas 41–98
+  - [1. Fija la estructura oficial (pp. 36–41)](#1-fija-la-estructura-oficial-pp-3641) · líneas 43–54
+  - [2. Trae los OA de los tres niveles](#2-trae-los-oa-de-los-tres-niveles) · líneas 56–75
+  - [3. Características de los OA que importan para la app](#3-características-de-los-oa-que-importan-para-la-app) · líneas 77–85
+  - [4. Su enfoque de evaluación coincide con el diseño de la herramienta (pp. 104–112)](#4-su-enfoque-de-evaluación-coincide-con-el-diseño-de-la-herramienta-pp-104112) · líneas 87–98
+- [Qué no trae](#qué-no-trae) · líneas 100–104
+- [Relación con lo que ya tenemos](#relación-con-lo-que-ya-tenemos) · líneas 106–109
+- [Implicancias para la app](#implicancias-para-la-app) · líneas 111–127
+<!-- indice:fin -->
+
 ## Qué es
 
 Es el marco curricular nacional de la educación parvularia. Define qué y para qué deben aprender los niños desde los primeros meses hasta el ingreso a la educación básica. Todo programa propio debe cubrir sus OA (Programa Pedagógico de Transición, p. 8). El Programa Pedagógico de Transición los lleva a la sala para NT1 y NT2, y el Referente Curricular de Integra se declara coherente con ellas. Reemplazan a las Bases de 2001.

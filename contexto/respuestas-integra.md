@@ -2,6 +2,20 @@
 
 Transcripción de un correo con nuestras preguntas al equipo de Integra. Las respuestas venían destacadas en amarillo, intercaladas en el texto de las preguntas; aquí van separadas. Se corrigieron errores de tipeo evidentes ("tb" → "también", "levanta runa" → "levantar una").
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [1. Alcance de la herramienta](#1-alcance-de-la-herramienta) · líneas 19–28
+- [2. Rúbrica](#2-rúbrica) · líneas 30–34
+- [3. Cómo se decide el nivel](#3-cómo-se-decide-el-nivel) · líneas 36–40
+- [4. Pasos a seguir](#4-pasos-a-seguir) · líneas 42–46
+- [5. Rezago y frecuencia de actualización](#5-rezago-y-frecuencia-de-actualización) · líneas 48–56
+- [Qué cambia para nosotros](#qué-cambia-para-nosotros) · líneas 58–72
+- [Pendiente con Integra](#pendiente-con-integra) · líneas 74–76
+<!-- indice:fin -->
+
 ## 1. Alcance de la herramienta
 
 **Pregunta:** ¿Qué tanto debería hacer la herramienta? Nuestra idea es que organice las observaciones y proponga un nivel con la evidencia que lo respalda, dejando siempre la decisión final a la educadora. ¿Les parece adecuado o prefieren que solo organice y resuma la información, sin sugerir niveles?

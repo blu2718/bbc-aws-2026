@@ -7,6 +7,26 @@
 - Las páginas citadas coinciden con las del PDF.
 - Más detalle: `guia-politica-calidad.md` (guía completa para agentes, con la "Brújula" y lo que exige cada sección a Kimün) y `resumen-politica-calidad.md` (resumen ejecutivo para el equipo).
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Qué es](#qué-es) · líneas 30–50
+- [Por qué es útil](#por-qué-es-útil) · líneas 52–128
+  - [1. Describe el sistema de evaluación de Integra (p. 90)](#1-describe-el-sistema-de-evaluación-de-integra-p-90) · líneas 54–72
+  - [2. Los resultados de evaluación alimentan la planificación (pp. 86–89)](#2-los-resultados-de-evaluación-alimentan-la-planificación-pp-8689) · líneas 74–81
+  - [3. La calidad es contextual, no estandarizada (p. 45)](#3-la-calidad-es-contextual-no-estandarizada-p-45) · líneas 83–88
+  - [4. El desarrollo es sistémico (pp. 70–76)](#4-el-desarrollo-es-sistémico-pp-7076) · líneas 90–106
+  - [5. Exige protocolos ante vulneraciones de derechos (pp. 78–79)](#5-exige-protocolos-ante-vulneraciones-de-derechos-pp-7879) · líneas 108–112
+  - [6. Inclusión, talentos y protagonismo](#6-inclusión-talentos-y-protagonismo) · líneas 114–117
+  - [7. Familias y transiciones (pp. 96–98)](#7-familias-y-transiciones-pp-9698) · líneas 119–122
+  - [8. Personas y equipos](#8-personas-y-equipos) · líneas 124–128
+- [Qué no trae](#qué-no-trae) · líneas 130–134
+- [Implicancias para la app](#implicancias-para-la-app) · líneas 136–156
+- [Preguntas abiertas](#preguntas-abiertas) · líneas 158–160
+<!-- indice:fin -->
+
 ## Qué es
 
 Es el documento marco que define qué entiende Integra por educación parvularia de calidad. Se construyó en un proceso participativo de más de 9.000 personas: niños, familias y trabajadores (p. 2). Contiene:

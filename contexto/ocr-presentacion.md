@@ -4,6 +4,30 @@
 
 ---
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Diapositiva 2 · Presentación de la institución](#diapositiva-2--presentación-de-la-institución) · líneas 31–47
+- [Diapositiva 4 · Portada del desafío](#diapositiva-4--portada-del-desafío) · líneas 49–51
+- [Diapositiva 5 · Ejemplos de registros de las tías (fotos de notas manuscritas)](#diapositiva-5--ejemplos-de-registros-de-las-tías-fotos-de-notas-manuscritas) · líneas 53–89
+  - [Foto 1: cuaderno con post-its](#foto-1-cuaderno-con-post-its) · líneas 55–66
+  - [Foto 2: cuaderno abierto (20/04/2026)](#foto-2-cuaderno-abierto-20042026) · líneas 68–84
+  - [Foto 3: post-its en diario mural](#foto-3-post-its-en-diario-mural) · líneas 86–89
+- [Diapositiva 6 · Acto 1 · Contexto y problema: El dolor real](#diapositiva-6--acto-1--contexto-y-problema-el-dolor-real) · líneas 91–109
+  - [La historia de una persona](#la-historia-de-una-persona) · líneas 93–97
+  - [El problema de fondo](#el-problema-de-fondo) · líneas 99–101
+  - [Dimensiona el problema](#dimensiona-el-problema) · líneas 103–109
+- [Diapositiva 7 · Acto 1 · Rúbrica para medir el desarrollo de los niño/as](#diapositiva-7--acto-1--rúbrica-para-medir-el-desarrollo-de-los-niñoas) · líneas 111–126
+- [Diapositiva 8 · Acto 1 · Por qué importa](#diapositiva-8--acto-1--por-qué-importa) · líneas 128–138
+- [Diapositiva 9 · Acto 2 · Impacto y escalabilidad](#diapositiva-9--acto-2--impacto-y-escalabilidad) · líneas 140–152
+  - [Qué resolvemos AHORA](#qué-resolvemos-ahora) · líneas 142–146
+  - [Hasta dónde PUEDE llegar](#hasta-dónde-puede-llegar) · líneas 148–152
+- [Diapositiva 10 · Acto 3 · KPIs y métricas de éxito](#diapositiva-10--acto-3--kpis-y-métricas-de-éxito) · líneas 154–160
+- [Diapositiva 11 · Súmate a resolver esto](#diapositiva-11--súmate-a-resolver-esto) · líneas 162–166
+<!-- indice:fin -->
+
 ## Diapositiva 2 · Presentación de la institución
 
 **Nuestra misión:** Construimos oportunidades para toda la vida, educando con calidad y cuidando a la primera infancia.

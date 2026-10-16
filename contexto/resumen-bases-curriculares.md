@@ -2,6 +2,18 @@
 
 Resumen ejecutivo para el equipo. Para el detalle, ver `enciclopedia-bases-curriculares.md`. Para las implicancias ya cruzadas con el plan, ver `hallazgos-bases-curriculares.md`.
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Qué es y para qué sirve](#qué-es-y-para-qué-sirve) · líneas 17–21
+- [Estructura](#estructura) · líneas 23–45
+- [Las ideas que más pesan para el proyecto](#las-ideas-que-más-pesan-para-el-proyecto) · líneas 47–67
+- [Qué NO trae](#qué-no-trae) · líneas 69–74
+- [Dónde profundizar](#dónde-profundizar) · líneas 76–78
+<!-- indice:fin -->
+
 ## Qué es y para qué sirve
 
 Es el marco curricular nacional de la educación parvularia chilena (MINEDUC, reimpresión 2018). Define qué y para qué deben aprender los niños desde los primeros meses hasta el ingreso a la Educación Básica. Reemplaza a las Bases de 2001. Es público. Todo programa propio (como el de Integra) debe cubrir sus Objetivos de Aprendizaje, así que son terreno común. Para Kimün, son la fuente de verdad de los núcleos y de los OA.

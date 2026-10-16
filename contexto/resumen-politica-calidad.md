@@ -2,6 +2,18 @@
 
 Lectura de 3 a 5 minutos. Para el detalle, ver `guia-politica-calidad.md`; para las implicancias ya cruzadas con el plan, `hallazgos-politica-calidad-educativa-integra.md`.
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Qué es](#qué-es) · líneas 17–19
+- [La definición de calidad](#la-definición-de-calidad) · líneas 21–27
+- [Principios que el proyecto debe honrar](#principios-que-el-proyecto-debe-honrar) · líneas 29–35
+- [Consecuencias para Kimün](#consecuencias-para-kimün) · líneas 37–48
+- [Tensiones abiertas](#tensiones-abiertas) · líneas 50–57
+<!-- indice:fin -->
+
 ## Qué es
 
 El documento marco de 2017 (segunda edición, 120 páginas) donde Integra define qué entiende por educación parvularia de calidad. Se construyó con más de 9.000 personas de su comunidad: niños, familias y trabajadores (p. 2). Es el faro del proyecto: la razón de ser de Kimün es que estos principios se cumplan mejor. Aviso de vigencia: es anterior a las Bases Curriculares 2018 y al Referente Curricular 2025, así que su vocabulario curricular está desactualizado ("aprendizajes esperados", núcleos antiguos), pero sus principios no.

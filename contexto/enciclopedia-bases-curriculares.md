@@ -4,6 +4,92 @@ Referencia exhaustiva de la malla curricular oficial de la educación parvularia
 
 El documento es público y hecho para difundirse, así que aquí se transcriben fragmentos literales entre comillas o en bloque citado (>), con su página. Donde se parafrasea, es para orientar al agente, no para reemplazar el texto oficial.
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Cómo usar este documento](#cómo-usar-este-documento) · líneas 93–105
+- [Introducción general](#introducción-general) · líneas 107–211
+  - [Requerimientos](#requerimientos) · líneas 125–135
+  - [Fuentes](#fuentes) · líneas 137–163
+  - [Principales innovaciones](#principales-innovaciones) · líneas 165–177
+  - [Objetivos Generales de la Educación Parvularia (Ley General de Educación N° 20.370)](#objetivos-generales-de-la-educación-parvularia-ley-general-de-educación-n-20370) · líneas 179–201
+  - [Contenido del documento](#contenido-del-documento) · líneas 203–211
+- [Capítulo 1 — Fundamentos de la Educación Parvularia](#capítulo-1--fundamentos-de-la-educación-parvularia) · líneas 213–385
+  - [Orientaciones valóricas](#orientaciones-valóricas) · líneas 215–223
+  - [Enfoque de derechos: eje del concepto de niño y niña](#enfoque-de-derechos-eje-del-concepto-de-niño-y-niña) · líneas 225–235
+  - [Inclusión](#inclusión) · líneas 237–257
+  - [Labor educativa conjunta](#labor-educativa-conjunta) · líneas 259–301
+  - [El enfoque pedagógico de la Educación Parvularia](#el-enfoque-pedagógico-de-la-educación-parvularia) · líneas 303–329
+  - [Principios pedagógicos](#principios-pedagógicos) · líneas 331–359
+  - [Fin y propósitos de la Educación Parvularia](#fin-y-propósitos-de-la-educación-parvularia) · líneas 361–385
+- [Capítulo 2 — Organización curricular](#capítulo-2--organización-curricular) · líneas 387–501
+  - [Definiciones fundamentales de los componentes estructurales](#definiciones-fundamentales-de-los-componentes-estructurales) · líneas 391–445
+  - [Niveles curriculares](#niveles-curriculares) · líneas 447–471
+  - [Tabla resumen de los componentes estructurales (p. 44)](#tabla-resumen-de-los-componentes-estructurales-p-44) · líneas 473–483
+  - [Tabla de conteo de OA](#tabla-de-conteo-de-oa) · líneas 485–501
+- [Ámbito: Desarrollo Personal y Social](#ámbito-desarrollo-personal-y-social) · líneas 503–749
+  - [Núcleo Identidad y Autonomía (IA)](#núcleo-identidad-y-autonomía-ia) · líneas 519–594
+    - Primer Nivel (Sala Cuna) — p. 50 · líneas 549–559
+    - Segundo Nivel (Medio) — p. 51 · líneas 561–576
+    - Tercer Nivel (Transición) — p. 52 · líneas 578–594
+  - [Núcleo Convivencia y Ciudadanía (CC)](#núcleo-convivencia-y-ciudadanía-cc) · líneas 596–674
+    - Primer Nivel (Sala Cuna) — p. 56 · líneas 634–643
+    - Segundo Nivel (Medio) — p. 57 · líneas 645–658
+    - Tercer Nivel (Transición) — p. 58 · líneas 660–674
+  - [Núcleo Corporalidad y Movimiento (CM)](#núcleo-corporalidad-y-movimiento-cm) · líneas 676–749
+    - Primer Nivel (Sala Cuna) — p. 62 · líneas 710–720
+    - Segundo Nivel (Medio) — p. 63 · líneas 722–733
+    - Tercer Nivel (Transición) — p. 64 · líneas 735–749
+- [Ámbito: Comunicación Integral](#ámbito-comunicación-integral) · líneas 751–917
+  - [Núcleo Lenguaje Verbal (LV)](#núcleo-lenguaje-verbal-lv) · líneas 763–844
+    - Primer Nivel (Sala Cuna) — p. 70 · líneas 805–816
+    - Segundo Nivel (Medio) — p. 71 · líneas 818–829
+    - Tercer Nivel (Transición) — p. 72 · líneas 831–844
+  - [Núcleo Lenguajes Artísticos (LA)](#núcleo-lenguajes-artísticos-la) · líneas 846–917
+    - Primer Nivel (Sala Cuna) — p. 76 · líneas 882–891
+    - Segundo Nivel (Medio) — p. 77 · líneas 893–903
+    - Tercer Nivel (Transición) — p. 78 · líneas 905–917
+- [Ámbito: Interacción y Comprensión del Entorno](#ámbito-interacción-y-comprensión-del-entorno) · líneas 919–1163
+  - [Núcleo Exploración del Entorno Natural (EEN)](#núcleo-exploración-del-entorno-natural-een) · líneas 933–1006
+    - Primer Nivel (Sala Cuna) — p. 84 · líneas 967–975
+    - Segundo Nivel (Medio) — p. 85 · líneas 977–989
+    - Tercer Nivel (Transición) — p. 86 · líneas 991–1006
+  - [Núcleo Comprensión del Entorno Sociocultural (CES)](#núcleo-comprensión-del-entorno-sociocultural-ces) · líneas 1008–1082
+    - Primer Nivel (Sala Cuna) — p. 91 · líneas 1046–1054
+    - Segundo Nivel (Medio) — p. 92 · líneas 1056–1066
+    - Tercer Nivel (Transición) — p. 93 · líneas 1068–1082
+  - [Núcleo Pensamiento Matemático (PM)](#núcleo-pensamiento-matemático-pm) · líneas 1084–1163
+    - Primer Nivel (Sala Cuna) — p. 97 · líneas 1118–1127
+    - Segundo Nivel (Medio) — p. 98 · líneas 1129–1142
+    - Tercer Nivel (Transición) — p. 99 · líneas 1144–1163
+- [Capítulo 3 — Contextos para el aprendizaje](#capítulo-3--contextos-para-el-aprendizaje) · líneas 1165–1411
+  - [Contexto Planificación y Evaluación para el Aprendizaje](#contexto-planificación-y-evaluación-para-el-aprendizaje) · líneas 1175–1273
+  - [Consideraciones para la evaluación](#consideraciones-para-la-evaluación) · líneas 1275–1311
+  - [Contexto Ambientes de Aprendizaje](#contexto-ambientes-de-aprendizaje) · líneas 1313–1381
+  - [Contexto Familia y Comunidad Educativa](#contexto-familia-y-comunidad-educativa) · líneas 1383–1405
+  - [Bibliografía](#bibliografía) · líneas 1407–1411
+- [Glosario de términos del documento](#glosario-de-términos-del-documento) · líneas 1413–1432
+- [Referencias normativas citadas (leyes, decretos y convenios)](#referencias-normativas-citadas-leyes-decretos-y-convenios) · líneas 1434–1447
+- [Anexo: protección de derechos y vulneraciones](#anexo-protección-de-derechos-y-vulneraciones) · líneas 1449–1623
+  - [Qué dicen las Bases](#qué-dicen-las-bases) · líneas 1462–1472
+  - [Qué pide la Política de Calidad (pp. 78–79)](#qué-pide-la-política-de-calidad-pp-7879) · líneas 1474–1493
+  - [Qué constituye maltrato](#qué-constituye-maltrato) · líneas 1495–1554
+    - [Maltrato físico (JUNJI-V, p. 21)](#maltrato-físico-junji-v-p-21) · líneas 1511–1522
+    - [Maltrato psicológico (JUNJI-V, pp. 22–23)](#maltrato-psicológico-junji-v-pp-2223) · líneas 1524–1533
+    - [Negligencia (JUNJI-V, p. 23)](#negligencia-junji-v-p-23) · líneas 1535–1539
+    - [Agresión sexual (JUNJI-M, p. 23)](#agresión-sexual-junji-m-p-23) · líneas 1541–1545
+    - [Contextos (JUNJI-V, p. 24)](#contextos-junji-v-p-24) · líneas 1547–1554
+  - [Qué no constituye maltrato](#qué-no-constituye-maltrato) · líneas 1556–1565
+  - [Cómo se detecta (JUNJI-V, p. 26)](#cómo-se-detecta-junji-v-p-26) · líneas 1567–1586
+  - [Qué hacer: pasos de la JUNJI como referencia](#qué-hacer-pasos-de-la-junji-como-referencia) · líneas 1588–1608
+  - [Reglas para Kimün](#reglas-para-kimün) · líneas 1610–1623
+- [Consideraciones para Kimün](#consideraciones-para-kimün) · líneas 1625–1666
+- [Verificación de los 206 OA](#verificación-de-los-206-oa) · líneas 1668–1700
+  - [Verificación de cobertura y literalidad (texto ampliado)](#verificación-de-cobertura-y-literalidad-texto-ampliado) · líneas 1691–1700
+<!-- indice:fin -->
+
 ## Cómo usar este documento
 
 Para agentes que escriben prompts, deciden qué OA toca una observación, redactan alertas o diseñan vistas.
@@ -15,48 +101,6 @@ Para agentes que escriben prompts, deciden qué OA toca una observación, redact
 - Siglas de los 8 núcleos: IA, CC, CM (ámbito Desarrollo Personal y Social); LV, LA (Comunicación Integral); EEN, CES, PM (Interacción y Comprensión del Entorno).
 - Total de OA: 206 (50 Sala Cuna, 71 Medio, 85 Transición). Verificado con script contra el texto extraído del PDF: los 206 aparecen literales y el conteo por núcleo y nivel coincide con el de `hallazgos-bases-curriculares.md` (ver sección Verificación al final).
 - El proyecto hoy solo carga los 85 OA de Transición (`datos/curriculo_transicion.json`). Los OA de Sala Cuna y Medio de este documento son la fuente oficial si el alcance se amplía.
-
-### Índice
-
-- [Introducción general](#introducción-general)
-  - [Requerimientos](#requerimientos)
-  - [Fuentes](#fuentes)
-  - [Principales innovaciones](#principales-innovaciones)
-  - [Objetivos Generales de la Educación Parvularia (LGE)](#objetivos-generales-de-la-educación-parvularia-ley-general-de-educación-n-20370)
-  - [Contenido del documento](#contenido-del-documento)
-- [Capítulo 1 — Fundamentos](#capítulo-1--fundamentos-de-la-educación-parvularia)
-  - [Orientaciones valóricas](#orientaciones-valóricas)
-  - [Enfoque de derechos](#enfoque-de-derechos-eje-del-concepto-de-niño-y-niña)
-  - [Inclusión](#inclusión)
-  - [Labor educativa conjunta (familia, institución, comunidad)](#labor-educativa-conjunta)
-  - [El enfoque pedagógico (la pedagogía, la educadora, principios)](#el-enfoque-pedagógico-de-la-educación-parvularia)
-  - [Principios pedagógicos (los 8)](#principios-pedagógicos)
-  - [Fin y propósitos](#fin-y-propósitos-de-la-educación-parvularia)
-- [Capítulo 2 — Organización curricular](#capítulo-2--organización-curricular)
-  - [Definiciones de los componentes estructurales](#definiciones-fundamentales-de-los-componentes-estructurales)
-  - [Niveles curriculares (tramos de 2 años)](#niveles-curriculares)
-  - [Tabla resumen de los componentes estructurales](#tabla-resumen-de-los-componentes-estructurales-p-44)
-  - [Ámbito Desarrollo Personal y Social](#ámbito-desarrollo-personal-y-social)
-    - [Núcleo Identidad y Autonomía (IA)](#núcleo-identidad-y-autonomía-ia)
-    - [Núcleo Convivencia y Ciudadanía (CC)](#núcleo-convivencia-y-ciudadanía-cc)
-    - [Núcleo Corporalidad y Movimiento (CM)](#núcleo-corporalidad-y-movimiento-cm)
-  - [Ámbito Comunicación Integral](#ámbito-comunicación-integral)
-    - [Núcleo Lenguaje Verbal (LV)](#núcleo-lenguaje-verbal-lv)
-    - [Núcleo Lenguajes Artísticos (LA)](#núcleo-lenguajes-artísticos-la)
-  - [Ámbito Interacción y Comprensión del Entorno](#ámbito-interacción-y-comprensión-del-entorno)
-    - [Núcleo Exploración del Entorno Natural (EEN)](#núcleo-exploración-del-entorno-natural-een)
-    - [Núcleo Comprensión del Entorno Sociocultural (CES)](#núcleo-comprensión-del-entorno-sociocultural-ces)
-    - [Núcleo Pensamiento Matemático (PM)](#núcleo-pensamiento-matemático-pm)
-- [Capítulo 3 — Contextos para el aprendizaje](#capítulo-3--contextos-para-el-aprendizaje)
-  - [Planificación](#contexto-planificación-y-evaluación-para-el-aprendizaje)
-  - [Evaluación (clave para Kimün)](#consideraciones-para-la-evaluación)
-  - [Ambientes de aprendizaje](#contexto-ambientes-de-aprendizaje)
-  - [Familia y comunidad educativa](#contexto-familia-y-comunidad-educativa)
-- [Glosario de términos del documento](#glosario-de-términos-del-documento)
-- [Referencias normativas citadas](#referencias-normativas-citadas-leyes-decretos-y-convenios)
-- [Anexo: protección de derechos y vulneraciones](#anexo-protección-de-derechos-y-vulneraciones) (fuera de las Bases: qué constituye maltrato y qué hacer)
-- [Consideraciones para Kimün](#consideraciones-para-kimün)
-- [Verificación de los 206 OA](#verificación-de-los-206-oa)
 
 ---
 
