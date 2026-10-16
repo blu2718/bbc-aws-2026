@@ -68,6 +68,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Comprime el HTML (la ficha pasa de ~230 KB a ~30 KB). CloudFront no lo hace con
+    # CachingDisabled, pero reenvía Accept-Encoding al origen y deja pasar la respuesta
+    # comprimida. Desde Django 4.2 trae mitigación de BREACH, y el token CSRF va enmascarado.
+    "django.middleware.gzip.GZipMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",

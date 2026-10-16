@@ -63,13 +63,15 @@ def cargar_curriculo(datos, nivel_educativo=NivelEducativo.TRANSICION):
         # Sala cuna y medio también reciben rúbrica provisoria (sobre sus OA), solo en los núcleos con OA en
         # ese nivel: sin OA la propuesta no tendría con qué comparar.
         if nivel_educativo == NivelEducativo.TRANSICION or n["oas"]:
-            for nivel, descripcion in descriptores_provisorios(nucleo, rubrica.cantidad_niveles, nivel_educativo):
+            for nivel, descripcion, conducta in descriptores_provisorios(
+                nucleo, rubrica.cantidad_niveles, nivel_educativo,
+            ):
                 nombre = nombre_provisorio(nivel)
                 descriptor, creado = DescriptorNivel.objects.get_or_create(
                     nivel_educativo=nivel_educativo, nucleo=nucleo, nivel=nivel,
-                    defaults={"nombre": nombre, "descripcion": descripcion, "provisorio": True},
+                    defaults={"nombre": nombre, "descripcion": descripcion, "conducta": conducta, "provisorio": True},
                 )
-                cambio = (descriptor.nombre, descriptor.descripcion) != (nombre, descripcion)
-                if not creado and descriptor.provisorio and cambio:
-                    descriptor.nombre, descriptor.descripcion = nombre, descripcion
-                    descriptor.save(update_fields=["nombre", "descripcion"])
+                nuevo = (nombre, descripcion, conducta)
+                if not creado and descriptor.provisorio and (descriptor.nombre, descriptor.descripcion, descriptor.conducta) != nuevo:
+                    descriptor.nombre, descriptor.descripcion, descriptor.conducta = nuevo
+                    descriptor.save(update_fields=["nombre", "descripcion", "conducta"])
