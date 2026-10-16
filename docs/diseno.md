@@ -80,7 +80,8 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 | Etiquetas de estado | `.estado-obs` (+ `.estado-pendiente`, `.estado-aceptada`), `.efecto-*`, `.apoyo`, `.etiqueta-referencia`, `.etiqueta-provisoria`, `.etiqueta-sin-evidencia` | Píldoras con texto |
 | Señales | `.senal` + `.senal-aviso` / `.senal-alerta` | Caja con borde izquierdo de color y texto |
 | Alertas | `.aviso` (amarilla), `.aviso-error` (roja), `.aviso-proteccion` (roja, Task 13), `.mensajes` (celeste) | |
-| Tablas | `<table>` de Pico dentro de `.overflow-auto`; `.tabla-curso`, `.tabla-jardin`, `.distribucion` | Primera columna fija al desplazar |
+| Tablas | `<table>` de Pico dentro de `.overflow-auto` y de una `.tarjeta`; `.tabla-curso`, `.tabla-jardin`, `.distribucion`; la página lleva `body.pagina-tabla` | Primera columna fija al desplazar; `caption` gris a la izquierda |
+| Cómo leer | `details.como-leer` | Explicación larga de una tabla, plegada |
 | Avatares | `.avatar`, `.avatar-chico`, `.avatar-grande`, `.avatar-curso` | Color por nombre (`color_avatar`) |
 | Composer | `.composer`, `.composer-barra`, `.composer-adjunto` | Barra de registrar (pantalla I) |
 | Burbuja | `.burbuja`, `.burbuja-pie` | Nota registrada (pantalla II) |
@@ -100,6 +101,8 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 - Protección de derechos: el rojo de alerta solo como borde y numeración; el texto de los pasos queda en tinta
   normal para que se lea tranquilo. Un solo botón primario («Informé a la directora…»); «No es una vulneración»
   queda de borde y separado, porque es la acción menos frecuente y pide un motivo.
+- Tablas: la explicación (que los tests y la directora necesitan) no se borra: se pliega en «Cómo leer esta
+  tabla» para que lo primero que se vea sea la tabla y las sugerencias.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -155,7 +158,8 @@ Ordenado por impacto en la demo:
 | 3 | Arrastrar foto: `kimun.js` recibe `dragover`/`drop` en el composer, pone la foto en `[data-foto]` y dispara `change` (mismo camino que «+»); fuera de la barra el drop se ignora para no perder la nota; borde punteado `.composer-soltar` mientras se arrastra | `fix(registrar)` | hecho, probado con Playwright |
 | 4 | Desborde «procesando»: `.procesando p { white-space: normal }` | `fix(suceso)` | hecho |
 | 5a | Task 13: avisos en `.tarjeta` con `.lista-enlaces` y píldora «Por atender»; aviso con `.aviso-proteccion` (borde rojo, pasos numerados `.pasos`), la nota en `.cita-nota`, el formulario de resolver en tarjeta con «No es una vulneración» como botón de borde; protocolo con `.encabezado-pagina`, formulario en tarjeta; resguardo en el suceso como caja roja suave | `style(proteccion)` | hecho, tests `test_proteccion` y `test_protocolo` pasan |
-| 5b | Jardín, curso, bandeja, informe, inicio | | pendiente |
+| 5b | Vista del jardín: `.encabezado-pagina` con el protocolo como botón de borde, sugerencias y tabla en `.tarjeta`, explicación en `<details class="como-leer">`, estilos en línea movidos a `registro.css` (`body.pagina-tabla`) | `style(jardin)` | hecho, `test_jardin` pasa |
+| 5c | Curso, bandeja, informe, inicio | | pendiente |
 | 6 | Títulos de revisión | | pendiente |
 
 Pantallas para mirar primero: registrar y suceso (celular), tabla del curso, vista del jardín, aviso de protección.

@@ -806,3 +806,33 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .propuesta-nivel .acciones { margin-block: .75rem; }
 .propuesta-nivel details { margin-block: 1rem; }
 [id^="observacion-"] { scroll-margin-top: var(--pico-spacing); }
+
+/* --- Tablas del curso y del jardín (curso.html, jardin.html: <body class="pagina-tabla">) ---------- */
+
+/* Las señales llevan color y también texto: el color nunca es la única pista. */
+.pagina-tabla .senal { display: block; margin-top: .25rem; padding: .1rem .35rem; border-radius: .25rem; font-size: .8rem; line-height: 1.3; font-weight: normal; }
+.pagina-tabla .senal-aviso { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); border-left: .25rem solid var(--kimun-aviso-borde); }
+.pagina-tabla .senal-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); font-weight: 600; }
+.pagina-tabla .datos { display: block; margin-top: .25rem; font-size: .75rem; color: var(--pico-muted-color); }
+.pagina-tabla .tarjeta table { margin-bottom: 0; font-size: .95rem; }
+.pagina-tabla .tarjeta caption { padding-bottom: .5rem; text-align: left; font-size: .85rem; color: var(--pico-muted-color); }
+.pagina-tabla .tarjeta th, .pagina-tabla .tarjeta td { --pico-background-color: #fff; background: #fff; }
+.pagina-tabla .tarjeta h3 { margin: 1rem 0 .5rem; font-size: 1.05rem; color: var(--kimun-tinta); }
+/* Primera columna fija al desplazar la tabla a lo ancho. */
+.tabla-curso th[scope="row"], .tabla-jardin th[scope="row"] { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 1px 0 0 var(--kimun-linea); }
+.tabla-curso td, .tabla-curso th, .tabla-jardin td, .tabla-jardin th { vertical-align: top; min-width: 7rem; }
+.tabla-curso th[scope="row"] small, .tabla-jardin th[scope="col"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
+.tabla-jardin td.celda-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); }
+.tabla-jardin td.celda-alerta .senal { border-left: 0; padding-left: 0; background: none; }
+.tabla-jardin td.celda-sin-datos { color: var(--pico-muted-color); font-size: .875rem; }
+.sin-observaciones th, .pagina-tabla .tarjeta .sin-observaciones th, .pagina-tabla .tarjeta .sin-observaciones td { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); }
+.distribucion td.mayoria { font-weight: 700; text-decoration: underline; }
+.navegacion-quincena { display: flex; gap: .5rem 1rem; flex-wrap: wrap; margin-bottom: .75rem; font-size: .9rem; }
+/* Explicación de cómo leer una tabla: plegada para que la tabla quede a la vista. */
+.como-leer { margin: 0 0 1rem; padding: .5rem .85rem; border-radius: .75rem; background: var(--kimun-celeste-claro); font-size: .9rem; }
+.como-leer summary { color: var(--kimun-azul); font-weight: 600; }
+.como-leer p { margin: .5rem 0 0; }
+/* Sugerencias de revisión de la directora. */
+.lista-sugerencias { display: grid; gap: .5rem; margin: 0; padding: 0; }
+.lista-sugerencias li { list-style: none; margin: 0; }
+.lista-sugerencias .senal { display: block; margin: 0 0 .2rem; padding: .4rem .6rem; font-size: .9rem; }
