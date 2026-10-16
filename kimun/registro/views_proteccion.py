@@ -77,7 +77,8 @@ def resolver_aviso(request, aviso_id):
             aviso, request.user, error_motivo="Escribe brevemente por qué no es una vulneración.",
         ), status=400)
     if accion not in ("protocolo", "no_es"):
-        return redirect("aviso", aviso_id=aviso.pk)
+        messages.error(request, "Elige una de las dos opciones para resolver el aviso.")
+        return render(request, "registro/aviso.html", _contexto_aviso(aviso, request.user), status=400)
 
     with transaction.atomic():
         # Condicional: si la educadora y la directora resuelven a la vez, gana la primera y
@@ -134,7 +135,8 @@ def protocolo_jardin(request, jardin_id):
     """La directora carga o actualiza el protocolo de su jardín. Solo ella; para el resto, 404."""
     jardin = get_object_or_404(jardines_que_dirige(request.user), pk=jardin_id)
     actual = ProtocoloJardin.objects.filter(jardin=jardin).first()
-    form = ProtocoloJardinForm(request.POST or None, instance=actual)
+    # Un POST vacío también se valida (con `request.POST or None` quedaba sin errores y respondía 200).
+    form = ProtocoloJardinForm(request.POST if request.method == "POST" else None, instance=actual)
     if request.method == "POST" and form.is_valid():
         protocolo = form.save(commit=False)
         protocolo.jardin = jardin

@@ -26,6 +26,17 @@ from .revision import _destinos  # (niño, núcleo) donde pedir una propuesta, i
 
 FILAS_AREAS_LIBRES = 6
 EXTENSIONES_HOJA = {"jpeg": "jpg", "png": "png", "gif": "gif", "webp": "webp"}
+LARGO_MOTIVO = 500  # el mismo límite que el motivo de una corrección
+
+
+def _motivo(motivo, si_falta):
+    """El motivo de un descarte o retiro: obligatorio y del largo de los demás motivos del historial."""
+    motivo = (motivo or "").strip()
+    if not motivo:
+        raise ValidationError(si_falta)
+    if len(motivo) > LARGO_MOTIVO:
+        raise ValidationError(f"El motivo puede tener hasta {LARGO_MOTIVO} caracteres.")
+    return motivo
 
 
 class CambioConcurrente(ValidationError):
@@ -296,9 +307,7 @@ def guardar(resultado, usuario, form, *, confirmar=False):
 
 @transaction.atomic
 def descartar(resultado, usuario, motivo):
-    motivo = (motivo or "").strip()
-    if not motivo:
-        raise ValidationError("Escribe por qué se descarta: queda en el historial.")
+    motivo = _motivo(motivo, "Escribe por qué se descarta: queda en el historial.")
     resultado = ResultadoInstrumento.objects.select_for_update().select_related("nino__curso", "instrumento").get(pk=resultado.pk)
     if resultado.estado == ResultadoInstrumento.Estado.DESCARTADO:
         return resultado
@@ -343,9 +352,7 @@ def _pedir_propuestas(destinos):
 @transaction.atomic
 def retirar_observacion(obs, usuario, motivo):
     """Saca de la ficha una observación aceptada por error (por ejemplo, de otro niño). Queda en el historial."""
-    motivo = (motivo or "").strip()
-    if not motivo:
-        raise ValidationError("Escribe por qué se retira: queda en el historial.")
+    motivo = _motivo(motivo, "Escribe por qué se retira: queda en el historial.")
     obs = Observacion.objects.select_for_update().select_related("captura__curso", "nino").get(pk=obs.pk)
     if obs.estado != Observacion.Estado.ACEPTADA:
         raise ValidationError("Solo se retiran observaciones aceptadas.")

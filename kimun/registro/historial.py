@@ -42,6 +42,8 @@ def _normalizar(valor):
 
 def instantanea_resultado(resultado):
     return _normalizar({
+        # De quién es: un resultado de salud pasado a otro niño por fuera de la app debe notarse.
+        "nino_id": resultado.nino_id,
         "instrumento": resultado.instrumento.codigo if resultado.instrumento_id else None,
         "estado": resultado.estado,
         "origen": resultado.origen,
@@ -161,7 +163,7 @@ class Integridad:
 
     @property
     def texto(self):
-        if not self.total:
+        if self.ok and not self.total:
             return "Sin cambios registrados."
         if self.ok:
             return f"Historial íntegro: {self.total} cambio{'s' if self.total != 1 else ''} verificado{'s' if self.total != 1 else ''}."
@@ -196,8 +198,16 @@ def verificar(objeto):
         if _hash_de(entrada) != entrada.hash:
             problemas.append(f"El cambio {i} fue alterado después de registrarse.")
         anterior = entrada.hash
-    if lista and _comparable(lista[-1].despues) != _comparable(actual):
-        problemas.append("El dato actual no coincide con el último cambio registrado: se modificó por fuera de la app.")
+    if lista:
+        registrado, vigente = _comparable(lista[-1].despues), _comparable(actual)
+        if "nino_id" not in registrado:
+            vigente.pop("nino_id", None)  # entrada anterior a que la instantánea del resultado guardara el niño
+        if registrado != vigente:
+            problemas.append("El dato actual no coincide con el último cambio registrado: se modificó por fuera de la app.")
+    elif tipo == RegistroCambio.Objeto.RESULTADO:
+        # Todo resultado registra su creación (hoja subida, ingreso a mano o demo): sin entradas, se borraron.
+        problemas.append("No queda ningún cambio registrado, aunque todo resultado registra su creación: "
+                         "se borró el historial por fuera de la app.")
     return Integridad(ok=not problemas, total=len(lista), problemas=problemas)
 
 
