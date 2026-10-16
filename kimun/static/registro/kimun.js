@@ -199,6 +199,47 @@
       });
     }
 
+    // Arrastrar una foto a la barra. El <input type="file"> está oculto y no recibe el arrastre: sin esto el
+    // navegador abre la imagen en la pestaña y se pierde lo escrito. Se reusa el mismo camino que "+".
+    if (foto) {
+      const barra = form.querySelector(".composer-barra") || form;
+      const traeArchivos = function (evento) {
+        return evento.dataTransfer && Array.from(evento.dataTransfer.types || []).includes("Files");
+      };
+      let profundidad = 0;
+      form.addEventListener("dragenter", function (evento) {
+        if (!traeArchivos(evento)) return;
+        evento.preventDefault();
+        profundidad += 1;
+        barra.classList.add("composer-soltar");
+      });
+      form.addEventListener("dragover", function (evento) {
+        if (!traeArchivos(evento)) return;
+        evento.preventDefault();
+        evento.dataTransfer.dropEffect = "copy";
+      });
+      form.addEventListener("dragleave", function () {
+        profundidad = Math.max(0, profundidad - 1);
+        if (!profundidad) barra.classList.remove("composer-soltar");
+      });
+      form.addEventListener("drop", function (evento) {
+        if (!traeArchivos(evento)) return;
+        evento.preventDefault();
+        profundidad = 0;
+        barra.classList.remove("composer-soltar");
+        const imagen = Array.from(evento.dataTransfer.files).find(function (a) { return a.type.startsWith("image/"); });
+        if (!imagen) return decir("Solo se puede soltar una foto. Para un audio, usa el micrófono.");
+        if (!ponerArchivo(foto, imagen)) return decir("Este navegador no permite soltar la foto. Usa el botón «+».");
+        foto.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+      // Si la foto cae fuera de la barra, no se abre en la pestaña (se perdería la nota escrita).
+      ["dragover", "drop"].forEach(function (tipo) {
+        document.addEventListener(tipo, function (evento) {
+          if (traeArchivos(evento) && !form.contains(evento.target)) evento.preventDefault();
+        });
+      });
+    }
+
     // Audio: solo si el navegador puede grabar (requiere HTTPS o localhost).
     const puedeGrabar = microfono && audio && window.MediaRecorder && navigator.mediaDevices &&
       typeof navigator.mediaDevices.getUserMedia === "function";

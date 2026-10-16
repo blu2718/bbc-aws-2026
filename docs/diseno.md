@@ -91,6 +91,8 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   identidad y no se veía por un problema de especificidad, no un cambio de paleta.
 - Contadores de la barra: no se acortó el texto «Avisos de protección» porque `test_proteccion.py` compara el HTML
   exacto; en celular se apilan en dos píldoras chicas.
+- Arrastre: causa real era que el `input type=file` oculto no recibe el arrastre y no había manejadores; se arregló
+  solo en JS, sin tocar el formulario ni la vista. Solo acepta imágenes: los audios se graban con el micrófono.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -143,7 +145,7 @@ Ordenado por impacto en la demo:
 |---|---|---|---|
 | 1 | Paleta de Pico: overrides con el mismo selector que Pico (`:root:not([data-theme=dark]), [data-theme="light"]`) y `--pico-secondary*` en gris de Integra | `fix(estilo): paleta` | hecho |
 | 2 | Barra superior: contadores como píldoras (rojo pastel avisos, celeste por revisar), apiladas en celular; la barra usa los mismos anchos que `.container` | `fix(barra)` | hecho |
-| 3 | Arrastrar foto | | pendiente |
+| 3 | Arrastrar foto: `kimun.js` recibe `dragover`/`drop` en el composer, pone la foto en `[data-foto]` y dispara `change` (mismo camino que «+»); fuera de la barra el drop se ignora para no perder la nota; borde punteado `.composer-soltar` mientras se arrastra | `fix(registrar)` | hecho, probado con Playwright |
 | 4 | Desborde «procesando» | | pendiente |
 | 5 | Pantallas fuera de estilo | | pendiente |
 | 6 | Títulos de revisión | | pendiente |

@@ -451,6 +451,8 @@ dialog.menu-lateral > article > footer.menu-pie {
   box-shadow: var(--kimun-sombra);
 }
 .composer-barra:focus-within { border-color: var(--kimun-azul); box-shadow: 0 0 0 3px var(--pico-primary-focus); }
+/* Mientras se arrastra una foto sobre la barra (kimun.js). */
+.composer-barra.composer-soltar { border-style: dashed; border-color: var(--kimun-azul); background: var(--kimun-celeste-suave); }
 .composer-barra textarea {
   flex: 1;
   min-height: 2.75rem;
