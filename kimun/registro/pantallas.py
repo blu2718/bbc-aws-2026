@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from datetime import date
 
 from .alertas import Gravedad
+from .avanzar import anio_del_nivel, conductas_de_oas, manifestaciones_por_oa
 from .coincidencia import claves, normalizar
 from .forms import etiqueta_nivel
 from .models import DescriptorNivel, NivelValidado, Nucleo, Observacion, Rubrica, texto_nivel
@@ -49,6 +50,9 @@ class NucleoSuceso:
     nucleo: Nucleo
     texto_nivel: str                       # nivel actual validado: "3 · Desarrollando"
     siguiente: DescriptorNivel | None      # qué observar después, de la rúbrica
+    texto_siguiente: str = ""              # "4 · Afianzando", o "4" si es provisorio
+    conductas: list = field(default_factory=list)  # [avanzar.ConductasOA] del año del nivel siguiente
+    anio: str = ""                         # "NT1" o "NT2" si hay conductas
 
 
 @dataclass(frozen=True)
@@ -60,8 +64,12 @@ class TarjetaSuceso:
 
     @property
     def sugerencia(self):
-        """El primer núcleo con un nivel siguiente en la rúbrica, o None."""
-        return next((n for n in self.nucleos if n.siguiente is not None), None)
+        """El primer núcleo con un nivel siguiente en la rúbrica, o None.
+
+        Se prefiere uno con conductas del Programa para los OA del suceso, que es más concreto.
+        """
+        con_siguiente = [n for n in self.nucleos if n.siguiente is not None]
+        return next((n for n in con_siguiente if n.conductas), None) or next(iter(con_siguiente), None)
 
 
 def _nucleos_de(obs, orden):
@@ -91,6 +99,8 @@ def tarjetas_suceso(observaciones, hoy):
     for nino_id, nucleo_id, nivel in filas:
         niveles.setdefault((nino_id, nucleo_id), nivel)  # el primero es el más reciente
     orden = {pk: i for i, pk in enumerate(Nucleo.objects.values_list("pk", flat=True))}
+    provisorios = {d.nucleo_id for d in descriptores.values() if d.provisorio}
+    manifestaciones = manifestaciones_por_oa(oa_ids={oa.pk for o in observaciones for oa in o.oas.all()})
 
     tarjetas = []
     for obs in observaciones:
@@ -101,7 +111,15 @@ def tarjetas_suceso(observaciones, hoy):
                 nucleos.append(NucleoSuceso(nucleo, SIN_NIVEL if obs.nino_id else "", None))
                 continue
             siguiente = descriptores.get((nucleo.pk, nivel + 1)) if nivel < maximo else None
-            nucleos.append(NucleoSuceso(nucleo, etiqueta_nivel(nivel, descriptores.get((nucleo.pk, nivel))), siguiente))
+            # En la rúbrica provisoria, el nivel siguiente se describe con las conductas del Programa
+            # de los OA de este suceso, del año que le corresponde (avanzar.py).
+            anio = anio_del_nivel(siguiente.nivel) if siguiente and nucleo.pk in provisorios else ""
+            conductas = conductas_de_oas([oa for oa in obs.oas.all() if oa.nucleo_id == nucleo.pk], manifestaciones, anio)
+            nucleos.append(NucleoSuceso(
+                nucleo, etiqueta_nivel(nivel, descriptores.get((nucleo.pk, nivel))), siguiente,
+                texto_siguiente=etiqueta_nivel(siguiente.nivel, siguiente) if siguiente else "",
+                conductas=conductas, anio=anio if conductas else "",
+            ))
         edad = texto_edad(obs.nino.fecha_nacimiento, hoy) if obs.nino else ""
         tarjetas.append(TarjetaSuceso(obs=obs, edad=edad, nucleos=nucleos, oas=list(obs.oas.all())))
     return tarjetas

@@ -46,11 +46,57 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
   {% endif %}
 
   {% if nf.descriptor_siguiente %}
-    <h3>Qué observar después</h3>
-    {% with d=nf.descriptor_siguiente %}
-      <p>{{ d.descripcion|linebreaksbr }}</p>
-      {% if d.conducta %}<p><em>Conducta observable:</em> {{ d.conducta|linebreaksbr }}</p>{% endif %}
-    {% endwith %}
+    {# Qué observar para avanzar (registro/avanzar.py): todo sale de la rúbrica y del Programa, nada se genera con IA. #}
+    <div class="para-avanzar">
+      <h3>Qué observar después</h3>
+      <p class="para-avanzar-meta">Para avanzar a <strong>{{ nf.texto_siguiente }}</strong></p>
+      {% with d=nf.descriptor_siguiente pa=nf.para_avanzar %}
+        <p>{{ d.descripcion|linebreaksbr }}</p>
+        {% if d.conducta %}<p><em>Conducta observable:</em> {{ d.conducta|linebreaksbr }}</p>{% endif %}
+        {% if d.ejemplos %}
+          <details>
+            <summary>Cómo se ve en un registro ({{ d.ejemplos|length }} ejemplo{{ d.ejemplos|length|pluralize }} de la rúbrica)</summary>
+            <ul>{% for ejemplo in d.ejemplos %}<li>{{ ejemplo }}</li>{% endfor %}</ul>
+          </details>
+        {% endif %}
+
+        {% if pa.tiene_conductas %}
+          <h4>Conductas de {{ pa.anio }} que observar</h4>
+          <p class="ayuda">Del Programa Pedagógico de Transición. {% if pa.prioritarias %}Primero los OA que todavía no tienen evidencia.{% else %}Todos los OA del núcleo ya tienen evidencia.{% endif %}</p>
+          {% for c in pa.prioritarias %}
+            <div class="conductas-oa">
+              <p><abbr title="{{ c.oa.texto }}">{{ c.oa.codigo }}</abbr> <span class="etiqueta-sin-evidencia">Sin evidencia todavía</span></p>
+              <ul>{% for conducta in c.conductas|slice:":3" %}<li>{{ conducta }}</li>{% endfor %}</ul>
+              {% if c.conductas|length > 3 %}
+                <details>
+                  <summary>{{ c.conductas|length|add:"-3" }} conducta{{ c.conductas|length|add:"-3"|pluralize }} más de {{ c.oa.codigo }}</summary>
+                  <ul>{% for conducta in c.conductas|slice:"3:" %}<li>{{ conducta }}</li>{% endfor %}</ul>
+                </details>
+              {% endif %}
+            </div>
+          {% endfor %}
+          {% if pa.otras %}
+            <details>
+              <summary>Conductas de {{ pa.anio }} en {{ pa.otras|length }} OA más</summary>
+              {% for c in pa.otras %}
+                <div class="conductas-oa">
+                  <p><abbr title="{{ c.oa.texto }}">{{ c.oa.codigo }}</abbr>{% if c.sin_evidencia %} <span class="etiqueta-sin-evidencia">Sin evidencia todavía</span>{% endif %}</p>
+                  <ul>{% for conducta in c.conductas %}<li>{{ conducta }}</li>{% endfor %}</ul>
+                </div>
+              {% endfor %}
+            </details>
+          {% endif %}
+        {% elif pa.sin_evidencia %}
+          <details>
+            <summary>{{ pa.sin_evidencia|length }} OA del núcleo sin evidencia todavía</summary>
+            <ul class="oas-sin-evidencia">
+              {% for oa in pa.sin_evidencia %}<li><abbr title="{{ oa.texto }}">{{ oa.codigo }}</abbr>: {{ oa.texto }}</li>{% endfor %}
+            </ul>
+          </details>
+        {% endif %}
+        <p class="ayuda">Es una referencia de qué observar, no una meta: el nivel lo decide la educadora con lo que observa.</p>
+      {% endwith %}
+    </div>
   {% endif %}
 
   {% if nf.pasos_sugeridos %}

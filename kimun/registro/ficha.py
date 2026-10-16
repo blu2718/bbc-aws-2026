@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.db.models import OuterRef, Prefetch, Subquery
 
 from .alertas import DIAS_DATOS_RECIENTES, EstadoDatos, tabla_del_curso
+from .avanzar import ParaAvanzar, manifestaciones_por_oa, para_avanzar
 from .cobertura import CoberturaOA, cobertura_del_nino
 from .forms import FijarNivelForm, etiqueta_nivel
 from .grafico import Evolucion, evolucion_del_nino
@@ -64,6 +65,8 @@ class NucleoFicha:
     validacion_propuesta: NivelValidado | None = None
     texto_validado_propuesta: str = ""
     error_propuesta: str = ""
+    texto_siguiente: str = ""                     # "4 · Afianzando", o "4" si es provisorio
+    para_avanzar: ParaAvanzar = field(default_factory=ParaAvanzar)
 
     @property
     def pasos_sugeridos(self) -> str:
@@ -173,6 +176,7 @@ def armar_ficha(nino, usuario, hoy=None, formularios=None, formularios_propuesta
     evoluciones = evolucion_del_nino(nino, hasta=hoy, nombres=nombres)
     actuales = nino.niveles_actuales()
     cobertura = cobertura_del_nino(nino)
+    manifestaciones = manifestaciones_por_oa(nivel_educativo=nivel_educativo)
     observaciones = list(
         Observacion.objects.filter(nino=nino, estado=Observacion.Estado.ACEPTADA, grupal=False)
         .prefetch_related("nucleos", "oas")
@@ -218,16 +222,23 @@ def armar_ficha(nino, usuario, hoy=None, formularios=None, formularios_propuesta
                     prefix=f"propuesta-{propuesta.pk}", initial={"nivel": propuesta.nivel},
                     nivel_maximo=nivel_maximo, descriptores=del_nucleo,
                 )
+        provisorio = es_provisorio(del_nucleo)
+        cobertura_nucleo = cobertura.get(nucleo.sigla, [])
         resultado.append(NucleoFicha(
             nucleo=nucleo,
             actual=actual,
             texto_actual=etiqueta_nivel(nivel, descriptor_actual) if actual else SIN_NIVEL,
             descriptor_actual=descriptor_actual,
             descriptor_siguiente=descriptor_siguiente,
-            provisorio=es_provisorio(del_nucleo),
+            texto_siguiente=etiqueta_nivel(descriptor_siguiente.nivel, descriptor_siguiente) if descriptor_siguiente else "",
+            para_avanzar=para_avanzar(
+                cobertura_nucleo, manifestaciones,
+                descriptor_siguiente.nivel if descriptor_siguiente else None, provisorio,
+            ),
+            provisorio=provisorio,
             situacion=situaciones.get(nucleo.sigla),
             evolucion=evoluciones[nucleo.sigla],
-            cobertura=cobertura.get(nucleo.sigla, []),
+            cobertura=cobertura_nucleo,
             observaciones=observaciones_nucleo,
             form=form,
             propuesta=propuesta, texto_propuesto=texto_propuesto, evidencia_propuesta=evidencia_propuesta,

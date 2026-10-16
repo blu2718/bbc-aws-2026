@@ -69,9 +69,14 @@ de views_revision.py (`vista=suceso`), que devuelven esta misma tarjeta.
     {% if t.sugerencia %}
       <details class="sugerencia">
         <summary>¿Sugerencia? Qué observar después en {{ t.sugerencia.nucleo.nombre }}</summary>
+        <p>Para avanzar a <strong>{{ t.sugerencia.texto_siguiente }}</strong>:</p>
         <p>{{ t.sugerencia.siguiente.descripcion|linebreaksbr }}</p>
         {% if t.sugerencia.siguiente.conducta %}<p><em>Conducta observable:</em> {{ t.sugerencia.siguiente.conducta|linebreaksbr }}</p>{% endif %}
-        <p class="ayuda">De la rúbrica: describe el nivel siguiente{% if t.sugerencia.siguiente.provisorio %} (rúbrica provisoria){% endif %}.</p>
+        {% for c in t.sugerencia.conductas %}
+          <p><em>Conductas de {{ t.sugerencia.anio }} en <abbr title="{{ c.oa.texto }}">{{ c.oa.codigo }}</abbr>:</em></p>
+          <ul>{% for conducta in c.conductas %}<li>{{ conducta }}</li>{% endfor %}</ul>
+        {% endfor %}
+        <p class="ayuda">De la rúbrica{% if t.sugerencia.conductas %} y del Programa Pedagógico de Transición{% endif %}: describe el nivel siguiente{% if t.sugerencia.siguiente.provisorio %} (rúbrica provisoria){% endif %}.</p>
       </details>
     {% endif %}
 

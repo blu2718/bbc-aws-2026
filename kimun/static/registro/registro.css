@@ -609,6 +609,18 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 
 .sin-evidencia td:last-child { color: var(--kimun-aviso); }
 
+/* Qué observar para avanzar (registro/avanzar.py). */
+.para-avanzar { margin: 1rem 0; padding: .75rem 1rem; border: 1px dashed var(--kimun-aviso-linea); border-radius: .85rem; background: var(--kimun-aviso-claro); }
+.para-avanzar h3 { margin-top: 0; }
+.para-avanzar h4 { margin: .9rem 0 .2rem; font-size: 1rem; }
+.para-avanzar-meta { margin-bottom: .4rem; }
+.para-avanzar .ayuda { margin: .25rem 0 .5rem; }
+.conductas-oa { margin: .4rem 0; }
+.conductas-oa p { margin: 0; font-weight: 600; }
+.conductas-oa ul { margin: .15rem 0 .4rem; }
+.etiqueta-sin-evidencia { display: inline-block; margin-left: .35rem; padding: 0 .45rem; border-radius: 999px; background: var(--kimun-aviso-fondo); color: var(--kimun-aviso); font-size: .78rem; font-weight: 600; }
+.oas-sin-evidencia { font-size: .9rem; }
+
 .evolucion { margin: 0 0 0.5rem; }
 
 /* --- Revisión de observaciones (Task 6) --- */
