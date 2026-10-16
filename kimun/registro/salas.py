@@ -24,6 +24,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from .alertas import tabla_del_curso
+from .campos import SeleccionMultiple
 from .cobertura import cobertura_quincena_del_curso, quincena_de
 from .forms import METAS_POR_DEFECTO
 from .frecuencia import frecuencia_del_curso
@@ -145,7 +146,7 @@ class _Persona(forms.ModelChoiceField):
         return _etiqueta_persona(usuario)
 
 
-class _Personas(forms.ModelMultipleChoiceField):
+class _Personas(SeleccionMultiple):
     def label_from_instance(self, usuario):
         return _etiqueta_persona(usuario)
 

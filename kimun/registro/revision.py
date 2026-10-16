@@ -15,6 +15,7 @@ from django.db import transaction
 from django.db.models import Count, F, Q
 from django.utils import timezone
 
+from .campos import SeleccionMultiple
 from .models import Captura, Efecto, Nino, Nucleo, ObjetivoAprendizaje, Observacion
 from .permisos import cursos_que_valida
 from .procesamiento import NOMBRE_TODO_EL_CURSO
@@ -277,6 +278,8 @@ class ObservacionForm(forms.ModelForm):
             "nucleos": forms.CheckboxSelectMultiple,
             "oas": forms.CheckboxSelectMultiple,
         }
+        # Un ID gigante enviado a mano no debe dar 500 (ver campos.SeleccionMultiple).
+        field_classes = {"nucleos": SeleccionMultiple, "oas": SeleccionMultiple}
 
     def __init__(self, *args, curso, **kwargs):
         super().__init__(*args, **kwargs)
