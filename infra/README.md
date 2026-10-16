@@ -77,7 +77,7 @@ sudo systemctl start kimun-web kimun-worker kimun-propuestas
 Units en `infra/systemd/`. `instalar.sh` instala, habilita y reinicia los tres en cada despliegue; si alguno no queda activo, el despliegue falla y muestra las últimas 50 líneas de su `journalctl`.
 
 - `kimun-web`: Gunicorn en el puerto 8000, 3 workers, timeout 60 s.
-- `kimun-worker`: `manage.py procesar_capturas --intervalo 5`. Separa las notas en observaciones, lee las fotos y transcribe los audios (Bedrock y Transcribe).
+- `kimun-worker`: `manage.py procesar_capturas --intervalo 2`. Separa las notas en observaciones, lee las fotos y transcribe los audios (Bedrock y Transcribe). Es el único que llama a Bedrock por una captura: la página solo consulta el estado. Devuelve a la cola las capturas atascadas en procesando.
 - `kimun-propuestas`: `manage.py procesar_propuestas --intervalo 5`. Genera las propuestas de nivel que pide la educadora o que se encolan al aceptar observaciones (Task 7, Bedrock).
 - Sin SSH: entrar con `aws ssm start-session --target <InstanciaId> --region us-east-1` (o mandar comandos con `aws ssm send-command`).
 - `systemctl status kimun-web kimun-worker kimun-propuestas`; logs con `journalctl -u <servicio> -f`.

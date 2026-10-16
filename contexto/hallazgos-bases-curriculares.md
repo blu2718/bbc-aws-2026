@@ -51,7 +51,7 @@ Cambios respecto de 2001:
 
 - "Se organizan de acuerdo a ocho núcleos y tres niveles educativos" (p. 40).
 - Los OA "se enuncian desde lo que se espera al final de cada nivel, es decir abarcando tramos curriculares de dos años" (p. 40). Respalda nuestro supuesto, todavía por confirmar con Integra, de que sus 8 niveles abarcan los 2 años y el 8 es lo esperado al egresar.
-- Hay una diferencia de núcleos: las Bases tienen 8 y la rúbrica de Integra apunta a 10, aunque la cantidad puede cambiar (`respuestas-integra.md` y FAQ de Integra). La demo usa los 8 de las Bases, los únicos con OA oficiales, hasta que Integra entregue su lista.
+- Hay una diferencia de núcleos: las Bases tienen 8 y la rúbrica de Integra apunta a 10, aunque la cantidad puede cambiar (`faq_integra_2.md` y FAQ de Integra). La demo usa los 8 de las Bases, los únicos con OA oficiales, hasta que Integra entregue su lista.
 
 ### 2. Trae los OA de los tres niveles
 

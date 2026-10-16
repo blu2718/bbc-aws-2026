@@ -17,7 +17,8 @@ from django.utils import timezone
 
 from .models import Captura, Efecto, Nino, Nucleo, ObjetivoAprendizaje, Observacion
 from .permisos import cursos_que_valida
-from .propuestas import solicitar_propuesta
+from .procesamiento import NOMBRE_TODO_EL_CURSO
+from .propuestas import rubrica_completa, solicitar_propuesta
 
 MENSAJE_SIN_NINO = "Elige a qué niño o niña corresponde antes de aceptarla."
 
@@ -132,12 +133,17 @@ def _aceptar(obs):
 
 
 def _destinos(obs):
+    """(niño, núcleo) donde pedir una propuesta. Sin rúbrica completa, la propuesta fallaría siempre."""
     if obs.grupal or obs.nino_id is None:
         return []
+    nivel_educativo = obs.nino.curso.nivel_educativo
     ids = set(obs.nucleos.values_list("pk", flat=True)) | set(obs.oas.filter(
-        nivel_educativo=obs.nino.curso.nivel_educativo,
+        nivel_educativo=nivel_educativo,
     ).values_list("nucleo_id", flat=True))
-    return [(obs.nino, nucleo) for nucleo in Nucleo.objects.filter(pk__in=ids).order_by("pk")]
+    return [
+        (obs.nino, nucleo) for nucleo in Nucleo.objects.filter(pk__in=ids).order_by("pk")
+        if rubrica_completa(nivel_educativo, nucleo)
+    ]
 
 
 @transaction.atomic
@@ -155,10 +161,17 @@ def descartar(obs):
 
 
 @transaction.atomic
-def aceptar_todas(captura):
-    """Acepta las pendientes de la captura que se pueden aceptar. Devuelve (aceptadas, sin niño)."""
+def aceptar_todas(captura, solo_del_curso=False):
+    """Acepta las pendientes de la captura que se pueden aceptar. Devuelve (aceptadas, sin niño).
+
+    Con `solo_del_curso`, solo las de algo que hizo todo el curso (una por niño): las
+    individuales y las notas de contexto de la misma captura se siguen revisando una a una.
+    """
     Captura.objects.filter(pk=captura.pk).update(actualizada=F("actualizada"))
-    pendientes = list(captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE))
+    pendientes = captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE)
+    if solo_del_curso:
+        pendientes = pendientes.filter(nombre_detectado=NOMBRE_TODO_EL_CURSO, grupal=False)
+    pendientes = list(pendientes)
     listas = [o for o in pendientes if puede_aceptarse(o)]
     destinos, aceptadas = {}, 0
     for obs in listas:

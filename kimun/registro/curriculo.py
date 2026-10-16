@@ -60,8 +60,10 @@ def cargar_curriculo(datos, nivel_educativo=NivelEducativo.TRANSICION):
                 # Si el JSON ahora trae menos conductas, se borran las sobrantes.
                 Manifestacion.objects.filter(oa=oa, anio=anio, orden__gte=len(conductas)).delete()
 
-        if nivel_educativo == NivelEducativo.TRANSICION:
-            for nivel, descripcion in descriptores_provisorios(nucleo, rubrica.cantidad_niveles):
+        # Sala cuna y medio también reciben rúbrica provisoria (sobre sus OA), solo en los núcleos con OA en
+        # ese nivel: sin OA la propuesta no tendría con qué comparar.
+        if nivel_educativo == NivelEducativo.TRANSICION or n["oas"]:
+            for nivel, descripcion in descriptores_provisorios(nucleo, rubrica.cantidad_niveles, nivel_educativo):
                 nombre = nombre_provisorio(nivel)
                 descriptor, creado = DescriptorNivel.objects.get_or_create(
                     nivel_educativo=nivel_educativo, nucleo=nucleo, nivel=nivel,

@@ -149,10 +149,11 @@ def svg_radar(ejes, nivel_maximo, esperado=None):
     if len(ejes) < MINIMO_EJES:
         return ""
     total = len(ejes)
-    techo = max([
+    # Entero hacia arriba: la mediana puede quedar en x,5 sobre el máximo si la rúbrica se achicó.
+    techo = math.ceil(max([
         nivel_maximo, NIVEL_MIN + 1, esperado or 0,
         *(e.nivel for e in ejes if e.nivel), *(e.mediana for e in ejes if e.mediana),
-    ])
+    ]))
     ancho = min(0.5, math.pi / total * 0.95)
     accesible = escape(descripcion_radar(ejes, esperado))
 

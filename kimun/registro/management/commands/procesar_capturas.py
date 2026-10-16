@@ -1,9 +1,11 @@
 """Proceso de fondo: separa las capturas pendientes en observaciones (Tasks 5 y 9).
 
-Las notas escritas van directo a la separación; los audios se transcriben antes
-con Transcribe (requiere `KIMUN_BUCKET`).
+Las notas escritas van directo a la separación; las fotos se leen antes con Claude y
+los audios se transcriben con Transcribe (requiere `KIMUN_BUCKET`). Es el único que
+llama a Bedrock por una captura: la página solo consulta el estado. En el bucle,
+las capturas atascadas en procesando vuelven solas a la cola.
 
-    python manage.py procesar_capturas              # bucle, revisa cada 5 s
+    python manage.py procesar_capturas              # bucle, revisa cada 2 s
     python manage.py procesar_capturas --una-vez    # procesa lo pendiente y termina
     python manage.py procesar_capturas --una-vez --reintentar   # incluye las con error y las atascadas en procesando
 
@@ -17,9 +19,11 @@ from django.core.management.base import BaseCommand, CommandError
 
 from registro.curriculo import leer_curriculo
 from registro.ia import ClienteBedrock, ClienteTranscribe
-from registro.procesamiento import UMBRAL_PROCESANDO_ATASCADA, procesar_pendientes, reintentar_errores
+from registro.procesamiento import (
+    UMBRAL_PROCESANDO_ATASCADA, procesar_pendientes, recuperar_atascadas, reintentar_errores,
+)
 
-INTERVALO_POR_DEFECTO = 5.0
+INTERVALO_POR_DEFECTO = 2.0
 
 
 class Command(BaseCommand):
@@ -53,6 +57,9 @@ class Command(BaseCommand):
         procesadas = errores = 0
         try:
             while True:
+                # En el bucle, una captura que quedó a medias (worker reiniciado) vuelve sola a la cola.
+                if not una_vez and (atascadas := recuperar_atascadas()):
+                    self.stdout.write(f"Capturas atascadas que vuelven a pendiente: {atascadas}")
                 for captura, creadas in procesar_pendientes(cliente=cliente, catalogo=catalogo, transcriptor=transcriptor):
                     if creadas is None:
                         errores += 1

@@ -83,7 +83,10 @@
           {% endif %}
         {% endif %}
         {# Una propuesta lista se decide primero. Si está desactualizada, al decidir queda obsoleta y vuelve este botón. #}
-        {% if p.estado != "lista" %}{% include "registro/_solicitud_propuesta.html" %}{% endif %}
+        {% if p.estado != "lista" %}
+          {% if nf.rubrica_completa %}{% include "registro/_solicitud_propuesta.html" %}
+          {% else %}<p class="ayuda">Este núcleo aún no tiene una rúbrica completa para su nivel educativo: no se pueden proponer niveles.</p>{% endif %}
+        {% endif %}
       {% endif %}
     </div>
   {% endwith %}

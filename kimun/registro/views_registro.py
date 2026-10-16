@@ -5,9 +5,9 @@
 - `captura`: la nota como burbuja y, debajo, una tarjeta por niño. La ven
   quienes ven el curso (`cursos_de`); solo la educadora acepta, edita o
   descarta (con las vistas de `views_revision.py`).
-- `procesar`: la página de la captura lo llama con HTMX al abrirse y espera
-  ahí el resultado de Bedrock. `manage.py procesar_capturas` hace lo mismo en
-  segundo plano; `procesamiento.tomar` evita que los dos procesen la misma.
+- `estado`: la página de la captura lo consulta con HTMX cada pocos segundos
+  hasta que `manage.py procesar_capturas`, en segundo plano, la deja ordenada.
+  La petición web nunca llama a Bedrock.
 - `views_captura.capturar` (Task 5) sigue disponible como formulario solo de texto.
 
 Un curso o una captura ajenos responden 404, como en el resto de la app.
@@ -21,7 +21,6 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from . import procesamiento
 from .forms_registro import RegistroForm
-from .ia import ClienteBedrock
 from .models import Captura, Observacion
 from .pantallas import ninos_mencionados, observaciones_para_tarjetas, tarjetas_suceso
 from .permisos import cursos_de, cursos_donde_registra, puede_validar
@@ -37,11 +36,6 @@ PISTAS_SIN_CONEXION = (
 
 def _es_htmx(request):
     return request.headers.get("HX-Request") == "true"
-
-
-def crear_cliente():
-    """Cliente de Bedrock real. Los tests lo reemplazan por uno falso."""
-    return ClienteBedrock()
 
 
 def _recientes(curso, usuario):
@@ -114,17 +108,17 @@ def captura(request, captura_id):
 
 
 @login_required
-@require_POST
-def procesar(request, captura_id):
-    """Procesa la captura si está pendiente y devuelve su estado (HTMX) o vuelve a la página."""
-    captura = _captura(request.user, captura_id, cursos_donde_registra)
-    procesada_aqui = procesamiento.procesar_si_pendiente(captura, cliente=crear_cliente())
+@require_GET
+def estado(request, captura_id):
+    """Estado de la captura para la página, que lo consulta cada pocos segundos (HTMX) mientras se ordena.
+
+    No llama a Bedrock: eso lo hace `procesar_capturas` en segundo plano. Leer una foto
+    y separarla puede tardar más que los timeouts de CloudFront (30 s) y Gunicorn (60 s).
+    """
+    captura = _captura(request.user, captura_id, cursos_de)
     if not _es_htmx(request):
         return redirect("captura", captura_id=captura.pk)
-    captura.refresh_from_db()
     contexto = _contexto_captura(request, captura)
-    # Si otro proceso la está ordenando, la página vuelve a preguntar en unos segundos.
-    contexto["esperar"] = not procesada_aqui
     contexto["oob"] = True
     return render(request, "registro/_estado_captura.html", contexto)
 

@@ -22,6 +22,8 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 
+from .rubrica import NIVELES_PROVISORIOS
+
 NIVEL_MIN = 1
 
 
@@ -270,6 +272,15 @@ class Curso(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.jardin})"
+
+    def save(self, *args, **kwargs):
+        # Todas las vistas del curso necesitan el nivel máximo de su rúbrica (Rubrica.nivel_maximo).
+        # Un curso creado en el panel antes de cargar el currículo de su nivel parte con la provisoria.
+        Rubrica.objects.get_or_create(
+            nivel_educativo=self.nivel_educativo,
+            defaults={"cantidad_niveles": NIVELES_PROVISORIOS, "provisoria": True},
+        )
+        super().save(*args, **kwargs)
 
 
 class Semestre(models.Model):

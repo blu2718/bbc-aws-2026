@@ -7,11 +7,10 @@ El resto (tomar, reintentar, emparejar, el comando) se prueba en test_procesar_c
 from datetime import timedelta
 
 import pytest
-from django.core.files.base import ContentFile
 from django.utils import timezone
 
 from registro import procesamiento
-from registro.procesamiento import procesar_si_pendiente, reintentar_desde_la_pagina
+from registro.procesamiento import reintentar_desde_la_pagina
 from registro.ia import ErrorBedrock
 from registro.models import Captura, NivelEducativo, Nino, ObjetivoAprendizaje
 
@@ -64,6 +63,13 @@ def _captura(curso, autora, texto="Nota de prueba", tipo=Captura.Tipo.TEXTO):
     return Captura.objects.create(curso=curso, autora=autora, tipo=tipo, texto_original=texto)
 
 
+def _procesar(captura, cliente):
+    """Lo que hace `procesar_capturas` con una captura: tomarla y ordenarla."""
+    assert procesamiento.tomar(captura.pk)
+    captura.refresh_from_db()
+    return procesamiento.procesar(captura, cliente=cliente)
+
+
 def test_se_guarda_el_efecto_de_cada_suceso(curso_con_ninos, educadora):
     captura = _captura(curso_con_ninos, educadora, "Pedro clasificó hojas. Nayara no quiso participar.")
     cliente = ClienteFalso({"observaciones": [
@@ -71,7 +77,7 @@ def test_se_guarda_el_efecto_de_cada_suceso(curso_con_ninos, educadora):
         cruda("Nayara", "Nayara no quiso participar.", efecto="por_reforzar"),
     ]})
 
-    assert procesar_si_pendiente(captura, cliente)
+    assert _procesar(captura, cliente) is not None
 
     captura.refresh_from_db()
     assert captura.estado == Captura.Estado.PROCESADA
@@ -83,12 +89,12 @@ def test_se_guarda_el_efecto_de_cada_suceso(curso_con_ninos, educadora):
 def test_dos_procesos_no_toman_la_misma_captura(curso_con_ninos, educadora):
     captura = _captura(curso_con_ninos, educadora)
     assert procesamiento.tomar(captura.pk)
-    assert not procesar_si_pendiente(captura, ClienteFalso())  # ya la tomó otro: no llama al modelo
+    assert not procesamiento.tomar(captura.pk)  # ya la tomó otro: no la procesa dos veces
 
 
 def test_desde_la_pagina_se_reintenta_un_error_o_una_atascada(curso_con_ninos, educadora):
     captura = _captura(curso_con_ninos, educadora)
-    procesar_si_pendiente(captura, ClienteFalso(ErrorBedrock("Unable to locate credentials")))
+    _procesar(captura, ClienteFalso(ErrorBedrock("Unable to locate credentials")))
     captura.refresh_from_db()
     assert captura.estado == Captura.Estado.ERROR
 
@@ -105,17 +111,19 @@ def test_desde_la_pagina_se_reintenta_un_error_o_una_atascada(curso_con_ninos, e
     assert reintentar_desde_la_pagina(captura)
 
 
+def test_el_worker_devuelve_a_la_cola_las_atascadas(curso_con_ninos, educadora):
+    """Si el worker murió a mitad, la captura vuelve sola a pendiente en la siguiente vuelta del bucle."""
+    atascada, reciente = _captura(curso_con_ninos, educadora), _captura(curso_con_ninos, educadora)
+    procesamiento.tomar(atascada.pk)
+    procesamiento.tomar(reciente.pk)
+    hace_rato = timezone.now() - procesamiento.UMBRAL_PROCESANDO_ATASCADA - timedelta(minutes=1)
+    Captura.objects.filter(pk=atascada.pk).update(actualizada=hace_rato)
 
-
-def test_el_audio_espera_la_transcripcion(curso_con_ninos, educadora, settings, tmp_path):
-    settings.MEDIA_ROOT = tmp_path
-    captura = Captura(curso=curso_con_ninos, autora=educadora, tipo=Captura.Tipo.AUDIO)
-    captura.archivo.save("audio.webm", ContentFile(WEBM), save=False)
-    captura.save()
-
-    assert not procesar_si_pendiente(captura, ClienteFalso())
-    captura.refresh_from_db()
-    assert captura.estado == Captura.Estado.PENDIENTE
+    assert procesamiento.recuperar_atascadas() == 1
+    atascada.refresh_from_db()
+    reciente.refresh_from_db()
+    assert atascada.estado == Captura.Estado.PENDIENTE
+    assert reciente.estado == Captura.Estado.PROCESANDO  # en proceso hace poco: no se toca
 
 
 # --- Varios niños y todo el curso ------------------------------------------------------------------
@@ -127,7 +135,7 @@ def test_lo_que_hizo_todo_el_curso_queda_en_la_ficha_de_cada_nino(curso_con_nino
         cruda(None, "Hoy todos bailaron cueca en el patio.", nucleos=["PM"], efecto="avance", todo_el_curso=True),
     ], "pregunta": None})
 
-    procesar_si_pendiente(captura, cliente)
+    _procesar(captura, cliente)
 
     obs = captura.observaciones.all()
     assert sorted(o.nino.nombre for o in obs) == sorted(n.nombre for n in curso_con_ninos.ninos.all())
@@ -143,7 +151,7 @@ def test_una_pelea_queda_por_reforzar_para_ambos_y_guarda_la_pregunta(curso_con_
         cruda("Nayara", cita, nucleos=["CC"], efecto="por_reforzar"),
     ], "pregunta": "¿Cómo terminó la pelea?"})
 
-    procesar_si_pendiente(captura, cliente)
+    _procesar(captura, cliente)
 
     captura.refresh_from_db()
     assert captura.pregunta == "¿Cómo terminó la pelea?"
