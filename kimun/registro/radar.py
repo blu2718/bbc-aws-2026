@@ -1,7 +1,8 @@
 """Gráfico del perfil: el nivel actual en cada núcleo, como una flor (diseno-interfaz.jpg, pantalla IV).
 
 Cada núcleo es un pétalo de color suave: mientras más largo, más alto el nivel.
-Los nombres de los núcleos van completos, en varias líneas, con su nivel debajo.
+Los nombres de los núcleos van completos, en varias líneas, con su nivel debajo y su
+icono al lado, del color del pétalo (`registro/iconos.py`).
 Como referencia se marcan la mediana del curso (un punto blanco en cada pétalo)
 y el nivel esperado según su semestre (un círculo punteado).
 
@@ -16,10 +17,12 @@ from dataclasses import dataclass
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
+from .iconos import icono_nucleo
 from .models import NIVEL_MIN
 
-# Pensado para el ancho de un teléfono: ahí el SVG se ve a ~80 % y la letra queda en ~12 px.
-ANCHO, ALTO = 520, 480
+# Pensado para el ancho de un teléfono: ahí el SVG se ve a ~75 % y la letra queda en ~11 px.
+# Más ancho que alto para que quepa el icono junto a los nombres de los lados.
+ANCHO, ALTO = 560, 480
 CENTRO_X, CENTRO_Y = ANCHO / 2, 232
 RADIO = 120
 RADIO_ETIQUETA = RADIO + 24
@@ -28,7 +31,10 @@ RADIO_MINIMO = 0.2
 TAMANO_LETRA = 15
 ALTO_LINEA = 17
 LETRAS_POR_LINEA = 13
-ANCHO_MAXIMO = "34rem"
+ANCHO_MAXIMO = "36rem"
+# Icono del núcleo (registro/iconos.py) junto a su nombre, del color del borde del pétalo.
+ICONO = 20
+SEPARACION_ICONO = 5
 MINIMO_EJES = 3
 
 # Pétalos: relleno pastel y borde del mismo tono, oscuro (al menos 3:1 sobre blanco).
@@ -56,6 +62,7 @@ class EjeRadar:
     nivel: int | None
     texto: str                    # "3 · Desarrollando", o "Sin nivel validado"
     mediana: float | int | None = None
+    icono: str = ""               # URL del icono del núcleo; "" si no tiene
 
 
 def _numero(valor):
@@ -114,8 +121,27 @@ def descripcion_radar(ejes, esperado=None):
     return texto
 
 
-def _etiqueta(eje, angulo):
-    """Nombre completo del núcleo, en varias líneas, y su nivel debajo."""
+def _icono(eje, indice, x, y, color):
+    """Icono del núcleo con la esquina superior izquierda en (x, y), pintado de `color`.
+
+    El PNG es una silueta clara: se usa como máscara (su transparencia) sobre un
+    cuadrado del color del pétalo, así se ve sobre el fondo blanco.
+    """
+    id_mascara = f"radar-icono-{indice}"
+    caja = f'x="{x:.1f}" y="{y:.1f}" width="{ICONO}" height="{ICONO}"'
+    return (
+        f'<mask id="{id_mascara}" maskUnits="userSpaceOnUse" {caja} style="mask-type: alpha">'
+        f'<image href="{escape(eje.icono)}" {caja}/></mask>'
+        f'<rect class="radar-icono" {caja} fill="{color}" mask="url(#{id_mascara})"/>'
+    )
+
+
+def _etiqueta(eje, angulo, indice=0, color="currentColor"):
+    """Nombre completo del núcleo, en varias líneas, y su nivel debajo, con su icono al lado.
+
+    A los lados, el icono va junto a la primera línea, del lado del pétalo. Arriba y
+    abajo (texto centrado) va centrado sobre el nombre.
+    """
     x, y = _punto(angulo, RADIO_ETIQUETA)
     coseno, seno = math.cos(angulo), math.sin(angulo)
     anclaje = "start" if coseno > 0.3 else "end" if coseno < -0.3 else "middle"
@@ -128,11 +154,21 @@ def _etiqueta(eje, angulo):
         y += ALTO_LINEA * 0.8
     else:                # a los lados: centrado
         y -= (total - 1) * ALTO_LINEA / 2 - TAMANO_LETRA * 0.35
+    icono = ""
+    if eje.icono:
+        # La primera línea tiene su base en y; el icono se centra en la altura de sus letras.
+        arriba = y - TAMANO_LETRA * 0.35 - ICONO / 2
+        if anclaje == "start":
+            icono, x = _icono(eje, indice, x, arriba, color), x + ICONO + SEPARACION_ICONO
+        elif anclaje == "end":
+            icono, x = _icono(eje, indice, x - ICONO, arriba, color), x - ICONO - SEPARACION_ICONO
+        else:
+            icono = _icono(eje, indice, x - ICONO / 2, max(y - TAMANO_LETRA - ICONO, 0), color)
     tspans = "".join(
         f'<tspan x="{x:.1f}" dy="{0 if i == 0 else ALTO_LINEA}">{escape(fila)}</tspan>' for i, fila in enumerate(filas)
     )
     tspans += f'<tspan x="{x:.1f}" dy="{ALTO_LINEA}" class="radar-nivel" font-weight="700">{escape(nivel)}</tspan>'
-    return (
+    return icono + (
         f'<text class="radar-etiqueta" x="{x:.1f}" y="{y:.1f}" text-anchor="{anclaje}" font-size="{TAMANO_LETRA}" '
         f'fill="currentColor">{tspans}</text>'
     )
@@ -183,7 +219,7 @@ def svg_radar(ejes, nivel_maximo, esperado=None):
         if eje.nivel is not None:
             x, y = _punto(angulo, radio)
             partes.append(f'<circle class="radar-punto" cx="{x:.1f}" cy="{y:.1f}" r="3" fill="{borde}"/>')
-        partes.append(_etiqueta(eje, angulo))
+        partes.append(_etiqueta(eje, angulo, i, borde))
 
     # Referencias: el nivel esperado (círculo punteado) y la mediana del curso (punto blanco en cada pétalo).
     if esperado is not None:
@@ -218,5 +254,6 @@ def radar_de_la_ficha(ficha, nivel_maximo):
             nivel=nf.actual.nivel if nf.actual else None,
             texto=nf.texto_actual,
             mediana=situacion.mediana_curso if situacion else None,
+            icono=icono_nucleo(nf.nucleo.sigla),
         ))
     return svg_radar(ejes, nivel_maximo, esperado), esperado
