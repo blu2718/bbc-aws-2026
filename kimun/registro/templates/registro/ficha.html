@@ -29,8 +29,8 @@
   </p>
   <div class="niveles-cuerpo">
     {% if radar %}
-      {# kimun.js usa data-siglas (en el orden de los pétalos) para pintar cada pétalo del color de su núcleo. #}
-      <figure class="radar-figura" data-flor data-siglas="{% for nf in ficha.nucleos %}{{ nf.nucleo.sigla }}{% if not forloop.last %} {% endif %}{% endfor %}">
+      {# kimun.js usa data-siglas (en el orden de los pétalos) para pintar cada pétalo del color de su núcleo y data-esperado para marcar el núcleo más bajo. #}
+      <figure class="radar-figura" data-flor data-esperado="{{ esperado|default_if_none:'' }}" data-siglas="{% for nf in ficha.nucleos %}{{ nf.nucleo.sigla }}{% if not forloop.last %} {% endif %}{% endfor %}">
         {{ radar }}
         <figcaption>
           <span class="leyenda leyenda-nino">Cada pétalo es un núcleo: más largo, más alto el nivel de {{ ficha.nino.nombre.split.0 }}</span>

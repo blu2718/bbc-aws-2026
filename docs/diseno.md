@@ -34,14 +34,15 @@ Sale del logo de Integra (`docs/marca/logo-integra.jpg`) en versión pastel. Tod
 | `--kimun-alerta*` | `#a51c18`, fondo `#fde6e5`, texto `#5b1310`, borde `#cc3833` | Señal roja: «Revisar», errores, protección de derechos |
 | `--kimun-naranjo` | `#b35400` | Íconos «observar» del menú lateral |
 | `--kimun-ok` / `--kimun-ok-fondo` | `#326412` / `#e3f4d7` | Lo que está bien: aceptada, avance, autónomo |
-| `--kimun-ok-claro` / `--kimun-ok-linea` | `#f5fbf0` / `#bfdfa8` | Segunda pasada: fondo y borde de «Qué observar después» (texto verde 6,8:1) |
+| `--kimun-ok-claro` / `--kimun-ok-linea` | `#f5fbf0` / `#bfdfa8` | Segunda pasada: fondo y borde de «Qué observar después» (texto verde 6,7:1) |
 | `--integra-*-pastel` | azul `#a0c9e9`, rojo `#f5b0ad`, verde `#b6dd9d`, amarillo `#fcde7e` | Solo la franja decorativa bajo la barra superior |
 
 ### Colores por núcleo (segunda pasada)
 
 Un color por núcleo, el mismo en el gráfico de flor, los escalones de nivel, los íconos de núcleo y las etiquetas
 de la ficha. Clases `.nucleo-<SIGLA>` en `registro.css`: definen `--nucleo` (marca: pétalo, barra, ícono; 3:1 o más
-sobre blanco, **nunca texto**) y `--nucleo-suave` (relleno pastel). Los cuatro primeros siguen el logo de Integra,
+sobre blanco, **nunca texto**) y `--nucleo-suave` (relleno pastel) y `--nucleo-texto` (versión oscura para texto, 5,5:1 o más sobre blanco y
+celeste claro: CC `#7a5300`, LV `#b02a22`, EEN `#00695f`, PM `#8e3a78`; en los demás es igual a `--nucleo`). Los cuatro primeros siguen el logo de Integra,
 como los pétalos de `radar.py`. Validado con `validate_palette.js` de la skill dataviz (todo pasa; separación para
 daltonismo 6,1 entre vecinos, legal solo con segunda pista: por eso el color siempre va con el ícono y el nombre).
 
@@ -114,7 +115,7 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 | Composer | `.composer`, `.composer-barra`, `.composer-adjunto` | Barra de registrar (pantalla I) |
 | Burbuja | `.burbuja`, `.burbuja-pie` | Nota registrada (pantalla II) |
 | Historial | `.historial`, `.evento` | Línea de tiempo del perfil |
-| Gráfico de flor | `figure.radar-figura[data-flor][data-siglas]`, `svg.radar`, `.radar-escala`, `.flor-compacta` | SVG de `radar.py`; `kimun.js` (`iniciarFlor`) lo pinta por núcleo, agrega la escala y el modo compacto |
+| Gráfico de flor | `figure.radar-figura[data-flor][data-siglas][data-esperado]`, `svg.radar`, `.radar-escala`, `.flor-compacta`, `.flor-etiquetas`/`.flor-etiqueta`/`.flor-nivel`, `.flor-mas-bajo` | SVG de `radar.py`; `kimun.js` (`iniciarFlor`) lo pinta por núcleo, agrega la escala y el modo compacto |
 | Nivel general | `.nivel-general-ficha`, `.nivel-general-numero` | Cifra grande en Fredoka sobre celeste suave |
 | Escalones de nivel | `.tabla-niveles`, `.escalones` (`--nivel`, `--mediana`, `--nivel-max`), `.escalones-pasos` | Un paso por nivel, lleno hasta el actual con `--nucleo`; raya oscura = mediana del curso |
 
@@ -138,10 +139,23 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   tocó (regla: solo plantillas, CSS y JS). Se mejoró «con lo mismo»: `kimun.js` le pone a cada pétalo, punto e
   ícono la clase de su núcleo (orden de `data-siglas`, el mismo de los pétalos) y el CSS cambia relleno y borde;
   agrega los números de la escala (niveles impares, sobre los anillos, con halo blanco) y marca el anillo
-  máximo. Bajo 480 px de ancho de la figura pasa a **modo compacto**: recorta el `viewBox` a la flor, oculta los
-  nombres (a ~9 px no se leían) y lleva cada ícono a la punta de su pétalo; los nombres y niveles están en la
-  tabla de al lado, con el mismo ícono y color. Sin JS se ve el SVG original. Al pasar o enfocar una fila de la
-  tabla se destaca su pétalo. La flor no se mueve sola.
+  máximo. Bajo 480 px de ancho de la figura pasa a **modo compacto**: recorta el `viewBox` a la flor, lleva
+  cada ícono a la punta de su pétalo y cambia los nombres largos de `radar.py` (a ~9 px no se leían) por
+  etiquetas cortas de dos líneas junto al ícono: nombre corto en tinta («L. Verbal», «Id. y Autonomía»,
+  «Pens. Matemático»…, `NOMBRES_CORTOS` en `kimun.js`; los de los lados, CM y CES, son los más cortos) y
+  «nivel N» en `--nucleo-texto`, la versión oscura del color del núcleo (5,5:1 o más). El nivel se lee del
+  `<title>` de cada pétalo. Anclaje como en `radar.py`: start a la derecha, end a la izquierda, middle arriba
+  y abajo. Margen del recorte: 78 unidades arriba y abajo, 140 a los lados (con 70–80 a los lados las
+  etiquetas de CM y CES no cabían: a lo ancho es donde crecen). En celular la figura llega al borde de la
+  tarjeta; así la letra queda en 11,6 px a 390 px (17 unidades × 0,68). Probado con Playwright en las fichas
+  de Matías y Pedro: sin desborde, ninguna etiqueta fuera del SVG ni encima de otra o de un ícono.
+  Las etiquetas cortas van `aria-hidden`: el SVG ya tiene su descripción y la tabla es el equivalente.
+  Sin JS se ve el SVG original. Al pasar o enfocar una fila de la tabla se destaca su pétalo. La flor no se
+  mueve sola.
+- **Núcleo más bajo** (`.flor-mas-bajo`): con `data-esperado` (el nivel esperado que ya llega a la plantilla)
+  y el nivel de cada pétalo, `kimun.js` marca el núcleo con la diferencia más negativa (si hay empate, todos):
+  etiqueta corta en negrita con «⚠» en `--kimun-alerta` (como texto, no emoji, para que tome el color) y el
+  borde del pétalo más grueso (también en escritorio). Si todos están en el esperado o sobre él, ninguno.
 - **Nivel general** como cifra grande (Fredoka 2,6 rem, azul) en una caja celeste suave sobre la flor: es lo
   primero que se lee. Sigue con la etiqueta «referencia» y la explicación.
 - **Resumen por núcleo** pasó de tabla plana a escalones de progreso: sigue siendo `<table>` (equivalente
@@ -280,6 +294,7 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 | 5 | Bandeja de propuestas como tarea pendiente: amarillo, cifra grande, «Decidir» por fila | `style(curso): bandeja` | hecho; `test_frecuencia`, `test_revision`, `test_vistas`, `test_metas`, `test_propuestas_*`, `test_bordes_integracion` pasan |
 | 6 | Jardín: tarjeta de alertas roja con cifra, filas con botón a la sala, celda de alerta destacada, tabla sin deslizar en celular | `style(jardin)` | hecho; `test_jardin`, `test_vistas`, `test_frecuencia`, `test_permisos` pasan |
 | 7 | Task 14: encabezados, tarjetas, chips de estado e historial de cambios como línea de tiempo | `style(instrumentos)` | hecho; `test_instrumentos`, `test_vistas_instrumentos`, `test_historial`, `test_ficha`, `test_revision` pasan |
+| 1b | Flor compacta: etiquetas cortas de dos líneas (nombre + nivel), núcleo más bajo marcado, figura al borde de la tarjeta | `style(ficha): etiquetas` | hecho; probado con Playwright a 390 px (Matías y Pedro); `test_ficha`, `test_perfil`, `test_vistas`, `test_revision` pasan |
 | 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
 
 ## Cómo seguir

@@ -315,6 +315,11 @@
 
   const SVG_NS = "http://www.w3.org/2000/svg";
   const ANCHO_COMPACTO = 480;
+  // Nombres para el modo compacto. Los de los lados (CM, CES) son los más cortos: ahí hay menos espacio.
+  const NOMBRES_CORTOS = {
+    IA: "Id. y Autonomía", CC: "Conv. y Ciudad.", CM: "Corp. y Mov.", LV: "L. Verbal",
+    LA: "L. Artísticos", EEN: "Entorno Natural", CES: "Entorno Soc.", PM: "Pens. Matemático",
+  };
 
   function iniciarFlor(figura) {
     const svg = figura.querySelector("svg.radar");
@@ -340,6 +345,21 @@
     anillos[anillos.length - 1].classList.add("radar-anillo-max");
 
     petalos.forEach(function (p, i) { pintar(p, i); p.dataset.sigla = siglas[i] || ""; });
+
+    // Nivel de cada pétalo, leído de su <title> ("Lenguaje Verbal: 2" o "…: 5 · Integrando").
+    const datos = petalos.map(function (p) {
+      const titulo = (p.querySelector("title") || {}).textContent || "";
+      const nivel = titulo.match(/:\s*(\d+)/);
+      return { nombre: titulo.split(":")[0], nivel: nivel ? parseInt(nivel[1], 10) : null };
+    });
+    // El núcleo más bajo respecto del esperado (si hay empate, todos). Si ninguno está bajo, ninguno.
+    const esperado = parseInt(figura.dataset.esperado, 10);
+    if (!isNaN(esperado)) {
+      const diferencias = datos.map(function (d) { return d.nivel === null ? Infinity : d.nivel - esperado; });
+      const peor = Math.min.apply(null, diferencias);
+      if (peor < 0) datos.forEach(function (d, i) { d.masBajo = diferencias[i] === peor; });
+    }
+    petalos.forEach(function (p, i) { if (datos[i].masBajo) p.classList.add("flor-mas-bajo"); });
     svg.querySelectorAll(".radar-punto").forEach(function (c) {
       pintar(c, indiceDe(parseFloat(c.getAttribute("cx")), parseFloat(c.getAttribute("cy"))));
     });
@@ -352,7 +372,7 @@
       const i = id ? parseInt(id[1].split("-").pop(), 10) : 0;
       pintar(rect, i);
       const lado = parseFloat(rect.getAttribute("width"));
-      const r = radioMax + lado * 0.9;
+      const r = radioMax + lado * 0.7;
       iconos.push({
         piezas: [rect, mascara, mascara && mascara.querySelector("image")],
         original: [rect.getAttribute("x"), rect.getAttribute("y")],
@@ -378,10 +398,52 @@
     });
     svg.appendChild(escala);
 
-    // Modo compacto: se recorta el dibujo a la flor y los íconos pasan a la punta de los pétalos.
+    // Etiquetas del modo compacto: junto al ícono de la punta, el nombre corto (tinta) y «nivel N» (color
+    // oscuro del núcleo). Ancladas como en radar.py: start a la derecha, end a la izquierda, middle arriba y abajo.
+    const LADO = 20, ALTO_LINEA = 18;
+    const etiquetas = document.createElementNS(SVG_NS, "g");
+    etiquetas.setAttribute("class", "flor-etiquetas");
+    etiquetas.setAttribute("aria-hidden", "true");  // el SVG ya tiene su descripción (aria-label) y la tabla
+    datos.forEach(function (d, i) {
+      const a = angulo(i), coseno = Math.cos(a), seno = Math.sin(a);
+      const r = radioMax + LADO * 0.7;
+      const ix = cx + r * coseno, iy = cy + r * seno;
+      let x = ix, y, anclaje = "middle";
+      if (coseno > 0.3) { anclaje = "start"; x = ix + LADO / 2 + 4; y = iy - 2; }
+      else if (coseno < -0.3) { anclaje = "end"; x = ix - LADO / 2 - 4; y = iy - 2; }
+      else if (seno < 0) { y = iy - LADO / 2 - 6 - ALTO_LINEA; }
+      else { y = iy + LADO / 2 + 18; }
+      const texto = document.createElementNS(SVG_NS, "text");
+      texto.setAttribute("class", "flor-etiqueta" + (d.masBajo ? " flor-mas-bajo" : ""));
+      pintar(texto, i);
+      texto.setAttribute("x", x.toFixed(1));
+      texto.setAttribute("y", y.toFixed(1));
+      texto.setAttribute("text-anchor", anclaje);
+      const nombre = document.createElementNS(SVG_NS, "tspan");
+      nombre.setAttribute("x", x.toFixed(1));
+      if (d.masBajo) {
+        const alerta = document.createElementNS(SVG_NS, "tspan");
+        alerta.setAttribute("class", "flor-alerta");
+        alerta.textContent = "\u26A0\uFE0E ";  // ⚠ como texto, no emoji: así toma el color de alerta
+        nombre.appendChild(alerta);
+      }
+      nombre.appendChild(document.createTextNode(NOMBRES_CORTOS[siglas[i]] || d.nombre));
+      const nivel = document.createElementNS(SVG_NS, "tspan");
+      nivel.setAttribute("class", "flor-nivel");
+      nivel.setAttribute("x", x.toFixed(1));
+      nivel.setAttribute("dy", ALTO_LINEA);
+      nivel.textContent = d.nivel === null ? "sin nivel" : "nivel " + d.nivel;
+      texto.appendChild(nombre);
+      texto.appendChild(nivel);
+      etiquetas.appendChild(texto);
+    });
+    svg.appendChild(etiquetas);
+
+    // Modo compacto: se recorta el dibujo a la flor y sus etiquetas, y los íconos pasan a la punta de los
+    // pétalos. Más margen a los lados que arriba y abajo: ahí las etiquetas crecen a lo ancho.
     const vistaOriginal = svg.getAttribute("viewBox");
-    const margen = 34;
-    const vistaCompacta = [cx - radioMax - margen, cy - radioMax - margen, 2 * (radioMax + margen), 2 * (radioMax + margen)].join(" ");
+    const margenLado = 140, margenAlto = 78;
+    const vistaCompacta = [cx - radioMax - margenLado, cy - radioMax - margenAlto, 2 * (radioMax + margenLado), 2 * (radioMax + margenAlto)].join(" ");
     let compacta = null;
     const ajustar = function () {
       const ahora = figura.clientWidth < ANCHO_COMPACTO;

@@ -62,7 +62,7 @@
   --kimun-alerta-borde: #cc3833; /* 4,2:1 sobre su fondo */
   --kimun-alerta-linea: #f5bebc;
   --kimun-ok-fondo: #e3f4d7;     /* texto verde 6,1:1 */
-  --kimun-ok-claro: #f5fbf0;     /* fondo de «Qué observar después»: texto verde 6,8:1 */
+  --kimun-ok-claro: #f5fbf0;     /* fondo de «Qué observar después»: texto verde 6,7:1 */
   --kimun-ok-linea: #bfdfa8;
 }
 
@@ -192,14 +192,15 @@
      separación para daltonismo 6,1 entre vecinos, por eso el color nunca va solo (ícono y nombre). */
   --nucleo: var(--kimun-azul); --nucleo-suave: var(--kimun-celeste-suave);
 }
-.nucleo-IA  { --nucleo: #125a91; --nucleo-suave: #cde3f3; }  /* azul */
-.nucleo-CC  { --nucleo: #b07800; --nucleo-suave: #fbe7b0; }  /* amarillo */
-.nucleo-CM  { --nucleo: #2b6115; --nucleo-suave: #d4e8c6; }  /* verde */
-.nucleo-LV  { --nucleo: #e0453c; --nucleo-suave: #fbd5d2; }  /* rojo */
-.nucleo-LA  { --nucleo: #5944a8; --nucleo-suave: #e2dcf5; }  /* violeta */
-.nucleo-EEN { --nucleo: #00978a; --nucleo-suave: #c8eeea; }  /* turquesa */
-.nucleo-CES { --nucleo: #a9480c; --nucleo-suave: #f7dcc8; }  /* tierra */
-.nucleo-PM  { --nucleo: #b5559a; --nucleo-suave: #f5d8ec; }  /* fucsia */
+/* `--nucleo-texto`: versión oscura para texto (el «nivel N» de la flor), 5,5:1 o más sobre blanco y celeste claro. */
+.nucleo-IA  { --nucleo: #125a91; --nucleo-suave: #cde3f3; --nucleo-texto: #125a91; }  /* azul */
+.nucleo-CC  { --nucleo: #b07800; --nucleo-suave: #fbe7b0; --nucleo-texto: #7a5300; }  /* amarillo */
+.nucleo-CM  { --nucleo: #2b6115; --nucleo-suave: #d4e8c6; --nucleo-texto: #2b6115; }  /* verde */
+.nucleo-LV  { --nucleo: #e0453c; --nucleo-suave: #fbd5d2; --nucleo-texto: #b02a22; }  /* rojo */
+.nucleo-LA  { --nucleo: #5944a8; --nucleo-suave: #e2dcf5; --nucleo-texto: #5944a8; }  /* violeta */
+.nucleo-EEN { --nucleo: #00978a; --nucleo-suave: #c8eeea; --nucleo-texto: #00695f; }  /* turquesa */
+.nucleo-CES { --nucleo: #a9480c; --nucleo-suave: #f7dcc8; --nucleo-texto: #a9480c; }  /* tierra */
+.nucleo-PM  { --nucleo: #b5559a; --nucleo-suave: #f5d8ec; --nucleo-texto: #8e3a78; }  /* fucsia */
 
 h1, h2, .marca, .titulo-display { font-family: var(--kimun-fuente-titulos); font-weight: 600; letter-spacing: .005em; }
 h1 { color: var(--kimun-tinta); }
@@ -781,7 +782,18 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .radar.con-resaltado .radar-petalo:not(.resaltado) { opacity: .35; }
 .radar .radar-petalo.resaltado { stroke-width: 3; }
 .radar-escala text { font-size: 11px; font-weight: 600; fill: var(--kimun-texto-tenue); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+/* Modo compacto: las etiquetas largas de radar.py se cambian por las cortas de kimun.js (nombre corto + nivel). */
 .flor-compacta .radar .radar-etiqueta { display: none; }
+/* En celular la figura llega al borde de la tarjeta: cada píxel de ancho agranda las etiquetas. */
+.perfil-seccion .radar-figura.flor-compacta { margin-inline: -1.1rem; border-radius: 0; }
+.radar .flor-etiquetas { display: none; }
+.flor-compacta .radar .flor-etiquetas { display: inline; }
+.flor-etiqueta { font-size: 17px; font-weight: 500; fill: var(--kimun-tinta); }
+.flor-etiqueta .flor-nivel { font-weight: 700; fill: var(--nucleo-texto, var(--kimun-azul)); }
+.flor-etiqueta .flor-alerta { fill: var(--kimun-alerta); }
+/* El núcleo más bajo respecto del nivel esperado: etiqueta en negrita, ⚠ y borde del pétalo más grueso. */
+.flor-etiqueta.flor-mas-bajo { font-weight: 700; }
+.radar .radar-petalo.flor-mas-bajo { stroke-width: 4; }
 .radar-figura figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem; padding: 0 .75rem; font-size: .85rem; color: var(--kimun-texto-tenue); }
 .leyenda { display: inline-flex; align-items: center; gap: .4rem; text-align: left; }
 .leyenda::before { content: ""; display: inline-block; flex: none; }
