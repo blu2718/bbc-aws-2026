@@ -32,7 +32,7 @@ from .permisos import (
     ninos_que_valida,
     puede_validar,
 )
-from .pantallas import historial_del_nino, texto_edad
+from .pantallas import historial_del_nino, propuestas_por_decidir, texto_edad
 from .radar import radar_de_la_ficha
 from .revision import resumen_pendientes
 
@@ -107,6 +107,8 @@ def curso(request, curso_id):
         "es_directora": curso.jardin.directora_id == request.user.pk,
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=curso.pk).exists(),
         "pendientes_por_revisar": resumen_pendientes(curso)["individuales"] if valida else 0,
+        # Solo la educadora decide niveles: las demás no ven la bandeja.
+        "bandeja": propuestas_por_decidir(curso, tabla=tabla) if valida else None,
     })
 
 

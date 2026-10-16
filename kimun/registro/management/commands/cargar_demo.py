@@ -49,8 +49,10 @@ from registro.models import (
     Nucleo,
     ObjetivoAprendizaje,
     Observacion,
+    PropuestaNivel,
     Semestre,
 )
+from registro.propuestas import rubrica_completa, solicitar_propuesta
 from registro.rubrica_integra import cargar_rubrica_integra, leer_rubrica_integra
 
 RUTA_DEMO = Path(settings.DATOS_DIR) / "demo_curso.json"
@@ -120,6 +122,8 @@ class Command(BaseCommand):
         usuarias = {u.username: u for u in [educadora, *asistentes]}
         hoy = opciones["hoy"] or timezone.localdate()
         aceptadas = self._observaciones(curso, demo.get("observaciones", []), ninos, educadora, usuarias, hoy)
+        self._capturas_pendientes(curso, demo.get("capturas_pendientes", []), educadora, usuarias)
+        self._propuestas_solicitadas(curso, demo.get("propuestas_solicitadas", []), ninos)
 
         nombres = ", ".join(u.username for u in todas)
         resumen_otros = "".join(f"; {c} con {c.ninos.count()} niños" for c in otros)
@@ -255,6 +259,39 @@ class Command(BaseCommand):
         return Observacion.objects.filter(
             nino__curso=curso, estado=Observacion.Estado.ACEPTADA, grupal=False
         ).count()
+
+    def _capturas_pendientes(self, curso, capturas, educadora, usuarias):
+        """Notas escritas que quedan pendientes para que las ordene `procesar_capturas` con Bedrock real.
+
+        No se escriben resultados de IA: solo el texto, como lo escribiría la educadora.
+        Se identifican por su texto. Si ya existen (en cualquier estado, por ejemplo ya
+        ordenadas en una demo anterior), no se tocan: volver a cargar no las duplica ni
+        las devuelve a pendiente.
+        """
+        for c in capturas:
+            if "autora" in c and c["autora"] not in usuarias:
+                raise CommandError(f"Autora desconocida en la demo: «{c['autora']}».")
+            Captura.objects.get_or_create(
+                curso=curso, tipo=Captura.Tipo.TEXTO, texto_original=c["texto"],
+                defaults={"autora": usuarias.get(c.get("autora"), educadora), "estado": Captura.Estado.PENDIENTE},
+            )
+
+    def _propuestas_solicitadas(self, curso, solicitudes, ninos):
+        """Propuestas de nivel en estado "solicitada", para que las genere `procesar_propuestas` con Bedrock real.
+
+        No se escribe ningún resultado de IA. Solo se pide si ese niño y núcleo
+        nunca tuvo una propuesta: volver a cargar no duplica ni vuelve a pedir
+        una que ya se generó o que la educadora ya decidió.
+        """
+        nucleos = {n.sigla: n for n in Nucleo.objects.all()}
+        for s in solicitudes:
+            nino, nucleo = ninos.get(s["nino"]), nucleos.get(s["nucleo"])
+            if nino is None or nucleo is None:
+                raise CommandError(f"Propuesta de demo para un niño o núcleo desconocido: {s}.")
+            if not rubrica_completa(curso.nivel_educativo, nucleo):
+                raise CommandError(f"{nucleo.sigla} no tiene una rúbrica completa: no se puede pedir una propuesta.")
+            if not PropuestaNivel.objects.filter(nino=nino, nucleo=nucleo).exists():
+                solicitar_propuesta(nino, nucleo)
 
     def _usuaria(self, datos, cambiar_password):
         User = get_user_model()

@@ -10,6 +10,7 @@ from django.utils import timezone
 from ..alertas import TablaCurso, tabla_del_curso
 from ..frecuencia import FrecuenciaCurso, frecuencia_del_curso
 from ..iconos import icono_nucleo
+from ..models import PropuestaNivel
 from ..pantallas import para_tener_presentes, texto_edad
 from ..permisos import cursos_de, cursos_donde_registra, puede_validar
 
@@ -80,5 +81,9 @@ def menu_lateral(context):
         presentes=para_tener_presentes(tabla, frecuencia, ver_pendientes=valida),
         puede_validar=valida,
         puede_registrar=cursos_donde_registra(usuario).filter(pk=curso.pk).exists(),
+        # Solo la educadora decide niveles: la bandeja está en la vista del curso.
+        propuestas_por_decidir=PropuestaNivel.objects.filter(
+            nino__curso=curso, estado=PropuestaNivel.Estado.LISTA,
+        ).count() if valida else 0,
     )
     return datos

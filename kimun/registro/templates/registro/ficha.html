@@ -20,6 +20,10 @@
 
 <section class="perfil-seccion" aria-labelledby="titulo-habilidades">
   <h2 id="titulo-habilidades">Nivel en cada núcleo ({{ ficha.nucleos|length }})</h2>
+  <p class="nivel-general-ficha">
+    Nivel general: <strong>{{ ficha.texto_nivel_general }}</strong> <span class="etiqueta-referencia">referencia</span>
+    <br><small class="ayuda">Promedio de sus núcleos. El nivel se decide en cada núcleo.</small>
+  </p>
   {% if radar %}
     <figure class="radar-figura">
       {{ radar }}

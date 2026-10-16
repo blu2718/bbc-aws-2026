@@ -126,6 +126,50 @@ def tarjetas_suceso(observaciones, hoy):
     return tarjetas
 
 
+@dataclass(frozen=True)
+class LineaResumen:
+    """Una línea del resumen de la nota: a quién corresponde una observación y en qué núcleos."""
+
+    obs: Observacion
+    nucleos: list  # [Nucleo]
+
+
+@dataclass(frozen=True)
+class ResumenCaptura:
+    """"De esta nota saqué N observaciones, para estos niños, en estos núcleos".
+
+    No muestra el estado de cada observación (pendiente o aceptada) porque las
+    tarjetas se actualizan solas con HTMX y el resumen quedaría desfasado.
+    """
+
+    lineas: list            # [LineaResumen], una por niño (asignado o no), en el orden de las tarjetas
+    del_curso: int          # niños que reciben lo que hizo todo el curso
+    nucleos_del_curso: list  # núcleos de lo que hizo todo el curso
+    grupales: int           # notas de contexto del curso
+    nucleos: list           # todos los núcleos distintos, en el orden de Nucleo
+
+    @property
+    def observaciones(self):
+        return len(self.lineas) + self.del_curso
+
+    @property
+    def vacio(self):
+        return not (self.lineas or self.del_curso or self.grupales)
+
+
+def resumen_captura(tarjetas, del_curso, grupales):
+    """`ResumenCaptura` a partir de las tarjetas que ya arma la pantalla II. Pura."""
+    lineas = [LineaResumen(t.obs, [n.nucleo for n in t.nucleos]) for t in tarjetas]
+    nucleos_del_curso = [n.nucleo for n in del_curso[0].nucleos] if del_curso else []
+    vistos = {}
+    for nucleo in [n for linea in lineas for n in linea.nucleos] + nucleos_del_curso:
+        vistos.setdefault(nucleo.pk, nucleo)
+    return ResumenCaptura(
+        lineas=lineas, del_curso=len(del_curso), nucleos_del_curso=nucleos_del_curso, grupales=len(grupales),
+        nucleos=sorted(vistos.values(), key=lambda n: (n.orden, n.sigla)),
+    )
+
+
 def observaciones_para_tarjetas(queryset):
     """Las relaciones que usan las tarjetas, para no consultar por cada una."""
     return queryset.select_related("captura__curso", "captura__autora", "nino").prefetch_related(
@@ -155,6 +199,62 @@ def ninos_mencionados(texto, ninos, hoy):
         if any(f" {clave} " in palabras for clave in claves(nino)):
             encontrados.append(PerfilBreve(nino=nino, edad=texto_edad(nino.fecha_nacimiento, hoy)))
     return encontrados
+
+
+# --- Propuestas de nivel por decidir (vista del curso) -----------------------------------------
+
+
+@dataclass(frozen=True)
+class PropuestaPorDecidir:
+    propuesta: object       # PropuestaNivel en estado "lista"
+    texto_actual: str       # nivel validado actual: "3 · Desarrollando"
+    texto_propuesto: str    # "" si la evidencia no alcanzó para proponer
+
+
+@dataclass(frozen=True)
+class BandejaPropuestas:
+    por_decidir: list       # [PropuestaPorDecidir], de la más antigua a la más reciente
+    en_preparacion: int     # solicitadas o procesando: las está generando el proceso de fondo
+
+
+def propuestas_por_decidir(curso, tabla=None):
+    """Las propuestas listas del curso, para que la educadora no tenga que abrir cada ficha.
+
+    Solo hay una lista por niño y núcleo (pedir otra deja la anterior obsoleta).
+    No se comprueba aquí si siguen vigentes: la ficha lo hace al decidir. Usa la
+    `tabla` del curso, si se pasa, para el nivel actual; si no, lo consulta.
+    """
+    from .models import PropuestaNivel
+
+    propuestas = list(
+        PropuestaNivel.objects.filter(nino__curso=curso, estado=PropuestaNivel.Estado.LISTA)
+        .select_related("nino", "nucleo").order_by("creada", "pk")
+    )
+    en_preparacion = PropuestaNivel.objects.filter(
+        nino__curso=curso, estado__in=[PropuestaNivel.Estado.SOLICITADA, PropuestaNivel.Estado.PROCESANDO],
+    ).count()
+    if not propuestas:
+        return BandejaPropuestas([], en_preparacion)
+    nombres = DescriptorNivel.nombres_por_nucleo(curso.nivel_educativo)
+    if tabla is not None:
+        actuales = {(f.nino.pk, c.nucleo.pk): c.texto_nivel for f in tabla.filas for c in f.celdas}
+    else:
+        actuales = {}
+        filas = (
+            NivelValidado.objects.filter(nino__curso=curso)
+            .order_by("nino_id", "nucleo_id", "-fecha", "-creado", "-id")
+            .values_list("nino_id", "nucleo_id", "nivel", "nucleo__sigla")
+        )
+        for nino_id, nucleo_id, nivel, sigla in filas:
+            actuales.setdefault((nino_id, nucleo_id), texto_nivel(nivel, nombres.get(sigla, {}).get(nivel, "")))
+    por_decidir = []
+    for p in propuestas:
+        propuesto = ""
+        if p.nivel is not None:
+            nombre = "" if p.rubrica_provisoria else nombres.get(p.nucleo.sigla, {}).get(p.nivel, "")
+            propuesto = texto_nivel(p.nivel, nombre)
+        por_decidir.append(PropuestaPorDecidir(p, actuales.get((p.nino_id, p.nucleo_id), SIN_NIVEL), propuesto))
+    return BandejaPropuestas(por_decidir, en_preparacion)
 
 
 # --- Pantalla III: el menú lateral -----------------------------------------------------------

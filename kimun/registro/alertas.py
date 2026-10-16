@@ -266,6 +266,12 @@ class FilaNino:
     def avisos(self):
         return sum(1 for c in self.celdas if c.gravedad == Gravedad.AVISO)
 
+    @property
+    def texto_nivel_general(self):
+        """Promedio de sus núcleos, con un decimal y coma, como en la vista del jardín. Es solo una referencia:
+        el nivel se decide por núcleo (FAQ de Integra). "–" si no tiene niveles."""
+        return texto_nivel_general([c.nivel for c in self.celdas])
+
 
 @dataclass(frozen=True)
 class DistribucionNucleo:
@@ -453,6 +459,16 @@ def redondear(valor):
 def _texto_un_decimal(valor):
     """Siempre con un decimal, para que se vea que está redondeado, y coma decimal: 3 → "3,0"; 14/3 → "4,7"."""
     return f"{redondear(valor):.1f}".replace(".", ",")
+
+
+def texto_nivel_general(niveles):
+    """Nivel general de un niño: promedio de sus núcleos con un decimal y coma ("4,4"). "–" si no hay niveles.
+
+    Integra sugiere el promedio de los núcleos si se necesita un nivel general;
+    se muestra marcado como referencia, porque el nivel se decide por núcleo.
+    """
+    valor = promedio(niveles)
+    return "–" if valor is None else _texto_un_decimal(valor)
 
 
 def _texto_niveles(texto):

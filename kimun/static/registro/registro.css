@@ -474,6 +474,26 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 
 .estado-captura { display: flex; flex-direction: column; gap: .9rem; }
 .resumen-captura { margin: 0; font-size: .9rem; color: var(--pico-muted-color); }
+/* Nivel general: promedio de los núcleos, solo como referencia (curso.html y ficha.html). */
+.etiqueta-referencia { display: inline-block; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--pico-muted-color); font-size: .75rem; font-weight: 400; line-height: 1.4; }
+.nivel-general-ficha { margin: 0 0 .75rem; }
+/* Propuestas de nivel por decidir (curso.html). */
+.bandeja-propuestas { margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
+.bandeja-propuestas h2 { margin: 0 0 .35rem; font-size: 1.1rem; color: var(--kimun-tinta); }
+.bandeja-propuestas .ayuda { margin: 0 0 .5rem; }
+.bandeja-lista { display: grid; gap: .4rem; margin: 0 0 .5rem; padding: 0; }
+.bandeja-lista li { list-style: none; margin: 0; }
+.bandeja-lista a { display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem; border-radius: .7rem; background: #fff; text-decoration: none; color: inherit; }
+.bandeja-lista a:hover, .bandeja-lista a:focus-visible { background: var(--kimun-celeste-suave); }
+.bandeja-lista small { display: block; color: var(--pico-muted-color); }
+/* "De esta nota saqué…" (_resumen_captura.html). */
+.resumen-nota { padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
+.resumen-nota h2 { margin: 0 0 .5rem; font-size: 1.05rem; color: var(--kimun-tinta); }
+.resumen-nota-lista { display: grid; gap: .45rem; margin: 0 0 .5rem; padding: 0; }
+.resumen-nota-lista li { list-style: none; margin: 0; }
+.resumen-nota-lista a { display: inline-flex; align-items: center; gap: .45rem; font-weight: 600; }
+.resumen-nota-lista small { display: block; margin-left: 2.55rem; color: var(--pico-muted-color); font-size: .82rem; }
+.resumen-nota .ayuda { margin: 0; }
 .procesando { padding: .85rem 1rem; border: 1px dashed var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: #fff; }
 .procesando p { margin: 0; }
 .aviso { margin: 0; padding: .75rem 1rem; border: 1px solid var(--kimun-aviso-linea); border-radius: .85rem; background: var(--kimun-aviso-claro); color: var(--kimun-aviso-texto); }

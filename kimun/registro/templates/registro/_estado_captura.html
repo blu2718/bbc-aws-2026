@@ -21,12 +21,7 @@ este bloque. La ordena `procesar_capturas` en segundo plano: la página nunca es
       </div>
     {% endif %}
     {% if tarjetas or grupales or del_curso %}
-      <p class="resumen-captura" role="status">
-        {% with n=tarjetas|length %}
-          {% if del_curso %}Lo que hizo todo el curso queda en la ficha de {{ del_curso|length }} niño{{ del_curso|length|pluralize:"s" }}{% if n or grupales %}; {% endif %}{% endif %}{% if n %}{{ n }} suceso{{ n|pluralize }} por niño o niña{% endif %}{% if n and grupales %} y {% endif %}{% if grupales %}{{ grupales|length }} nota{{ grupales|length|pluralize }} de contexto{% endif %}.
-        {% endwith %}
-        {% if puede_validar %}Revísalos antes de que cuenten en la ficha.{% else %}La educadora los revisará antes de que cuenten en la ficha.{% endif %}
-      </p>
+      {% include "registro/_resumen_captura.html" %}
       {% if del_curso %}{% include "registro/_tarjeta_curso.html" %}{% endif %}
       {% for t in tarjetas %}{% include "registro/_tarjeta_suceso.html" with obs=t.obs oob=False %}{% endfor %}
       {% if grupales %}
