@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% block titulo %}Metas de {{ curso.nombre }}{% endblock %}
 {% block contenido %}
-<p><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
+<p class="volver"><a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a></p>
+<header class="encabezado-pagina">
 <h1>Metas del curso</h1>
 <p>Nivel esperado según el semestre de permanencia del niño o niña en el curso. Es una referencia, no un requisito: el avance no tiene por qué ser lineal.</p>
+</header>
 
-<form method="post">
+<form class="tarjeta" method="post">
   {% csrf_token %}
   {% if form.non_field_errors %}<div role="alert">{{ form.non_field_errors }}</div>{% endif %}
   {% for campo in form %}
@@ -13,7 +15,7 @@
     {{ campo }}
     {% if campo.errors %}<div role="alert">{{ campo.errors }}</div>{% endif %}
   {% endfor %}
-  <p>Desde el semestre {{ semestre_siguiente }} de permanencia se espera el nivel máximo de la rúbrica ({{ texto_maximo }}).</p>
+  <p class="ayuda">Desde el semestre {{ semestre_siguiente }} de permanencia se espera el nivel máximo de la rúbrica ({{ texto_maximo }}).</p>
   <button type="submit">Guardar metas</button>
 </form>
 {% endblock %}

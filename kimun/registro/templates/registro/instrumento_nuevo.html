@@ -4,10 +4,12 @@
 {% block head %}<script src="{% static 'registro/captura_foto.js' %}" defer></script>{% endblock %}
 {% block contenido %}
 <p class="volver"><a href="{% url 'ficha' nino.pk %}#titulo-instrumentos">← {{ nino.nombre }}</a></p>
+<header class="encabezado-pagina">
 <h1>Agregar el resultado de un instrumento</h1>
 <p>Por ejemplo, el TEPSI o la EEDP que la familia trajo del control de salud, o un instrumento que aplicaron en el jardín. Quedará en la ficha de {{ nino.nombre.split.0 }}, visible solo para ti y la directora.</p>
+</header>
 
-<section aria-labelledby="titulo-subir">
+<section class="tarjeta" aria-labelledby="titulo-subir">
   <h2 id="titulo-subir">Subir la hoja</h2>
   <form method="post" enctype="multipart/form-data" data-captura-foto>
     {% csrf_token %}
@@ -24,7 +26,7 @@
   </form>
 </section>
 
-<section aria-labelledby="titulo-manual">
+<section class="tarjeta" aria-labelledby="titulo-manual">
   <h2 id="titulo-manual">O ingresar los datos a mano</h2>
   <ul class="lista-instrumentos">
     {% for i in instrumentos %}

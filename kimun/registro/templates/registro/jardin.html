@@ -1,45 +1,37 @@
 {% extends "base.html" %}
 {% block titulo %}{{ jardin.nombre }}{% endblock %}
-{% block head %}
-<style>
-  /* Las alertas llevan color y también texto, por accesibilidad: el color nunca es la única pista. Colores en registro.css. */
-  .senal { display: block; margin-top: .25rem; padding: .1rem .35rem; border-radius: .25rem; font-size: .8rem; line-height: 1.3; font-weight: normal; }
-  .senal-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); font-weight: 600; }
-  .tabla-jardin th[scope="row"] { position: sticky; left: 0; background: var(--pico-background-color); z-index: 1; }
-  .tabla-jardin td, .tabla-jardin th { vertical-align: top; min-width: 7rem; }
-  .tabla-jardin th[scope="col"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
-  .tabla-jardin td.celda-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); }
-  .tabla-jardin td.celda-alerta .senal { border-left: 0; padding-left: 0; }
-  .tabla-jardin td.celda-sin-datos { color: var(--pico-muted-color); font-size: .875rem; }
-</style>
-{% endblock %}
+{# Estilos de la tabla y las señales en registro.css (.pagina-tabla). #}
+{% block clase_pagina %}pagina-tabla{% endblock %}
 {% block contenido %}
-<hgroup>
+<header class="encabezado-pagina">
   <h1>{{ jardin.nombre }}</h1>
   <p>Resumen para la directora</p>
-</hgroup>
-<p><a href="{% url 'protocolo_jardin' jardin.pk %}">Protocolo de protección de derechos{% if not jardin.protocolo_proteccion %} (por cargar){% endif %}</a></p>
+  <p class="acciones"><a role="button" class="secondary outline" href="{% url 'protocolo_jardin' jardin.pk %}">Protocolo de protección de derechos{% if not jardin.protocolo_proteccion %} (por cargar){% endif %}</a></p>
+</header>
 
 {# --- Alertas --- #}
-<section aria-labelledby="titulo-alertas">
-  <h2 id="titulo-alertas">Sugerencias de revisión</h2>
+<section class="tarjeta{% if resumen.alertas %} tarjeta-alertas{% endif %}" aria-labelledby="titulo-alertas">
+  <h2 id="titulo-alertas">{% if resumen.alertas %}<span class="cuenta-alertas" aria-hidden="true">{{ resumen.alertas|length }}</span>{% endif %}Sugerencias de revisión</h2>
   {% if resumen.alertas %}
-    <ul>
+    <ul class="lista-sugerencias">
       {% for alerta in resumen.alertas %}
         <li>
+          <svg class="sugerencia-icono" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.5 20h19z" fill="currentColor"/><path d="M12 10v4.5M12 17.2v.3" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
           <span class="senal senal-alerta">{{ alerta.texto_alerta }}</span>
           <a href="{% url 'curso' alerta.curso.pk %}">Ver {{ alerta.curso.nombre }}</a>
         </li>
       {% endfor %}
     </ul>
   {% else %}
-    <p role="status">Ninguna sala está {{ resumen.texto_umbral }} o más bajo las demás salas de su nivel educativo.</p>
+    <p class="mensaje-ok" role="status">Ninguna sala está {{ resumen.texto_umbral }} o más bajo las demás salas de su nivel educativo.</p>
   {% endif %}
 </section>
 
 {# --- Tabla por nivel educativo --- #}
-<section aria-labelledby="titulo-salas">
+<section class="tarjeta" aria-labelledby="titulo-salas">
   <h2 id="titulo-salas">Promedio de cada sala por núcleo</h2>
+  <details class="como-leer">
+  <summary>Cómo leer esta tabla</summary>
   <p>
     Cada celda es el promedio del nivel actual validado por la educadora de los niños y niñas de la sala, redondeado a un decimal.
     Cada sala se compara solo con las otras salas de su mismo nivel educativo, usando estos mismos promedios redondeados.
@@ -50,10 +42,11 @@
     Una sala entra en la comparación de un núcleo si al menos {{ resumen.texto_minimo }} de sus niños y niñas tiene nivel validado en él.
     Si no, la celda dice «Sin datos suficientes» y esa sala no cuenta en el promedio de las demás.
   </p>
+  </details>
   {% for grupo in resumen.grupos %}
     <h3>{{ grupo.nombre }}</h3>
     {% if not grupo.comparable %}
-      <p>Con una sola sala de este nivel educativo no hay con quién comparar.</p>
+      <p class="ayuda">Con una sola sala de este nivel educativo no hay con quién comparar.</p>
     {% endif %}
     <div class="overflow-auto">
       <table class="tabla-jardin">

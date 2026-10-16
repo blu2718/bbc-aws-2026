@@ -6,10 +6,12 @@
 {% else %}
   <p class="volver"><a href="{% url 'captura' obs.captura_id %}">← Volver al registro</a></p>
 {% endif %}
+<header class="encabezado-pagina">
 <h1>Corregir una observación aceptada</h1>
 <p class="ayuda">La corrección queda en el historial con su motivo y el dato anterior. Si la observación cambia de núcleo u OA, las propuestas de nivel que la usaban se vuelven a calcular.</p>
+</header>
 
-<form method="post">
+<form method="post" class="tarjeta">
   {% csrf_token %}
   {{ form.version }}
   {% if form.non_field_errors %}<div class="aviso-error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
