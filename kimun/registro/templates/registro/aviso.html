@@ -7,10 +7,13 @@
 <div class="aviso-proteccion" role="note">
   <h2>Qué hacer</h2>
   <ol>
-    <li>Informa a la directora del jardín según el protocolo de Integra, hoy mismo.</li>
-    <li>No interrogues al niño o niña: no le preguntes quién, cómo ni cuándo. Si vuelve a contar algo, escúchalo con calma y anota sus palabras tal como las dijo.</li>
-    <li>Registra el caso en el instrumento oficial de Integra. Kimün no lo reemplaza.</li>
+    {% for paso in protocolo.pasos %}
+      <li><strong>{{ paso.titulo }}.</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>
+    {% endfor %}
   </ol>
+  {% if protocolo.provisorio %}
+    <p class="ayuda">Pasos provisorios mientras llega el protocolo de Integra{% if protocolo.fuente %}. Fuente: {{ protocolo.fuente }}{% endif %}</p>
+  {% endif %}
   <p class="ayuda">Kimün no detecta ni califica nada: solo avisa. Esta nota no se usa para evaluar y no aparece en la ficha, la tabla del curso ni la vista del jardín.</p>
 </div>
 

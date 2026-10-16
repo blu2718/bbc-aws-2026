@@ -278,7 +278,7 @@ Estado al viernes 16 de octubre, 01:30:
 | 10. Calidad de prompts | Hecha (`manage.py evaluar`, también con audios) |
 | 11. Demo final y pitch | Viernes |
 | 12. Vista de la directora | Hecha (PR #9) |
-| 13. Protección de derechos | Hecha: aviso a la educadora y la directora, captura en resguardo y fuera de toda evaluación, set de 6 notas en `manage.py evaluar --proteccion`. Falta el protocolo de Integra (pregunta 9) |
+| 13. Protección de derechos | Hecha: aviso a la educadora y la directora, captura en resguardo y fuera de toda evaluación, set de 6 notas en `manage.py evaluar --proteccion`. Los pasos del aviso y quién lo recibe están en `datos/protocolo_proteccion.json`, provisorios (JUNJI y Código Procesal Penal); cuando llegue el protocolo de Integra (pregunta 9) se reemplaza ese archivo, sin tocar código |
 | Extras antes de la demo | Hechas, sin IA nueva ni migraciones: qué observar para avanzar (ficha y tarjeta del suceso), resumen «De esta nota saqué…» en la captura, bandeja de propuestas por decidir en el curso, nivel general como referencia (promedio de los núcleos), nivel de apoyo en la ficha e informe imprimible para la familia (solo la educadora; los demás niños sin nombre). `cargar_demo` deja 2 notas pendientes y 3 propuestas solicitadas para que los workers las procesen con Bedrock real |
 
 ### Task 1: Esqueleto Django, modelo de datos y datos de demo
@@ -474,7 +474,7 @@ Estado al viernes 16 de octubre, 01:30:
   - Exclusión: las consultas de `alertas.py`, `cobertura.py`, `ficha.py`, `revision.py` y la propuesta de nivel solo usan observaciones de capturas que no están en resguardo. Se prueba con un test por módulo.
   - Logs: ni `procesar_capturas` ni las vistas escriben el texto de una captura en los registros. Los errores registran el id.
   - Medición (Task 10): 6 notas nuevas en `datos/eval/`, cada una con el resultado esperado. Positivas: un relato de un niño, marcas sin explicación, un castigo que lo deja sin colación y negligencia sostenida. Negativas: una pelea entre niños y un juego simbólico con lobos. `manage.py evaluar` reporta cuántas positivas se marcaron (meta: todas) y cuántas negativas se marcaron por error.
-  - Pedir a Integra su protocolo (pregunta 9) y, cuando llegue, ajustar los textos fijos y quién recibe el aviso.
+  - Pedir a Integra su protocolo (pregunta 9). Los pasos que muestra el aviso, su fuente y quién lo recibe están en `datos/protocolo_proteccion.json`: cuando llegue, se edita ese archivo.
 - Tests: una nota marcada no genera observaciones y crea un aviso; la asistente y otra educadora reciben 404 en el aviso; la directora del jardín lo ve; "No es una vulneración" exige motivo y reprocesa la captura; una captura en resguardo no cambia la ficha, las alertas, la cobertura ni la propuesta del niño; el texto no aparece en los registros (con `caplog`); con cliente falso, `pregunta` llega en null cuando hay marca.
 - Demo: se escribe "Tomás llegó con un moretón en el brazo y dijo que su papá le pegó con la correa". En vez de observaciones aparece un aviso con los pasos del protocolo, y la ficha de Tomás no cambia. Una nota sobre dos niños que se empujaron por un juguete se procesa normal, como convivencia.
 

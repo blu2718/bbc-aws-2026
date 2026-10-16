@@ -1,0 +1,36 @@
+{
+  "_nota": "Pasos que muestra el aviso de protección (Task 13). Reemplazar por el protocolo de Integra cuando llegue (PLAN.md, pregunta 9): basta con editar este archivo, sin tocar código. Textos parafraseados.",
+  "provisorio": true,
+  "fuente": "Protocolo de actuación frente a la detección de situaciones de vulneración de derechos en niños y niñas, JUNJI (2025), y Código Procesal Penal, artículos 175 y 176. Integra puede tener otros pasos y plazos.",
+  "destinatarios": ["educadora", "directora"],
+  "pasos": [
+    {
+      "titulo": "Informa a la directora del jardín de inmediato",
+      "texto": "Por la vía más rápida. Como referencia, la JUNJI pide hacerlo dentro de 2 horas."
+    },
+    {
+      "titulo": "No interrogues al niño o niña",
+      "texto": "No le preguntes quién, cómo ni cuándo. Si vuelve a contar algo, escúchalo con calma, créele y no lo presiones."
+    },
+    {
+      "titulo": "Anota lo que dijo o lo que viste",
+      "texto": "Con sus palabras, lo más textual posible, o los indicadores que observaste, para entregarlo al informar."
+    },
+    {
+      "titulo": "Resguarda su intimidad",
+      "texto": "Comparte la situación solo con quienes deben conocerla."
+    },
+    {
+      "titulo": "La directora evalúa la derivación",
+      "texto": "Según el caso, una medida de protección en el Tribunal de Familia y, si el hecho podría ser delito, la denuncia dentro de las 24 horas siguientes (Código Procesal Penal, artículos 175 y 176)."
+    },
+    {
+      "titulo": "Registra el caso en el instrumento oficial",
+      "texto": "Kimün no reemplaza el registro del protocolo."
+    },
+    {
+      "titulo": "Acompáñalo en la sala como siempre",
+      "texto": "Un ambiente acogedor y seguro, y su continuidad en el jardín, también lo protegen."
+    }
+  ]
+}

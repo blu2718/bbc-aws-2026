@@ -19,6 +19,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from .models import AvisoProteccion, Captura
 from .permisos import avisos_que_ve
+from .protocolo import leer_protocolo
 
 LARGO_MOTIVO = 500
 
@@ -40,7 +41,9 @@ def avisos(request):
 @login_required
 @require_GET
 def aviso(request, aviso_id):
-    return render(request, "registro/aviso.html", {"aviso": get_object_or_404(_avisos(request.user), pk=aviso_id)})
+    return render(request, "registro/aviso.html", {
+        "aviso": get_object_or_404(_avisos(request.user), pk=aviso_id), "protocolo": leer_protocolo(),
+    })
 
 
 @login_required
@@ -54,7 +57,8 @@ def resolver_aviso(request, aviso_id):
         return redirect("aviso", aviso_id=aviso.pk)
     if accion == "no_es" and not motivo:
         return render(request, "registro/aviso.html", {
-            "aviso": aviso, "error_motivo": "Escribe brevemente por qué no es una vulneración.",
+            "aviso": aviso, "protocolo": leer_protocolo(),
+            "error_motivo": "Escribe brevemente por qué no es una vulneración.",
         }, status=400)
     if accion not in ("protocolo", "no_es"):
         return redirect("aviso", aviso_id=aviso.pk)

@@ -61,11 +61,18 @@ def ninos_que_valida(usuario):
 
 def avisos_que_ve(usuario):
     """Avisos de protección (Task 13) que el usuario puede ver: los de la educadora del curso
-    y los de la directora del jardín. Las asistentes, incluida quien registró, no los ven."""
+    y los de la directora del jardín. Las asistentes, incluida quien registró, no los ven.
+    Quién los recibe sale de `datos/protocolo_proteccion.json` ("destinatarios").
+    """
     from .models import AvisoProteccion
+    from .protocolo import leer_protocolo
 
     if not usuario.is_authenticated:
         return AvisoProteccion.objects.none()
-    return AvisoProteccion.objects.filter(
-        Q(captura__curso__educadora=usuario) | Q(captura__curso__jardin__directora=usuario)
-    ).distinct()
+    destinatarios = leer_protocolo().destinatarios
+    filtro = Q(pk__in=[])
+    if "educadora" in destinatarios:
+        filtro |= Q(captura__curso__educadora=usuario)
+    if "directora" in destinatarios:
+        filtro |= Q(captura__curso__jardin__directora=usuario)
+    return AvisoProteccion.objects.filter(filtro).distinct()
