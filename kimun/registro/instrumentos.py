@@ -142,6 +142,12 @@ def opcion(categoria, codigo):
     return None
 
 
+def nombre_opcion(categoria, codigo):
+    """Nombre legible de la opción; si el código ya no está en el catálogo (se renombró), el código tal cual."""
+    o = opcion(categoria, codigo)
+    return o["nombre"] if o else str(codigo)
+
+
 def maximo(campo, area=None):
     if area and campo["codigo"] in (area.get("maximos") or {}):
         return area["maximos"][campo["codigo"]]
@@ -419,9 +425,9 @@ def avisos_de_coherencia(defi, valores, nacimiento, fecha):
         calculada = categoria_por_cortes(cat, campos.get(cat["campo"]))
         if calculada and calculada != valores["categoria"]:
             avisos.append(
-                f"El resultado anotado es «{opcion(cat, valores['categoria'])['nombre']}», pero con "
+                f"El resultado anotado es «{nombre_opcion(cat, valores['categoria'])}», pero con "
                 f"{nombres[cat['campo']]['nombre']} {_texto_valor(nombres[cat['campo']], campos.get(cat['campo']))} "
-                f"corresponde «{opcion(cat, calculada)['nombre']}» según los puntos de corte publicados. Revisa la hoja."
+                f"corresponde «{nombre_opcion(cat, calculada)}» según los puntos de corte publicados. Revisa la hoja."
             )
     cat_area = categoria_area(defi)
     if cat_area and cat_area.get("campo"):
@@ -430,8 +436,8 @@ def avisos_de_coherencia(defi, valores, nacimiento, fecha):
             calculada = categoria_por_cortes(cat_area, (valores.get("areas") or {}).get(area["codigo"], {}).get(cat_area["campo"]))
             if anotada and calculada and anotada != calculada:
                 avisos.append(
-                    f"{area['nombre']}: el resultado anotado es «{opcion(cat_area, anotada)['nombre']}», pero su "
-                    f"puntaje corresponde a «{opcion(cat_area, calculada)['nombre']}»."
+                    f"{area['nombre']}: el resultado anotado es «{nombre_opcion(cat_area, anotada)}», pero su "
+                    f"puntaje corresponde a «{nombre_opcion(cat_area, calculada)}»."
                 )
     return avisos
 

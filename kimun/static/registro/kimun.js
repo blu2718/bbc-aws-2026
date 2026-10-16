@@ -445,8 +445,15 @@
     const margenLado = 140, margenAlto = 78;
     const vistaCompacta = [cx - radioMax - margenLado, cy - radioMax - margenAlto, 2 * (radioMax + margenLado), 2 * (radioMax + margenAlto)].join(" ");
     let compacta = null;
+    // Se mide el espacio de la figura (ancho + márgenes), no la figura sola: en modo compacto su margen
+    // negativo (registro.css) la ensancha ~35 px; medida sola, salía y volvía a entrar al modo compacto en
+    // cada cuadro y la pantalla temblaba. Ancho + márgenes es el mismo en los dos modos.
+    const anchoDisponible = function () {
+      const estilo = getComputedStyle(figura);
+      return figura.getBoundingClientRect().width + parseFloat(estilo.marginLeft) + parseFloat(estilo.marginRight);
+    };
     const ajustar = function () {
-      const ahora = figura.clientWidth < ANCHO_COMPACTO;
+      const ahora = anchoDisponible() < ANCHO_COMPACTO;
       if (ahora === compacta) return;
       compacta = ahora;
       figura.classList.toggle("flor-compacta", compacta);
@@ -457,7 +464,8 @@
       });
     };
     ajustar();
-    if ("ResizeObserver" in window) new ResizeObserver(ajustar).observe(figura);
+    // Se observa el contenedor: su ancho no cambia al entrar o salir del modo compacto.
+    if ("ResizeObserver" in window) new ResizeObserver(ajustar).observe(figura.parentElement || figura);
 
     // Al pasar por una fila de la tabla, se destaca su pétalo.
     const seccionTabla = seccion || document;

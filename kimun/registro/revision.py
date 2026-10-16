@@ -204,19 +204,32 @@ def bloquear_pendiente(obs):
     ) == 1
 
 
+class Aceptacion(tuple):
+    """(aceptadas, sin niño), como antes; `de_otro_curso` cuenta las que quedan pendientes
+    porque el niño ya pasó a otro curso (un traslado de sala con notas sin revisar)."""
+
+    def __new__(cls, aceptadas, sin_nino, de_otro_curso=0):
+        nueva = super().__new__(cls, (aceptadas, sin_nino))
+        nueva.de_otro_curso = de_otro_curso
+        return nueva
+
+
 @transaction.atomic
 def aceptar_todas(captura, solo_del_curso=False):
-    """Acepta las pendientes de la captura que se pueden aceptar. Devuelve (aceptadas, sin niño).
+    """Acepta las pendientes de la captura que se pueden aceptar. Devuelve `Aceptacion`.
 
     Con `solo_del_curso`, solo las de algo que hizo todo el curso (una por niño): las
     individuales y las notas de contexto de la misma captura se siguen revisando una a una.
+    Las de un niño que ya no está en el curso de la captura se dejan pendientes, sin
+    deshacer las demás.
     """
     Captura.objects.filter(pk=captura.pk).update(actualizada=F("actualizada"))
-    pendientes = captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE)
+    pendientes = captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE).select_related("nino")
     if solo_del_curso:
         pendientes = pendientes.filter(nombre_detectado=NOMBRE_TODO_EL_CURSO, grupal=False)
     pendientes = list(pendientes)
-    listas = [o for o in pendientes if puede_aceptarse(o)]
+    aceptables = [o for o in pendientes if puede_aceptarse(o)]
+    listas = [o for o in aceptables if not o.nino_id or o.nino.curso_id == captura.curso_id]
     destinos, aceptadas = {}, 0
     for obs in listas:
         if _aceptar(obs):
@@ -225,7 +238,7 @@ def aceptar_todas(captura, solo_del_curso=False):
                 destinos[(nino.pk, nucleo.pk)] = (nino, nucleo)
     for nino, nucleo in destinos.values():
         solicitar_propuesta(nino, nucleo, reintentar=True)
-    return aceptadas, len(pendientes) - len(listas)
+    return Aceptacion(aceptadas, len(pendientes) - len(aceptables), len(aceptables) - len(listas))
 
 
 # --- Formularios ------------------------------------------------------------------------
