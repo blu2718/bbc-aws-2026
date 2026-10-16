@@ -88,7 +88,9 @@ class NucleoFicha:
     def oas_logrados(self) -> list[CoberturaOA]:
         """OA con evidencia, el más reciente primero. La ficha los muestra antes que lo pendiente:
         la Política de Calidad pide apreciar fortalezas y talentos, no solo vacíos (pp. 42, 52-54)."""
-        con_evidencia = [c for c in self.cobertura if not c.sin_evidencia]
+        # Un OA cuya única evidencia es "por reforzar" no es algo que ya muestre.
+        con_logro = {oa.pk for o in self.observaciones if o.efecto != "por_reforzar" for oa in o.oas.all()}
+        con_evidencia = [c for c in self.cobertura if not c.sin_evidencia and c.oa.pk in con_logro]
         return sorted(con_evidencia, key=lambda c: c.ultima_fecha, reverse=True)
 
     @property

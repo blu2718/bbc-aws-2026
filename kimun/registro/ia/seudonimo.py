@@ -40,7 +40,9 @@ class Seudonimizador:
     Las claves de objetos JSON deben ser campos estructurales sin identidades.
     """
 
-    def __init__(self, ninos):
+    def __init__(self, ninos, preferido=None):
+        """`preferido`: código que gana cuando una variante es compartida (el informe de un niño
+        prefiere a ese niño). Sin él, una variante compartida queda como MARCADOR_AMBIGUO."""
         variantes, codigos = {}, set()
         for nino in ninos:
             if not isinstance(nino, Mapping):
@@ -61,10 +63,12 @@ class Seudonimizador:
             for variante in nombres:
                 if variante:
                     variantes.setdefault(variante, set()).add(codigo)
-        self._reemplazos = {
-            nombre: next(iter(opciones)) if len(opciones) == 1 else MARCADOR_AMBIGUO
-            for nombre, opciones in variantes.items()
-        }
+        def reemplazo(opciones):
+            if len(opciones) == 1:
+                return next(iter(opciones))
+            return preferido if preferido in opciones else MARCADOR_AMBIGUO
+
+        self._reemplazos = {nombre: reemplazo(opciones) for nombre, opciones in variantes.items()}
         # Una sola pasada: los códigos insertados nunca se vuelven a interpretar como nombres.
         # Proteger además códigos y marcadores ya existentes permite repetir la operación.
         patrones = [r"(?<!\w)n-[0-9a-f]{6}(?!\w)", re.escape(MARCADOR_AMBIGUO.casefold())]
