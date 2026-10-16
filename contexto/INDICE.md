@@ -19,7 +19,7 @@ Los rangos de líneas los genera `python scripts/indice_contexto.py`. Si editas 
 | [`enciclopedia-bases-curriculares.md`](enciclopedia-bases-curriculares.md) | Texto literal de las Bases y los 206 OA con identificador estable. Incluye un anexo de protección de derechos: qué constituye maltrato y qué hacer | Agentes | Para citar un OA o un principio, etiquetar una observación o redactar una alerta, y ante cualquier nota que podría describir una vulneración |
 | [`hallazgos-bases-curriculares.md`](hallazgos-bases-curriculares.md) | Análisis previo de las Bases, cruzado con `PLAN.md` | Ambos | Para saber qué implicancias ya recoge el plan |
 | [`hallazgos-programa-pedagogico-transicion.md`](hallazgos-programa-pedagogico-transicion.md) | Programa Pedagógico de Transición: conductas observables por OA, escala de autonomía, formatos de registro y mapeo de la rúbrica provisoria | Ambos | Para la rúbrica provisoria y el nivel de apoyo. Las conductas en sí están en `datos/curriculo_transicion.json` |
-| [`respuestas-integra.md`](respuestas-integra.md) | Respuestas de Integra por correo y qué cambió para nosotros | Ambos | Para saber qué pidió Integra sobre el alcance, la rúbrica, el rezago y las vistas |
+| [`faq_integra_2.md`](faq_integra_2.md) | Respuestas de Integra por correo y qué cambió para nosotros | Ambos | Para saber qué pidió Integra sobre el alcance, la rúbrica, el rezago y las vistas |
 | [`ocr-presentacion.md`](ocr-presentacion.md) | Texto de la presentación del desafío, con los post-its de ejemplo transcritos | Ambos | Para el problema, el KPI (4 h a 0 h), la escala de 8 niveles y notas reales de ejemplo |
 
 Fuera de git: `faq_integra.json` (el FAQ de Integra de los tres retos, resumido en "FAQ de Integra" de `PLAN.md`) y los PDF fuente, que se descargan desde los enlaces de cada archivo.
@@ -40,7 +40,7 @@ Fuera de git: `faq_integra.json` (el FAQ de Integra de los tres retos, resumido 
 | Instrumentos de evaluación de Integra (IEA, EEDP, PLAEP-R) | `guia-politica-calidad.md`, sección 5 |
 | Tensiones entre la Política y el diseño actual | `guia-politica-calidad.md`, sección 18 |
 | Conductas observables de NT1 y NT2, escala de autonomía | `hallazgos-programa-pedagogico-transicion.md`, y `datos/curriculo_transicion.json` |
-| Qué pidió Integra (niveles ajustables, 10 núcleos, rezago relativo a la sala, vista de la directora) | `respuestas-integra.md` y "FAQ de Integra" en `PLAN.md` |
+| Qué pidió Integra (niveles ajustables, 10 núcleos, rezago relativo a la sala, vista de la directora) | `faq_integra_2.md` y "FAQ de Integra" en `PLAN.md` |
 | Ejemplos reales de notas de las educadoras | `ocr-presentacion.md`, "Diapositiva 5" |
 | Preguntas abiertas a Integra | `PLAN.md`, "Preguntas pendientes para Integra" |
 
@@ -56,12 +56,12 @@ Fuera de git: `faq_integra.json` (el FAQ de Integra de los tres retos, resumido 
 | Archivo | Líneas | Palabras |
 |---|---:|---:|
 | [`enciclopedia-bases-curriculares.md`](enciclopedia-bases-curriculares.md) | 1701 | 42.238 |
+| [`faq_integra_2.md`](faq_integra_2.md) | 77 | 1.080 |
 | [`guia-politica-calidad.md`](guia-politica-calidad.md) | 469 | 9.633 |
 | [`hallazgos-bases-curriculares.md`](hallazgos-bases-curriculares.md) | 128 | 1.721 |
 | [`hallazgos-politica-calidad-educativa-integra.md`](hallazgos-politica-calidad-educativa-integra.md) | 161 | 1.867 |
 | [`hallazgos-programa-pedagogico-transicion.md`](hallazgos-programa-pedagogico-transicion.md) | 120 | 1.268 |
 | [`ocr-presentacion.md`](ocr-presentacion.md) | 167 | 1.368 |
-| [`respuestas-integra.md`](respuestas-integra.md) | 77 | 1.080 |
 | [`resumen-bases-curriculares.md`](resumen-bases-curriculares.md) | 79 | 1.039 |
 | [`resumen-politica-calidad.md`](resumen-politica-calidad.md) | 58 | 967 |
 <!-- catalogo:fin -->
