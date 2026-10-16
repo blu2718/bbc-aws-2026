@@ -262,7 +262,7 @@ flowchart LR
 
 ## Tareas
 
-Estado al viernes 16 de octubre, 00:05:
+Estado al viernes 16 de octubre, 01:30:
 
 | Task | Estado |
 |---|---|
@@ -279,6 +279,7 @@ Estado al viernes 16 de octubre, 00:05:
 | 11. Demo final y pitch | Viernes |
 | 12. Vista de la directora | Hecha (PR #9) |
 | 13. Protección de derechos | Hecha: aviso a la educadora y la directora, captura en resguardo y fuera de toda evaluación, set de 6 notas en `manage.py evaluar --proteccion`. Falta el protocolo de Integra (pregunta 9) |
+| Extras antes de la demo | Hechas, sin IA nueva ni migraciones: qué observar para avanzar (ficha y tarjeta del suceso), resumen «De esta nota saqué…» en la captura, bandeja de propuestas por decidir en el curso, nivel general como referencia (promedio de los núcleos), nivel de apoyo en la ficha e informe imprimible para la familia (solo la educadora; los demás niños sin nombre). `cargar_demo` deja 2 notas pendientes y 3 propuestas solicitadas para que los workers las procesen con Bedrock real |
 
 ### Task 1: Esqueleto Django, modelo de datos y datos de demo
 
