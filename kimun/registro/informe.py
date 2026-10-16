@@ -40,7 +40,9 @@ def _alias_con_partes(nombre, alias):
     """
     if isinstance(alias, str):
         alias = [alias]
-    declarados = [a for a in (alias or []) if isinstance(a, str) and a.strip()]
+    elif not isinstance(alias, (list, tuple)):
+        alias = []  # el admin acepta cualquier JSON: un número u objeto no son alias
+    declarados = [a for a in alias if isinstance(a, str) and a.strip()]
     partes = [p for p in nombre.split() if len(p) >= 3 and p.casefold() not in _PARTICULAS]
     return declarados + partes
 

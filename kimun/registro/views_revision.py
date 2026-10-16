@@ -11,7 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from django.utils import timezone
 
@@ -113,19 +113,25 @@ def observacion(request, obs_id):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def editar(request, obs_id):
     obs = _observacion(request, obs_id)
     curso = obs.captura.curso
     vista = _vista(request)
-    form = ObservacionForm(request.POST or None, instance=obs, curso=curso, prefix=f"obs{obs.pk}")
+    # Un POST vacío también se valida (con `request.POST or None` quedaba sin errores).
+    datos = request.POST if request.method == "POST" else None
+    form = ObservacionForm(datos, instance=obs, curso=curso, prefix=f"obs{obs.pk}")
     if request.method == "POST" and form.is_valid():
         obs = form.save()
         if _es_htmx(request):
             return _tarjeta(request, obs)
         messages.success(request, "Se guardaron los cambios de la observación.")
         return redirect(_url_revision(curso, obs, vista))
-    plantilla = "registro/_form_observacion.html" if _es_htmx(request) else "registro/revision_editar.html"
-    return render(request, plantilla, {"obs": obs, "curso": curso, "form": form, "vista": vista})
+    if _es_htmx(request):
+        # 200 aunque haya errores: HTMX no reemplaza el fragmento ante un 4xx y no se verían.
+        return render(request, "registro/_form_observacion.html", {"obs": obs, "curso": curso, "form": form, "vista": vista})
+    return render(request, "registro/revision_editar.html", {"obs": obs, "curso": curso, "form": form, "vista": vista},
+                  status=400 if form.errors else 200)
 
 
 @login_required
@@ -185,14 +191,21 @@ def descartar_observacion(request, obs_id):
 @login_required
 @require_POST
 def aceptar_todas_captura(request, captura_id):
-    captura = get_object_or_404(Captura.objects.filter(curso__in=cursos_que_valida(request.user)), pk=captura_id)
+    # Una captura en resguardo (posible vulneración) no se revisa: 404, como si no existiera.
+    captura = get_object_or_404(Captura.objects.filter(curso__in=cursos_que_valida(request.user)).exclude(
+        estado=Captura.Estado.EN_RESGUARDO), pk=captura_id)
     # La tarjeta "Todo el curso" acepta solo esas observaciones; la revisión, todas las de la captura.
-    aceptadas, sin_nino = aceptar_todas(captura, solo_del_curso=request.POST.get("alcance") == "curso")
+    resultado = aceptar_todas(captura, solo_del_curso=request.POST.get("alcance") == "curso")
+    aceptadas, sin_nino = resultado
     texto = "Se aceptó 1 observación." if aceptadas == 1 else f"Se aceptaron {aceptadas} observaciones."
     if sin_nino == 1:
         texto += " 1 queda pendiente porque no tiene niño o niña asignado."
     elif sin_nino:
         texto += f" {sin_nino} quedan pendientes porque no tienen niño o niña asignado."
+    if resultado.de_otro_curso == 1:
+        texto += " 1 queda pendiente porque el niño o niña ya está en otro curso."
+    elif resultado.de_otro_curso:
+        texto += f" {resultado.de_otro_curso} quedan pendientes porque el niño o niña ya está en otro curso."
     messages.success(request, texto)
     if _es_htmx(request):
         # Se vuelve a dibujar toda la revisión: la captura puede tener notas en la sección de contexto.

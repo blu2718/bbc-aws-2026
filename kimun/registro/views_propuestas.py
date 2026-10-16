@@ -84,8 +84,11 @@ def _decidir(request, propuesta_id, accion):
             error = " ".join(fallo.messages)
             if form:
                 form.add_error(None, fallo.messages)
-                if PropuestaNivel.objects.filter(pk=propuesta.pk, estado=PropuestaNivel.Estado.LISTA).exists():
-                    error = ""  # El formulario ya muestra el error, sin duplicarlo en el panel.
+                # El formulario ya muestra el error, sin duplicarlo en el panel. La ficha solo dibuja ese
+                # formulario si la propuesta tiene evidencia suficiente; si no, el error va en el panel.
+                if PropuestaNivel.objects.filter(pk=propuesta.pk, estado=PropuestaNivel.Estado.LISTA,
+                                                 evidencia_suficiente=True).exists():
+                    error = ""
     if resultado is None:
         formularios = {propuesta.pk: form} if form else {}
         if _es_htmx(request):

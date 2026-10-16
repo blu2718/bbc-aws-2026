@@ -176,6 +176,8 @@ def descartar(request, resultado_id):
         servicio.descartar(r, request.user, request.POST.get("motivo"))
     except ValidationError as error:
         messages.error(request, " ".join(error.messages))
+    except ConflictoHistorial as error:
+        messages.error(request, str(error))
     else:
         messages.success(request, "Resultado descartado. Queda en el historial y ya no aparece en la ficha.")
     return redirect("resultado_instrumento", resultado_id=r.pk)
@@ -185,7 +187,9 @@ def descartar(request, resultado_id):
 @require_POST
 def reintentar(request, resultado_id):
     r = _resultado(request, resultado_id, editable=True)
-    if not reintentar_lectura(r):
+    if r.estado != ResultadoInstrumento.Estado.ERROR:
+        messages.info(request, "Este resultado no tiene una lectura fallida que reintentar.")
+    elif not reintentar_lectura(r):
         messages.error(request, "La hoja ya no está guardada: ingresa los datos a mano o súbela de nuevo.")
     return redirect("resultado_instrumento", resultado_id=r.pk)
 
@@ -245,8 +249,8 @@ def retirar_observacion(request, obs_id):
     obs = _aceptada(request, obs_id, editable=True)
     try:
         servicio.retirar_observacion(obs, request.user, request.POST.get("motivo"))
-    except ValidationError as error:
-        messages.error(request, " ".join(error.messages))
+    except (ValidationError, ConflictoHistorial) as error:
+        messages.error(request, " ".join(error.messages) if isinstance(error, ValidationError) else str(error))
         return redirect("observacion_corregir", obs_id=obs.pk)
     messages.success(request, "La observación se retiró de la ficha. Queda en el historial.")
     return redirect(_volver_a_ficha(obs))
