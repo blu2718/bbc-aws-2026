@@ -38,6 +38,9 @@ logger = logging.getLogger(__name__)
 RUTA_INSTRUMENTOS = Path(settings.DATOS_DIR) / "instrumentos.json"
 MAX_AREAS_LIBRES = 12
 UMBRAL_LEYENDO_ATASCADA = timedelta(minutes=5)
+# Desde este intento, una hoja atascada ya no vuelve sola a la cola (cada vuelta llama a Bedrock).
+MAX_INTENTOS_LECTURA = 3
+MENSAJE_NO_SE_PUDO_LEER = "No se pudo leer la hoja. Puedes reintentar o ingresar los datos a mano."
 TIPOS_CAMPO = {"numero", "opcion", "texto"}
 
 
@@ -590,10 +593,21 @@ def tomar_siguiente_lectura():
 
 
 def recuperar_lecturas_atascadas():
+    """Devuelve a la cola las hojas atascadas en "leyendo". Devuelve cuántas.
+
+    Como las capturas (`procesamiento.recuperar_atascadas`): la que ya se tomó
+    MAX_INTENTOS_LECTURA veces queda en error y se reintenta a mano.
+    """
     ahora = timezone.now()
-    return ResultadoInstrumento.objects.filter(
+    atascadas = ResultadoInstrumento.objects.filter(
         estado=ResultadoInstrumento.Estado.LEYENDO, actualizado__lt=ahora - UMBRAL_LEYENDO_ATASCADA,
-    ).update(estado=ResultadoInstrumento.Estado.POR_LEER, actualizado=ahora)
+    )
+    agotadas = atascadas.filter(intentos__gte=MAX_INTENTOS_LECTURA).update(
+        estado=ResultadoInstrumento.Estado.ERROR, error=MENSAJE_NO_SE_PUDO_LEER, actualizado=ahora,
+    )
+    if agotadas:
+        logger.error("%s hojas se interrumpieron %s veces y quedan con error", agotadas, MAX_INTENTOS_LECTURA)
+    return atascadas.update(estado=ResultadoInstrumento.Estado.POR_LEER, actualizado=ahora)
 
 
 def borrar_hoja(resultado):
@@ -615,8 +629,8 @@ def procesar_lectura(resultado, cliente=None):
     from .historial import registrar
     from .ia.instrumento import ErrorLecturaInstrumento, HojaInvalida, leer_hoja
 
-    instrumentos = {i.codigo: i for i in Instrumento.objects.all()}
     try:
+        instrumentos = {i.codigo: i for i in Instrumento.objects.all()}
         if not resultado.archivo:
             raise HojaInvalida("No hay hoja que leer.")
         with resultado.archivo.open("rb") as archivo:
@@ -631,16 +645,22 @@ def procesar_lectura(resultado, cliente=None):
         return False
     except ErrorLecturaInstrumento as error:
         logger.warning("Resultado %s: no se pudo leer la hoja: %s", resultado.pk, error)
-        _marcar_error(resultado, "No se pudo leer la hoja. Puedes reintentar o ingresar los datos a mano.")
+        _marcar_error(resultado, MENSAJE_NO_SE_PUDO_LEER)
         return False
     except Exception:
         # Un error no previsto no puede botar al worker: si no, la hoja vuelve a la cola cada
         # 5 minutos, se llama de nuevo a Bedrock y las capturas normales tampoco avanzan.
         logger.exception("Resultado %s: error inesperado al leer la hoja", resultado.pk)
-        _marcar_error(resultado, "No se pudo leer la hoja. Puedes reintentar o ingresar los datos a mano.")
+        _marcar_error(resultado, MENSAJE_NO_SE_PUDO_LEER)
         return False
     try:
         with transaction.atomic():
+            # Solo si la hoja sigue en manos de este proceso (nadie la descartó ni la borró mientras se leía).
+            if not ResultadoInstrumento.objects.filter(
+                pk=resultado.pk, estado=ResultadoInstrumento.Estado.LEYENDO,
+            ).update(actualizado=timezone.now()):
+                logger.warning("Resultado %s cambió mientras se leía; se descarta la lectura", resultado.pk)
+                return False
             resultado.avisos = aplicar_lectura(resultado, lectura, instrumentos)
             resultado.estado = ResultadoInstrumento.Estado.POR_REVISAR
             resultado.error = ""
@@ -648,8 +668,12 @@ def procesar_lectura(resultado, cliente=None):
             registrar(resultado, RegistroCambio.Accion.LECTURA_IA)
     except Exception:
         logger.exception("Resultado %s: no se pudo guardar lo leído de la hoja", resultado.pk)
-        resultado.refresh_from_db()
-        _marcar_error(resultado, "No se pudo leer la hoja. Puedes reintentar o ingresar los datos a mano.")
+        try:
+            resultado.refresh_from_db()
+        except Exception:
+            logger.exception("Resultado %s: no se pudo releer", resultado.pk)
+            return False
+        _marcar_error(resultado, MENSAJE_NO_SE_PUDO_LEER)
         return False
     borrar_hoja(resultado)
     logger.info("Resultado %s: hoja leída y borrada", resultado.pk)
@@ -657,9 +681,18 @@ def procesar_lectura(resultado, cliente=None):
 
 
 def _marcar_error(resultado, mensaje):
-    resultado.estado = ResultadoInstrumento.Estado.ERROR
-    resultado.error = mensaje
-    resultado.save(update_fields=["estado", "error", "actualizado"])
+    """Deja la hoja en error si sigue en "leyendo". Nunca lanza: se llama desde un `except`."""
+    try:
+        cambiadas = ResultadoInstrumento.objects.filter(
+            pk=resultado.pk, estado=ResultadoInstrumento.Estado.LEYENDO,
+        ).update(estado=ResultadoInstrumento.Estado.ERROR, error=mensaje, actualizado=timezone.now())
+    except Exception:
+        logger.exception("Resultado %s: no se pudo guardar el error (%s)", resultado.pk, mensaje)
+        return
+    if cambiadas:
+        resultado.estado, resultado.error = ResultadoInstrumento.Estado.ERROR, mensaje
+    else:
+        logger.warning("Resultado %s ya no estaba en leyendo: no se marca el error", resultado.pk)
 
 
 def procesar_lecturas_pendientes(cliente=None):

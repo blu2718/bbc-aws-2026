@@ -9,22 +9,28 @@ observación) y también sin JavaScript (redirige a la pantalla de revisión).
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_GET, require_POST
 
 from django.utils import timezone
 
-from .models import Captura
+from .models import Captura, Observacion
 from .pantallas import observaciones_para_tarjetas, tarjetas_suceso
 from .permisos import cursos_que_valida
 from .revision import (
+    MENSAJE_YA_NO_PENDIENTE,
     AsignarNinoForm,
     ObservacionForm,
     aceptar,
     aceptar_todas,
+    asignar_nino,
+    bloquear_pendiente,
     descartar,
     pendientes_que_revisa,
+    refrescar,
     resumen_pendientes,
     revision_del_curso,
 )
@@ -95,6 +101,28 @@ def _tarjeta(request, obs, *, resuelta="", error=""):
     })
 
 
+def _ya_revisada(request, obs):
+    """La observación dejó de estar pendiente mientras se miraba: no se cambia y se muestra cómo quedó.
+
+    Pasa si se aceptó o descartó en otra pantalla, o si sumar contexto a la nota la borró.
+    """
+    curso = obs.captura.curso
+    vista = _vista(request)
+    if not refrescar(obs):
+        messages.error(request, "Esta observación ya no existe: la nota se volvió a ordenar.")
+        if _es_htmx(request):
+            respuesta = HttpResponse(status=200)
+            respuesta["HX-Refresh"] = "true"
+            return respuesta
+        return redirect(_url_revision(curso, vista=vista) if vista != VISTA_SUCESO
+                        else reverse("captura", args=[obs.captura_id]))
+    if _es_htmx(request):
+        resuelta = obs.estado if obs.estado in (Observacion.Estado.ACEPTADA, Observacion.Estado.DESCARTADA) else ""
+        return _tarjeta(request, obs, resuelta=resuelta, error=MENSAJE_YA_NO_PENDIENTE)
+    messages.error(request, MENSAJE_YA_NO_PENDIENTE)
+    return redirect(_url_revision(curso, obs, vista))
+
+
 @login_required
 @require_GET
 def revision(request, curso_id):
@@ -119,7 +147,14 @@ def editar(request, obs_id):
     vista = _vista(request)
     form = ObservacionForm(request.POST or None, instance=obs, curso=curso, prefix=f"obs{obs.pk}")
     if request.method == "POST" and form.is_valid():
-        obs = form.save()
+        # Se guarda solo si sigue pendiente, con el bloqueo tomado: si se aceptó mientras se
+        # editaba, la edición no pisa la observación aceptada (que se corrige con historial).
+        with transaction.atomic():
+            editable = bloquear_pendiente(obs)
+            if editable:
+                obs = form.save()
+        if not editable:
+            return _ya_revisada(request, obs)
         if _es_htmx(request):
             return _tarjeta(request, obs)
         messages.success(request, "Se guardaron los cambios de la observación.")
@@ -137,9 +172,8 @@ def asignar(request, obs_id):
     form = AsignarNinoForm(request.POST, curso=curso)
     error = ""
     if form.is_valid():
-        obs.nino = form.cleaned_data["nino"]
-        obs.grupal = False
-        obs.save(update_fields=["nino", "grupal", "actualizada"])
+        if not asignar_nino(obs, form.cleaned_data["nino"]):
+            return _ya_revisada(request, obs)
     else:
         error = "Elige un niño o niña de la lista."
     if _es_htmx(request):
@@ -157,12 +191,14 @@ def aceptar_observacion(request, obs_id):
     obs = _observacion(request, obs_id)
     curso = obs.captura.curso
     try:
-        aceptar(obs)
+        aceptada = aceptar(obs)
     except ValidationError as e:
         if _es_htmx(request):
             return _tarjeta(request, obs, error=e.messages[0])
         messages.error(request, e.messages[0])
         return redirect(_url_revision(curso, obs, _vista(request)))
+    if not aceptada:
+        return _ya_revisada(request, obs)
     if _es_htmx(request):
         return _tarjeta(request, obs, resuelta="aceptada")
     messages.success(request, "Observación aceptada.")
@@ -174,7 +210,8 @@ def aceptar_observacion(request, obs_id):
 @require_POST
 def descartar_observacion(request, obs_id):
     obs = _observacion(request, obs_id)
-    descartar(obs)
+    if not descartar(obs):
+        return _ya_revisada(request, obs)
     if _es_htmx(request):
         return _tarjeta(request, obs, resuelta="descartada")
     messages.success(request, "Observación descartada.")

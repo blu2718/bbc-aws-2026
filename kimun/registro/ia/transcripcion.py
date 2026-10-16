@@ -16,6 +16,11 @@ tests pasan clientes falsos de Transcribe y S3.
 6. Borra del bucket la copia del audio y el JSON de salida, termine bien o mal: el audio
    no se conserva y el texto lo guarda quien llama (`registro/lectura.py`).
 
+Si el proceso se corta antes del paso 6 (corte de luz, SIGKILL) o Transcribe escribe la
+salida después de que se dejó de esperar (un trabajo en curso no se puede cancelar ni
+borrar), las reglas de ciclo de vida del bucket (infra/plantilla.yaml) borran
+`originales/capturas/` y `transcripciones/` al día siguiente.
+
 Transcribe batch acepta AMR, FLAC, M4A, MP3, MP4, Ogg, WebM y WAV
 (https://docs.aws.amazon.com/transcribe/latest/dg/how-input.html): los audios de
 Android (WebM/Opus) y de iPhone (MP4/AAC) se mandan sin convertir.
@@ -57,6 +62,14 @@ _CARACTERES_VOCABULARIO = frozenset(
 )
 _CODIGOS_NO_EXISTE = {"BadRequestException", "NotFoundException"}
 _CODIGOS_TRANSITORIOS = {"ThrottlingException", "LimitExceededException", "InternalFailureException"}
+# Errores de red de botocore (EndpointConnectionError, ReadTimeoutError, ...) por nombre, para no importar
+# botocore aquí. No traen `response`: sin esto, un corte breve de red se trataba como error definitivo.
+_ERRORES_DE_RED = {"HTTPClientError", "ConnectionError", "TimeoutError"}
+# Timeouts por llamada: los de botocore por defecto (60 s y varios reintentos) pueden pasar el umbral de
+# captura atascada del worker (5 minutos) sumados a la espera de la transcripción.
+CONNECT_TIMEOUT = 10
+READ_TIMEOUT = 30
+MAX_INTENTOS_LLAMADA = 3
 
 
 class ErrorTranscripcion(Exception):
@@ -68,6 +81,22 @@ def _codigo_error(error):
     if isinstance(respuesta, dict):
         return respuesta.get("Error", {}).get("Code")
     return None
+
+
+def _es_transitorio(error):
+    """Throttling o error interno de Transcribe, o un error de red: se vuelve a consultar."""
+    if _codigo_error(error) in _CODIGOS_TRANSITORIOS:
+        return True
+    return any(clase.__name__ in _ERRORES_DE_RED for clase in type(error).__mro__)
+
+
+def _config_boto():
+    from botocore.config import Config
+
+    return Config(
+        connect_timeout=CONNECT_TIMEOUT, read_timeout=READ_TIMEOUT,
+        retries={"max_attempts": MAX_INTENTOS_LLAMADA, "mode": "standard"},
+    )
 
 
 def formato_audio(cabecera):
@@ -153,7 +182,7 @@ class ClienteTranscribe:
         if self._transcribe is None:
             import boto3
 
-            self._transcribe = boto3.client("transcribe", region_name=self.region)
+            self._transcribe = boto3.client("transcribe", region_name=self.region, config=_config_boto())
         return self._transcribe
 
     @property
@@ -161,7 +190,7 @@ class ClienteTranscribe:
         if self._s3 is None:
             import boto3
 
-            self._s3 = boto3.client("s3", region_name=self.region)
+            self._s3 = boto3.client("s3", region_name=self.region, config=_config_boto())
         return self._s3
 
     def asegurar_vocabulario(self, prefijo, frases):
@@ -252,9 +281,11 @@ class ClienteTranscribe:
                 info = self.transcribe.get_transcription_job(TranscriptionJobName=trabajo)["TranscriptionJob"]
                 estado = info.get("TranscriptionJobStatus")
             except Exception as error:
-                if _codigo_error(error) not in _CODIGOS_TRANSITORIOS:
+                if not _es_transitorio(error):
                     raise ErrorTranscripcion(f"No se pudo consultar la transcripción {trabajo}: {error}") from error
-                logger.warning("Consulta de %s limitada (%s); se reintenta", trabajo, _codigo_error(error))
+                logger.warning(
+                    "Consulta de %s falló (%s); se reintenta", trabajo, _codigo_error(error) or type(error).__name__
+                )
                 estado = None
             if estado == "COMPLETED":
                 return

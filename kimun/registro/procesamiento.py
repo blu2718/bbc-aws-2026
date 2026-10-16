@@ -14,7 +14,11 @@ Lo usa `manage.py procesar_capturas`:
    log y en el admin; a quien registró se le muestra un mensaje genérico); `reintentar()`
    la devuelve a `pendiente` para que se vuelva a tomar. `recuperar_atascadas()` devuelve
    a pendiente las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA);
-   el worker la llama en cada vuelta.
+   el worker la llama en cada vuelta. Una que se atasca MAX_INTENTOS_AUTOMATICOS veces
+   queda en `error`: así una captura que tumba al proceso no vuelve a la cola para siempre.
+4. Las escrituras finales son condicionales (`procesando` → `procesada`, `error` o
+   `en_resguardo`): si mientras tanto alguien devolvió la captura a la cola o la borró,
+   lo de este proceso se descarta y no pisa el estado nuevo.
 
 Solo el proceso de fondo llama a Bedrock y Transcribe: la página de la captura consulta
 el estado (`views_registro.estado`), porque una foto puede tardar más que los timeouts web.
@@ -49,6 +53,17 @@ NOMBRE_TODO_EL_CURSO = "todo el curso"
 # Una captura que lleva más que esto en "procesando" quedó atascada (el proceso murió a mitad).
 # Holgado frente al tiempo máximo de una llamada a Bedrock (90 s por defecto).
 UMBRAL_PROCESANDO_ATASCADA = timedelta(minutes=5)
+# Desde este intento, una captura atascada ya no vuelve sola a la cola: queda en error y se
+# reintenta a mano. Cada vuelta vuelve a llamar a Bedrock o a Transcribe (y se cobra).
+MAX_INTENTOS_AUTOMATICOS = 3
+MENSAJE_DEMASIADOS_INTENTOS = (
+    f"Se interrumpió {MAX_INTENTOS_AUTOMATICOS} veces sin terminar (el proceso se reinició o se cayó). "
+    "Puedes reintentar."
+)
+
+
+class _CapturaCambio(Exception):
+    """La captura dejó de estar en "procesando" mientras este proceso la tenía: se descarta lo hecho."""
 
 
 def limite_atascada():
@@ -93,20 +108,31 @@ def reintentar(captura):
     ) == 1
 
 
-def recuperar_atascadas():
+def recuperar_atascadas(con_tope=True):
     """Devuelve a pendiente las capturas atascadas en procesando. Devuelve cuántas.
 
     Una captura queda atascada si el proceso murió a mitad (reinicio del servicio, OOM):
     lleva más de UMBRAL_PROCESANDO_ATASCADA en "procesando". Las que están en proceso
     hace menos que eso no se tocan. `procesar_capturas` la llama en cada vuelta.
+
+    Con `con_tope`, las que ya se tomaron MAX_INTENTOS_AUTOMATICOS veces quedan en error
+    en vez de volver a la cola. `--reintentar` (a mano) las recupera igual.
     """
     ahora = timezone.now()
     atascadas = _procesables().filter(
         estado=Captura.Estado.PROCESANDO, actualizada__lt=ahora - UMBRAL_PROCESANDO_ATASCADA
-    ).update(estado=Captura.Estado.PENDIENTE, actualizada=ahora)
-    if atascadas:
-        logger.warning("%s capturas atascadas en procesando vuelven a pendiente", atascadas)
-    return atascadas
+    )
+    if con_tope:
+        agotadas = atascadas.filter(intentos__gte=MAX_INTENTOS_AUTOMATICOS).update(
+            estado=Captura.Estado.ERROR, error=MENSAJE_DEMASIADOS_INTENTOS, actualizada=ahora
+        )
+        if agotadas:
+            logger.error("%s capturas se interrumpieron %s veces y quedan con error", agotadas, MAX_INTENTOS_AUTOMATICOS)
+    # Las que quedaron en error ya no están en "procesando": este update no las toca.
+    devueltas = atascadas.update(estado=Captura.Estado.PENDIENTE, actualizada=ahora)
+    if devueltas:
+        logger.warning("%s capturas atascadas en procesando vuelven a pendiente", devueltas)
+    return devueltas
 
 
 def reintentar_errores():
@@ -114,7 +140,7 @@ def reintentar_errores():
     errores = _procesables().filter(estado=Captura.Estado.ERROR).update(
         estado=Captura.Estado.PENDIENTE, actualizada=timezone.now()
     )
-    return errores + recuperar_atascadas()
+    return errores + recuperar_atascadas(con_tope=False)
 
 
 def _descartada_como_vulneracion(captura):
@@ -129,6 +155,9 @@ def _poner_en_resguardo(captura, senal):
     solo el id: el texto de la nota nunca se escribe en los registros.
     """
     with transaction.atomic():
+        # Primero el estado, condicional: si la captura ya no es de este proceso, no se descarta nada.
+        if not _cerrar(captura, Captura.Estado.EN_RESGUARDO, error="", pregunta=""):
+            raise _CapturaCambio
         Observacion.todas.filter(captura=captura).update(
             estado=Observacion.Estado.DESCARTADA, actualizada=timezone.now()
         )
@@ -137,17 +166,33 @@ def _poner_en_resguardo(captura, senal):
             aviso.senal = senal
             aviso.save(update_fields=["senal"])
         # Un aviso ya resuelto no se reabre: quién lo resolvió y cuándo queda registrado.
-        captura.estado = Captura.Estado.EN_RESGUARDO
-        captura.error = ""
-        captura.pregunta = ""
-        captura.save(update_fields=["estado", "error", "pregunta", "actualizada"])
     logger.info("Captura %s queda en resguardo con un aviso de protección", captura.pk)
 
 
+def _cerrar(captura, estado, **campos):
+    """Pasa la captura de "procesando" a `estado`. True si este proceso todavía la tenía.
+
+    Si alguien la devolvió a la cola (contexto agregado, reintento de una atascada) o la
+    borró mientras se procesaba, no cambia nada: el estado nuevo manda.
+    """
+    ahora = timezone.now()
+    cambiadas = Captura.objects.filter(pk=captura.pk, estado=Captura.Estado.PROCESANDO).update(
+        estado=estado, actualizada=ahora, **campos
+    )
+    if cambiadas:
+        captura.estado, captura.actualizada = estado, ahora
+        for campo, valor in campos.items():
+            setattr(captura, campo, valor)
+    return bool(cambiadas)
+
+
 def _marcar_error(captura, motivo):
-    captura.estado = Captura.Estado.ERROR
-    captura.error = motivo
-    captura.save(update_fields=["estado", "error", "actualizada"])
+    """Deja la captura en error. Nunca lanza: se llama desde un `except` y no debe tumbar al worker."""
+    try:
+        if not _cerrar(captura, Captura.Estado.ERROR, error=motivo):
+            logger.warning("Captura %s ya no estaba en procesando: no se marca el error (%s)", captura.pk, motivo)
+    except Exception:
+        logger.exception("Captura %s: no se pudo guardar el error (%s)", captura.pk, motivo)
 
 
 def _crear_observaciones(captura, separada, ninos, nucleos, oas):
@@ -217,9 +262,10 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
     Devuelve la lista de observaciones creadas (puede ser vacía si la nota no
     describe ninguna), o None si la captura quedó en error.
     """
-    curso = captura.curso
-    ninos = list(curso.ninos.all())
     try:
+        # Dentro del try: si la consulta falla (base bloqueada, curso borrado), la captura queda en error.
+        curso = captura.curso
+        ninos = list(curso.ninos.all())
         # La foto o el audio se leen aquí (el texto se guarda y el archivo se borra); una nota se usa tal cual.
         texto = texto_para_separar(captura, cliente=cliente, transcriptor=transcriptor, ninos=ninos)
         separacion = separar_completo(
@@ -243,11 +289,14 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
             for oa in ObjetivoAprendizaje.objects.filter(nivel_educativo=curso.nivel_educativo).select_related("nucleo")
         }
         with transaction.atomic():
+            # Primero el estado: si la captura ya no es de este proceso, no se crean observaciones.
+            if not _cerrar(captura, Captura.Estado.PROCESADA, error="", pregunta=(pregunta or "")[:LARGO_PREGUNTA]):
+                raise _CapturaCambio
             creadas = [obs for s in separadas for obs in _crear_observaciones(captura, s, ninos, nucleos, oas)]
-            captura.estado = Captura.Estado.PROCESADA
-            captura.error = ""
-            captura.pregunta = (pregunta or "")[:LARGO_PREGUNTA]
-            captura.save(update_fields=["estado", "error", "pregunta", "actualizada"])
+    except _CapturaCambio:
+        # Otro la devolvió a la cola (por ejemplo, con contexto nuevo) o la borró: lo leído aquí no se usa.
+        logger.warning("Captura %s cambió mientras se procesaba; se descarta este resultado", captura.pk)
+        return None
     except (ErrorSeparacion, ErrorTranscripcion) as error:
         logger.warning("Captura %s quedó con error: %s", captura.pk, error)
         _marcar_error(captura, str(error))

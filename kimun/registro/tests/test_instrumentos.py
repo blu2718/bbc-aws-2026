@@ -335,3 +335,32 @@ def test_una_lectura_con_otra_forma_no_bota_al_worker(hoja_por_leer):
     assert not ins.procesar_lectura(r, cliente=ClienteFalso(RuntimeError("inesperado")))
     r.refresh_from_db()
     assert r.estado == ResultadoInstrumento.Estado.ERROR and r.archivo
+
+
+def test_una_hoja_que_se_interrumpe_muchas_veces_queda_en_error(hoja_por_leer):
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    hace_rato = timezone.now() - ins.UMBRAL_LEYENDO_ATASCADA - timedelta(seconds=1)
+    ResultadoInstrumento.objects.filter(pk=hoja_por_leer.pk).update(
+        estado=ResultadoInstrumento.Estado.LEYENDO, intentos=ins.MAX_INTENTOS_LECTURA, actualizado=hace_rato,
+    )
+    assert ins.recuperar_lecturas_atascadas() == 0
+    hoja_por_leer.refresh_from_db()
+    assert hoja_por_leer.estado == ResultadoInstrumento.Estado.ERROR and hoja_por_leer.archivo
+    # Se puede reintentar a mano: la hoja sigue guardada.
+    assert ins.reintentar_lectura(hoja_por_leer)
+
+
+def test_si_descartan_la_hoja_mientras_se_lee_no_se_pisa(hoja_por_leer):
+    r = ins.tomar_siguiente_lectura()
+
+    class Descartar(ClienteFalso):
+        def invocar_herramienta(self, *args, **kwargs):
+            ResultadoInstrumento.objects.filter(pk=r.pk).update(estado=ResultadoInstrumento.Estado.DESCARTADO)
+            return super().invocar_herramienta(*args, **kwargs)
+
+    assert not ins.procesar_lectura(r, cliente=Descartar(LECTURA_TEPSI))
+    r.refresh_from_db()
+    assert r.estado == ResultadoInstrumento.Estado.DESCARTADO

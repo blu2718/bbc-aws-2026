@@ -15,6 +15,9 @@ EnvironmentFile=/etc/kimun/kimun.env
 Environment=PYTHONUNBUFFERED=1
 # Cada 2 s: la página de la captura espera aquí el resultado (la petición web no llama a Bedrock).
 ExecStart=/opt/kimun/venv/bin/python manage.py procesar_capturas --intervalo 2
+# Al detenerlo (cada despliegue), procesar_capturas trata SIGTERM como Ctrl+C y borra del bucket
+# lo que subió a Transcribe. Se le da tiempo para esas llamadas antes del SIGKILL.
+TimeoutStopSec=60
 Restart=always
 RestartSec=10
 NoNewPrivileges=true

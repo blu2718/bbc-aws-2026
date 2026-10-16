@@ -530,3 +530,95 @@ def test_aceptar_suma_a_la_cobertura_por_oa_del_nino(client, educadora, ninos, n
     assert cantidad() == 0
     client.post(_url("observacion_aceptar", nota["pedro"]), headers=HTMX)
     assert cantidad() == 1
+
+
+# --- Una acción sobre una observación que ya se revisó en otra pantalla (rama fixes) ------
+
+
+@pytest.fixture
+def con_pantalla_vieja(monkeypatch):
+    """La educadora abrió la tarjeta cuando la observación estaba pendiente: la vista la encuentra igual.
+
+    Simula la carrera entre la lectura (`_observacion`) y la escritura, que en la realidad
+    ocurre en milisegundos (otra pestaña, "Aceptar todas").
+    """
+    from registro import views_revision
+
+    monkeypatch.setattr(views_revision, "pendientes_que_revisa", lambda usuario: Observacion.objects.all())
+
+
+def test_descartar_no_cambia_una_observacion_ya_aceptada(client, educadora, nota, con_pantalla_vieja):
+    from registro.revision import descartar
+
+    pedro = nota["pedro"]
+    vieja = Observacion.objects.get(pk=pedro.pk)
+    Observacion.objects.filter(pk=pedro.pk).update(estado=ACEPTADA)
+    assert descartar(vieja) is False
+    assert _estado(pedro) == ACEPTADA
+
+    client.force_login(educadora)
+    html = client.post(_url("observacion_descartar", pedro), headers=HTMX).content.decode()
+    assert _estado(pedro) == ACEPTADA
+    assert "Aceptada:" in html
+
+
+def test_asignar_no_cambia_el_nino_de_una_observacion_ya_aceptada(client, educadora, nota, ninos, con_pantalla_vieja):
+    from registro.revision import asignar_nino
+
+    sofia = nota["sofia"]
+    Observacion.objects.filter(pk=sofia.pk).update(estado=ACEPTADA, grupal=True)
+    assert asignar_nino(Observacion.objects.get(pk=sofia.pk), ninos["Sofía"]) is False
+
+    client.force_login(educadora)
+    respuesta = client.post(_url("observacion_asignar", sofia), {"nino": ninos["Sofía"].pk}, follow=True)
+    sofia.refresh_from_db()
+    assert (sofia.estado, sofia.nino, sofia.grupal) == (ACEPTADA, None, True)
+    assert "ya se revisó" in respuesta.content.decode()
+
+
+def test_editar_no_pisa_una_observacion_ya_aceptada(client, educadora, nota, con_pantalla_vieja):
+    pedro = nota["pedro"]
+    Observacion.objects.filter(pk=pedro.pk).update(estado=ACEPTADA)
+    client.force_login(educadora)
+    prefijo = f"obs{pedro.pk}"
+    datos = {
+        f"{prefijo}-nino": pedro.nino_id, f"{prefijo}-fecha": pedro.fecha.isoformat(),
+        f"{prefijo}-cita": "Otra cita", f"{prefijo}-apoyo": pedro.apoyo, f"{prefijo}-efecto": pedro.efecto,
+    }
+
+    html = client.post(_url("observacion_editar", pedro), datos, headers=HTMX).content.decode()
+
+    assert "Aceptada:" in html  # el formulario era válido: lo que lo frenó fue el estado
+    pedro.refresh_from_db()
+    assert pedro.estado == ACEPTADA and pedro.cita == "Clasificó hojas por color."
+
+
+def test_aceptar_no_reabre_una_observacion_ya_descartada(client, educadora, nota, con_pantalla_vieja):
+    pedro = nota["pedro"]
+    Observacion.objects.filter(pk=pedro.pk).update(estado=DESCARTADA)
+    client.force_login(educadora)
+
+    html = client.post(_url("observacion_aceptar", pedro), headers=HTMX).content.decode()
+
+    assert _estado(pedro) == DESCARTADA
+    assert "Descartada:" in html
+
+
+def test_una_observacion_borrada_al_sumar_contexto_recarga_la_pantalla(client, educadora, nota, con_pantalla_vieja,
+                                                                      monkeypatch):
+    from registro import revision
+
+    pedro = nota["pedro"]
+    real = revision.refrescar
+
+    def borrada_antes_de_releer(obs):
+        Observacion.todas.filter(pk=obs.pk).delete()
+        return real(obs)
+
+    monkeypatch.setattr("registro.views_revision.refrescar", borrada_antes_de_releer)
+    Observacion.objects.filter(pk=pedro.pk).update(estado=ACEPTADA)
+    client.force_login(educadora)
+
+    respuesta = client.post(_url("observacion_descartar", pedro), headers=HTMX)
+
+    assert respuesta.status_code == 200 and respuesta["HX-Refresh"] == "true"
