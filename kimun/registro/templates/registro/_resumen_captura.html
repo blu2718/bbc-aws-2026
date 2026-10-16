@@ -31,7 +31,9 @@ actualizan solas y este resumen quedaría desfasado.
       {% endif %}
     </ul>
     <p class="ayuda">
-      {% if not hay_pendientes %}
+      {% if not r.observaciones and not r.del_curso %}
+        Las notas de contexto no se revisan una a una.
+      {% elif not hay_pendientes %}
         Ya se revisaron.
       {% elif puede_validar %}
         Revísalas antes de que cuenten en la ficha.

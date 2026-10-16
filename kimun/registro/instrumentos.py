@@ -152,16 +152,20 @@ def _numero(texto):
     if isinstance(texto, bool):
         return None
     if isinstance(texto, (int, float)):
-        return Decimal(str(texto))
+        texto = str(texto)
     limpio = str(texto).strip().replace(" ", "")
     if not limpio:
         return None
     # "0,92" → 0.92; "1.234" se lee como 1,234 solo si hay coma también (no se usan miles en estas hojas).
     limpio = limpio.replace(",", ".")
     try:
-        return Decimal(limpio)
+        numero = Decimal(limpio)
     except InvalidOperation:
         return None
+    # "NaN", "Infinity" o "1e999999" no son puntajes (y caerían al redondear).
+    if not numero.is_finite() or abs(numero) > 10**6:
+        return None
+    return numero
 
 
 def _redondear(valor, decimales):
@@ -195,8 +199,9 @@ def normalizar_campo(campo, crudo, area=None):
     numero = _numero(crudo)
     if numero is None:
         return None, f"{nombre}: «{crudo}» no es un número."
-    if campo.get("escala_100") and numero <= 2 and numero != numero.to_integral():
-        numero *= 100  # CD escrito como 0,92 en la hoja
+    if campo.get("escala_100") and 0 < numero <= 2:
+        # CD escrito como razón en la hoja: 0,92 o 1,00 (un CD de 1 o 2 puntos no existe).
+        numero *= 100
     valor = _redondear(numero, campo.get("decimales", 0))
     tope = maximo(campo, area)
     if not (campo.get("min", 0) <= valor <= tope):
@@ -204,12 +209,18 @@ def normalizar_campo(campo, crudo, area=None):
     return valor, None
 
 
+def _dict(valor):
+    return valor if isinstance(valor, dict) else {}
+
+
 def normalizar_valores(defi, crudos):
     """Valores válidos según la definición y la lista de problemas (lo que se descartó y por qué)."""
-    crudos = crudos or {}
+    # Lo leído por Claude puede venir con otra forma (un texto donde se esperaba un objeto):
+    # se ignora lo que no calza en vez de caer.
+    crudos = _dict(crudos)
     problemas, valores = [], {"campos": {}, "areas": {}, "categorias_area": {}}
     for campo in defi.get("campos", []):
-        valor, problema = normalizar_campo(campo, (crudos.get("campos") or {}).get(campo["codigo"]))
+        valor, problema = normalizar_campo(campo, _dict(crudos.get("campos")).get(campo["codigo"]))
         if problema:
             problemas.append(problema)
         if valor is not None:
@@ -217,7 +228,7 @@ def normalizar_valores(defi, crudos):
 
     cat_area = categoria_area(defi)
     for area in defi.get("areas", []):
-        crudo_area = (crudos.get("areas") or {}).get(area["codigo"]) or {}
+        crudo_area = _dict(_dict(crudos.get("areas")).get(area["codigo"]))
         fila = {}
         for campo in defi.get("campos_area", []):
             valor, problema = normalizar_campo(campo, crudo_area.get(campo["codigo"]), area)
@@ -228,7 +239,7 @@ def normalizar_valores(defi, crudos):
         if fila:
             valores["areas"][area["codigo"]] = fila
         if cat_area:
-            crudo_cat = (crudos.get("categorias_area") or {}).get(area["codigo"])
+            crudo_cat = _dict(crudos.get("categorias_area")).get(area["codigo"])
             cat = _opcion_valida(cat_area["opciones"], crudo_cat)
             if cat is False:
                 problemas.append(f"{area['nombre']}: la categoría «{crudo_cat}» no es del instrumento.")
@@ -245,8 +256,10 @@ def normalizar_valores(defi, crudos):
 
     if defi.get("areas_libres"):
         libres = []
-        for fila in (crudos.get("areas_libres") or [])[:MAX_AREAS_LIBRES]:
-            nombre = str((fila or {}).get("nombre") or "").strip()[:80]
+        filas = crudos.get("areas_libres")
+        for fila in (filas if isinstance(filas, list) else [])[:MAX_AREAS_LIBRES]:
+            fila = _dict(fila)
+            nombre = str(fila.get("nombre") or "").strip()[:80]
             if not nombre:
                 continue
             datos = {"nombre": nombre}
@@ -620,12 +633,24 @@ def procesar_lectura(resultado, cliente=None):
         logger.warning("Resultado %s: no se pudo leer la hoja: %s", resultado.pk, error)
         _marcar_error(resultado, "No se pudo leer la hoja. Puedes reintentar o ingresar los datos a mano.")
         return False
-    with transaction.atomic():
-        resultado.avisos = aplicar_lectura(resultado, lectura, instrumentos)
-        resultado.estado = ResultadoInstrumento.Estado.POR_REVISAR
-        resultado.error = ""
-        resultado.save()
-        registrar(resultado, RegistroCambio.Accion.LECTURA_IA)
+    except Exception:
+        # Un error no previsto no puede botar al worker: si no, la hoja vuelve a la cola cada
+        # 5 minutos, se llama de nuevo a Bedrock y las capturas normales tampoco avanzan.
+        logger.exception("Resultado %s: error inesperado al leer la hoja", resultado.pk)
+        _marcar_error(resultado, "No se pudo leer la hoja. Puedes reintentar o ingresar los datos a mano.")
+        return False
+    try:
+        with transaction.atomic():
+            resultado.avisos = aplicar_lectura(resultado, lectura, instrumentos)
+            resultado.estado = ResultadoInstrumento.Estado.POR_REVISAR
+            resultado.error = ""
+            resultado.save()
+            registrar(resultado, RegistroCambio.Accion.LECTURA_IA)
+    except Exception:
+        logger.exception("Resultado %s: no se pudo guardar lo leído de la hoja", resultado.pk)
+        resultado.refresh_from_db()
+        _marcar_error(resultado, "No se pudo leer la hoja. Puedes reintentar o ingresar los datos a mano.")
+        return False
     borrar_hoja(resultado)
     logger.info("Resultado %s: hoja leída y borrada", resultado.pk)
     return True

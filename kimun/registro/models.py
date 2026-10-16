@@ -598,7 +598,10 @@ class ProtocoloJardin(models.Model):
 
     def lista_de_pasos(self):
         """Los pasos sin líneas vacías ni la numeración o viñeta con que se hayan pegado."""
-        return [re.sub(r"^\s*(\d+[.)]|[-•*])\s*", "", linea).strip() for linea in self.pasos.splitlines() if linea.strip()]
+        # Primero se quita la numeración y después se filtran las vacías: "1." solo no es un paso.
+        # La numeración exige un espacio después, para no comerse el "1" de "1.5 horas".
+        limpias = (re.sub(r"^\s*(\d+[.)](?=\s|$)|[-•*])\s*", "", linea).strip() for linea in self.pasos.splitlines())
+        return [linea for linea in limpias if linea]
 
 
 # --- Niveles -------------------------------------------------------------------

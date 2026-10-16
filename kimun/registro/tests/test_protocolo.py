@@ -36,12 +36,35 @@ def test_el_protocolo_del_repo_es_valido_y_lo_ven_educadora_y_directora():
 
 
 @pytest.mark.parametrize("contenido", ["{no es json", {"pasos": []}, {"pasos": [{"texto": "sin título"}]},
-                                       {"pasos": [{"titulo": "Informar"}], "destinatarios": ["asistente"]}])
+                                       {"pasos": [{"titulo": "Informar"}], "destinatarios": ["asistente"]},
+                                       # Tipos raros: antes daban 500 en todas las páginas (context processor).
+                                       {"pasos": [{"titulo": None}], "destinatarios": ["directora"]},
+                                       {"pasos": 5, "destinatarios": ["directora"]},
+                                       {"pasos": [{"titulo": "Informar"}], "destinatarios": 5}])
 def test_un_protocolo_que_no_sirve_usa_los_pasos_minimos(monkeypatch, tmp_path, caplog, contenido):
     _con_protocolo(monkeypatch, tmp_path, contenido)
     with caplog.at_level(logging.ERROR):
         assert leer_protocolo() is PROTOCOLO_MINIMO
     assert "pasos mínimos" in caplog.text
+
+
+def test_validar_tolera_texto_nulo_y_solo_un_false_explicito_lo_deja_definitivo():
+    p = validar({"pasos": [{"titulo": "Informar", "texto": None}], "destinatarios": ["directora"], "provisorio": "false"})
+    assert p.pasos[0].texto == "" and p.provisorio is True
+    assert validar({"pasos": [{"titulo": "Informar"}], "destinatarios": ["directora"], "provisorio": False}).provisorio is False
+
+
+def test_los_pasos_del_jardin_no_dejan_lineas_vacias_ni_se_comen_numeros():
+    assert ProtocoloJardin(pasos="1.\n-\n* \n2. Avisar\n1.5 horas para informar").lista_de_pasos() == [
+        "Avisar", "1.5 horas para informar",
+    ]
+    assert ProtocoloJardin(pasos="1.\n2)").lista_de_pasos() == []
+
+
+def test_la_fuente_va_sin_punto_final_porque_lo_pone_la_plantilla():
+    """«…pasos y plazos..» y «…2026., cargado por» se veían con el punto doble."""
+    p = validar({"pasos": [{"titulo": "Informar"}], "destinatarios": ["directora"], "fuente": "JUNJI (2025). Integra puede tener otros. "})
+    assert p.fuente == "JUNJI (2025). Integra puede tener otros"
 
 
 def test_validar_ignora_destinatarios_desconocidos():
@@ -110,11 +133,11 @@ def test_el_protocolo_del_jardin_se_valida(client, jardin, directora_del_jardin,
 def test_el_aviso_sigue_el_protocolo_del_jardin_y_deja_los_provisorios_como_referencia(
     client, aviso, jardin, educadora, directora_del_jardin
 ):
-    ProtocoloJardin.objects.create(jardin=jardin, nombre_documento="Protocolo 2026", pasos=PASOS_JARDIN,
+    ProtocoloJardin.objects.create(jardin=jardin, nombre_documento="Protocolo 2026.", pasos=PASOS_JARDIN,
                                    actualizado_por=directora_del_jardin)
     client.force_login(educadora)
     html = client.get(reverse("aviso", args=[aviso.pk])).content.decode()
-    assert "Según Protocolo 2026" in html and "Avisar a la directora, Ana Pérez, al anexo 123" in html
+    assert "Según Protocolo 2026, cargado por" in html and "Avisar a la directora, Ana Pérez, al anexo 123" in html
     assert html.index("Avisar a la directora, Ana Pérez") < html.index("Pasos de referencia (provisorios, JUNJI)")
     assert "el jardín todavía no carga su protocolo" not in html
 

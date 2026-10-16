@@ -287,3 +287,51 @@ def test_resumen_para_mostrar(hoja_por_leer):
     assert resumen.edad == "3 años"
     assert [a.nombre for a in resumen.areas] == ["Coordinación", "Lenguaje", "Motricidad"]
     assert resumen.areas[1].categoria["texto_ficha"] == "Con seguimiento del centro de salud"
+
+
+# --- Bordes (revisión del 16-10) ------------------------------------------------------------
+
+
+def test_el_historial_no_avisa_adulteracion_mientras_se_lee_la_hoja_o_si_falla(hoja_por_leer, educadora):
+    from registro.historial import registrar
+
+    registrar(hoja_por_leer, RegistroCambio.Accion.CREAR, usuario=educadora, motivo="Hoja subida")
+    r = ins.tomar_siguiente_lectura()
+    assert r.estado == ResultadoInstrumento.Estado.LEYENDO and verificar(r).ok
+    ins.procesar_lectura(r, cliente=ClienteFalso(ErrorBedrock("throttling")))
+    r.refresh_from_db()
+    assert r.estado == ResultadoInstrumento.Estado.ERROR and verificar(r).ok
+    # Un cambio real de los valores por fuera de la app sí se detecta.
+    ResultadoInstrumento.objects.filter(pk=r.pk).update(valores={"campos": {"T": 60}})
+    r.refresh_from_db()
+    assert not verificar(r).ok
+
+
+@pytest.mark.parametrize("crudo", ["NaN", "Infinity", "-inf", "sNaN", "1e999999", float("nan")])
+def test_un_numero_no_finito_es_un_problema_y_no_un_error(crudo):
+    valores, problemas = ins.normalizar_valores(defi("TEPSI"), {"campos": {"T": crudo}})
+    assert "T" not in valores["campos"] and problemas
+
+
+@pytest.mark.parametrize("crudo, esperado", [("1,00", 100), ("1", 100), ("0,85", 85), ("85", 85)])
+def test_eedp_cd_escrito_como_razon_entera(crudo, esperado):
+    valores, problemas = ins.normalizar_valores(defi("EEDP"), {"campos": {"CD": crudo}})
+    assert valores["campos"]["CD"] == esperado and not problemas
+
+
+def test_una_lectura_con_otra_forma_no_bota_al_worker(hoja_por_leer):
+    """Si Claude devuelve un texto donde se esperaba un objeto, se ignora; un error inesperado deja la hoja en error."""
+    # Antes: AttributeError ('str' no tiene .get) y el worker se caía en bucle.
+    valores, _ = ins.normalizar_valores(defi("OTRO"), {"areas_libres": ["Motor", {"nombre": "Lenguaje"}]})
+    assert [a["nombre"] for a in valores["areas_libres"]] == ["Lenguaje"]
+    valores, _ = ins.normalizar_valores(defi("TEPSI"), {"campos": {"T": "41"}, "areas": {"C": "10"}, "categorias_area": "L"})
+    assert valores["campos"] == {"T": 41} and not valores["areas"]
+
+    otra = ResultadoInstrumento(nino=hoja_por_leer.nino, estado=ResultadoInstrumento.Estado.POR_LEER,
+                                registrado_por=hoja_por_leer.registrado_por)
+    otra.archivo.save("hoja.jpg", ContentFile(JPEG), save=False)
+    otra.save()
+    r = ins.tomar_siguiente_lectura()
+    assert not ins.procesar_lectura(r, cliente=ClienteFalso(RuntimeError("inesperado")))
+    r.refresh_from_db()
+    assert r.estado == ResultadoInstrumento.Estado.ERROR and r.archivo

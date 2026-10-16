@@ -21,7 +21,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from . import procesamiento
 from .forms_registro import RegistroForm
-from .models import Captura, Observacion
+from .models import AvisoProteccion, Captura, Observacion
 from .pantallas import ninos_mencionados, observaciones_para_tarjetas, resumen_captura, tarjetas_suceso
 from .permisos import avisos_que_ve, cursos_de, cursos_donde_registra, puede_validar
 
@@ -147,10 +147,17 @@ def reintentar(request, captura_id):
 
 
 def puede_agregar_contexto(captura):
-    """Se puede responder la pregunta de Claude mientras ninguna observación de la captura se aceptó."""
-    return captura.estado == Captura.Estado.PROCESADA and not captura.observaciones.filter(
-        estado=Observacion.Estado.ACEPTADA
-    ).exists()
+    """Se puede responder la pregunta de Claude mientras ninguna observación de la captura se aceptó.
+
+    Tampoco en una nota que tuvo un aviso de protección: si dijeron "No es una vulneración",
+    ya no se vuelve a revisar al reordenarla, y un contexto nuevo sí podría describir una.
+    Ese contexto va como nota nueva, que se revisa como cualquier otra.
+    """
+    return (
+        captura.estado == Captura.Estado.PROCESADA
+        and not AvisoProteccion.objects.filter(captura=captura).exists()
+        and not captura.observaciones.filter(estado=Observacion.Estado.ACEPTADA).exists()
+    )
 
 
 @login_required
@@ -166,7 +173,7 @@ def agregar_contexto(request, captura_id):
     if not contexto:
         messages.error(request, "Escribe el contexto que falta antes de enviarlo.")
     elif not puede_agregar_contexto(captura):
-        messages.error(request, "Esta nota ya tiene observaciones aceptadas: registra el contexto como una nota nueva.")
+        messages.error(request, "A esta nota ya no se le puede sumar contexto: regístralo como una nota nueva.")
     else:
         with transaction.atomic():
             captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE).delete()

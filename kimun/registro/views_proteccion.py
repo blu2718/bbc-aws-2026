@@ -80,11 +80,17 @@ def resolver_aviso(request, aviso_id):
         return redirect("aviso", aviso_id=aviso.pk)
 
     with transaction.atomic():
-        aviso.estado = AvisoProteccion.Estado.PROTOCOLO if accion == "protocolo" else AvisoProteccion.Estado.NO_ES
-        aviso.motivo = motivo if accion == "no_es" else ""
-        aviso.resuelto_por = request.user
-        aviso.resuelto_en = timezone.now()
-        aviso.save(update_fields=["estado", "motivo", "resuelto_por", "resuelto_en"])
+        # Condicional: si la educadora y la directora resuelven a la vez, gana la primera y
+        # la segunda no pisa quién lo resolvió ni cuándo.
+        resueltos = AvisoProteccion.objects.filter(pk=aviso.pk, estado=AvisoProteccion.Estado.PENDIENTE).update(
+            estado=AvisoProteccion.Estado.PROTOCOLO if accion == "protocolo" else AvisoProteccion.Estado.NO_ES,
+            motivo=motivo if accion == "no_es" else "",
+            resuelto_por=request.user,
+            resuelto_en=timezone.now(),
+        )
+        if not resueltos:
+            messages.error(request, "Este aviso ya se resolvió.")
+            return redirect("aviso", aviso_id=aviso.pk)
         if accion == "no_es":
             # Vuelve a la cola: procesar_capturas la separa como cualquier otra y ya no la marca.
             Captura.objects.filter(pk=aviso.captura_id, estado=Captura.Estado.EN_RESGUARDO).update(

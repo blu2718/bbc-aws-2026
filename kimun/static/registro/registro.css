@@ -174,6 +174,13 @@ article { box-shadow: var(--kimun-sombra); }
 
 /* --- Accesibilidad ----------------------------------------------------------------------- */
 
+/* Un .visualmente-oculto (position: absolute) dentro de una tabla con scroll horizontal
+   escapaba del contenedor y ensanchaba la página en el teléfono (ficha con instrumentos). */
+.overflow-auto { position: relative; }
+/* Un fieldset no se achica bajo su contenido (min-width: min-content): la tabla de puntajes por
+   área del ingreso a mano (TEPSI, OTRO) ensanchaba la página en vez de usar su scroll. */
+fieldset { min-width: 0; }
+
 .visualmente-oculto {
   position: absolute !important;
   width: 1px !important;
@@ -812,6 +819,10 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 /* Primera columna fija al desplazar la tabla a lo ancho. */
 .tabla-curso th[scope="row"], .tabla-jardin th[scope="row"] { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 1px 0 0 var(--kimun-linea); }
 .tabla-curso td, .tabla-curso th, .tabla-jardin td, .tabla-jardin th { vertical-align: top; min-width: 7rem; }
+/* Tabla del curso más compacta: los 8 núcleos caben sin scroll horizontal desde ~1024 px (Task 14). */
+.pagina-tabla .tarjeta .tabla-curso { font-size: .9rem; }
+.tabla-curso td, .tabla-curso th { min-width: 4.5rem; padding-inline: .4rem; }
+.tabla-curso th[scope="row"] { min-width: 7.5rem; }
 .tabla-curso th[scope="row"] small, .tabla-jardin th[scope="col"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
 .tabla-jardin td.celda-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); }
 .tabla-jardin td.celda-alerta .senal { border-left: 0; padding-left: 0; background: none; }
@@ -838,7 +849,7 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .botones-enlace a.principal { border-color: var(--kimun-celeste); background: var(--kimun-celeste); color: var(--kimun-tinta); }
 .botones-enlace a.principal:hover, .botones-enlace a.principal:focus-visible { background: var(--kimun-celeste-hover); }
 @media (max-width: 575px) {
-  .tabla-curso td, .tabla-curso th, .tabla-jardin td, .tabla-jardin th { min-width: 5.75rem; }
+  .tabla-jardin td, .tabla-jardin th { min-width: 5.75rem; }
   .pagina-tabla .tarjeta { padding-inline: .8rem; }
 }
 /* Foco visible en los enlaces con forma de tarjeta o botón. */

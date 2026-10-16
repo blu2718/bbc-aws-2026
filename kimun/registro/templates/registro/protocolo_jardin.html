@@ -28,6 +28,6 @@
 <details class="detalle-nucleo">
   <summary>Pasos provisorios (paráfrasis del protocolo de la JUNJI), como punto de partida</summary>
   <ol class="pasos">{% for paso in provisorio.pasos %}<li><strong>{{ paso.titulo }}.</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>{% endfor %}</ol>
-  {% if provisorio.fuente %}<p class="ayuda">Fuente: {{ provisorio.fuente }}</p>{% endif %}
+  {% if provisorio.fuente %}<p class="ayuda">Fuente: {{ provisorio.fuente }}.</p>{% endif %}
 </details>
 {% endblock %}

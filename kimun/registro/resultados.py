@@ -17,10 +17,12 @@ from django.utils import timezone
 from .historial import entradas, instantanea, registrar
 from .ia.instrumento import HojaInvalida, validar_hoja
 from .instrumentos import (
-    MAX_AREAS_LIBRES, categoria_area, completar, edad_en_dias, normalizar_campo,
+    MAX_AREAS_LIBRES, borrar_hoja, categoria_area, completar, edad_en_dias, normalizar_campo,
 )
 from .models import Instrumento, Observacion, RegistroCambio, ResultadoInstrumento
+from .propuestas import solicitar_propuesta
 from .revision import ObservacionForm
+from .revision import _destinos  # (niño, núcleo) donde pedir una propuesta, igual que al aceptar
 
 FILAS_AREAS_LIBRES = 6
 EXTENSIONES_HOJA = {"jpeg": "jpg", "png": "png", "gif": "gif", "webp": "webp"}
@@ -306,7 +308,7 @@ def descartar(resultado, usuario, motivo):
     resultado.estado = ResultadoInstrumento.Estado.DESCARTADO
     resultado.save()
     registrar(resultado, RegistroCambio.Accion.DESCARTAR, usuario=usuario, motivo=motivo, antes=antes)
-    transaction.on_commit(lambda: resultado.archivo and resultado.archivo.delete(save=False))
+    transaction.on_commit(lambda: borrar_hoja(resultado))
     return resultado
 
 
@@ -319,11 +321,23 @@ def corregir_observacion(obs, usuario, form):
         raise ValidationError("Solo se corrigen observaciones aceptadas.")
     _revisar_version(RegistroCambio.Objeto.OBSERVACION, obs.pk, form.cleaned_data.get("version"))
     antes = instantanea(actual)
+    destinos_antes = _destinos(actual)
     obs = form.save()
     if instantanea(obs) == antes:
         return obs, False
     registrar(obs, RegistroCambio.Accion.EDITAR, usuario=usuario, motivo=form.cleaned_data["motivo"], antes=antes)
+    _pedir_propuestas(destinos_antes + _destinos(obs))
     return obs, True
+
+
+def _pedir_propuestas(destinos):
+    """Como al aceptar: la evidencia cambió, así que se pide una propuesta nueva en cada núcleo
+    afectado, antes y después de la corrección (si la vigente ya no calza, queda obsoleta)."""
+    vistos = set()
+    for nino, nucleo in destinos:
+        if (nino.pk, nucleo.pk) not in vistos:
+            vistos.add((nino.pk, nucleo.pk))
+            solicitar_propuesta(nino, nucleo, reintentar=True)
 
 
 @transaction.atomic
@@ -336,7 +350,9 @@ def retirar_observacion(obs, usuario, motivo):
     if obs.estado != Observacion.Estado.ACEPTADA:
         raise ValidationError("Solo se retiran observaciones aceptadas.")
     antes = instantanea(obs)
+    destinos = _destinos(obs)
     obs.estado = Observacion.Estado.DESCARTADA
     obs.save(update_fields=["estado", "actualizada"])
     registrar(obs, RegistroCambio.Accion.DESCARTAR, usuario=usuario, motivo=motivo, antes=antes)
+    _pedir_propuestas(destinos)
     return obs

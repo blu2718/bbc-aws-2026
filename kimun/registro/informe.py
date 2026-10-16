@@ -4,13 +4,15 @@ Una página imprimible por niño, que arma la educadora con lo que ya validó. N
 sale de la misma ficha (`ficha.armar_ficha`).
 
 - Por núcleo: el nivel que fijó la educadora (no el nivel 1 automático del ingreso),
-  hasta dos observaciones aceptadas recientes que muestran avance o no tienen efecto
+  una observación aceptada reciente que muestra avance o no tiene efecto
   marcado, y en qué se está trabajando (el nivel siguiente de la rúbrica de Integra o,
   en la provisoria, conductas del Programa Pedagógico de los OA sin evidencia).
 - No incluye señales de revisión, mediana del curso, nivel esperado ni comparaciones
   con otros niños: es para la familia, no un diagnóstico.
 - Las citas pueden nombrar a otros niños del curso: se reemplazan por "un compañero
-  o compañera" con el `Seudonimizador` de la Task 7, que reconoce nombres, apellidos y alias.
+  o compañera" con el `Seudonimizador` de la Task 7, más cada apellido o segundo nombre
+  suelto y los alias. Un apodo no declarado como alias no se reconoce: por eso la
+  educadora revisa el informe antes de compartirlo.
 """
 from __future__ import annotations
 
@@ -26,6 +28,21 @@ CONDUCTAS_POR_NUCLEO = 1
 OTRO_NINO = "un compañero o compañera"
 NINO_SIN_PRECISAR = "un niño o niña"
 _CODIGO = re.compile(r"N-[0-9A-F]{6}")
+_PARTICULAS = {"de", "del", "la", "las", "los", "y", "san"}
+
+
+def _alias_con_partes(nombre, alias):
+    """Alias declarados más cada parte suelta del nombre (apellido o segundo nombre).
+
+    El `Seudonimizador` solo reconoce el nombre completo y sus prefijos; en una cita
+    para la familia también hay que ocultar "jugó con Pérez" o "con José". Un alias
+    mal cargado en el admin (texto suelto en vez de lista) no rompe el informe.
+    """
+    if isinstance(alias, str):
+        alias = [alias]
+    declarados = [a for a in (alias or []) if isinstance(a, str) and a.strip()]
+    partes = [p for p in nombre.split() if len(p) >= 3 and p.casefold() not in _PARTICULAS]
+    return declarados + partes
 
 
 @dataclass(frozen=True)
@@ -51,10 +68,14 @@ class Anonimizador:
     """Deja el nombre del niño y reemplaza el de los demás niños del curso en una cita."""
 
     def __init__(self, nino):
-        identidades = list(Nino.objects.filter(curso_id=nino.curso_id).values("codigo", "nombre", "alias"))
+        identidades = [
+            {"codigo": i["codigo"], "nombre": i["nombre"], "alias": _alias_con_partes(i["nombre"], i["alias"])}
+            for i in Nino.objects.filter(curso_id=nino.curso_id).values("codigo", "nombre", "alias")
+        ]
         self._propio = nino.codigo
         self._pila = nino.nombre.split()[0]
-        self._seudonimizador = Seudonimizador(identidades)
+        # Si un nombre es compartido (las dos Sofías), en el informe de una de ellas se refiere a ella.
+        self._seudonimizador = Seudonimizador(identidades, preferido=nino.codigo)
 
     def texto(self, cita):
         con_codigos = self._seudonimizador.texto(cita)

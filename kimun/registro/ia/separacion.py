@@ -147,10 +147,28 @@ def texto_catalogo(catalogo):
     return "\n".join(lineas)
 
 
-def construir_prompt(fecha_captura, nombres_curso, catalogo):
+SECCION_VULNERACION = "## Posible vulneración de derechos"
+SECCION_CATALOGO = "## Catálogo de núcleos"
+YA_REVISADA = (
+    "## Nota ya revisada\n\n"
+    "La educadora o la directora ya revisaron esta nota y concluyeron que no describe una "
+    "vulneración de derechos. Sepárala como cualquier otra nota, con `posible_vulneracion` = false "
+    "y `senal` = null.\n\n"
+)
+
+
+def construir_prompt(fecha_captura, nombres_curso, catalogo, revisar_vulneracion=True):
+    """Prompt de separación. Sin `revisar_vulneracion` (la educadora o la directora ya dijeron
+    "No es una vulneración"), la sección de vulneración se reemplaza por esa decisión: si no,
+    el modelo la vuelve a marcar y devuelve la lista de observaciones vacía."""
     nombres = "\n".join(f"  - {nombre}" for nombre in nombres_curso) or "  - (sin lista)"
+    plantilla = RUTA_PROMPT.read_text(encoding="utf-8")
+    if not revisar_vulneracion:
+        inicio, fin = plantilla.find(SECCION_VULNERACION), plantilla.find(SECCION_CATALOGO)
+        if 0 <= inicio < fin:
+            plantilla = plantilla[:inicio] + YA_REVISADA + plantilla[fin:]
     return (
-        RUTA_PROMPT.read_text(encoding="utf-8")
+        plantilla
         .replace("{{fecha_captura}}", _como_fecha(fecha_captura).isoformat())
         .replace("{{nombres_curso}}", nombres)
         .replace("{{catalogo}}", texto_catalogo(catalogo))
@@ -384,11 +402,28 @@ def _pregunta(entrada):
 
 
 def _senal_vulneracion(entrada):
-    """La señal si el modelo marcó una posible vulneración; None si no la marcó."""
-    if not isinstance(entrada, dict) or not _como_bool(entrada.get("posible_vulneracion")):
+    """La señal si el modelo marcó una posible vulneración; None si no la marcó.
+
+    Ante la duda se marca (PLAN.md, Task 13): también si la marca viene dentro del objeto
+    completo serializado en `observaciones` (forma que `_extraer_observaciones` acepta), o
+    si trae una señal válida sin decir explícitamente que no.
+    """
+    if not isinstance(entrada, dict):
         return None
-    senal = entrada.get("senal")
-    return senal if senal in SENALES_VULNERACION else "otra"
+    anidada = entrada.get("observaciones")
+    if isinstance(anidada, str):
+        try:
+            anidada = json.loads(anidada)
+        except ValueError:
+            anidada = None
+    for candidata in (entrada, anidada):
+        if not isinstance(candidata, dict):
+            continue
+        senal = candidata.get("senal")
+        marcada = _como_bool(candidata.get("posible_vulneracion"))
+        if marcada or (senal in SENALES_VULNERACION and candidata.get("posible_vulneracion") is not False):
+            return senal if senal in SENALES_VULNERACION else "otra"
+    return None
 
 
 class Separacion(NamedTuple):
@@ -411,9 +446,12 @@ def separar_con_pregunta(texto, fecha_captura, nombres_curso, catalogo, cliente=
     return resultado.observaciones, resultado.pregunta
 
 
-def separar_completo(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
+def separar_completo(texto, fecha_captura, nombres_curso, catalogo, cliente=None, revisar_vulneracion=True):
     """`Separacion`: las observaciones validadas, la pregunta para quien registró si falta
     contexto y la señal si la nota podría describir una vulneración de derechos.
+
+    Con `revisar_vulneracion=False` (nota que la educadora o la directora ya descartaron como
+    vulneración) el prompt no pide marcarla y la respuesta se separa aunque venga marcada.
 
     `fecha_captura` es un `date`, un texto AAAA-MM-DD o un `datetime` (se usa solo su
     fecha, sin convertir de zona). Desde el backend conviene pasar la fecha local,
@@ -425,7 +463,7 @@ def separar_completo(texto, fecha_captura, nombres_curso, catalogo, cliente=None
         return Separacion([], None, None)
     fecha_captura = _como_fecha(fecha_captura)
     nucleos_catalogo, oas_catalogo = indexar_catalogo(catalogo)
-    system = construir_prompt(fecha_captura, nombres_curso, catalogo)
+    system = construir_prompt(fecha_captura, nombres_curso, catalogo, revisar_vulneracion=revisar_vulneracion)
     herramienta = construir_herramienta(catalogo)
     if cliente is None:
         cliente = ClienteBedrock()
@@ -434,7 +472,7 @@ def separar_completo(texto, fecha_captura, nombres_curso, catalogo, cliente=None
     except ErrorBedrock as error:
         raise ErrorSeparacion(str(error)) from error
 
-    senal = _senal_vulneracion(entrada)
+    senal = _senal_vulneracion(entrada) if revisar_vulneracion else None
     if senal is not None:
         # Lo marcado no es evidencia de aprendizaje y no se pregunta nada: preguntar quién o
         # cómo empuja a interrogar al niño, y el protocolo lo prohíbe.

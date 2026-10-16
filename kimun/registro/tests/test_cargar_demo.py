@@ -103,6 +103,18 @@ def test_cada_nucleo_trae_su_trayectoria(cargada):
         assert nucleo.continuidad_basica.startswith("Durante"), nucleo.sigla
 
 
+def test_el_nivel_1_provisorio_es_de_una_linea_y_la_trayectoria_va_como_conducta(cargada):
+    """La opción 1 del formulario para fijar nivel no debe ser un párrafo mientras las demás son una línea."""
+    provisorios = DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.TRANSICION, provisorio=True)
+    lv = Nucleo.objects.get(sigla="LV")
+    nivel_1 = provisorios.get(nucleo=lv, nivel=1)
+    assert nivel_1.descripcion == "Muestra lo esperado al iniciar NT1. Núcleo: Lenguaje Verbal."
+    assert nivel_1.conducta == lv.esperado_inicio_nt1
+    largo_maximo = max(len(d.descripcion) for d in provisorios.exclude(nivel=1))
+    assert len(nivel_1.descripcion) <= largo_maximo
+    assert not provisorios.exclude(nivel=1).exclude(conducta="").exists()
+
+
 def test_carga_curso_de_15_ninos_con_nivel_inicial(cargada):
     curso = _curso_a()
     assert curso.ninos.count() == 15
@@ -306,6 +318,18 @@ def test_volver_a_cargar_conserva_un_nivel_fijado_a_mano(cargada):
     )
     call_command("cargar_demo", verbosity=0, hoy=HOY)
     assert benjamin.nivel_actual(ia).nivel == 4
+
+
+def test_volver_a_cargar_respeta_una_observacion_retirada_y_su_historial(cargada):
+    """Pisarla la devolvía a la ficha y dejaba el historial sin calzar ("se modificó por fuera de la app")."""
+    from registro.historial import verificar
+    from registro.resultados import retirar_observacion
+
+    obs = Observacion.objects.filter(nino__curso=_curso_a(), estado=Observacion.Estado.ACEPTADA, grupal=False).first()
+    retirar_observacion(obs, _curso_a().educadora, "Era de otro niño")
+    call_command("cargar_demo", verbosity=0, hoy=HOY + timedelta(days=1))
+    obs.refresh_from_db()
+    assert obs.estado == Observacion.Estado.DESCARTADA and verificar(obs).ok
 
 
 # --- Datos de demo de la Task 12 (vista de la directora) ----------------------------------

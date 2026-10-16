@@ -30,6 +30,8 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
         {% for c in nf.oas_logrados %}<abbr title="{{ c.oa.texto }}">{{ c.oa.codigo }}</abbr>{% if not forloop.last %}, {% endif %}{% endfor %}.
       </p>
     {% endif %}
+  {% elif nf.observaciones %}
+    <p>Las observaciones aceptadas de este núcleo todavía no muestran un avance o algo que haga de forma autónoma.</p>
   {% else %}
     <p>Todavía no hay observaciones aceptadas en este núcleo.</p>
   {% endif %}
@@ -162,7 +164,7 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
   <h3>Observaciones aceptadas</h3>
   {% if nf.observaciones %}
     <details{% if nf.evidencia_propuesta %} open{% endif %}>
-      <summary>{{ nf.observaciones|length }} observaciones</summary>
+      <summary>{{ nf.observaciones|length }} observaci{{ nf.observaciones|length|pluralize:"ón,ones" }}</summary>
       <ul>
         {% for obs in nf.observaciones %}
           <li id="observacion-{{ nf.nucleo.sigla }}-{{ obs.pk }}">

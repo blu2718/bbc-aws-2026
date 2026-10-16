@@ -230,9 +230,12 @@ def corregir_observacion(request, obs_id):
                                  else "No había cambios que guardar.")
                 destino = obs if obs.nino_id else Observacion(nino_id=nino_antes, captura_id=obs.captura_id)
                 return redirect(_volver_a_ficha(destino))
+    # El historial se verifica contra lo guardado: si el formulario volvió con errores, `obs`
+    # ya trae los cambios sin guardar (ModelForm.is_valid los copia) y daría un falso aviso.
+    guardada = Observacion.objects.get(pk=obs.pk)
     return render(request, "registro/observacion_corregir.html", {
         "obs": obs, "curso": obs.captura.curso, "form": form,
-        "historial": historial_legible(obs), "integridad": verificar(obs),
+        "historial": historial_legible(guardada), "integridad": verificar(guardada),
     })
 
 
