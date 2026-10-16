@@ -189,6 +189,13 @@ body > header form, body > header button { margin: 0; }
 
 /* --- Accesibilidad ----------------------------------------------------------------------- */
 
+/* Un .visualmente-oculto (position: absolute) dentro de una tabla con scroll horizontal
+   escapaba del contenedor y ensanchaba la página en el teléfono (ficha con instrumentos). */
+.overflow-auto { position: relative; }
+/* Un fieldset no se achica bajo su contenido (min-width: min-content): la tabla de puntajes por
+   área del ingreso a mano (TEPSI, OTRO) ensanchaba la página en vez de usar su scroll. */
+fieldset { min-width: 0; }
+
 .visualmente-oculto {
   position: absolute !important;
   width: 1px !important;

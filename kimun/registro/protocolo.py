@@ -74,7 +74,9 @@ def validar(datos):
     fuente = datos.get("fuente")
     # Solo un false explícito lo marca como definitivo ("false" como texto sigue siendo provisorio).
     provisorio = datos.get("provisorio", True) is not False
-    return Protocolo(tuple(pasos), fuente.strip() if isinstance(fuente, str) else "", provisorio, destinatarios)
+    # Sin el punto final: las plantillas lo ponen ("…pasos y plazos.." se veía con dos).
+    fuente = fuente.strip().rstrip(".").strip() if isinstance(fuente, str) else ""
+    return Protocolo(tuple(pasos), fuente, provisorio, destinatarios)
 
 
 def leer_protocolo(ruta=None):
@@ -98,5 +100,5 @@ def protocolo_para(jardin):
     pasos = tuple(Paso(p) for p in del_jardin.lista_de_pasos()) if del_jardin is not None else ()
     if not pasos:
         return provisorio, None
-    fuente = del_jardin.nombre_documento or f"Protocolo de {jardin.nombre}"
+    fuente = del_jardin.nombre_documento.strip().rstrip(".").strip() or f"Protocolo de {jardin.nombre}"
     return Protocolo(pasos, fuente, False, provisorio.destinatarios, del_jardin), provisorio

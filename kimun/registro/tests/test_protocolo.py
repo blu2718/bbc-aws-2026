@@ -61,6 +61,12 @@ def test_los_pasos_del_jardin_no_dejan_lineas_vacias_ni_se_comen_numeros():
     assert ProtocoloJardin(pasos="1.\n2)").lista_de_pasos() == []
 
 
+def test_la_fuente_va_sin_punto_final_porque_lo_pone_la_plantilla():
+    """«…pasos y plazos..» y «…2026., cargado por» se veían con el punto doble."""
+    p = validar({"pasos": [{"titulo": "Informar"}], "destinatarios": ["directora"], "fuente": "JUNJI (2025). Integra puede tener otros. "})
+    assert p.fuente == "JUNJI (2025). Integra puede tener otros"
+
+
 def test_validar_ignora_destinatarios_desconocidos():
     p = validar({"pasos": [{"titulo": "Informar"}], "destinatarios": ["directora", "asistente"]})
     assert p.destinatarios == ("directora",)
@@ -127,11 +133,11 @@ def test_el_protocolo_del_jardin_se_valida(client, jardin, directora_del_jardin,
 def test_el_aviso_sigue_el_protocolo_del_jardin_y_deja_los_provisorios_como_referencia(
     client, aviso, jardin, educadora, directora_del_jardin
 ):
-    ProtocoloJardin.objects.create(jardin=jardin, nombre_documento="Protocolo 2026", pasos=PASOS_JARDIN,
+    ProtocoloJardin.objects.create(jardin=jardin, nombre_documento="Protocolo 2026.", pasos=PASOS_JARDIN,
                                    actualizado_por=directora_del_jardin)
     client.force_login(educadora)
     html = client.get(reverse("aviso", args=[aviso.pk])).content.decode()
-    assert "Según Protocolo 2026" in html and "Avisar a la directora, Ana Pérez, al anexo 123" in html
+    assert "Según Protocolo 2026, cargado por" in html and "Avisar a la directora, Ana Pérez, al anexo 123" in html
     assert html.index("Avisar a la directora, Ana Pérez") < html.index("Pasos de referencia (provisorios, JUNJI)")
     assert "el jardín todavía no carga su protocolo" not in html
 
