@@ -55,7 +55,7 @@
      "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 4, "2026-09-30": 5}}},
     {"nombre": "Matías Lagos", "fecha_nacimiento": "2020-05-30", "alias": ["Mati"], "fecha_ingreso": "2025-07-28",
      "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 4, "2026-09-30": 5}, "LV": {"2025-12-19": 1, "2026-07-03": 2, "2026-09-30": 2}}},
-    {"nombre": "Josefa Morales", "fecha_nacimiento": "2020-08-25", "alias": ["Jose"], "fecha_ingreso": "2026-07-20",
+    {"nombre": "Josefa Morales", "fecha_nacimiento": "2020-08-25", "semestres_previos": 2, "procedencia": "Jardín Infantil Las Araucarias (ficticio), Temuco", "alias": ["Jose"], "fecha_ingreso": "2026-07-20",
      "niveles": {"todos": {"2026-09-30": 4}, "CM": {"2026-09-30": 3}}},
     {"nombre": "Gaspar Núñez", "fecha_nacimiento": "2020-12-29", "alias": [], "fecha_ingreso": "2025-07-28",
      "niveles": {"todos": {"2025-12-19": 2, "2026-07-03": 4, "2026-09-30": 5}, "PM": {"2025-12-19": 2, "2026-07-03": 3, "2026-09-30": 3}}}

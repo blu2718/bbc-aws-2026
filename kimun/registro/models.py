@@ -25,6 +25,8 @@ from django.utils import timezone
 from .rubrica import NIVELES_PROVISORIOS
 
 NIVEL_MIN = 1
+# Un nivel educativo dura 2 años (4 semestres); el máximo deja margen para quien repitió o tuvo pausas.
+SEMESTRES_PREVIOS_MAX = 8
 
 
 def texto_nivel(nivel, nombre=""):
@@ -341,6 +343,16 @@ class Nino(models.Model):
     fecha_ingreso = models.DateField()
     fecha_nacimiento = models.DateField(
         null=True, blank=True, help_text="Para mostrar la edad en el perfil. No se envía a Bedrock."
+    )
+    semestres_previos = models.PositiveSmallIntegerField(
+        default=0, validators=[MaxValueValidator(SEMESTRES_PREVIOS_MAX)],
+        help_text=(
+            "Semestres de este mismo nivel educativo que cursó en otro jardín o sala cuna antes de llegar. "
+            "Se suman a su semestre de permanencia para calcular el nivel esperado."
+        ),
+    )
+    procedencia = models.CharField(
+        max_length=160, blank=True, help_text="De dónde viene, por ejemplo «Jardín Las Araucarias, Temuco»."
     )
 
     class Meta:
@@ -916,6 +928,7 @@ class RegistroCambio(models.Model):
     class Objeto(models.TextChoices):
         RESULTADO = "resultado", "Resultado de instrumento"
         OBSERVACION = "observacion", "Observación"
+        TRAYECTORIA = "trayectoria", "Trayectoria previa del niño"
 
     class Accion(models.TextChoices):
         CREAR = "crear", "Creado"

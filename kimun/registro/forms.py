@@ -13,7 +13,7 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 
 from .ia.transcripcion import formato_audio
-from .models import NIVEL_MIN, MetaSemestre, NivelValidado, texto_nivel
+from .models import NIVEL_MIN, MetaSemestre, NivelValidado, Nino, texto_nivel
 
 # Valores por defecto de la tabla de metas (PLAN.md, "Nivel esperado").
 METAS_POR_DEFECTO = {1: 1, 2: 3, 3: 5, 4: 7}
@@ -212,3 +212,31 @@ class MetasForm(forms.Form):
         except ValidationError as error:
             self.add_error(None, error.messages)
             return None
+
+
+class TrayectoriaForm(forms.ModelForm):
+    """Lo que el niño cursó en otro jardín o sala cuna antes de llegar (ficha, solo la educadora).
+
+    Solo cuentan los semestres del mismo nivel educativo del curso: cada nivel parte de
+    nuevo en 1, así que quien llega desde una sala cuna a nivel medio empieza con 0.
+    """
+
+    motivo = forms.CharField(
+        label="Motivo o respaldo (opcional)", required=False, max_length=LARGO_COMENTARIO,
+        widget=forms.TextInput(attrs={"placeholder": "Por ejemplo: informe de traslado del jardín anterior"}),
+    )
+
+    class Meta:
+        model = Nino
+        fields = ["semestres_previos", "procedencia"]
+        labels = {
+            "semestres_previos": "Semestres de este nivel cursados en otro jardín",
+            "procedencia": "Jardín o sala cuna de origen",
+        }
+        widgets = {"semestres_previos": forms.NumberInput(attrs={"min": 0, "max": 8, "inputmode": "numeric"})}
+
+    def clean(self):
+        datos = super().clean()
+        if datos.get("semestres_previos") and not (datos.get("procedencia") or "").strip():
+            self.add_error("procedencia", "Indica de qué jardín o sala cuna viene.")
+        return datos

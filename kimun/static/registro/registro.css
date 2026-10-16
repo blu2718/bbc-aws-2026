@@ -701,6 +701,11 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .perfil-cabecera p { margin: 0; color: var(--pico-muted-color); }
 .perfil-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin-top: .6rem !important; }
 .perfil-acciones [role=button] { margin: 0; padding: .45rem 1rem; }
+.procedencia { color: var(--kimun-azul); font-weight: 600; }
+.trayectoria { width: 100%; max-width: 30rem; margin-top: .75rem; padding: .4rem .9rem; border: 1px solid var(--kimun-celeste-borde); border-radius: .85rem; background: #fff; text-align: left; scroll-margin-top: 5rem; }
+.trayectoria > summary { padding: .4rem 0; font-weight: 600; color: var(--kimun-tinta); }
+.trayectoria button { width: 100%; }
+.cambios-trayectoria { margin: 0 0 .5rem; padding-left: 1.1rem; font-size: .85rem; }
 /* .tarjeta es el mismo bloque fuera del perfil: sección con título sobre fondo blanco. */
 .perfil-seccion, .tarjeta {
   margin-bottom: 1.25rem;
@@ -856,6 +861,8 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .evento p { margin: .15rem 0; }
 .evento-detalle { color: var(--pico-muted-color); font-size: .9rem; }
 .evento-etiquetas { font-size: .85rem; }
+.historial-ver-mas { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; margin-top: .75rem; }
+.historial-ver-mas [role="button"] { margin: 0; }
 .nivel-validado { display: inline-block; margin: .15rem .35rem .15rem 0; padding: .05rem .5rem; border-radius: 999px; background: var(--kimun-celeste-suave); }
 
 /* Detalle por núcleo: borde izquierdo e ícono del color del núcleo, como en la flor y los escalones. */

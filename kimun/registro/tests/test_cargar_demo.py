@@ -245,8 +245,11 @@ def test_demo_muestra_todos_los_estados(cargada):
     celdas = [c for f in tabla.filas for c in f.celdas]
     assert {c.gravedad for c in celdas} == {Gravedad.NORMAL, Gravedad.AVISO, Gravedad.ALERTA}
     assert {c.datos for c in celdas} == {EstadoDatos.AL_DIA, EstadoDatos.DESACTUALIZADO, EstadoDatos.SIN_DATOS}
-    # Los semestres de permanencia varían: ingresos en 2025-2, 2026-1 y 2026-2.
-    assert {f.semestre for f in tabla.filas} == {1, 2, 3}
+    # Los semestres de permanencia varían: ingresos en 2025-2 y 2026-1, y Josefa, que llegó en
+    # 2026-2 con 2 semestres de Transición hechos en otro jardín, cuenta como semestre 3.
+    assert {f.semestre for f in tabla.filas} == {2, 3}
+    josefa = next(f for f in tabla.filas if f.nino.nombre == "Josefa Morales")
+    assert (josefa.nino.semestres_previos, josefa.semestre, josefa.nivel_esperado) == (2, 3, 5)
     # La gran mayoría no tiene alertas: las señales se destacan.
     assert sum(1 for c in celdas if c.gravedad != Gravedad.NORMAL) <= 8
 
