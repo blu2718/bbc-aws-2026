@@ -36,6 +36,16 @@ def test_la_directora_con_un_solo_curso_va_al_resumen_de_su_jardin(client, curso
     assert respuesta["Location"] == reverse("jardin", args=[jardin.pk])
 
 
+def test_el_html_va_comprimido_si_el_navegador_lo_acepta(client, curso, educadora, nucleos):
+    """CloudFront no comprime con CachingDisabled: la ficha y la tabla viajan comprimidas desde Django."""
+    client.force_login(educadora)
+    url = reverse("curso", args=[curso.pk])
+    comprimida = client.get(url, HTTP_ACCEPT_ENCODING="gzip, br")
+    assert comprimida.status_code == 200
+    assert comprimida["Content-Encoding"] == "gzip" and "Accept-Encoding" in comprimida["Vary"]
+    assert "Content-Encoding" not in client.get(url)  # sin Accept-Encoding, va tal cual
+
+
 def test_curso_muestra_ninos_y_niveles(client, curso, educadora, nucleos):
     Nino.objects.create(curso=curso, nombre="Pedro Salinas", fecha_ingreso=date(2026, 3, 2))
     client.force_login(educadora)
