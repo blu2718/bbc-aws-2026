@@ -110,7 +110,14 @@ def test_la_asistente_del_curso_puede_subir(client, curso, asistente_del_curso):
     assert Captura.objects.get().autora == asistente_del_curso
 
 
-@pytest.mark.parametrize("quien", ["directora_del_jardin", "otra_educadora", "asistente"])
+def test_la_directora_del_jardin_puede_subir(client, curso, directora_del_jardin):
+    """La directora registra en los cursos de su jardín (Task 12)."""
+    client.force_login(directora_del_jardin)
+    assert _subir(client, curso).status_code == 302
+    assert Captura.objects.get().autora == directora_del_jardin
+
+
+@pytest.mark.parametrize("quien", ["directora_de_otro_jardin", "otra_educadora", "asistente"])
 def test_quien_no_registra_en_el_curso_recibe_404(client, request, curso, quien, media):
     client.force_login(request.getfixturevalue(quien))
     assert _subir(client, curso).status_code == 404

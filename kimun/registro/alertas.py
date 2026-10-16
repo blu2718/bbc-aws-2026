@@ -17,16 +17,40 @@ observación y cada nivel nuevo (PLAN.md, "Flujo de procesamiento", paso 7).
 
 Ni la cantidad de núcleos ni la de niveles están fijas en el código: salen de
 los datos y de `Rubrica` (Integra pide pensar en 10 núcleos y 8 o 9 niveles).
+
+Vista del jardín para la directora (Task 12): por núcleo, el promedio del
+nivel actual validado de los niños de cada sala, comparado solo con las otras
+salas del mismo nivel educativo. Si una sala queda `UMBRAL_SALA_BAJO` o más
+niveles bajo el promedio de las demás, se sugiere revisarla. Solo entran los
+niveles que fijó una educadora (`validado_por`), y solo las salas con al menos
+`PROPORCION_MINIMA_VALIDADOS` de sus niños con nivel validado en el núcleo.
+Los promedios se redondean a un decimal y la alerta se calcula con esos mismos
+valores redondeados, para que coincida con lo que muestra la tabla.
+`comparar_salas` es pura; `resumen_del_jardin` es la única que consulta.
 """
+import math
 import statistics
 from dataclasses import dataclass
 from datetime import date
+from decimal import Decimal
 from enum import Enum
+from fractions import Fraction
 
-from django.db.models import Max
+from django.db.models import Count, Max
 from django.utils import timezone
 
-from .models import NIVEL_MIN, DescriptorNivel, NivelValidado, Nucleo, Observacion, Rubrica, Semestre, texto_nivel
+from .models import (
+    NIVEL_MIN,
+    DescriptorNivel,
+    NivelEducativo,
+    NivelValidado,
+    Nino,
+    Nucleo,
+    Observacion,
+    Rubrica,
+    Semestre,
+    texto_nivel,
+)
 
 # Umbrales provisorios (PLAN.md, "Rezago"): 0–1 normal, 2 aviso, más de 2 alerta.
 BRECHA_AVISO = 2
@@ -388,3 +412,247 @@ def tabla_del_curso(curso, hoy=None):
         hoy=hoy,
         nombres=DescriptorNivel.nombres_por_nucleo(nivel_educativo),
     )
+
+
+# --- Comparación de salas del jardín (Task 12) -------------------------------------------
+
+# Provisorios (PLAN.md, Task 12), configurables al llamar a `comparar_salas` y
+# `resumen_del_jardin`:
+# - una sala 2 o más niveles bajo el promedio de las demás salas de su nivel
+#   educativo genera una sugerencia de revisión;
+# - una sala entra en la comparación de un núcleo solo si al menos la mitad de
+#   sus niños tiene nivel validado en ese núcleo (justo la mitad sí entra).
+UMBRAL_SALA_BAJO = 2
+PROPORCION_MINIMA_VALIDADOS = Fraction(1, 2)
+
+SIN_DATOS_SUFICIENTES = "Sin datos suficientes"
+
+
+def promedio(niveles):
+    """Promedio exacto (Fraction) de los niveles, ignorando los vacíos. None si no hay niveles."""
+    valores = [n for n in niveles if n is not None]
+    if not valores:
+        return None
+    return Fraction(sum(valores), len(valores))
+
+
+def redondear(valor):
+    """Decimal con un decimal, la mitad lejos del cero (como ROUND_HALF_UP de Decimal). None si es None.
+
+    Se calcula desde la fracción exacta, sin pasar por float ni por una
+    división con precisión limitada: 76/25 (3,04) da 3.0, 61/20 (3,05) da 3.1
+    y 14/3 da 4.7.
+    """
+    if valor is None:
+        return None
+    exacto = Fraction(valor)
+    decimas = math.floor(abs(exacto) * 10 + Fraction(1, 2))
+    return Decimal(decimas if exacto >= 0 else -decimas).scaleb(-1)
+
+
+def _texto_un_decimal(valor):
+    """Siempre con un decimal, para que se vea que está redondeado, y coma decimal: 3 → "3,0"; 14/3 → "4,7"."""
+    return f"{redondear(valor):.1f}".replace(".", ",")
+
+
+def _texto_niveles(texto):
+    return f"{texto} nivel" if texto == "1" else f"{texto} niveles"
+
+
+@dataclass(frozen=True)
+class CeldaSala:
+    """Una sala en un núcleo: su promedio y el de las demás salas de su nivel educativo, ya redondeados.
+
+    La tabla muestra `promedio` y la alerta se decide con `diferencia`, que sale
+    de los mismos valores redondeados: lo que se ve y lo que dispara la alerta
+    coinciden siempre.
+    """
+
+    curso: object
+    nucleo: object
+    promedio: Decimal | None  # a un decimal; None si la sala no tiene datos suficientes en el núcleo
+    promedio_demas: Decimal | None  # a un decimal; None si no hay otra sala con datos suficientes
+    umbral: object
+    validados: int = 0  # niños de la sala con nivel validado en el núcleo
+    ninos: int = 0  # niños de la sala
+
+    @property
+    def suficiente(self):
+        """Si la sala entra en la comparación de este núcleo (tiene el mínimo de niños con nivel validado)."""
+        return self.promedio is not None
+
+    @property
+    def diferencia(self):
+        """Cuánto queda la sala bajo el promedio de las demás (negativo si queda sobre él), a un decimal.
+
+        Los dos valores ya tienen un decimal, así que la resta es exacta. Si la
+        diferencia es positiva (la única que puede generar alerta), es la misma
+        que redondear a un decimal la distancia entre el promedio sin redondear
+        de los promedios mostrados de las demás y el promedio mostrado de la sala.
+        """
+        if self.promedio is None or self.promedio_demas is None:
+            return None
+        return self.promedio_demas - self.promedio
+
+    @property
+    def alerta(self):
+        return self.diferencia is not None and Fraction(self.diferencia) >= Fraction(self.umbral)
+
+    @property
+    def texto_promedio(self):
+        return SIN_DATOS_SUFICIENTES if self.promedio is None else _texto_un_decimal(self.promedio)
+
+    @property
+    def texto_alerta(self):
+        """Sugerencia de revisión para la lista de la directora, o "" si no hay alerta."""
+        if not self.alerta:
+            return ""
+        return (
+            f"Revisar: {self.curso.nombre}, {_texto_niveles(_texto_un_decimal(self.diferencia))} "
+            f"bajo el resto del jardín en {self.nucleo.nombre}"
+        )
+
+    @property
+    def texto_celda(self):
+        """Texto corto de la celda (la tabla ya dice la sala y el núcleo), o "" si no hay alerta."""
+        if not self.alerta:
+            return ""
+        return f"Revisar: {_texto_niveles(_texto_un_decimal(self.diferencia))} bajo el resto"
+
+
+@dataclass(frozen=True)
+class FilaNucleo:
+    nucleo: object
+    celdas: list  # una por sala, en el orden de GrupoSalas.cursos
+
+
+@dataclass(frozen=True)
+class GrupoSalas:
+    """Las salas de un mismo nivel educativo: solo se comparan entre ellas."""
+
+    nivel_educativo: str
+    nombre: str
+    cursos: list
+    filas: list  # una por núcleo
+
+    @property
+    def comparable(self):
+        return len(self.cursos) > 1
+
+
+@dataclass(frozen=True)
+class ResumenJardin:
+    grupos: list
+    alertas: list  # CeldaSala con alerta, la mayor diferencia primero
+    umbral: object
+    proporcion_minima: object = PROPORCION_MINIMA_VALIDADOS
+
+    @property
+    def texto_umbral(self):
+        return _texto_niveles(_numero(redondear(self.umbral)))
+
+    @property
+    def texto_minimo(self):
+        """El mínimo de niños con nivel validado, en palabras: "la mitad", "3 de cada 4"."""
+        minimo = Fraction(self.proporcion_minima)
+        if minimo == Fraction(1, 2):
+            return "la mitad"
+        return f"{minimo.numerator} de cada {minimo.denominator}"
+
+
+def _suficiente(validados, ninos, proporcion_minima):
+    """Si `validados` de `ninos` alcanza el mínimo. Exacto (Fraction): justo la mitad alcanza la mitad."""
+    return validados > 0 and Fraction(validados, ninos) >= Fraction(proporcion_minima)
+
+
+def comparar_salas(cursos, nucleos, niveles, umbral=UMBRAL_SALA_BAJO, proporcion_minima=PROPORCION_MINIMA_VALIDADOS):
+    """Compara las salas del jardín por núcleo. Pura: no consulta la base.
+
+    - cursos: objetos con `pk`, `nombre` y `nivel_educativo`, en el orden de
+      las columnas.
+    - nucleos: objetos con `pk` y `nombre`, en el orden de las filas.
+    - niveles: {(id del curso, id del núcleo): [nivel actual validado de cada
+      niño de la sala, o None si no tiene]}. Una entrada por niño: el largo de
+      la lista es el total de niños de la sala para el mínimo.
+    - proporcion_minima: fracción de los niños de la sala que debe tener nivel
+      validado en el núcleo para que la sala entre en la comparación (por
+      defecto la mitad; justo la mitad entra). Se compara de forma exacta.
+
+    El promedio de cada sala se redondea a un decimal (`redondear`). El
+    promedio de las demás es la media simple de esos promedios redondeados de
+    las otras salas del mismo nivel educativo con datos suficientes en el
+    núcleo, redondeada también a un decimal: cada sala pesa lo mismo, como en
+    el ejemplo de Integra (dos salas en 6 y una en 3). La alerta se decide con
+    la diferencia entre esos valores redondeados, así que coincide con lo que
+    muestra la tabla.
+
+    Una sala sin datos suficientes en un núcleo muestra "Sin datos
+    suficientes", no tiene alerta y no entra en el promedio de las demás. Las
+    alertas van de mayor a menor diferencia; si empatan, por núcleo y luego
+    por sala. Nada supone una cantidad de niveles ni de núcleos.
+    """
+    orden_niveles = [valor for valor, _ in NivelEducativo.choices]
+    nombres = dict(NivelEducativo.choices)
+    por_nivel = {}
+    for curso in cursos:
+        por_nivel.setdefault(curso.nivel_educativo, []).append(curso)
+    claves = sorted(
+        por_nivel, key=lambda v: (orden_niveles.index(v) if v in orden_niveles else len(orden_niveles), v)
+    )
+    posicion_curso = {curso.pk: i for i, curso in enumerate(cursos)}
+
+    grupos, alertas = [], []
+    for nivel_educativo in claves:
+        salas = por_nivel[nivel_educativo]
+        filas = []
+        for orden_nucleo, nucleo in enumerate(nucleos):
+            datos = {}  # {id del curso: (promedio redondeado o None, validados, niños)}
+            for c in salas:
+                lista = niveles.get((c.pk, nucleo.pk), [])
+                validados = sum(1 for n in lista if n is not None)
+                suficiente = _suficiente(validados, len(lista), proporcion_minima)
+                datos[c.pk] = (redondear(promedio(lista)) if suficiente else None, validados, len(lista))
+            celdas = []
+            for curso in salas:
+                propio, validados, total = datos[curso.pk]
+                otros = [p for pk, (p, _, _) in datos.items() if pk != curso.pk and p is not None]
+                demas = redondear(Fraction(sum(otros, Decimal(0))) / len(otros)) if otros else None
+                celda = CeldaSala(curso, nucleo, propio, demas, umbral, validados, total)
+                celdas.append(celda)
+                if celda.alerta:
+                    alertas.append((-celda.diferencia, orden_nucleo, posicion_curso[curso.pk], celda))
+            filas.append(FilaNucleo(nucleo, celdas))
+        grupos.append(GrupoSalas(nivel_educativo, nombres.get(nivel_educativo, nivel_educativo), salas, filas))
+    alertas.sort(key=lambda a: a[:3])
+    return ResumenJardin(
+        grupos=grupos, alertas=[a[3] for a in alertas], umbral=umbral, proporcion_minima=proporcion_minima
+    )
+
+
+def resumen_del_jardin(jardin, umbral=UMBRAL_SALA_BAJO, proporcion_minima=PROPORCION_MINIMA_VALIDADOS):
+    """ResumenJardin con las salas del jardín y todos los núcleos.
+
+    El nivel actual de cada niño en un núcleo es su NivelValidado más reciente
+    entre los que fijó una educadora (`validado_por` no vacío), con el mismo
+    orden que la tabla del curso. El nivel inicial automático de `Nino.save()`
+    no tiene `validado_por` y no cuenta: un niño sin niveles validados en un
+    núcleo queda sin dato. El total de niños para el mínimo son todos los
+    niños de la sala, los mismos que muestra la tabla del curso. Cada curso
+    trae `cantidad_ninos`. Hace una cantidad fija de consultas.
+    """
+    cursos = list(jardin.cursos.annotate(cantidad_ninos=Count("ninos")))
+    nucleos = list(Nucleo.objects.all())
+    ninos = Nino.objects.filter(curso__jardin=jardin).values_list("pk", "curso_id")
+    actuales = {}
+    filas = (
+        NivelValidado.objects.filter(nino__curso__jardin=jardin, validado_por__isnull=False)
+        .order_by("nino_id", "nucleo_id", "-fecha", "-creado", "-id")
+        .values_list("nino_id", "nucleo_id", "nivel")
+    )
+    for nino_id, nucleo_id, nivel in filas:
+        actuales.setdefault((nino_id, nucleo_id), nivel)  # el primero es el validado más reciente
+    niveles = {}
+    for nino_id, curso_id in ninos:
+        for nucleo in nucleos:
+            niveles.setdefault((curso_id, nucleo.pk), []).append(actuales.get((nino_id, nucleo.pk)))
+    return comparar_salas(cursos, nucleos, niveles, umbral=umbral, proporcion_minima=proporcion_minima)

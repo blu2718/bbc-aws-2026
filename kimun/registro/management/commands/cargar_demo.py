@@ -9,10 +9,15 @@ en lenguaje, avisos, datos desactualizados, núcleos sin datos y OA sin
 evidencia. Las fechas de las observaciones se cuentan hacia atrás desde el día
 de la carga (o desde --hoy).
 
+Para la vista de la directora (Task 12), el jardín tiene una directora y dos
+salas más de Transición (`otros_cursos`), cada una con su educadora, niños y
+niveles validados, sin observaciones. Una queda bajo las demás en algunos
+núcleos, para que aparezca la sugerencia de revisión.
+
 Se puede correr varias veces: actualiza lo existente y no duplica datos.
-Las contraseñas de la educadora y las asistentes se toman de DEMO_PASSWORD o
-se generan al azar, y solo se fijan al crear cada usuaria (o con
---cambiar-password).
+Las contraseñas de las educadoras, las asistentes y la directora se toman de
+DEMO_PASSWORD o se generan al azar, y solo se fijan al crear cada usuaria (o
+con --cambiar-password).
 """
 import json
 import os
@@ -51,10 +56,10 @@ CODIGO_OA = re.compile(r"^OA (\d+) ([A-Z]+)$")
 
 
 class Command(BaseCommand):
-    help = "Carga currículo, rúbricas (provisoria y de Integra), semestres y un curso de demo (idempotente)."
+    help = "Carga currículo, rúbricas (provisoria y de Integra), semestres y el jardín de demo (idempotente)."
 
     def add_arguments(self, parser):
-        parser.add_argument("--demo", type=Path, default=RUTA_DEMO, help="JSON con el curso de demo.")
+        parser.add_argument("--demo", type=Path, default=RUTA_DEMO, help="JSON con los cursos de demo.")
         parser.add_argument(
             "--cambiar-password", action="store_true",
             help="Vuelve a fijar las contraseñas de las usuarias de demo aunque ya existan.",
@@ -92,21 +97,51 @@ class Command(BaseCommand):
         cambiar = opciones["cambiar_password"]
         educadora = self._usuaria(demo["educadora"], cambiar)
         asistentes = [self._usuaria(a, cambiar) for a in demo.get("asistentes", [])]
+        revisiones = demo.get("revisiones", {})
 
         jardin, _ = Jardin.objects.get_or_create(nombre=demo["jardin"])
-        c = demo["curso"]
+        todas = [educadora, *asistentes]
+        if "directora" in demo:
+            directora = self._usuaria(demo["directora"], cambiar)
+            todas.append(directora)
+            if jardin.directora_id != directora.pk:
+                jardin.directora = directora
+                jardin.save(update_fields=["directora"])
+
+        curso, ninos = self._curso(jardin, demo["curso"], demo["ninos"], educadora, asistentes, revisiones)
+        otros = []
+        for c in demo.get("otros_cursos", []):
+            educadora_sala = self._usuaria(c["educadora"], cambiar)
+            todas.append(educadora_sala)
+            otros.append(self._curso(jardin, c, c["ninos"], educadora_sala, [], revisiones)[0])
+
+        usuarias = {u.username: u for u in [educadora, *asistentes]}
+        hoy = opciones["hoy"] or timezone.localdate()
+        aceptadas = self._observaciones(curso, demo.get("observaciones", []), ninos, educadora, usuarias, hoy)
+
+        nombres = ", ".join(u.username for u in todas)
+        resumen_otros = "".join(f"; {c} con {c.ninos.count()} niños" for c in otros)
+        self.stdout.write(self.style.SUCCESS(
+            f"Demo cargada: {curso} con {curso.ninos.count()} niños y {aceptadas} observaciones aceptadas"
+            f"{resumen_otros}. Usuarias: {nombres}"
+        ))
+        for usuario, password in self._passwords:
+            self.stdout.write(f"Contraseña de {usuario}: {password}")
+
+    def _curso(self, jardin, datos, ninos_demo, educadora, asistentes, revisiones):
+        """Crea o actualiza un curso con sus metas, niños y niveles. Devuelve (curso, {nombre: niño})."""
         curso, _ = Curso.objects.update_or_create(
-            jardin=jardin, nombre=c["nombre"],
-            defaults={"nivel_educativo": c["nivel_educativo"], "educadora": educadora},
+            jardin=jardin, nombre=datos["nombre"],
+            defaults={"nivel_educativo": datos["nivel_educativo"], "educadora": educadora},
         )
         curso.asistentes.set(asistentes)
-        for semestre, nivel in c["metas"].items():
+        for semestre, nivel in datos["metas"].items():
             MetaSemestre.objects.update_or_create(
                 curso=curso, semestre_permanencia=int(semestre), defaults={"nivel_esperado": nivel}
             )
 
         ninos = {}
-        for n in demo["ninos"]:
+        for n in ninos_demo:
             nino = Nino.objects.filter(curso=curso, nombre=n["nombre"]).first()
             nacimiento = date.fromisoformat(n["fecha_nacimiento"]) if n.get("fecha_nacimiento") else None
             if nino is None:
@@ -121,19 +156,8 @@ class Command(BaseCommand):
                 nino.fecha_nacimiento = nacimiento
                 nino.save(update_fields=["alias", "fecha_ingreso", "fecha_nacimiento"])
             ninos[nino.nombre] = nino
-            self._niveles(nino, n.get("niveles", {}), demo.get("revisiones", {}), educadora)
-
-        usuarias = {u.username: u for u in [educadora, *asistentes]}
-        hoy = opciones["hoy"] or timezone.localdate()
-        aceptadas = self._observaciones(curso, demo.get("observaciones", []), ninos, educadora, usuarias, hoy)
-
-        nombres = ", ".join(u.username for u in [educadora, *asistentes])
-        self.stdout.write(self.style.SUCCESS(
-            f"Demo cargada: {curso} con {curso.ninos.count()} niños y {aceptadas} observaciones aceptadas. "
-            f"Usuarias: {nombres}"
-        ))
-        for usuario, password in self._passwords:
-            self.stdout.write(f"Contraseña de {usuario}: {password}")
+            self._niveles(nino, n.get("niveles", {}), revisiones, educadora)
+        return curso, ninos
 
     def _niveles(self, nino, niveles, revisiones, educadora):
         """Niveles históricos validados por la educadora en cada revisión.

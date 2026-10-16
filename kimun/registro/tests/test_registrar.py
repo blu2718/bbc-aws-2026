@@ -7,7 +7,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from registro import views_registro
-from registro.models import Captura, NivelValidado, Nino, Observacion
+from registro.models import Captura, Jardin, NivelValidado, Nino, Observacion
 from registro.pantallas import texto_edad
 from registro.tests.test_capturas import JPEG, ClienteFalso, cruda
 
@@ -56,7 +56,17 @@ def test_la_educadora_y_la_asistente_ven_la_pregunta(client, curso, request, rol
     assert 'name="texto"' in html and 'name="foto"' in html and 'enctype="multipart/form-data"' in html
 
 
-@pytest.mark.parametrize("rol", ["directora_del_jardin", "otra_educadora"])
+def test_la_directora_del_jardin_registra(client, curso, directora_del_jardin):
+    """La directora registra en los cursos de su jardín (Task 12), pero no revisa ni valida."""
+    client.force_login(directora_del_jardin)
+    assert "¿Qué quieres registrar?" in client.get(reverse("registrar", args=[curso.pk])).content.decode()
+    respuesta = _registrar(client, curso, texto="Pedro saltó.")
+    captura = Captura.objects.get()
+    assert respuesta.status_code == 302 and respuesta["Location"] == reverse("captura", args=[captura.pk])
+    assert captura.autora == directora_del_jardin
+
+
+@pytest.mark.parametrize("rol", ["directora_de_otro_jardin", "otra_educadora"])
 def test_quien_no_registra_en_el_curso_recibe_404(client, curso, request, rol):
     client.force_login(request.getfixturevalue(rol))
     assert client.get(reverse("registrar", args=[curso.pk])).status_code == 404
@@ -183,19 +193,24 @@ def test_un_error_de_bedrock_se_muestra_con_reintentar(client, curso, educadora,
     assert f'hx-post="{reverse("captura_procesar", args=[captura.pk])}"' in html
 
 
-def test_permisos_de_la_captura(client, curso, educadora, asistente_del_curso, directora_del_jardin, otra_educadora):
+def test_permisos_de_la_captura(client, curso, educadora, asistente_del_curso, directora_del_jardin, otra_educadora,
+                                django_user_model, con_bedrock_falso):
+    con_bedrock_falso({"observaciones": []})
     captura = Captura.objects.create(curso=curso, autora=asistente_del_curso, tipo=Captura.Tipo.TEXTO, texto_original="x")
     url, procesar = reverse("captura", args=[captura.pk]), reverse("captura_procesar", args=[captura.pk])
 
     for quien in (educadora, asistente_del_curso, directora_del_jardin):
         client.force_login(quien)
         assert client.get(url).status_code == 200
-    # La directora ve el curso, pero no registra: no dispara el procesamiento.
-    assert client.post(procesar, headers=HTMX).status_code == 404
+    # La directora registra en su jardín (Task 12): también dispara el procesamiento.
+    assert client.post(procesar, headers=HTMX).status_code == 200
 
-    client.force_login(otra_educadora)
-    assert client.get(url).status_code == 404
-    assert client.post(procesar, headers=HTMX).status_code == 404
+    otra_directora = django_user_model.objects.create_user("elena", password="clave-de-prueba-123")
+    Jardin.objects.create(nombre="Otro jardín", directora=otra_directora)
+    for quien in (otra_educadora, otra_directora):
+        client.force_login(quien)
+        assert client.get(url).status_code == 404
+        assert client.post(procesar, headers=HTMX).status_code == 404
 
 
 

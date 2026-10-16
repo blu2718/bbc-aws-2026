@@ -1,9 +1,10 @@
 """Registro de capturas (PLAN.md, Task 5: nota escrita; Task 8: foto; Task 9: audio).
 
-Registran la educadora y las asistentes del curso (`cursos_donde_registra`). La
-directora o una educadora de otro curso reciben 404. La captura queda pendiente y
-`manage.py procesar_capturas` la separa en observaciones para la revisión (la foto se
-lee antes con Claude y el audio se transcribe con Transcribe).
+Registran la educadora, las asistentes del curso y la directora del jardín
+(`cursos_donde_registra`). Una educadora de otro curso o la directora de otro
+jardín reciben 404. La revisión sigue siendo solo de la educadora del curso. La
+captura queda pendiente y `manage.py procesar_capturas` la separa en observaciones
+para la revisión (la foto se lee antes con Claude y el audio se transcribe con Transcribe).
 
 Debajo de los formularios va la lista de las últimas capturas de la usuaria en el curso,
 con su estado. Mientras alguna esté pendiente o procesando (y no atascada), la lista se

@@ -21,6 +21,7 @@
   <h1>{{ curso.nombre }}</h1>
   <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ tabla.filas|length }} niños y niñas</p>
 </hgroup>
+{% if es_directora %}<p><a href="{% url 'jardin' curso.jardin.pk %}">Resumen del jardín</a></p>{% endif %}
 {% if puede_registrar or puede_validar %}
   <p>
     {% if puede_registrar %}<a href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}

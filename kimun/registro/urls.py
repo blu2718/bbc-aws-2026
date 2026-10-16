@@ -5,6 +5,8 @@ from . import views, views_captura, views_propuestas, views_registro, views_revi
 urlpatterns = [
     path("", views.inicio, name="inicio"),
     path("cursos/<int:curso_id>/", views.curso, name="curso"),
+    # Resumen del jardín para la directora (Task 12)
+    path("jardines/<int:jardin_id>/", views.jardin, name="jardin"),
     # Registrar un suceso y ver cómo quedó ordenado (pantallas I y II de diseno-interfaz.jpg)
     path("cursos/<int:curso_id>/registrar/", views_registro.registrar, name="registrar"),
     path("capturas/<int:captura_id>/", views_registro.captura, name="captura"),
