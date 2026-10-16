@@ -146,7 +146,7 @@ Ordenado por impacto en la demo:
 | 1 | Paleta de Pico: overrides con el mismo selector que Pico (`:root:not([data-theme=dark]), [data-theme="light"]`) y `--pico-secondary*` en gris de Integra | `fix(estilo): paleta` | hecho |
 | 2 | Barra superior: contadores como píldoras (rojo pastel avisos, celeste por revisar), apiladas en celular; la barra usa los mismos anchos que `.container` | `fix(barra)` | hecho |
 | 3 | Arrastrar foto: `kimun.js` recibe `dragover`/`drop` en el composer, pone la foto en `[data-foto]` y dispara `change` (mismo camino que «+»); fuera de la barra el drop se ignora para no perder la nota; borde punteado `.composer-soltar` mientras se arrastra | `fix(registrar)` | hecho, probado con Playwright |
-| 4 | Desborde «procesando» | | pendiente |
+| 4 | Desborde «procesando»: `.procesando p { white-space: normal }` | `fix(suceso)` | hecho |
 | 5 | Pantallas fuera de estilo | | pendiente |
 | 6 | Títulos de revisión | | pendiente |
 
