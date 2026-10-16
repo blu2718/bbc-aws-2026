@@ -3,6 +3,8 @@
 # bbc-aws-2026
 Hackathon Breaking Barriers 2026 · Desafío 1 Fundación Integra. El plan está en `PLAN.md`; las fuentes y sus hallazgos, en `contexto/`, y los servicios AWS de la cuenta, en `docs/investigacion_servicios.md`.
 
+Para entender el dominio, empezar por los resúmenes de `contexto/`: `resumen-politica-calidad.md` (la Política de Calidad Educativa de Integra, el faro del proyecto) y `resumen-bases-curriculares.md` (la malla curricular). Las versiones completas, pensadas para agentes, son `guia-politica-calidad.md` y `enciclopedia-bases-curriculares.md`. Los agentes entran por `contexto/INDICE.md`, que dice qué archivo leer y, con el índice de cada uno, qué líneas.
+
 La app web (Django) vive en `kimun/`. Los datos compartidos (`datos/`) y los scripts (`scripts/`) quedan en la raíz.
 
 ## Desarrollo local
@@ -88,6 +90,7 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `docs/marca/` | Originales de marca: `logo-kimun.pdf` (Canva) y `logo-integra.jpg`, del que sale la paleta |
 | `datos/` | `curriculo_transicion.json` (85 OA, trayectoria por núcleo), `rubrica_integra.json` (rúbrica oficial de Integra, hoy solo IA) y `demo_curso.json`. En `eval/`, las notas (`notas_separacion.json`) y los post-its (`postits_fotos.json`) de prueba; las fotos van en `eval/fotos/<id>.jpg`, sin versionar |
 | `scripts/probar_separacion.py`, `scripts/probar_foto.py` | Prueban la separación y la lectura de fotos contra Bedrock real y comparan con el set de `datos/eval/` |
+| `scripts/indice_contexto.py` | Regenera el índice (con rangos de líneas) de cada archivo de `contexto/` y la tabla de tamaños de `contexto/INDICE.md`. Correrlo después de editar `contexto/`; `--comprobar` falla si algo quedó desactualizado |
 | `scripts/extraer_curriculo.py` | Regenera el currículo desde el PDF, que no se versiona: descargarlo desde <https://www.curriculumnacional.cl/614/articles-210511_programa.pdf> a `contexto/programa-pedagogico-transicion-mineduc.pdf` y correr `python -X utf8 scripts/extraer_curriculo.py --todos` (requiere `pdftotext` de Poppler; en Windows, `winget install oschwartz10612.Poppler`) |
 
 La cantidad de niveles (hoy 8) se define en la rúbrica de cada nivel educativo, no en el código: nunca usar un 8 fijo. Para el máximo, usar `Rubrica.nivel_maximo(nivel_educativo)`.

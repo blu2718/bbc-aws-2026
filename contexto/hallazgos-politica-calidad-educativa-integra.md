@@ -5,6 +5,27 @@
 - Autor del documento: Fundación Integra, 2017.
 - Derechos: "Derechos reservados, prohibida su reproducción" (Registro de Propiedad Intelectual 262448). Por eso el PDF no está en el repositorio, que es público; se descarga desde la fuente.
 - Las páginas citadas coinciden con las del PDF.
+- Más detalle: `guia-politica-calidad.md` (guía completa para agentes, con la "Brújula" y lo que exige cada sección a Kimün) y `resumen-politica-calidad.md` (resumen ejecutivo para el equipo).
+
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Qué es](#qué-es) · líneas 30–50
+- [Por qué es útil](#por-qué-es-útil) · líneas 52–128
+  - [1. Describe el sistema de evaluación de Integra (p. 90)](#1-describe-el-sistema-de-evaluación-de-integra-p-90) · líneas 54–72
+  - [2. Los resultados de evaluación alimentan la planificación (pp. 86–89)](#2-los-resultados-de-evaluación-alimentan-la-planificación-pp-8689) · líneas 74–81
+  - [3. La calidad es contextual, no estandarizada (p. 45)](#3-la-calidad-es-contextual-no-estandarizada-p-45) · líneas 83–88
+  - [4. El desarrollo es sistémico (pp. 70–76)](#4-el-desarrollo-es-sistémico-pp-7076) · líneas 90–106
+  - [5. Exige protocolos ante vulneraciones de derechos (pp. 78–79)](#5-exige-protocolos-ante-vulneraciones-de-derechos-pp-7879) · líneas 108–112
+  - [6. Inclusión, talentos y protagonismo](#6-inclusión-talentos-y-protagonismo) · líneas 114–117
+  - [7. Familias y transiciones (pp. 96–98)](#7-familias-y-transiciones-pp-9698) · líneas 119–122
+  - [8. Personas y equipos](#8-personas-y-equipos) · líneas 124–128
+- [Qué no trae](#qué-no-trae) · líneas 130–134
+- [Implicancias para la app](#implicancias-para-la-app) · líneas 136–156
+- [Preguntas abiertas](#preguntas-abiertas) · líneas 158–160
+<!-- indice:fin -->
 
 ## Qué es
 
@@ -88,7 +109,7 @@ Lectura:
 
 Pide mecanismos pertinentes y oportunos frente a vulneraciones de derechos, con prevención, protección y "trabajo en red para la atención especializada y derivación de casos" (p. 79).
 
-Lectura: las educadoras escribirán libremente. Si un registro sugiere una posible vulneración, como señales de maltrato, la app no debe procesarlo como evidencia de aprendizaje ni mostrarlo en paneles. Debe avisar a la educadora para que active el protocolo institucional.
+Lectura: las educadoras escribirán libremente. Si un registro sugiere una posible vulneración, como señales de maltrato, la app no debe procesarlo como evidencia de aprendizaje ni mostrarlo en paneles. Debe avisar a la educadora para que active el protocolo institucional. Desarrollo en la sección 12 de `guia-politica-calidad.md` y en el anexo "Protección de derechos y vulneraciones" de `enciclopedia-bases-curriculares.md`, que define qué constituye maltrato a partir de los protocolos públicos de la JUNJI. Diseño en la Task 13 de `PLAN.md`.
 
 ### 6. Inclusión, talentos y protagonismo
 
@@ -127,15 +148,13 @@ La última columna indica si `PLAN.md` ya las recoge.
 | Complementar, no reemplazar, EEDP, IEA y PLAEP-R; no presentarse como tamizaje clínico | Parcial: falta decirlo explícitamente en el pitch |
 | Vista de grupo con cobertura de núcleos por quincena | Sí (Task 2) |
 | Roles y reflexión en equipo | Parcial: educadora (revisa y valida), asistentes (registran) y directora (Task 12); sin reflexión en equipo dentro de la app |
-| Barrera de protección de derechos: detectar posibles vulneraciones y derivarlas al protocolo, sin procesarlas como evaluación | No |
+| Barrera de protección de derechos: detectar posibles vulneraciones y derivarlas al protocolo, sin procesarlas como evaluación | Planificado (Task 13) |
 | Mostrar fortalezas y talentos, no solo vacíos | No |
 | Voz del niño: intereses, preferencias y palabras | Descartado por el equipo |
 | Resumen para familias, validado por la educadora | Fuera del MVP |
 | Panel del jardín para la directora | Task 12, si alcanza el tiempo |
 | Paneles regionales y nacionales | Fuera del MVP (pitch) |
 
-## Preguntas para la directora de educación
+## Preguntas abiertas
 
-Las preguntas sobre el IEA y la EEDP están en "Preguntas pendientes para Integra" de `PLAN.md` (pregunta 11). Queda una que no está ahí:
-
-1. ¿Hay un protocolo vigente para cuando un registro sugiere una vulneración de derechos? ¿Qué debería hacer la herramienta en ese caso?
+Las preguntas sobre el IEA y la EEDP y sobre el protocolo ante vulneraciones de derechos están en "Preguntas pendientes para Integra" de `PLAN.md` (preguntas 8 y 9).

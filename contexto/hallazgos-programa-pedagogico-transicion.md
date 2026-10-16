@@ -5,6 +5,24 @@
 - Autor: Unidad de Currículum y Evaluación, MINEDUC. Informado por el CNED mediante Resolución N° 257/2019.
 - Revisión: se leyeron el índice, la introducción, los componentes del programa, el núcleo Identidad y Autonomía (OA 1 y 2), las orientaciones de evaluación (pp. 380–399) y los instrumentos y rúbricas (pp. 436–451). Los conteos de los demás núcleos son automáticos y aproximados.
 
+<!-- indice:inicio -->
+## Índice
+
+Generado por `scripts/indice_contexto.py`. Cada entrada indica sus líneas en este archivo; lee solo las que necesites.
+
+- [Qué es](#qué-es) · líneas 26–30
+- [Por qué es útil](#por-qué-es-útil) · líneas 32–90
+  - [1. Trae los 8 núcleos oficiales](#1-trae-los-8-núcleos-oficiales) · líneas 34–50
+  - [2. Trae las conductas observables que le faltaban a nuestra rúbrica](#2-trae-las-conductas-observables-que-le-faltaban-a-nuestra-rúbrica) · líneas 52–59
+  - [3. Define lo esperado al entrar y lo que viene después](#3-define-lo-esperado-al-entrar-y-lo-que-viene-después) · líneas 61–66
+  - [4. Tiene formatos de registro que sirven de modelo para nuestra salida (pp. 436–437)](#4-tiene-formatos-de-registro-que-sirven-de-modelo-para-nuestra-salida-pp-436437) · líneas 68–72
+  - [5. Trae instrumentos y escalas (pp. 438–451)](#5-trae-instrumentos-y-escalas-pp-438451) · líneas 74–84
+  - [6. Respalda nuestro enfoque de evaluación (pp. 380–399)](#6-respalda-nuestro-enfoque-de-evaluación-pp-380399) · líneas 86–90
+- [Qué no trae](#qué-no-trae) · líneas 92–96
+- [Cómo lo usamos](#cómo-lo-usamos) · líneas 98–115
+- [Preguntas abiertas](#preguntas-abiertas) · líneas 117–119
+<!-- indice:fin -->
+
 ## Qué es
 
 Es el programa del MINEDUC que orienta cómo trabajar los Objetivos de Aprendizaje (OA) del tercer tramo de las Bases Curriculares 2018: Primer y Segundo Nivel de Transición (NT1 y NT2, niños de 4 a 6 años). Cubre justo los dos años del tramo. No es el instrumento de 8 niveles de Integra.
@@ -15,7 +33,7 @@ Está dirigido sobre todo a establecimientos sin programa propio. Integra tiene 
 
 ### 1. Trae los 8 núcleos oficiales
 
-Son los mismos de las Bases Curriculares. Integra confirmó que su rúbrica tendrá 10; la demo usa estos 8 hasta tener su lista.
+Son los mismos de las Bases Curriculares. La rúbrica de Integra apunta a 10 y la cantidad puede cambiar (FAQ de Integra); la demo usa estos 8 hasta tener su lista.
 
 | Ámbito | Núcleo | Sigla | OA | Conductas observables | Páginas |
 |---|---|---|---:|---:|---|
@@ -98,4 +116,4 @@ Cada núcleo tiene una "Trayectoria educativa" con dos partes:
 
 ## Preguntas abiertas
 
-Si los demás núcleos de Integra seguirán la lógica de IA y si el mapeo provisorio les parece razonable está en "Preguntas pendientes para Integra" de `PLAN.md` (pregunta 10).
+Si los demás núcleos de Integra seguirán la lógica de IA y si el mapeo provisorio les parece razonable está en "Preguntas pendientes para Integra" de `PLAN.md` (pregunta 7).
