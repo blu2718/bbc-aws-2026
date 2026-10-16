@@ -250,6 +250,10 @@ def test_la_educadora_agrega_un_nino_que_parte_en_nivel_1(client, dos_salas, edu
     ({"fecha_ingreso": "2099-01-01"}, "no puede ser futura"),
     ({"fecha_nacimiento": "2026-05-01"}, "posterior al ingreso"),
     ({"alias": "x" * 41}, "hasta 40 caracteres"),
+    # Un año mal tipeado (1920 por 2020) no debe dejar a un niño de 100 años en la sala.
+    ({"fecha_ingreso": "1999-03-01"}, "la fecha de ingreso es de hace más de 7 años"),
+    ({"fecha_nacimiento": "2019-03-01"}, "al ingresar tendría más de 7 años"),
+    ({"fecha_ingreso": "0001-01-01", "fecha_nacimiento": "0001-01-01"}, "la fecha de ingreso es de hace más de 7 años"),
 ])
 def test_los_datos_del_nino_se_validan(client, dos_salas, educadora, datos, error):
     a, _ = dos_salas
@@ -299,3 +303,23 @@ def test_una_sala_nueva_sin_ninos_funciona_en_todas_sus_vistas(client, dos_salas
     client.force_login(equipo["gloria"])
     assert client.get(reverse("registrar", args=[sala.pk])).status_code == 200
     assert client.get(reverse("revision", args=[sala.pk])).status_code == 200
+
+
+def test_un_nino_de_casi_siete_anios_al_ingresar_se_acepta(client, dos_salas, educadora):
+    a, _ = dos_salas
+    client.force_login(educadora)
+    respuesta = client.post(reverse("nino_nuevo", args=[a.pk]), {
+        "nombre": "Tomás Rojas", "fecha_ingreso": "2026-03-02", "fecha_nacimiento": "2019-03-02",
+    })
+    assert respuesta.status_code == 302 and Nino.objects.filter(nombre="Tomás Rojas").exists()
+
+
+@pytest.mark.parametrize("fecha, esperado", [
+    (date(2026, 10, 16), date(2019, 10, 16)),
+    (date(2024, 2, 29), date(2017, 2, 28)),
+    (date(7, 1, 1), date.min),
+])
+def test_anios_antes(fecha, esperado):
+    from registro.salas import _anios_antes
+
+    assert _anios_antes(fecha, 7) == esperado

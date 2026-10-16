@@ -16,6 +16,7 @@ la directora no ve el personal de otros jardines. Las cuentas se crean en el pan
 administración.
 """
 from dataclasses import dataclass, field
+from datetime import date
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -33,6 +34,18 @@ from .revision import resumen_pendientes
 
 MAX_ALIAS = 10
 LARGO_ALIAS = 40
+# Edad máxima al ingresar y antigüedad máxima de la fecha de ingreso (Integra atiende de 0 a 6 años).
+MAX_ANIOS = 7
+
+
+def _anios_antes(fecha, anios):
+    """La misma fecha `anios` años antes (el 29 de febrero pasa al 28 si ese año no es bisiesto)."""
+    if fecha.year <= anios:
+        return date.min
+    try:
+        return fecha.replace(year=fecha.year - anios)
+    except ValueError:
+        return fecha.replace(year=fecha.year - anios, day=28)
 
 
 def nombre_de(usuario):
@@ -272,12 +285,19 @@ class NinoForm(forms.ModelForm):
         datos = super().clean()
         hoy = timezone.localdate()
         ingreso, nacimiento = datos.get("fecha_ingreso"), datos.get("fecha_nacimiento")
-        if ingreso and ingreso > hoy and not self.fields["fecha_ingreso"].disabled:
-            self.add_error("fecha_ingreso", "La fecha de ingreso no puede ser futura.")
+        if ingreso and not self.fields["fecha_ingreso"].disabled:
+            if ingreso > hoy:
+                self.add_error("fecha_ingreso", "La fecha de ingreso no puede ser futura.")
+            elif ingreso < _anios_antes(hoy, MAX_ANIOS):
+                # La fecha de ingreso no se edita después: un año mal tipeado quedaría para siempre.
+                self.add_error("fecha_ingreso", f"Revisa el año: la fecha de ingreso es de hace más de {MAX_ANIOS} años.")
         if nacimiento and nacimiento > hoy:
             self.add_error("fecha_nacimiento", "La fecha de nacimiento no puede ser futura.")
         elif nacimiento and ingreso and nacimiento > ingreso:
             self.add_error("fecha_nacimiento", "La fecha de nacimiento es posterior al ingreso.")
+        elif nacimiento and nacimiento < _anios_antes(ingreso or hoy, MAX_ANIOS):
+            # Integra atiende de 0 a 6 años: más de 7 al ingresar es casi siempre un año mal tipeado.
+            self.add_error("fecha_nacimiento", f"Revisa el año: al ingresar tendría más de {MAX_ANIOS} años.")
         return datos
 
     def save(self, commit=True):
