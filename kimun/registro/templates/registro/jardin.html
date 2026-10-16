@@ -10,12 +10,13 @@
 </header>
 
 {# --- Alertas --- #}
-<section class="tarjeta" aria-labelledby="titulo-alertas">
-  <h2 id="titulo-alertas">Sugerencias de revisión</h2>
+<section class="tarjeta{% if resumen.alertas %} tarjeta-alertas{% endif %}" aria-labelledby="titulo-alertas">
+  <h2 id="titulo-alertas">{% if resumen.alertas %}<span class="cuenta-alertas" aria-hidden="true">{{ resumen.alertas|length }}</span>{% endif %}Sugerencias de revisión</h2>
   {% if resumen.alertas %}
     <ul class="lista-sugerencias">
       {% for alerta in resumen.alertas %}
         <li>
+          <svg class="sugerencia-icono" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M12 3.5 2.5 20h19z" fill="currentColor"/><path d="M12 10v4.5M12 17.2v.3" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
           <span class="senal senal-alerta">{{ alerta.texto_alerta }}</span>
           <a href="{% url 'curso' alerta.curso.pk %}">Ver {{ alerta.curso.nombre }}</a>
         </li>

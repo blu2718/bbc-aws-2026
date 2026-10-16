@@ -169,6 +169,11 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   (`.bandeja-cuenta`, `aria-hidden`: el número sigue en el título). Cada fila: avatar, nombre, chip del núcleo y
   un «Decidir» con aspecto de botón (en celular, una flecha). Lo «en preparación» es un chip celeste con punto
   que late. Mismo enlace a la ficha, sin atributos nuevos.
+- **Vista del jardín:** con alertas, la tarjeta de sugerencias pasa a `.tarjeta-alertas` (borde superior rojo,
+  título en rojo oscuro, cantidad en círculo rojo con texto blanco 7,6:1). Cada sugerencia es una fila roja suave
+  con triángulo, el texto a 1 rem y «Ver Transición Mayor C» como botón de borde rojo. En la tabla, la celda de
+  alerta lleva la cifra grande y en negrita. En celular las tres salas caben sin deslizar (letra 0,85 rem,
+  columnas más angostas), así la celda roja se ve sin buscarla. El rojo sigue siendo solo para «Revisar».
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -271,6 +276,7 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 | 3 | Resumen de la nota: tarjeta, cifras destacadas, una fila por niño con avatar grande y chips de núcleo | `style(resumen)` | hecho; `test_registrar`, `test_capturas`, `test_revision`, `test_vistas` pasan |
 | 4 | Ficha: detalle por núcleo con su color e ícono, subtítulos de tarjeta, «Qué observar después» en verde | `style(ficha): detalle` | hecho; `test_ficha`, `test_fijar_nivel`, `test_perfil`, `test_propuestas_decision`, `test_propuestas_solicitud` pasan |
 | 5 | Bandeja de propuestas como tarea pendiente: amarillo, cifra grande, «Decidir» por fila | `style(curso): bandeja` | hecho; `test_frecuencia`, `test_revision`, `test_vistas`, `test_metas`, `test_propuestas_*`, `test_bordes_integracion` pasan |
+| 6 | Jardín: tarjeta de alertas roja con cifra, filas con botón a la sala, celda de alerta destacada, tabla sin deslizar en celular | `style(jardin)` | hecho; `test_jardin`, `test_vistas`, `test_frecuencia`, `test_permisos` pasan |
 | 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
 
 ## Cómo seguir
