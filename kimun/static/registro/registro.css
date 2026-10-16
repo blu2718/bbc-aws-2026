@@ -473,6 +473,9 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 
 .estado-captura { display: flex; flex-direction: column; gap: .9rem; }
 .resumen-captura { margin: 0; font-size: .9rem; color: var(--pico-muted-color); }
+/* Nivel de apoyo de cada observación en la ficha (_nucleo_ficha.html). Siempre con texto, no solo color. */
+.apoyo { display: inline-block; margin-left: .35rem; padding: 0 .5rem; border-radius: 999px; font-size: .78rem; font-weight: 600; background: var(--kimun-gris-suave); color: var(--kimun-gris-oscuro); }
+.apoyo-autonomo { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
 /* Nivel general: promedio de los núcleos, solo como referencia (curso.html y ficha.html). */
 .etiqueta-referencia { display: inline-block; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--pico-muted-color); font-size: .75rem; font-weight: 400; line-height: 1.4; }
 .nivel-general-ficha { margin: 0 0 .75rem; }

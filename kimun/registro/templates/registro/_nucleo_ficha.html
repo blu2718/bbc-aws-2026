@@ -145,7 +145,11 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
       <summary>{{ nf.observaciones|length }} observaciones</summary>
       <ul>
         {% for obs in nf.observaciones %}
-          <li id="observacion-{{ nf.nucleo.sigla }}-{{ obs.pk }}"><time datetime="{{ obs.fecha|date:'Y-m-d' }}">{{ obs.fecha|date:"d-m-Y" }}</time>: {{ obs.cita }}</li>
+          <li id="observacion-{{ nf.nucleo.sigla }}-{{ obs.pk }}">
+            <time datetime="{{ obs.fecha|date:'Y-m-d' }}">{{ obs.fecha|date:"d-m-Y" }}</time>: {{ obs.cita }}
+            {# Nivel de apoyo (escala del Programa): permite ver el paso de "con ayuda" a "autónomo". #}
+            {% if obs.apoyo != "sin_dato" %}<span class="apoyo apoyo-{{ obs.apoyo }}">Apoyo: {{ obs.get_apoyo_display|lower }}</span>{% endif %}
+          </li>
         {% endfor %}
       </ul>
     </details>
