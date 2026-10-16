@@ -22,6 +22,8 @@ urlpatterns = [
     path("capturas/<int:captura_id>/reintentar/", views_captura.reintentar_captura, name="captura_reintentar"),
     path("cursos/<int:curso_id>/metas/", views.metas, name="metas"),
     path("ninos/<int:nino_id>/", views.ficha, name="ficha"),
+    # Informe imprimible para la familia: solo la educadora del curso.
+    path("ninos/<int:nino_id>/informe/", views.informe_familia, name="informe_familia"),
     path("ninos/<int:nino_id>/nucleos/<str:sigla>/nivel/", views.fijar_nivel, name="fijar_nivel"),
     path("ninos/<int:nino_id>/nucleos/<str:sigla>/propuesta/", views_propuestas.solicitar_propuesta, name="solicitar_propuesta"),
     path("propuestas/<int:propuesta_id>/reintentar/", views_propuestas.reintentar_propuesta, name="reintentar_propuesta"),

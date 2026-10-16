@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Informe para la familia · {{ informe.nino.nombre }}{% endblock %}
+{% block clase_pagina %}pagina-informe{% endblock %}
+{% block contenido %}
+{# Informe para la familia (registro/informe.py). Sin IA: solo lo que la educadora validó. Una página al imprimir. #}
+<div class="informe-acciones no-imprimir">
+  <p class="volver"><a href="{% url 'ficha' informe.nino.pk %}">← Volver a la ficha</a></p>
+  <button type="button" data-imprimir>Imprimir o guardar en PDF</button>
+  <p class="ayuda">Revisa el informe antes de compartirlo. No incluye comparaciones con otros niños ni señales de revisión, y las citas no nombran a otros niños.</p>
+</div>
+
+<article class="informe">
+  <header class="informe-cabecera">
+    <img src="{% static 'registro/img/logo.svg' %}" alt="" width="48" height="48">
+    <div>
+      <h1>{{ informe.nino.nombre }}</h1>
+      <p>{% if edad %}{{ edad }} · {% endif %}{{ curso.nombre }} · {{ curso.jardin.nombre }}</p>
+      <p>Informe para la familia · <time datetime="{{ hoy|date:'Y-m-d' }}">{{ hoy|date:"j \d\e F \d\e Y" }}</time></p>
+    </div>
+  </header>
+
+  <p class="informe-intro">
+    Este informe resume lo que hemos observado de {{ informe.nombre_de_pila }} en el jardín, en cada núcleo de aprendizaje,
+    y en qué estamos trabajando. Los niveles los fija la educadora a partir de lo que observa día a día.
+  </p>
+
+  {% for n in informe.nucleos %}
+    <section class="informe-nucleo" aria-labelledby="informe-{{ n.nucleo.sigla }}">
+      <h2 id="informe-{{ n.nucleo.sigla }}">
+        {{ n.nucleo.nombre }}
+        <span class="informe-nivel">{% if n.texto_nivel %}Nivel {{ n.texto_nivel }}{% else %}Todavía sin evaluar{% endif %}</span>
+      </h2>
+      {% if n.descripcion %}<p>{{ n.descripcion }}</p>{% endif %}
+      {% if n.observaciones %}
+        <p class="informe-subtitulo">Lo que observamos</p>
+        <ul>{% for fecha, cita in n.observaciones %}<li>{{ cita }} <small>({{ fecha|date:"j \d\e F" }})</small></li>{% endfor %}</ul>
+      {% endif %}
+      {% if n.trabajando %}
+        <p class="informe-subtitulo">En qué estamos trabajando</p>
+        <ul>{% for texto in n.trabajando %}<li>{{ texto }}</li>{% endfor %}</ul>
+      {% endif %}
+    </section>
+  {% endfor %}
+
+  <footer class="informe-pie">
+    <p>Preparado por {{ curso.educadora.get_full_name|default:curso.educadora.username }}, educadora de {{ curso.nombre }}, con las observaciones revisadas por ella.</p>
+    <p>Cada niño y niña aprende a su ritmo. Si quieres conversar sobre este informe, acércate a la educadora.</p>
+  </footer>
+</article>
+{% endblock %}

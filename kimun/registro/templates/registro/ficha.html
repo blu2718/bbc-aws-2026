@@ -14,6 +14,7 @@
   </p>
   <p class="perfil-acciones">
     {% if puede_registrar %}<a role="button" href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
+    {% if ficha.puede_validar %}<a role="button" class="secondary outline" href="{% url 'informe_familia' ficha.nino.pk %}">Informe para la familia</a>{% endif %}
     {% if ficha.puede_validar %}<a role="button" class="secondary outline" href="{% url 'metas' curso.pk %}">Editar metas del curso</a>{% endif %}
   </p>
 </header>
