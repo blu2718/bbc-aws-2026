@@ -174,6 +174,11 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   con triángulo, el texto a 1 rem y «Ver Transición Mayor C» como botón de borde rojo. En la tabla, la celda de
   alerta lleva la cifra grande y en negrita. En celular las tres salas caben sin deslizar (letra 0,85 rem,
   columnas más angostas), así la celda roja se ve sin buscarla. El rojo sigue siendo solo para «Revisar».
+- **Pantallas de la Task 14** (instrumentos, corregir observación, historial de cambios): sin rediseño. Se
+  les puso `.encabezado-pagina` (títulos largos con `.titulo-largo`), `.tarjeta` en secciones y formularios,
+  `.cita-nota` en la cita, el estado como `.chip-estado` (por revisar amarillo, leyendo celeste, confirmado
+  verde, descartado gris) y la verificación de integridad como píldora verde. El historial de cambios usa la
+  misma línea de tiempo que la ficha; el motivo va en caja celeste y el valor «Después» en verde.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -253,9 +258,6 @@ Pantallas para mirar primero (las de la demo):
 5. Botones en celeste en todas las pantallas (arreglo 1): confirmar que el contraste se ve bien en el proyector.
 
 Pendiente:
-- Pantallas nuevas de la Task 14 (instrumento nuevo, resultado, editar, historial de cambios, corregir
-  observación) llegaron con el merge y no se revisaron: usan clases propias (`.tabla-instrumento`,
-  `.lista-cambios`…) sin tarjetas. Siguiente paso natural: `.encabezado-pagina` y `.tarjeta` como en metas.
 - Botones de archivo en inglés («Choose File») según el idioma del navegador: cambiarlo pide tocar los
   `<input type=file>` del formulario, se dejó.
 - «Tus últimas notas» (`_capturas_recientes.html`, página antigua de capturar) sigue como lista simple.
@@ -277,6 +279,7 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 | 4 | Ficha: detalle por núcleo con su color e ícono, subtítulos de tarjeta, «Qué observar después» en verde | `style(ficha): detalle` | hecho; `test_ficha`, `test_fijar_nivel`, `test_perfil`, `test_propuestas_decision`, `test_propuestas_solicitud` pasan |
 | 5 | Bandeja de propuestas como tarea pendiente: amarillo, cifra grande, «Decidir» por fila | `style(curso): bandeja` | hecho; `test_frecuencia`, `test_revision`, `test_vistas`, `test_metas`, `test_propuestas_*`, `test_bordes_integracion` pasan |
 | 6 | Jardín: tarjeta de alertas roja con cifra, filas con botón a la sala, celda de alerta destacada, tabla sin deslizar en celular | `style(jardin)` | hecho; `test_jardin`, `test_vistas`, `test_frecuencia`, `test_permisos` pasan |
+| 7 | Task 14: encabezados, tarjetas, chips de estado e historial de cambios como línea de tiempo | `style(instrumentos)` | hecho; `test_instrumentos`, `test_vistas_instrumentos`, `test_historial`, `test_ficha`, `test_revision` pasan |
 | 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
 
 ## Cómo seguir

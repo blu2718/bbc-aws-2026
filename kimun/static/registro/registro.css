@@ -470,10 +470,10 @@ dialog.menu-lateral > article > footer.menu-pie {
   background: var(--kimun-gris-suave); color: var(--kimun-gris-oscuro); font-size: .75rem; font-weight: 600; white-space: nowrap;
 }
 .chip-estado::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; }
-.chip-pendiente, .chip-solicitada { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso); }
-.chip-procesando, .chip-preparando { background: var(--kimun-celeste-suave); color: var(--kimun-azul); }
-.chip-procesando::before, .chip-preparando::before { animation: chip-latido 1.2s ease-in-out infinite; }
-.chip-procesada, .chip-lista, .chip-aceptada { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
+.chip-pendiente, .chip-solicitada, .chip-por_revisar { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso); }
+.chip-procesando, .chip-preparando, .chip-leyendo { background: var(--kimun-celeste-suave); color: var(--kimun-azul); }
+.chip-procesando::before, .chip-preparando::before, .chip-leyendo::before { animation: chip-latido 1.2s ease-in-out infinite; }
+.chip-procesada, .chip-lista, .chip-aceptada, .chip-confirmado { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
 .chip-error, .chip-en_resguardo { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); }
 @keyframes chip-latido { 50% { opacity: .3; } }
 @media (prefers-reduced-motion: reduce) { .chip-estado::before { animation: none !important; } }
@@ -1048,7 +1048,7 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 /* Instrumentos estandarizados e historial de cambios (Task 14). Sin colores de alarma: el resultado se lee en texto. */
 .resultado-principal { font-size: 1.1rem; }
 .resultado-texto { font-weight: 600; }
-.siguiente-paso { padding: .5rem .75rem; border-left: 4px solid var(--kimun-gris-suave); }
+.siguiente-paso { padding: .5rem .75rem; border-left: 4px solid var(--kimun-celeste); background: var(--kimun-celeste-claro); border-radius: 0 .6rem .6rem 0; }
 .tabla-instrumento caption, .resultado-instrumento caption { text-align: left; font-weight: 600; }
 .tabla-formulario input, .tabla-formulario select { margin-bottom: 0; min-width: 6rem; }
 .lista-instrumentos li { margin-bottom: .5rem; }
@@ -1056,9 +1056,18 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .cambiar-instrumento select { width: auto; margin-bottom: 0; }
 .cambiar-instrumento button { width: auto; margin-bottom: 0; }
 .descartar { margin-top: 1rem; }
-.integridad-ok { color: var(--kimun-ok); }
-.lista-cambios { padding-left: 1.25rem; }
-.lista-cambios > li { margin-bottom: 1rem; }
-.lista-cambios .motivo { font-style: italic; }
+/* Segunda pasada: mismas piezas que el resto (encabezado, tarjetas, chips); sin rediseño. */
+.integridad-ok { display: inline-block; padding: .2rem .7rem; border-radius: 999px; background: var(--kimun-ok-fondo); color: var(--kimun-ok); font-size: .9rem; font-weight: 600; }
+.lista-instrumentos { display: grid; gap: .45rem; padding: 0; }
+.lista-instrumentos li { list-style: none; margin: 0; padding: .6rem .8rem; border: 1px solid var(--kimun-linea); border-radius: .85rem; }
+.lista-instrumentos a { font-weight: 600; }
+/* Historial de cambios como la línea de tiempo de la ficha. */
+.lista-cambios { margin: 0; padding: 0 0 0 .25rem; border-left: 2px solid var(--kimun-celeste-borde); }
+.lista-cambios > li { position: relative; list-style: none; margin: 0; padding: .1rem 0 1rem 1.1rem; }
+.lista-cambios > li::before { content: ""; position: absolute; top: .4rem; left: -.6rem; width: .85rem; height: .85rem; border: 2px solid #fff; border-radius: 50%; background: var(--kimun-azul); box-shadow: 0 0 0 1px var(--kimun-celeste-borde); }
+.lista-cambios > li > p { margin: .1rem 0; }
+.lista-cambios time { color: var(--kimun-azul); font-size: .85rem; font-weight: 600; }
+.lista-cambios .motivo { padding: .35rem .7rem; border-left: .2rem solid var(--kimun-celeste); background: var(--kimun-celeste-claro); }
 .tabla-cambios { font-size: .9rem; }
+.tabla-cambios td:last-child { color: var(--kimun-ok); font-weight: 600; }
 .huella { margin: 0; }

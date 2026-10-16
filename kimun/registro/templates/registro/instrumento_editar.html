@@ -7,8 +7,10 @@
   <p class="volver"><a href="{% url 'instrumento_nuevo' nino.pk %}">← Elegir otro instrumento</a></p>
 {% endif %}
 
-<h1>{% if modo == "corregir" %}Corregir{% elif modo == "revisar" %}Revisar{% else %}Ingresar{% endif %}: {{ instrumento.nombre }}</h1>
+<header class="encabezado-pagina">
+<h1 class="titulo-largo">{% if modo == "corregir" %}Corregir{% elif modo == "revisar" %}Revisar{% else %}Ingresar{% endif %}: {{ instrumento.nombre }}</h1>
 <p>{{ nino.nombre }}{% if instrumento.definicion.nota_ficha %} · <span class="ayuda">{{ instrumento.definicion.nota_ficha }}</span>{% endif %}</p>
+</header>
 
 {% if modo == "revisar" %}
   {% if resumen.avisos %}
