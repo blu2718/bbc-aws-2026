@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}{% if sala %}Editar {{ sala.nombre }}{% else %}Nueva sala{% endif %} · {{ jardin.nombre }}{% endblock %}
+{% block contenido %}
+<p class="volver"><a href="{% url 'jardin' jardin.pk %}">← {{ jardin.nombre }}</a></p>
+<header class="encabezado-pagina">
+  <h1 class="titulo-largo">{% if sala %}Editar {{ sala.nombre }}{% else %}Nueva sala{% endif %}</h1>
+  <p>La educadora y las asistentes ven solo las salas en que están; tú ves todas las del jardín.</p>
+  {% if sala %}
+    <p class="acciones">
+      <a role="button" class="secondary outline" href="{% url 'ninos_sala' sala.pk %}">Niños y niñas de {{ sala.nombre }} ({{ sala.ninos.count }})</a>
+      <a role="button" class="secondary outline" href="{% url 'curso' sala.pk %}">Tabla de la sala</a>
+    </p>
+  {% endif %}
+</header>
+
+<form class="tarjeta" method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="aviso-error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+  {% include "registro/_campo.html" with campo=form.nombre %}
+  <small id="ayuda-nombre">{{ form.nombre.help_text }}</small>
+  {% include "registro/_campo.html" with campo=form.nivel_educativo %}
+  {% if form.nivel_educativo.help_text %}<small>{{ form.nivel_educativo.help_text }}</small>{% endif %}
+
+  {% include "registro/_campo.html" with campo=form.educadora %}
+  <small>{{ form.educadora.help_text }}</small>
+
+  <fieldset{% if form.asistentes.errors %} aria-invalid="true" aria-describedby="error-asistentes"{% endif %}>
+    <legend>{{ form.asistentes.label }}</legend>
+    {% for opcion in form.asistentes %}
+      <label for="{{ opcion.id_for_label }}">{{ opcion.tag }} {{ opcion.choice_label }}</label>
+    {% empty %}
+      <p class="ayuda">No hay más personas para asignar.</p>
+    {% endfor %}
+    <small>{{ form.asistentes.help_text }}</small>
+    {% if form.asistentes.errors %}<small id="error-asistentes" class="error" role="alert">{{ form.asistentes.errors|join:" " }}</small>{% endif %}
+  </fieldset>
+  <p class="ayuda">Aparecen quienes ya trabajan en el jardín y las cuentas sin asignar. Si falta alguien, pide que le creen su cuenta en el panel de administración.</p>
+
+  <button type="submit">{% if sala %}Guardar cambios{% else %}Crear la sala{% endif %}</button>
+</form>
+{% endblock %}

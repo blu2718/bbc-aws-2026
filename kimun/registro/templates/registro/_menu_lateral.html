@@ -9,8 +9,9 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
       <img src="{% static 'registro/img/logo.svg' %}" alt="" width="52" height="52">
       <div>
         {% if curso %}
-          <p id="menu-lateral-titulo" class="menu-curso"><strong>{{ curso.nombre }}</strong></p>
-          <p class="menu-jardin">{{ curso.jardin.nombre }}</p>
+          {# La sala va en el selector de abajo; aquí, el jardín. #}
+          <p id="menu-lateral-titulo" class="menu-curso"><strong>{{ curso.jardin.nombre }}</strong></p>
+          <p class="menu-jardin">Kimün</p>
         {% else %}
           <p id="menu-lateral-titulo" class="menu-curso"><strong>Kimün</strong></p>
         {% endif %}
@@ -22,6 +23,39 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
     </header>
 
     {% if curso %}
+      {# Selector de sala: un bloque con la sala actual; al tocarlo se despliegan las salas disponibles. #}
+      {# <details> funciona sin JavaScript y con teclado. Con una sola sala, el bloque solo la muestra. #}
+      {% if salas|length > 1 %}
+        <details class="selector-sala">
+          <summary>
+            <span class="selector-sala-texto">
+              <small>Sala</small>
+              <strong>{{ curso.nombre }}</strong>
+            </span>
+            <span class="selector-sala-accion">Cambiar</span>
+          </summary>
+          <nav aria-label="Cambiar de sala">
+            <ul class="selector-sala-lista">
+              {% for s in salas %}
+                {% ifchanged s.curso.jardin_id %}{% if jardines|length > 1 or s.curso.jardin_id != curso.jardin_id %}<li class="selector-sala-jardin">{{ s.curso.jardin.nombre }}</li>{% endif %}{% endifchanged %}
+                <li>
+                  <a href="{{ s.url }}"{% if s.actual %} aria-current="page" class="actual"{% endif %}>
+                    <span>{{ s.curso.nombre }}</span>
+                    <small>{{ s.curso.get_nivel_educativo_display }}{% if s.actual %} · actual{% endif %}</small>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </nav>
+        </details>
+      {% else %}
+        <div class="selector-sala selector-sala-unica">
+          <span class="selector-sala-texto"><small>Sala</small><strong>{{ curso.nombre }}</strong></span>
+        </div>
+      {% endif %}
+    {% endif %}
+
+    {% if curso %}
       <nav aria-label="Secciones del curso">
         <ul class="menu-secciones">
           {% if puede_registrar %}<li><a href="{% url 'registrar' curso.pk %}">Registrar un suceso</a></li>{% endif %}
@@ -31,6 +65,8 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
             {% if propuestas_por_decidir %}<li><a href="{% url 'curso' curso.pk %}#propuestas">Propuestas de nivel por decidir ({{ propuestas_por_decidir }})</a></li>{% endif %}
             <li><a href="{% url 'metas' curso.pk %}">Metas del curso</a></li>
           {% endif %}
+          {% if puede_editar_lista %}<li><a href="{% url 'ninos_sala' curso.pk %}">Niños y niñas de la sala</a></li>{% endif %}
+          {% for j in jardines %}<li><a href="{% url 'jardin' j.pk %}">Salas de {{ j.nombre }}</a></li>{% endfor %}
         </ul>
       </nav>
 
@@ -82,9 +118,10 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
         </ul>
         <p class="menu-ayuda" data-sin-resultados hidden>No hay niños ni niñas con ese nombre.</p>
       </section>
-    {% elif cursos %}
+    {% elif cursos or jardines %}
       <nav aria-label="Mis cursos">
         <ul class="menu-secciones">
+          {% for j in jardines %}<li><a href="{% url 'jardin' j.pk %}">Salas de {{ j.nombre }}</a></li>{% endfor %}
           {% for c in cursos %}<li><a href="{% url 'curso' c.pk %}">{{ c.nombre }}<small> · {{ c.jardin.nombre }}</small></a></li>{% endfor %}
         </ul>
       </nav>

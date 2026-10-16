@@ -9,7 +9,7 @@
   <p class="acciones"><a role="button" class="secondary outline" href="{% url 'protocolo_jardin' jardin.pk %}">Protocolo de protección de derechos{% if not jardin.protocolo_proteccion %} (por cargar){% endif %}</a></p>
 </header>
 
-{# --- Alertas --- #}
+{# --- Alertas: lo primero que ve la directora (docs/diseno.md, «Vista del jardín») --- #}
 <section class="tarjeta{% if resumen.alertas %} tarjeta-alertas{% endif %}" aria-labelledby="titulo-alertas">
   <h2 id="titulo-alertas">{% if resumen.alertas %}<span class="cuenta-alertas" aria-hidden="true">{{ resumen.alertas|length }}</span>{% endif %}Sugerencias de revisión</h2>
   {% if resumen.alertas %}
@@ -26,6 +26,8 @@
     <p class="mensaje-ok" role="status">Ninguna sala está {{ resumen.texto_umbral }} o más bajo las demás salas de su nivel educativo.</p>
   {% endif %}
 </section>
+
+{% include "registro/_salas_jardin.html" %}
 
 {# --- Tabla por nivel educativo --- #}
 <section class="tarjeta" aria-labelledby="titulo-salas">

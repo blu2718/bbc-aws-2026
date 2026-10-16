@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}{% if nino %}Editar a {{ nino.nombre }}{% else %}Agregar un niño o niña{% endif %} · {{ curso.nombre }}{% endblock %}
+{% block contenido %}
+<p class="volver"><a href="{% url 'ninos_sala' curso.pk %}">← Niños y niñas de {{ curso.nombre }}</a></p>
+<header class="encabezado-pagina">
+  <h1 class="titulo-largo">{% if nino %}Editar a {{ nino.nombre }}{% else %}Agregar un niño o niña{% endif %}</h1>
+  {% if not nino %}<p>Entra en nivel 1 en todos los núcleos, como todo niño que ingresa. Solo la educadora cambia los niveles.</p>{% endif %}
+</header>
+
+<form class="tarjeta" method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="aviso-error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
+  {% for campo in form %}
+    {% include "registro/_campo.html" %}
+    {% if campo.help_text %}<small>{{ campo.help_text }}</small>{% endif %}
+  {% endfor %}
+  <p class="acciones">
+    <button type="submit">{% if nino %}Guardar cambios{% else %}Agregar{% endif %}</button>
+    {% if not nino %}<button type="submit" name="otro" value="1" class="secondary outline">Agregar y seguir con otro</button>{% endif %}
+  </p>
+</form>
+{% endblock %}

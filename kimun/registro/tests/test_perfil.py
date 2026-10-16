@@ -130,8 +130,37 @@ def test_el_perfil_muestra_edad_grafico_e_historial(client, curso, educadora, cu
     historial = html[html.index('id="titulo-historial"'):html.index('id="titulo-detalle"')]
     assert "Clasificó hojas por color." in historial and "Muestra avance" in historial
     assert f'href="{reverse("captura", args=[obs.captura_id])}"' in historial
+    # La revisión de hace 10 días queda fuera de la última semana: se ve con "Ver más".
+    assert "Revisión de septiembre" not in historial
+    assert 'href="?historial=todo#titulo-historial"' in historial and "Ver más" in historial
+
+    html = client.get(reverse("ficha", args=[pedro.pk]), {"historial": "todo"}).content.decode()
+    historial = html[html.index('id="titulo-historial"'):html.index('id="titulo-detalle"')]
     assert "Niveles validados" in historial and "Revisión de septiembre" in historial
     assert historial.index("Clasificó hojas por color.") < historial.index("Niveles validados")  # lo más reciente primero
+    assert "Ver más" not in historial
+
+
+def test_el_historial_del_perfil_muestra_la_ultima_semana(client, curso, educadora, curso_con_rezago, nucleos,
+                                                          observar_en):
+    emilio = curso_con_rezago["Emilio Vargas"]
+    hoy = timezone.localdate()
+    observar_en(emilio, hoy - timedelta(days=6), [nucleos[0]], cita="Hace seis días.")
+    observar_en(emilio, hoy - timedelta(days=7), [nucleos[0]], cita="Hace siete días.")
+    client.force_login(educadora)
+
+    html = client.get(reverse("ficha", args=[emilio.pk])).content.decode()
+    historial = html[html.index('id="titulo-historial"'):html.index('id="titulo-detalle"')]
+    assert "Hace seis días." in historial and "Hace siete días." not in historial
+    assert "2 eventos anteriores" in historial  # el suceso de hace 7 días y la revisión de hace 10
+
+
+def test_sin_eventos_en_la_semana_igual_ofrece_ver_mas(client, curso, educadora, curso_con_rezago):
+    client.force_login(educadora)
+    html = client.get(reverse("ficha", args=[curso_con_rezago["Rubí Contreras"].pk])).content.decode()
+    historial = html[html.index('id="titulo-historial"'):html.index('id="titulo-detalle"')]
+    assert "No hay sucesos ni niveles validados en los últimos 7 días." in historial
+    assert "Ver más" in historial and "1 evento anterior" in historial
 
 
 # --- Niños nombrados en la nota, aunque la IA no responda ---------------------------------------

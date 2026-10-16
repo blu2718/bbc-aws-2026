@@ -118,6 +118,7 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 | Gráfico de flor | `figure.radar-figura[data-flor][data-siglas][data-esperado]`, `svg.radar`, `.radar-escala`, `.flor-compacta`, `.flor-etiquetas`/`.flor-etiqueta`/`.flor-nivel`, `.flor-mas-bajo` | SVG de `radar.py`; `kimun.js` (`iniciarFlor`) lo pinta por núcleo, agrega la escala y el modo compacto |
 | Nivel general | `.nivel-general-ficha`, `.nivel-general-numero` | Cifra grande en Fredoka sobre celeste suave |
 | Escalones de nivel | `.tabla-niveles`, `.escalones` (`--nivel`, `--mediana`, `--nivel-max`), `.escalones-pasos` | Un paso por nivel, lleno hasta el actual con `--nucleo`; raya oscura = mediana del curso |
+| Tarjeta de sala | `.panel-salas`, `.lista-salas`, `.tarjeta.tarjeta-sala`, `.atencion-sala` (chips), `.indicadores-sala`, `.nucleos-sin-observar` | Panel de salas del jardín (`_salas_jardin.html`); acciones en `footer.botones-enlace` de 2×2 |
 
 ## Decisiones de diseño
 
@@ -197,6 +198,17 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   observación o el detalle de un núcleo, el contenido nuevo aparece con 0,2 s de opacidad (`.htmx-added`). No
   se aplica a lo que se actualiza solo cada 3 s (estado del registro, propuestas en preparación): parpadearía.
   Además, solo late el punto de los chips «procesando/en preparación». Todo se apaga con movimiento reducido.
+- **Salas del jardín** (rama `jardin-salas`, después del merge con el pulido): el panel de salas va **después**
+  de la tarjeta de alertas, que sigue siendo lo primero y lo único rojo de la pantalla. Cada sala es una
+  `.tarjeta`; lo pendiente son chips de estado (aviso de protección rojo, observaciones por revisar y propuestas
+  por decidir amarillo, `EstadoSala.atencion` entrega el estado de cada uno); las cuatro cifras en Fredoka sobre
+  celeste claro, con el rótulo debajo para que queden alineadas; los núcleos sin observar como chips de núcleo
+  en gris (solo el punto lleva el color: con ocho chips pastel competían con la alerta); las acciones son
+  botones de borde en 2×2, ninguno primario. «Agregar una sala» es de borde y del tamaño del encabezado.
+  Las pantallas de mantención (niños de la sala, sala y niño) usan `.encabezado-pagina` con `.titulo-largo`,
+  formulario o tabla en `.tarjeta`, y la lista de niños cabe en 390 px sin deslizar.
+- **Casillas cuadradas:** el radio global de 0,75 rem dejaba los `checkbox` redondos, iguales a un radio; se
+  les devuelve 0,3 rem (afecta a la revisión, la sala y todo formulario con casillas).
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 

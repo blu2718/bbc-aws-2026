@@ -77,8 +77,13 @@ class EstadoDatos(str, Enum):
 # --- Tiempo y nivel esperado -----------------------------------------------------------
 
 
-def semestre_de_permanencia(fecha_ingreso, hoy, semestres):
+def semestre_de_permanencia(fecha_ingreso, hoy, semestres, previos=0):
     """En qué semestre de permanencia está el niño hoy (1, 2, 3...).
+
+    - previos: semestres del mismo nivel educativo que cursó en otro jardín o
+      sala cuna antes de llegar (los registra la educadora en la ficha). Se
+      suman a los cursados aquí: un niño que llega con 2 semestres de
+      Transición hechos empieza en su semestre 3.
 
     Cuenta los semestres que ya empezaron y que no terminaron antes del
     ingreso, así que el semestre de ingreso cuenta completo aunque haya entrado
@@ -94,7 +99,7 @@ def semestre_de_permanencia(fecha_ingreso, hoy, semestres):
     if not semestres:
         return None
     cursados = sum(1 for s in semestres if s.fin >= fecha_ingreso and s.inicio <= hoy)
-    return max(cursados, 1)
+    return max(cursados, 1) + (previos or 0)
 
 
 def nivel_esperado(semestre, metas, nivel_maximo):
@@ -304,7 +309,8 @@ class TablaCurso:
 def calcular_tabla(ninos, nucleos, niveles, ultimas_fechas, metas, semestres, nivel_maximo, hoy, nombres=None):
     """Arma la tabla del curso. Pura: no consulta la base.
 
-    - ninos: objetos con `pk` y `fecha_ingreso`, en el orden de las filas.
+    - ninos: objetos con `pk` y `fecha_ingreso` (y `semestres_previos`, si
+      viene de otro jardín), en el orden de las filas.
     - nucleos: objetos con `pk` y `sigla`, en el orden de las columnas.
     - niveles: {(id del niño, id del núcleo): nivel actual validado}.
     - ultimas_fechas: {(id del niño, id del núcleo): fecha de la última
@@ -318,7 +324,7 @@ def calcular_tabla(ninos, nucleos, niveles, ultimas_fechas, metas, semestres, ni
 
     filas = []
     for nino in ninos:
-        semestre = semestre_de_permanencia(nino.fecha_ingreso, hoy, semestres)
+        semestre = semestre_de_permanencia(nino.fecha_ingreso, hoy, semestres, getattr(nino, "semestres_previos", 0))
         esperado = nivel_esperado(semestre, metas, nivel_maximo)
         celdas = []
         for nucleo in nucleos:

@@ -25,7 +25,7 @@ from datetime import datetime
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 
-from .models import Observacion, RegistroCambio, ResultadoInstrumento
+from .models import Nino, Observacion, RegistroCambio, ResultadoInstrumento
 
 
 def _json(valor):
@@ -68,7 +68,18 @@ def instantanea_observacion(obs):
     })
 
 
+def instantanea_trayectoria(nino):
+    """Lo que cursó antes de llegar: cambia su semestre de permanencia y su nivel esperado."""
+    return _normalizar({
+        "nino": nino.nombre,
+        "semestres_previos": nino.semestres_previos,
+        "procedencia": nino.procedencia,
+    })
+
+
 def _tipo_y_curso(objeto):
+    if isinstance(objeto, Nino):
+        return RegistroCambio.Objeto.TRAYECTORIA, objeto.curso_id, instantanea_trayectoria(objeto)
     if isinstance(objeto, ResultadoInstrumento):
         return RegistroCambio.Objeto.RESULTADO, objeto.nino.curso_id, instantanea_resultado(objeto)
     if isinstance(objeto, Observacion):
@@ -203,6 +214,15 @@ def _etiquetar_observacion(clave):
     return ETIQUETAS_OBSERVACION.get(clave, clave)
 
 
+ETIQUETAS_TRAYECTORIA = {
+    "nino": "Niño o niña", "semestres_previos": "Semestres en otro jardín", "procedencia": "Procedencia",
+}
+
+
+def _etiquetar_trayectoria(clave):
+    return ETIQUETAS_TRAYECTORIA.get(clave, clave)
+
+
 _ESTADOS_OBSERVACION = dict(Observacion.Estado.choices)
 _APOYOS = dict(Observacion._meta.get_field("apoyo").choices)
 _EFECTOS = dict(Observacion._meta.get_field("efecto").choices)
@@ -259,6 +279,8 @@ def historial_legible(objeto, etiquetar=None):
     tipo, _, _ = _tipo_y_curso(objeto)
     if etiquetar is None and tipo == RegistroCambio.Objeto.OBSERVACION:
         etiquetar = _etiquetar_observacion
+    if etiquetar is None and tipo == RegistroCambio.Objeto.TRAYECTORIA:
+        etiquetar = _etiquetar_trayectoria
     return [
         EntradaLegible(e, diferencias(e.antes, e.despues, etiquetar) if e.antes is not None else [])
         for e in entradas(tipo, objeto.pk).select_related("usuario")

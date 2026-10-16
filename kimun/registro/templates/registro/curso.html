@@ -7,7 +7,7 @@
 <header class="encabezado-pagina">
   <h1>{{ curso.nombre }}</h1>
   <p>{{ curso.jardin.nombre }} · {{ curso.get_nivel_educativo_display }} · {{ tabla.filas|length }} niños y niñas</p>
-  {% if puede_registrar or puede_validar or es_directora %}
+  {% if puede_registrar or puede_validar or es_directora or puede_editar_lista %}
     {# Enlaces sin atributos extra: test_revision compara el <a> exacto. El aspecto de botón sale de .botones-enlace. #}
     <p class="acciones botones-enlace">
       {% if puede_registrar %}<a class="principal" href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
@@ -15,7 +15,11 @@
         <a href="{% url 'revision' curso.pk %}">Revisar observaciones{% if pendientes_por_revisar %} ({{ pendientes_por_revisar }} pendiente{{ pendientes_por_revisar|pluralize }}){% endif %}</a>
         <a href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
       {% endif %}
-      {% if es_directora %}<a href="{% url 'jardin' curso.jardin.pk %}">Resumen del jardín</a>{% endif %}
+      {% if puede_editar_lista %}<a href="{% url 'ninos_sala' curso.pk %}">Niños y niñas de la sala</a>{% endif %}
+      {% if es_directora %}
+        <a href="{% url 'sala_editar' curso.pk %}">Editar la sala y su equipo</a>
+        <a href="{% url 'jardin' curso.jardin.pk %}">Resumen del jardín</a>
+      {% endif %}
     </p>
   {% endif %}
 </header>

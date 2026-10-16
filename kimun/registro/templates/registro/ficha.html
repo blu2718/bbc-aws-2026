@@ -11,11 +11,43 @@
   <p>
     {% if edad %}{{ edad }} · {% endif %}{{ curso.nombre }} · {{ curso.jardin.nombre }}
     <br>Ingreso: <time datetime="{{ ficha.nino.fecha_ingreso|date:'Y-m-d' }}">{{ ficha.nino.fecha_ingreso|date:"d-m-Y" }}</time>
+    {% if semestre %}· Semestre {{ semestre }} en {{ curso.get_nivel_educativo_display }}{% if esperado %} · se espera el nivel {{ esperado }}{% endif %}{% endif %}
+    {% if ficha.nino.semestres_previos %}
+      <br><span class="procedencia">Incluye {{ ficha.nino.semestres_previos }} semestre{{ ficha.nino.semestres_previos|pluralize }} en {{ ficha.nino.procedencia|default:"otro jardín" }}</span>
+    {% endif %}
   </p>
+  {% if form_trayectoria %}
+    <details id="trayectoria" class="trayectoria"{% if form_trayectoria.errors %} open{% endif %}>
+      <summary>¿Viene de otro jardín o sala cuna?</summary>
+      <p class="ayuda">
+        El nivel esperado se calcula con su semestre de permanencia en {{ curso.get_nivel_educativo_display }}.
+        Si ya cursó semestres de este nivel en otro jardín, súmalos aquí. Lo cursado en otro nivel
+        (por ejemplo, en sala cuna antes de nivel medio) no cuenta: cada nivel parte en el semestre 1.
+      </p>
+      <form method="post" action="{% url 'trayectoria' ficha.nino.pk %}">
+        {% csrf_token %}
+        {% for campo in form_trayectoria %}
+          <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+          {{ campo }}
+          {% if campo.errors %}<small class="error" role="alert">{{ campo.errors|join:" " }}</small>{% endif %}
+        {% endfor %}
+        <button type="submit">Guardar trayectoria</button>
+      </form>
+      {% if cambios_trayectoria %}
+        <p class="ayuda">Cambios registrados:</p>
+        <ul class="cambios-trayectoria">
+          {% for c in cambios_trayectoria %}
+            <li><time datetime="{{ c.creado|date:'c' }}">{{ c.creado|date:"d-m-Y H:i" }}</time> · {{ c.usuario_nombre }}: {{ c.despues.semestres_previos }} semestre{{ c.despues.semestres_previos|pluralize }}{% if c.despues.procedencia %} en {{ c.despues.procedencia }}{% endif %}{% if c.motivo %} ({{ c.motivo }}){% endif %}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </details>
+  {% endif %}
   <p class="perfil-acciones">
     {% if puede_registrar %}<a role="button" href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
     {% if ficha.puede_validar %}<a role="button" class="secondary outline" href="{% url 'informe_familia' ficha.nino.pk %}">Informe para la familia</a>{% endif %}
     {% if ficha.puede_validar %}<a role="button" class="secondary outline" href="{% url 'metas' curso.pk %}">Editar metas del curso</a>{% endif %}
+    {% if puede_editar_lista %}<a role="button" class="secondary outline" href="{% url 'nino_editar' ficha.nino.pk %}">Editar sus datos</a>{% endif %}
   </p>
 </header>
 
@@ -67,6 +99,7 @@
 
 <section class="perfil-seccion" aria-labelledby="titulo-historial">
   <h2 id="titulo-historial">Historial</h2>
+  <p class="ayuda">{% if historial_completo %}Todo el historial, del más reciente al más antiguo.{% else %}Últimos {{ dias_historial }} días.{% endif %}</p>
   {% if historial %}
     <ol class="historial">
       {% for e in historial %}
@@ -89,8 +122,16 @@
         </li>
       {% endfor %}
     </ol>
+  {% elif historial_ocultos %}
+    <p>No hay sucesos ni niveles validados en los últimos {{ dias_historial }} días.</p>
   {% else %}
     <p>Todavía no hay sucesos aceptados ni niveles validados.</p>
+  {% endif %}
+  {% if historial_ocultos %}
+    <p class="historial-ver-mas">
+      <a role="button" class="secondary outline" href="?historial=todo#titulo-historial">Ver más</a>
+      <small class="ayuda">{{ historial_ocultos }} evento{{ historial_ocultos|pluralize }} anterior{{ historial_ocultos|pluralize:"es" }}</small>
+    </p>
   {% endif %}
 </section>
 

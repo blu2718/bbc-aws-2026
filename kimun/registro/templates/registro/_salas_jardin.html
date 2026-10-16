@@ -1,0 +1,53 @@
+{% comment %}
+Panel de las salas del jardín para la directora (salas.panel_del_jardin). Una tarjeta por sala con su
+equipo y lo que necesita atención. Son sugerencias de revisión: los niños no se comparan entre salas aquí.
+Estilo en registro.css («Salas del jardín»); criterios en docs/diseno.md.
+{% endcomment %}
+{% load kimun %}
+<section aria-labelledby="titulo-panel-salas" class="panel-salas">
+  <div class="panel-salas-cabecera">
+    <h2 id="titulo-panel-salas">Salas del jardín ({{ panel.salas|length }})</h2>
+    <a role="button" class="secondary outline" href="{% url 'sala_nueva' jardin.pk %}">Agregar una sala</a>
+  </div>
+  {% if panel.sin_salas %}
+    <p class="mensajes" role="status">El jardín todavía no tiene salas. Crea la primera y asígnale su educadora.</p>
+  {% else %}
+    <p class="ayuda">{{ panel.total_ninos }} niños y niñas en total. Cada educadora y sus asistentes ven solo su sala; tú ves todas.</p>
+    <ul class="lista-salas">
+      {% for s in panel.salas %}
+        <li>
+          <article class="tarjeta tarjeta-sala" aria-labelledby="sala-{{ s.curso.pk }}">
+            <header>
+              <h3 id="sala-{{ s.curso.pk }}"><a href="{% url 'curso' s.curso.pk %}">{{ s.curso.nombre }}</a></h3>
+              <p>{{ s.curso.get_nivel_educativo_display }} · {{ s.ninos }} niño{{ s.ninos|pluralize }}</p>
+              <p class="equipo-sala">Educadora: {{ s.educadora }} · Asistentes: {% for a in s.asistentes %}{{ a }}{% if not forloop.last %}, {% endif %}{% empty %}sin asignar{% endfor %}</p>
+            </header>
+            {% if s.atencion %}
+              <ul class="atencion-sala">{% for estado, texto in s.atencion %}<li class="chip-estado chip-{{ estado }}">{{ texto }}</li>{% endfor %}</ul>
+            {% endif %}
+            {% if not s.ninos %}
+              <p class="aviso">La sala todavía no tiene niños ni niñas. <a href="{% url 'nino_nuevo' s.curso.pk %}">Agregar</a></p>
+            {% else %}
+              <dl class="indicadores-sala">
+                <div><dt>Observaciones en 14 días</dt><dd>{{ s.observaciones_14_dias }}</dd></div>
+                <div><dt>Niños con señales «Revisar»</dt><dd>{{ s.con_revisar|length }}</dd></div>
+                <div><dt>Niños con pocas observaciones</dt><dd>{{ s.pocas_observaciones|length }}</dd></div>
+                <div><dt>Núcleos sin observar en la quincena</dt><dd>{{ s.nucleos_sin_observaciones|length }}</dd></div>
+              </dl>
+              {% if s.nucleos_sin_observaciones %}
+                <p class="nucleos-sin-observar"><span class="ayuda">Sin observar:</span> {% for n in s.nucleos_sin_observaciones %}<abbr class="chip-nucleo nucleo-{{ n.sigla }}" title="{{ n.nombre }}">{{ n.sigla }}</abbr> {% endfor %}</p>
+              {% endif %}
+              <p class="ayuda">Último registro: {% if s.ultimo_registro %}<time datetime="{{ s.ultimo_registro|date:'c' }}">{{ s.ultimo_registro|date:"j \d\e F, H:i" }}</time>{% else %}ninguno todavía{% endif %}.</p>
+            {% endif %}
+            <footer class="acciones botones-enlace">
+              <a href="{% url 'curso' s.curso.pk %}" aria-label="Tabla de {{ s.curso.nombre }}">Tabla</a>
+              <a href="{% url 'capturar' s.curso.pk %}" aria-label="Registrar una nota en {{ s.curso.nombre }}">Registrar</a>
+              <a href="{% url 'ninos_sala' s.curso.pk %}" aria-label="Niños y niñas de {{ s.curso.nombre }}">Niños y niñas</a>
+              <a href="{% url 'sala_editar' s.curso.pk %}" aria-label="Editar {{ s.curso.nombre }} y su equipo">Editar</a>
+            </footer>
+          </article>
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+</section>
