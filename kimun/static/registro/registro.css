@@ -238,8 +238,34 @@ body > header form, body > header button { margin: 0; }
     var(--integra-azul-pastel) 0 25%, var(--integra-rojo-pastel) 25% 50%,
     var(--integra-verde-pastel) 50% 75%, var(--integra-amarillo-pastel) 75% 100%);
 }
+/* La barra se alinea con el contenido: mismos anchos que .container de Pico. */
 .barra-app > nav { max-width: 64rem; margin-inline: auto; padding-inline: .75rem; }
+@media (min-width: 576px) { .barra-app > nav { max-width: calc(510px + 1.5rem); } }
+@media (min-width: 768px) { .barra-app > nav { max-width: calc(700px + 1.5rem); } }
+@media (min-width: 1024px) { .barra-app > nav { max-width: calc(950px + 1.5rem); } }
+@media (min-width: 1280px) { .barra-app > nav { max-width: calc(1200px + 1.5rem); } }
+@media (min-width: 1536px) { .barra-app > nav { max-width: calc(1450px + 1.5rem); } }
 .barra-app li { padding-block: .4rem; }
+/* Contadores (avisos, por revisar) como píldoras que no se montan sobre la marca. */
+.barra-app nav > ul:last-child { gap: .4rem; flex-wrap: nowrap; }
+.barra-app nav > ul:last-child li { padding-inline: 0; }
+#contador-avisos a, #contador-pendientes a {
+  display: inline-block; margin: 0; padding: .3rem .7rem;
+  border-radius: 999px; font-size: .85rem; line-height: 1.2; white-space: nowrap; text-decoration: none;
+}
+#contador-avisos a { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); }
+#contador-pendientes a { background: var(--kimun-celeste-suave); color: var(--kimun-tinta); }
+#contador-avisos a:hover { background: var(--kimun-alerta-linea); }
+#contador-pendientes a:hover { background: var(--kimun-celeste-medio); }
+#contador-pendientes { display: flex; flex-wrap: wrap; gap: .3rem; }
+/* En celular las píldoras van una sobre otra, más chicas, para no montarse sobre la marca. */
+@media (max-width: 479px) {
+  .barra-app nav > ul:last-child { flex-direction: column; align-items: flex-end; gap: .2rem; margin-block: .25rem; }
+  .barra-app nav > ul:last-child li { padding-block: 0; }
+  #contador-avisos a, #contador-pendientes a { padding: .15rem .55rem; font-size: .75rem; }
+  .barra-app .marca { gap: .4rem; font-size: 1.05rem; }
+  .barra-app .marca img { width: 32px; height: 32px; }
+}
 .marca {
   display: inline-flex;
   align-items: center;
@@ -250,7 +276,6 @@ body > header form, body > header button { margin: 0; }
   text-decoration: none;
 }
 .marca img { border-radius: .65rem; }
-#contador-pendientes a { font-size: .9rem; }
 
 .boton-icono {
   display: inline-flex;
