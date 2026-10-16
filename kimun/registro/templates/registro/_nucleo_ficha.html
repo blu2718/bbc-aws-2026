@@ -15,15 +15,23 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
 
   {% if mensaje %}<p role="status" class="mensaje-ok">{{ mensaje }}</p>{% endif %}
 
-  {% if nf.situacion %}
-    <ul class="situacion">
-      <li>Nivel esperado: {{ nf.situacion.esperado|default:"–" }}</li>
-      <li>Mediana del curso: {{ nf.situacion.texto_mediana }}</li>
-      {% for senal in nf.situacion.senales %}
-        <li class="senal senal-{{ senal.gravedad.value }}">{{ senal.texto }}</li>
-      {% endfor %}
-      {% if nf.aviso_datos %}<li class="senal senal-aviso">{{ nf.aviso_datos }}</li>{% endif %}
-    </ul>
+  {# Fortalezas primero, después lo pendiente (Política de Calidad, pp. 42 y 52-54; contexto/guia-politica-calidad.md, sección 10). #}
+  <h3>Lo que ya muestra</h3>
+  {% if nf.logros_recientes or nf.oas_logrados %}
+    {% if nf.logros_recientes %}
+      <ul class="logros">
+        {% for obs in nf.logros_recientes %}
+          <li><time datetime="{{ obs.fecha|date:'Y-m-d' }}">{{ obs.fecha|date:"d-m-Y" }}</time>: {{ obs.cita }}{% if obs.apoyo == "autonomo" %} <span class="apoyo apoyo-autonomo">Lo hizo de forma autónoma</span>{% endif %}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% if nf.oas_logrados %}
+      <p>Con evidencia en {{ nf.oas_logrados|length }} OA:
+        {% for c in nf.oas_logrados %}<abbr title="{{ c.oa.texto }}">{{ c.oa.codigo }}</abbr>{% if not forloop.last %}, {% endif %}{% endfor %}.
+      </p>
+    {% endif %}
+  {% else %}
+    <p>Todavía no hay observaciones aceptadas en este núcleo.</p>
   {% endif %}
 
   <h3>El nivel actual en la rúbrica</h3>
@@ -43,6 +51,18 @@ Todo el texto pasa por el autoescape; solo el SVG de grafico.py (ya escapado) se
     <p>{{ nf.actual.nivel }}. Sin descriptor en la rúbrica para este nivel.</p>
   {% else %}
     <p>{{ nf.texto_actual }}.</p>
+  {% endif %}
+
+  {% if nf.situacion %}
+    <h3>Para tener presente</h3>
+    <ul class="situacion">
+      <li>Nivel esperado: {{ nf.situacion.esperado|default:"–" }}</li>
+      <li>Mediana del curso: {{ nf.situacion.texto_mediana }}</li>
+      {% for senal in nf.situacion.senales %}
+        <li class="senal senal-{{ senal.gravedad.value }}">{{ senal.texto }}</li>
+      {% endfor %}
+      {% if nf.aviso_datos %}<li class="senal senal-aviso">{{ nf.aviso_datos }}</li>{% endif %}
+    </ul>
   {% endif %}
 
   {% if nf.descriptor_siguiente %}

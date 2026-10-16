@@ -84,6 +84,18 @@ class NucleoFicha:
     def oas_con_evidencia(self) -> int:
         return sum(1 for c in self.cobertura if not c.sin_evidencia)
 
+    @property
+    def oas_logrados(self) -> list[CoberturaOA]:
+        """OA con evidencia, el más reciente primero. La ficha los muestra antes que lo pendiente:
+        la Política de Calidad pide apreciar fortalezas y talentos, no solo vacíos (pp. 42, 52-54)."""
+        con_evidencia = [c for c in self.cobertura if not c.sin_evidencia]
+        return sorted(con_evidencia, key=lambda c: c.ultima_fecha, reverse=True)
+
+    @property
+    def logros_recientes(self) -> list[Observacion]:
+        """Hasta 3 observaciones aceptadas que muestran un avance o algo hecho de forma autónoma."""
+        return [o for o in self.observaciones if o.efecto == "avance" or o.apoyo == "autonomo"][:3]
+
 
 @dataclass(frozen=True)
 class Ficha:

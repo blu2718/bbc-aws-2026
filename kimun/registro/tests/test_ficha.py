@@ -254,3 +254,38 @@ def test_la_ficha_y_la_tabla_del_curso_muestran_las_mismas_senales(client, rezag
     ficha = _ficha(client, rezagado).content.decode()
     for texto in ("Revisar: 3 niveles bajo la mediana del curso", "Revisar: 4 niveles bajo lo esperado"):
         assert texto in tabla and texto in ficha
+
+
+# --- Fortalezas primero (Política de Calidad, pp. 42 y 52-54) ------------------------------
+
+
+def test_la_ficha_muestra_lo_logrado_antes_que_lo_pendiente(client, educadora, nino, nucleos, descriptores, observar_en):
+    from django.urls import reverse
+    from django.utils import timezone
+
+    from registro.models import Apoyo, NivelEducativo, ObjetivoAprendizaje
+
+    ia = nucleos[0]
+    oa = ObjetivoAprendizaje.objects.create(nivel_educativo=NivelEducativo.TRANSICION, nucleo=ia, numero=1, texto="Comunicar.")
+    ObjetivoAprendizaje.objects.create(nivel_educativo=NivelEducativo.TRANSICION, nucleo=ia, numero=2, texto="Otro.")
+    obs = observar_en(nino, timezone.localdate(), [ia], cita="Se puso la chaqueta solo", oas=[oa])
+    obs.apoyo = Apoyo.AUTONOMO
+    obs.save(update_fields=["apoyo"])
+    observar_en(nino, timezone.localdate(), [ia], cita="Pidió ayuda para ordenar")
+
+    client.force_login(educadora)
+    html = client.get(reverse("ficha", args=[nino.pk])).content.decode()
+    seccion = html[html.index('id="nucleo-IA"'):]
+    logros = seccion.index("Lo que ya muestra")
+    assert logros < seccion.index("El nivel actual en la rúbrica") < seccion.index("Qué observar después")
+    assert "Se puso la chaqueta solo" in seccion[logros:seccion.index("El nivel actual en la rúbrica")]
+    assert "Pidió ayuda para ordenar" not in seccion[logros:seccion.index("El nivel actual en la rúbrica")]
+    assert "Con evidencia en 1 OA" in seccion
+
+
+def test_sin_observaciones_lo_logrado_lo_dice_sin_juzgar(client, educadora, nino, nucleos, descriptores):
+    from django.urls import reverse
+
+    client.force_login(educadora)
+    html = client.get(reverse("ficha", args=[nino.pk])).content.decode()
+    assert "Todavía no hay observaciones aceptadas en este núcleo." in html
