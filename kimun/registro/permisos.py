@@ -57,3 +57,15 @@ def ninos_de(usuario):
 def ninos_que_valida(usuario):
     """Niños de los cursos donde el usuario valida niveles (solo la educadora del curso)."""
     return Nino.objects.filter(curso__in=cursos_que_valida(usuario))
+
+
+def avisos_que_ve(usuario):
+    """Avisos de protección (Task 13) que el usuario puede ver: los de la educadora del curso
+    y los de la directora del jardín. Las asistentes, incluida quien registró, no los ven."""
+    from .models import AvisoProteccion
+
+    if not usuario.is_authenticated:
+        return AvisoProteccion.objects.none()
+    return AvisoProteccion.objects.filter(
+        Q(captura__curso__educadora=usuario) | Q(captura__curso__jardin__directora=usuario)
+    ).distinct()

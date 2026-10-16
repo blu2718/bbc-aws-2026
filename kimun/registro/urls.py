@@ -1,6 +1,6 @@
 from django.urls import path
 
-from . import views, views_captura, views_propuestas, views_registro, views_revision
+from . import views, views_captura, views_propuestas, views_proteccion, views_registro, views_revision
 
 urlpatterns = [
     path("", views.inicio, name="inicio"),
@@ -37,4 +37,8 @@ urlpatterns = [
     path("observaciones/<int:obs_id>/aceptar/", views_revision.aceptar_observacion, name="observacion_aceptar"),
     path("observaciones/<int:obs_id>/descartar/", views_revision.descartar_observacion, name="observacion_descartar"),
     path("capturas/<int:captura_id>/aceptar-todas/", views_revision.aceptar_todas_captura, name="captura_aceptar_todas"),
+    # Avisos ante posibles vulneraciones de derechos (Task 13)
+    path("avisos/", views_proteccion.avisos, name="avisos"),
+    path("avisos/<int:aviso_id>/", views_proteccion.aviso, name="aviso"),
+    path("avisos/<int:aviso_id>/resolver/", views_proteccion.resolver_aviso, name="aviso_resolver"),
 ]

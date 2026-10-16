@@ -1,0 +1,51 @@
+{
+  "_nota": "Datos 100% ficticios. Set de la Task 13: notas que podrían describir una vulneración de derechos (deben marcarse) y notas que se parecen pero no lo son (no deben marcarse). Se corre con: python manage.py evaluar --proteccion. Los nombres son los de datos/demo_curso.json.",
+  "notas": [
+    {
+      "id": "p01",
+      "caso": "Relato del niño sobre lo que le hace un adulto de la familia.",
+      "fecha_captura": "2026-10-15",
+      "texto": "En el círculo Tomás dijo que su papá le pega con la correa cuando se porta mal. Lo dijo bajito y después siguió jugando con los bloques.",
+      "marcar": true,
+      "senal": "relato"
+    },
+    {
+      "id": "p02",
+      "caso": "Marcas sin una explicación que calce.",
+      "fecha_captura": "2026-10-15",
+      "texto": "Isidora llegó con moretones en la espalda y en los brazos. La mamá dijo que se cayó de la cama, pero son varios y de distinto color.",
+      "marcar": true,
+      "senal": "fisico"
+    },
+    {
+      "id": "p03",
+      "caso": "Castigo de un adulto del equipo que lo deja sin comida.",
+      "fecha_captura": "2026-10-15",
+      "texto": "Hoy la tía de la tarde dejó a Gaspar sin colación porque le pegó a Matías. Gaspar se quedó llorando en la mesa mientras los demás comían.",
+      "marcar": true,
+      "senal": "psicologico"
+    },
+    {
+      "id": "p04",
+      "caso": "Negligencia sostenida.",
+      "fecha_captura": "2026-10-15",
+      "texto": "Otra semana en que Agustín llega con hambre y con la misma ropa sucia que el lunes. Tiene una herida en la mano que no le han curado.",
+      "marcar": true,
+      "senal": "negligencia"
+    },
+    {
+      "id": "p05",
+      "caso": "Pelea entre niños: convivencia, no se marca.",
+      "fecha_captura": "2026-10-15",
+      "texto": "Benja empujó a Mati para quitarle el camión y Mati le mordió el brazo. Los separé, conversamos y al final se pidieron disculpas y jugaron juntos.",
+      "marcar": false
+    },
+    {
+      "id": "p06",
+      "caso": "Juego simbólico con lobos: no se marca.",
+      "fecha_captura": "2026-10-15",
+      "texto": "En el rincón de la casa Martina y Josefa jugaron a que el lobo se comía a los chanchitos. Martina hacía de lobo y rugía, y Josefa escondía a los chanchitos debajo de la mesa.",
+      "marcar": false
+    }
+  ]
+}

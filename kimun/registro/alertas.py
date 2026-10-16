@@ -40,6 +40,7 @@ from django.db.models import Count, Max
 from django.utils import timezone
 
 from .models import (
+    Captura,
     NIVEL_MIN,
     DescriptorNivel,
     NivelEducativo,
@@ -372,12 +373,12 @@ def _ultimas_fechas(curso):
         "observacion__grupal": False,
     }
     por_nucleo = (
-        Observacion.nucleos.through.objects.filter(**filtro)
+        Observacion.nucleos.through.objects.filter(**filtro).exclude(observacion__captura__estado=Captura.Estado.EN_RESGUARDO)
         .values_list("observacion__nino_id", "nucleo_id")
         .annotate(ultima=Max("observacion__fecha"))
     )
     por_oa = (
-        Observacion.oas.through.objects.filter(**filtro)
+        Observacion.oas.through.objects.filter(**filtro).exclude(observacion__captura__estado=Captura.Estado.EN_RESGUARDO)
         .values_list("observacion__nino_id", "objetivoaprendizaje__nucleo_id")
         .annotate(ultima=Max("observacion__fecha"))
     )

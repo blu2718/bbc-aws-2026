@@ -18,7 +18,7 @@ import calendar
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from .models import Nucleo, ObjetivoAprendizaje, Observacion
+from .models import Captura, Nucleo, ObjetivoAprendizaje, Observacion
 
 
 @dataclass(frozen=True)
@@ -90,7 +90,7 @@ def cobertura_del_nino(nino):
         observacion__estado=Observacion.Estado.ACEPTADA,
         observacion__grupal=False,
         objetivoaprendizaje__nivel_educativo=nivel_educativo,
-    ).values_list("objetivoaprendizaje_id", "observacion__fecha")
+    ).exclude(observacion__captura__estado=Captura.Estado.EN_RESGUARDO).values_list("objetivoaprendizaje_id", "observacion__fecha")
     return agrupar_por_nucleo(cobertura_por_oa(oas, evidencias))
 
 
@@ -173,8 +173,8 @@ def cobertura_quincena_del_curso(curso, quincena, nucleos=None):
         "observacion__fecha__range": (quincena.inicio, quincena.fin),
     }
     columnas = ("observacion_id", "observacion__nino_id", "observacion__fecha")
-    por_nucleo = Observacion.nucleos.through.objects.filter(**filtro).values_list(*columnas, "nucleo_id")
-    por_oa = Observacion.oas.through.objects.filter(**filtro).values_list(
+    por_nucleo = Observacion.nucleos.through.objects.filter(**filtro).exclude(observacion__captura__estado=Captura.Estado.EN_RESGUARDO).values_list(*columnas, "nucleo_id")
+    por_oa = Observacion.oas.through.objects.filter(**filtro).exclude(observacion__captura__estado=Captura.Estado.EN_RESGUARDO).values_list(
         *columnas, "objetivoaprendizaje__nucleo_id"
     )
     return cobertura_quincena(nucleos, [*por_nucleo, *por_oa], quincena)

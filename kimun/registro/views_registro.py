@@ -23,7 +23,7 @@ from . import procesamiento
 from .forms_registro import RegistroForm
 from .models import Captura, Observacion
 from .pantallas import ninos_mencionados, observaciones_para_tarjetas, resumen_captura, tarjetas_suceso
-from .permisos import cursos_de, cursos_donde_registra, puede_validar
+from .permisos import avisos_que_ve, cursos_de, cursos_donde_registra, puede_validar
 
 RECIENTES = 3
 LARGO_CONTEXTO = 1000
@@ -91,8 +91,14 @@ def _contexto_captura(request, captura):
         "sin_conexion_ia": captura.estado == Captura.Estado.ERROR and any(
             pista in captura.error for pista in PISTAS_SIN_CONEXION
         ),
+        # Posible vulneración (Task 13): el texto y el aviso solo los ven la educadora y la directora.
+        "en_resguardo": captura.estado == Captura.Estado.EN_RESGUARDO,
+        "aviso_visible": (
+            avisos_que_ve(request.user).filter(captura=captura).first()
+            if captura.estado == Captura.Estado.EN_RESGUARDO else None
+        ),
         # Mientras no hay tarjetas (procesando, error o audio), se muestran igual los niños nombrados.
-        "mencionados": [] if captura.estado == Captura.Estado.PROCESADA else ninos_mencionados(
+        "mencionados": [] if captura.estado in (Captura.Estado.PROCESADA, Captura.Estado.EN_RESGUARDO) else ninos_mencionados(
             f"{captura.texto_original} {captura.texto_extraido}", curso.ninos.all(), timezone.localdate()
         ),
     }

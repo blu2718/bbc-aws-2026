@@ -18,7 +18,7 @@
         {% for c in recientes %}
           <li>
             <a href="{% url 'captura' c.pk %}">
-              <span class="reciente-texto">{% if c.texto_original %}{{ c.texto_original|truncatechars:70 }}{% elif c.tipo == "foto" %}Foto{% else %}Audio{% endif %}</span>
+              <span class="reciente-texto">{% if c.estado == "en_resguardo" %}En resguardo{% elif c.texto_original %}{{ c.texto_original|truncatechars:70 }}{% elif c.tipo == "foto" %}Foto{% else %}Audio{% endif %}</span>
               <small>{{ c.get_tipo_display }} · {{ c.creada|date:"j M, H:i" }}{% if c.autora_id != user.pk %} · {{ c.autora.get_full_name|default:c.autora.username }}{% endif %} · {{ c.get_estado_display }}</small>
             </a>
           </li>

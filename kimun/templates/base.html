@@ -39,7 +39,7 @@
         </li>
       </ul>
       {% if user.is_authenticated %}
-        <ul>{% include "registro/_contador_pendientes.html" %}</ul>
+        <ul>{% include "registro/_contador_avisos.html" %}{% include "registro/_contador_pendientes.html" %}</ul>
       {% endif %}
     </nav>
   </header>

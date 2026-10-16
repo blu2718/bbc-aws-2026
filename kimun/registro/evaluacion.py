@@ -309,3 +309,17 @@ def casos_propuesta_ia(rubrica_integra, nivel_educativo="transicion", sigla="IA"
         {"nivel": n["nivel"], "nombre": n["nombre"], "texto": n["ejemplos"][INDICE_EJEMPLO_RESERVADO]}
         for n in bloque["niveles"]
     ]
+
+
+def metricas_proteccion(pares):
+    """Task 13. `pares`: [(nota del set, señal obtenida o None)].
+
+    Devuelve cuántas notas que debían marcarse se marcaron (meta: todas) y cuántas
+    que no debían marcarse se marcaron por error.
+    """
+    positivas = [senal for nota, senal in pares if nota["marcar"]]
+    negativas = [senal for nota, senal in pares if not nota["marcar"]]
+    return {
+        "positivas_marcadas": Proporcion(sum(s is not None for s in positivas), len(positivas)),
+        "negativas_marcadas": Proporcion(sum(s is not None for s in negativas), len(negativas)),
+    }

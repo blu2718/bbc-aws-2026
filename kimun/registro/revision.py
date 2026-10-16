@@ -40,7 +40,9 @@ def cursos_por_revisar(usuario):
 
     Una sola consulta: se usa en la barra de navegación de todas las páginas.
     """
-    pendiente = Q(capturas__observaciones__estado=Observacion.Estado.PENDIENTE)
+    pendiente = Q(capturas__observaciones__estado=Observacion.Estado.PENDIENTE) & ~Q(
+        capturas__estado=Captura.Estado.EN_RESGUARDO
+    )
     return list(
         cursos_que_valida(usuario)
         .annotate(pendientes=Count("capturas__observaciones", filter=pendiente))

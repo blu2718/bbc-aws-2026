@@ -13,6 +13,7 @@ import re
 import unicodedata
 from datetime import date, datetime
 from pathlib import Path
+from typing import NamedTuple
 
 from .bedrock import ClienteBedrock, ErrorBedrock
 
@@ -25,6 +26,8 @@ ESCALA_APOYO = ("autonomo", "con_ayuda", "parcial", "no_lo_realiza", "sin_dato")
 # Qué muestra lo observado sobre sus OA (igual que `registro.models.Efecto`).
 ESCALA_EFECTO = ("avance", "por_reforzar", "sin_dato")
 SIN_DATO = "sin_dato"
+# Señales de una posible vulneración de derechos (Task 13; igual que `AvisoProteccion.Senal`).
+SENALES_VULNERACION = ("relato", "fisico", "psicologico", "negligencia", "sexual", "otra")
 
 # "OA", número y sigla (empieza con letra; puede traer dígitos si el catálogo los usa).
 _PATRON_OA = re.compile(r"^\s*OA\W*0*(\d+)\W*([^\W\d_][^\W_]*)\s*$", re.IGNORECASE)
@@ -207,8 +210,20 @@ def construir_herramienta(catalogo):
                         **texto_o_nulo,
                         "description": "Una pregunta breve a quien registró si falta contexto clave; null si no hace falta.",
                     },
+                    "posible_vulneracion": {
+                        "type": "boolean",
+                        "description": (
+                            "true si la nota podría describir una vulneración de derechos de un niño por parte de un "
+                            "adulto. Si es true, observaciones va vacía y pregunta en null."
+                        ),
+                    },
+                    "senal": {
+                        "type": ["string", "null"],
+                        "enum": list(SENALES_VULNERACION) + [None],
+                        "description": "Qué tipo de señal trae la nota si posible_vulneracion es true; null si no.",
+                    },
                 },
-                "required": ["observaciones", "pregunta"],
+                "required": ["observaciones", "pregunta", "posible_vulneracion", "senal"],
             }
         },
     }
@@ -368,13 +383,37 @@ def _pregunta(entrada):
     return None
 
 
+def _senal_vulneracion(entrada):
+    """La señal si el modelo marcó una posible vulneración; None si no la marcó."""
+    if not isinstance(entrada, dict) or not _como_bool(entrada.get("posible_vulneracion")):
+        return None
+    senal = entrada.get("senal")
+    return senal if senal in SENALES_VULNERACION else "otra"
+
+
+class Separacion(NamedTuple):
+    """Resultado de separar una nota. Si `senal` no es None, la nota podría describir una
+    vulneración de derechos: `observaciones` va vacía y `pregunta` en None (Task 13)."""
+
+    observaciones: list
+    pregunta: str | None
+    senal: str | None
+
+
 def separar(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
-    """Separa `texto` en observaciones validadas contra `catalogo`. Ver `separar_con_pregunta`."""
-    return separar_con_pregunta(texto, fecha_captura, nombres_curso, catalogo, cliente=cliente)[0]
+    """Separa `texto` en observaciones validadas contra `catalogo`. Ver `separar_completo`."""
+    return separar_completo(texto, fecha_captura, nombres_curso, catalogo, cliente=cliente).observaciones
 
 
 def separar_con_pregunta(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
-    """(observaciones, pregunta): las observaciones validadas y, si falta contexto, una pregunta para quien registró.
+    """(observaciones, pregunta). Ver `separar_completo`."""
+    resultado = separar_completo(texto, fecha_captura, nombres_curso, catalogo, cliente=cliente)
+    return resultado.observaciones, resultado.pregunta
+
+
+def separar_completo(texto, fecha_captura, nombres_curso, catalogo, cliente=None):
+    """`Separacion`: las observaciones validadas, la pregunta para quien registró si falta
+    contexto y la señal si la nota podría describir una vulneración de derechos.
 
     `fecha_captura` es un `date`, un texto AAAA-MM-DD o un `datetime` (se usa solo su
     fecha, sin convertir de zona). Desde el backend conviene pasar la fecha local,
@@ -383,7 +422,7 @@ def separar_con_pregunta(texto, fecha_captura, nombres_curso, catalogo, cliente=
     por defecto, `ClienteBedrock()`. Lanza ErrorSeparacion si la respuesta no sirve.
     """
     if not texto or not texto.strip():
-        return [], None
+        return Separacion([], None, None)
     fecha_captura = _como_fecha(fecha_captura)
     nucleos_catalogo, oas_catalogo = indexar_catalogo(catalogo)
     system = construir_prompt(fecha_captura, nombres_curso, catalogo)
@@ -395,9 +434,14 @@ def separar_con_pregunta(texto, fecha_captura, nombres_curso, catalogo, cliente=
     except ErrorBedrock as error:
         raise ErrorSeparacion(str(error)) from error
 
+    senal = _senal_vulneracion(entrada)
+    if senal is not None:
+        # Lo marcado no es evidencia de aprendizaje y no se pregunta nada: preguntar quién o
+        # cómo empuja a interrogar al niño, y el protocolo lo prohíbe.
+        return Separacion([], None, senal)
     observaciones = []
     for posicion, cruda in enumerate(_extraer_observaciones(entrada), start=1):
         observacion = _normalizar(cruda, posicion, nucleos_catalogo, oas_catalogo, fecha_captura)
         if observacion is not None:
             observaciones.append(observacion)
-    return observaciones, _pregunta(entrada)
+    return Separacion(observaciones, _pregunta(entrada), None)

@@ -33,11 +33,11 @@ from django.utils import timezone
 
 from .coincidencia import emparejar
 from .curriculo import leer_curriculo, leer_curriculo_de
-from .ia import ErrorSeparacion, ErrorTranscripcion, separar_con_pregunta
+from .ia import ErrorSeparacion, ErrorTranscripcion, separar_completo
 from .ia.separacion import normalizar_codigo_oa
 # frases_del_curso y prefijo_vocabulario se usan también en `preparar_vocabularios`.
 from .lectura import ArchivoInvalido, frases_del_curso, prefijo_vocabulario, texto_para_separar  # noqa: F401
-from .models import Captura, Efecto, NivelEducativo, Nucleo, ObjetivoAprendizaje, Observacion
+from .models import AvisoProteccion, Captura, Efecto, NivelEducativo, Nucleo, ObjetivoAprendizaje, Observacion
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +115,33 @@ def reintentar_errores():
         estado=Captura.Estado.PENDIENTE, actualizada=timezone.now()
     )
     return errores + recuperar_atascadas()
+
+
+def _descartada_como_vulneracion(captura):
+    """True si la educadora o la directora ya dijeron "No es una vulneración": se procesa normal."""
+    return AvisoProteccion.objects.filter(captura=captura, estado=AvisoProteccion.Estado.NO_ES).exists()
+
+
+def _poner_en_resguardo(captura, senal):
+    """La captura queda en resguardo, sin observaciones ni pregunta, y con un aviso pendiente (Task 13).
+
+    Si quedaban observaciones de un procesamiento anterior, se descartan. En el log va
+    solo el id: el texto de la nota nunca se escribe en los registros.
+    """
+    with transaction.atomic():
+        Observacion.todas.filter(captura=captura).update(
+            estado=Observacion.Estado.DESCARTADA, actualizada=timezone.now()
+        )
+        AvisoProteccion.objects.update_or_create(
+            captura=captura,
+            defaults={"senal": senal, "estado": AvisoProteccion.Estado.PENDIENTE, "motivo": "",
+                      "resuelto_por": None, "resuelto_en": None},
+        )
+        captura.estado = Captura.Estado.EN_RESGUARDO
+        captura.error = ""
+        captura.pregunta = ""
+        captura.save(update_fields=["estado", "error", "pregunta", "actualizada"])
+    logger.info("Captura %s queda en resguardo con un aviso de protección", captura.pk)
 
 
 def _marcar_error(captura, motivo):
@@ -195,7 +222,7 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
     try:
         # La foto o el audio se leen aquí (el texto se guarda y el archivo se borra); una nota se usa tal cual.
         texto = texto_para_separar(captura, cliente=cliente, transcriptor=transcriptor, ninos=ninos)
-        separadas, pregunta = separar_con_pregunta(
+        separacion = separar_completo(
             texto,
             # Fecha local, para que "ayer" se resuelva según la zona del jardín.
             timezone.localdate(captura.creada),
@@ -203,6 +230,10 @@ def procesar(captura, cliente=None, catalogo=None, transcriptor=None):
             _catalogo_del_curso(curso, catalogo),
             cliente=cliente,
         )
+        if separacion.senal is not None and not _descartada_como_vulneracion(captura):
+            _poner_en_resguardo(captura, separacion.senal)
+            return []
+        separadas, pregunta = separacion.observaciones, separacion.pregunta
         nucleos = {n.sigla: n for n in Nucleo.objects.all()}
         oas = {
             oa.codigo: oa

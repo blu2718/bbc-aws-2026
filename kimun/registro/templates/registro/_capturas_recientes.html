@@ -10,7 +10,7 @@
           {{ captura.creada|date:"j \d\e F, H:i" }} · <strong>{{ captura.get_estado_display }}</strong>
           {% if captura.estado == "procesada" %}· {{ captura.cantidad_observaciones }} observaci{{ captura.cantidad_observaciones|pluralize:"ón,ones" }}{% endif %}
           {# De la foto y del audio solo queda el texto leído: el archivo se borra al leerlo. #}
-          <br>{% if captura.tipo == "texto" %}{{ captura.texto_original|truncatechars:80 }}{% else %}{{ captura.get_tipo_display }}{% if captura.texto_extraido %}: «{{ captura.texto_extraido|truncatechars:80 }}»{% endif %}{% endif %}
+          <br>{% if captura.estado == "en_resguardo" %}{% elif captura.tipo == "texto" %}{{ captura.texto_original|truncatechars:80 }}{% else %}{{ captura.get_tipo_display }}{% if captura.texto_extraido %}: «{{ captura.texto_extraido|truncatechars:80 }}»{% endif %}{% endif %}
           {% if captura.estado == "error" %}
             {# El detalle (captura.error) puede traer datos de AWS: queda en el log y en el admin. #}
             <br><small>No se pudo procesar la nota. Puedes reintentar.</small>

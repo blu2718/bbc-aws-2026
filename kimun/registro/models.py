@@ -408,6 +408,8 @@ class Captura(models.Model):
         PROCESANDO = "procesando", "Procesando"
         PROCESADA = "procesada", "Procesada"
         ERROR = "error", "Error"
+        # Posible vulneración de derechos (Task 13): no genera observaciones y queda fuera de la evaluación.
+        EN_RESGUARDO = "en_resguardo", "En resguardo"
 
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name="capturas")
     autora = models.ForeignKey(
@@ -421,7 +423,7 @@ class Captura(models.Model):
     )
     texto_original = models.TextField(blank=True, help_text="Lo que se escribió (tipo texto).")
     texto_extraido = models.TextField(blank=True, help_text="Texto leído de la foto o transcrito del audio.")
-    estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
+    estado = models.CharField(max_length=12, choices=Estado.choices, default=Estado.PENDIENTE)
     error = models.TextField(blank=True)
     pregunta = models.TextField(
         blank=True, help_text="Si al ordenar faltó contexto clave, lo que Claude le pregunta a quien registró.",
@@ -468,11 +470,27 @@ class Efecto(models.TextChoices):
     SIN_DATO = "sin_dato", "Sin dato"
 
 
+class ObservacionManager(models.Manager):
+    """Oculta las observaciones de capturas en resguardo (Task 13).
+
+    Es el manager por defecto, así que lo usan `Observacion.objects` y las relaciones
+    inversas (`nino.observaciones`, `captura.observaciones`): ninguna vista, alerta,
+    cobertura ni propuesta de nivel puede usar como evidencia una nota que podría
+    describir una vulneración de derechos. Para verlas todas, `Observacion.todas`.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(captura__estado="en_resguardo")
+
+
 class Observacion(models.Model):
     class Estado(models.TextChoices):
         PENDIENTE = "pendiente", "Pendiente de revisión"
         ACEPTADA = "aceptada", "Aceptada"
         DESCARTADA = "descartada", "Descartada"
+
+    objects = ObservacionManager()
+    todas = models.Manager()
 
     captura = models.ForeignKey(Captura, on_delete=models.CASCADE, related_name="observaciones")
     nino = models.ForeignKey(
@@ -511,6 +529,46 @@ class Observacion(models.Model):
     def __str__(self):
         quien = self.nino or self.nombre_detectado or "grupo"
         return f"{quien} {self.fecha:%Y-%m-%d}: {self.cita[:40]}"
+
+
+class AvisoProteccion(models.Model):
+    """Aviso de que una captura podría describir una vulneración de derechos (PLAN.md, Task 13).
+
+    Kimün no detecta ni califica: solo avisa. Lo ven la educadora del curso y la directora
+    del jardín (`permisos.avisos_que_ve`). Mientras exista y no se descarte, la captura queda
+    en resguardo, sin observaciones y fuera de toda evaluación.
+    """
+
+    class Senal(models.TextChoices):
+        RELATO = "relato", "Relato del niño o niña"
+        FISICO = "fisico", "Indicador físico"
+        PSICOLOGICO = "psicologico", "Maltrato psicológico"
+        NEGLIGENCIA = "negligencia", "Negligencia"
+        SEXUAL = "sexual", "Contenido sexual"
+        OTRA = "otra", "Otra"
+
+    class Estado(models.TextChoices):
+        PENDIENTE = "pendiente", "Pendiente"
+        PROTOCOLO = "protocolo", "Se informó a la directora / se activó el protocolo"
+        NO_ES = "no_es", "No es una vulneración"
+
+    captura = models.OneToOneField(Captura, on_delete=models.CASCADE, related_name="aviso_proteccion")
+    senal = models.CharField(max_length=12, choices=Senal.choices, default=Senal.OTRA)
+    estado = models.CharField(max_length=10, choices=Estado.choices, default=Estado.PENDIENTE)
+    motivo = models.TextField(blank=True, help_text='Obligatorio al marcar "No es una vulneración".')
+    resuelto_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="avisos_resueltos",
+    )
+    resuelto_en = models.DateTimeField(null=True, blank=True)
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-creado"]
+        verbose_name = "aviso de protección"
+        verbose_name_plural = "avisos de protección"
+
+    def __str__(self):
+        return f"Aviso #{self.pk} ({self.get_estado_display()})"
 
 
 # --- Niveles -------------------------------------------------------------------

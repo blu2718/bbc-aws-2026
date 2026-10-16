@@ -278,7 +278,7 @@ Estado al viernes 16 de octubre, 00:05:
 | 10. Calidad de prompts | Hecha (`manage.py evaluar`, también con audios) |
 | 11. Demo final y pitch | Viernes |
 | 12. Vista de la directora | Hecha (PR #9) |
-| 13. Protección de derechos | Sin empezar |
+| 13. Protección de derechos | Hecha: aviso a la educadora y la directora, captura en resguardo y fuera de toda evaluación, set de 6 notas en `manage.py evaluar --proteccion`. Falta el protocolo de Integra (pregunta 9) |
 
 ### Task 1: Esqueleto Django, modelo de datos y datos de demo
 

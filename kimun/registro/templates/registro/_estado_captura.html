@@ -37,6 +37,17 @@ este bloque. La ordena `procesar_capturas` en segundo plano: la página nunca es
       <p class="aviso" role="status">No encontré sucesos de niños o niñas en este registro. Prueba contando qué hizo o dijo cada uno.</p>
     {% endif %}
 
+  {% elif en_resguardo %}
+    {# Task 13: sin texto, sin nombres y sin calificar. El detalle está en la página del aviso. #}
+    <div class="aviso-proteccion" role="status">
+      <p><strong>Este registro quedó en resguardo.</strong> No se usará para evaluar.</p>
+      {% if aviso_visible %}
+        <p><a href="{% url 'aviso' aviso_visible.pk %}">Ver el aviso y qué hacer</a></p>
+      {% else %}
+        <p>La educadora del curso y la directora del jardín ya lo pueden ver.</p>
+      {% endif %}
+    </div>
+
   {% elif captura.estado == "error" or atascada %}
     {# El detalle del error queda en el log y en el panel de administración (como en views_captura.py). #}
     <div class="aviso-error" role="alert">

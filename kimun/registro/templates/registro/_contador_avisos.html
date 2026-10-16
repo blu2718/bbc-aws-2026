@@ -1,0 +1,4 @@
+{# Avisos de protección por atender (Task 13). Solo la cantidad: el listado y el detalle no muestran nombres ni texto fuera de la página del aviso. #}
+{% if avisos_pendientes %}
+  <li id="contador-avisos"><a href="{% url 'avisos' %}">Avisos de protección: <strong>{{ avisos_pendientes }}</strong></a></li>
+{% endif %}

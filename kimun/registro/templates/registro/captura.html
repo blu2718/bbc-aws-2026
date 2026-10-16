@@ -6,6 +6,12 @@
   <h1 id="titulo-captura" class="visualmente-oculto">Registro del {{ captura.creada|date:"j \d\e F, H:i" }}</h1>
   {% if puede_registrar %}<p class="volver"><a href="{% url 'registrar' curso.pk %}">← Nuevo registro</a></p>{% endif %}
 
+  {% if en_resguardo and not aviso_visible %}
+  <div class="burbuja">
+    {# Quien no ve el aviso (asistentes, incluida quien registró) no ve el texto (Task 13). #}
+    <p class="burbuja-pie">{{ captura.get_tipo_display }} · {{ captura.creada|date:"j \d\e F, H:i" }}</p>
+  </div>
+  {% else %}
   <div class="burbuja">
     {# Las fotos y los audios no se muestran: se borran apenas se leen y queda el texto (registro/lectura.py). #}
     {% if captura.tipo != "texto" %}
@@ -20,6 +26,7 @@
     {% endif %}
     <p class="burbuja-pie">{{ captura.autora.get_full_name|default:captura.autora.username }} · {{ captura.creada|date:"j \d\e F, H:i" }}</p>
   </div>
+  {% endif %}
 
   {% include "registro/_estado_captura.html" %}
 

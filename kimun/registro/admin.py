@@ -129,3 +129,12 @@ class PropuestaNivelAdmin(admin.ModelAdmin):
         "procesamiento_iniciado", "token_procesamiento", "intentos", "uso_modelo",
         "resuelta_por", "resuelta_en", "creada", "actualizada",
     ]
+
+
+@admin.register(models.AvisoProteccion)
+class AvisoProteccionAdmin(admin.ModelAdmin):
+    """Task 13. El listado no muestra el texto de la nota."""
+
+    list_display = ["id", "estado", "senal", "creado", "resuelto_por", "resuelto_en"]
+    list_filter = ["estado", "senal"]
+    readonly_fields = ["captura", "creado"]

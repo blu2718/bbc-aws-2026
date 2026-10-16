@@ -29,15 +29,20 @@ from django.core.management.base import BaseCommand, CommandError
 
 from registro.curriculo import leer_curriculo
 from registro.evaluacion import (
-    ALIAS_MODELOS, ResultadoNota, asignar_ninos, diferencias, emparejar_observaciones, metricas_separacion,
+    ALIAS_MODELOS, ResultadoNota, asignar_ninos, diferencias, emparejar_observaciones, metricas_proteccion,
+    metricas_separacion,
     ninos_del_curso,
 )
-from registro.ia import ClienteBedrock, ClienteTranscribe, ErrorSeparacion, ErrorTranscripcion, separar
+from registro.ia import (
+    ClienteBedrock, ClienteTranscribe, ErrorSeparacion, ErrorTranscripcion, separar, separar_completo,
+)
 from registro.management.commands.generar_audios import CARPETA_AUDIOS, texto_a_dictar
 from registro.procesamiento import frases_del_curso
 
 RUTA_SET = Path(settings.DATOS_DIR) / "eval" / "notas_separacion.json"
 RUTA_DEMO = Path(settings.DATOS_DIR) / "demo_curso.json"
+# Task 13: notas que deben (o no) marcarse como posible vulneración de derechos.
+RUTA_SET_PROTECCION = Path(settings.DATOS_DIR) / "eval" / "notas_proteccion.json"
 # Nombre base del vocabulario de Transcribe de la evaluación (los permisos del rol exigen "kimun-*").
 PREFIJO_VOCABULARIO = "kimun-eval"
 # Transcribe tarda unos 10-30 s por audio; se transcriben varios a la vez.
@@ -129,10 +134,16 @@ class Command(BaseCommand):
         )
         parser.add_argument("--audios", default=str(CARPETA_AUDIOS), help="Carpeta con <id>.mp3 (--fuente audio).")
         parser.add_argument("--bucket", help="Bucket de Transcribe (--fuente audio). Por defecto, KIMUN_BUCKET.")
+        parser.add_argument(
+            "--proteccion", action="store_true",
+            help="Corre el set de la Task 13 (datos/eval/notas_proteccion.json): cuántas notas se marcan como posible vulneración.",
+        )
 
-    def handle(self, *args, modelos, ids, detalle, ruta_json, ruta_set, fuente, audios, bucket, **opciones):
+    def handle(self, *args, modelos, ids, detalle, ruta_json, ruta_set, fuente, audios, bucket, proteccion=False, **opciones):
         self.verbosity = opciones.get("verbosity", 1)
         crear_cliente = opciones.get("crear_cliente") or (lambda modelo: ClienteBedrock(modelo=modelo))
+        if proteccion:
+            return self._proteccion(crear_cliente, modelos)
         conjunto = _leer(ruta_set)
         notas = conjunto["notas"]
         if ids:
@@ -276,3 +287,29 @@ class Command(BaseCommand):
         }
         Path(ruta).write_text(json.dumps(salida, ensure_ascii=False, indent=2, default=_como_json), encoding="utf-8")
         self.stdout.write(f"Resultados guardados en {ruta}")
+
+
+    def _proteccion(self, crear_cliente, modelos):
+        """Task 13: corre `datos/eval/notas_proteccion.json` y cuenta lo marcado (sin escribir el texto de las notas)."""
+        notas = _leer(RUTA_SET_PROTECCION)["notas"]
+        nombres = [n["nombre"] for n in _leer(RUTA_DEMO)["ninos"]]
+        catalogo = leer_curriculo()
+        for pedido in [ALIAS_MODELOS.get(m, m) for m in modelos] if modelos else [None]:
+            cliente = crear_cliente(pedido)
+            pares = []
+            for nota in notas:
+                try:
+                    senal = separar_completo(nota["texto"], nota["fecha_captura"], nombres, catalogo, cliente=cliente).senal
+                except ErrorSeparacion as error:
+                    self.stderr.write(f"{nota['id']}: error: {error}")
+                    senal = None
+                pares.append((nota, senal))
+                esperado = "marcar" if nota["marcar"] else "no marcar"
+                obtenido = f"marcada ({senal})" if senal else "no marcada"
+                self.stdout.write(f"{nota['id']} ({esperado}): {obtenido}")
+            m = metricas_proteccion(pares)
+            modelo = getattr(cliente, "modelo", pedido) or "modelo"
+            self.stdout.write(
+                f"{modelo}: positivas marcadas {m['positivas_marcadas'].aciertos}/{m['positivas_marcadas'].total} (meta: todas), "
+                f"negativas marcadas por error {m['negativas_marcadas'].aciertos}/{m['negativas_marcadas'].total}"
+            )
