@@ -16,7 +16,7 @@ from datetime import date
 from django.utils import timezone
 from django.db.models import OuterRef, Prefetch, Subquery
 
-from .alertas import DIAS_DATOS_RECIENTES, EstadoDatos, tabla_del_curso
+from .alertas import DIAS_DATOS_RECIENTES, EstadoDatos, tabla_del_curso, texto_nivel_general
 from .avanzar import ParaAvanzar, manifestaciones_por_oa, para_avanzar
 from .cobertura import CoberturaOA, cobertura_del_nino
 from .forms import FijarNivelForm, etiqueta_nivel
@@ -90,6 +90,11 @@ class Ficha:
     nino: Nino
     nucleos: list[NucleoFicha]  # en el orden de Nucleo
     puede_validar: bool
+
+    @property
+    def texto_nivel_general(self) -> str:
+        """Promedio de los núcleos con nivel validado ("4,4"), como referencia. Igual que en la tabla del curso."""
+        return texto_nivel_general([nf.actual.nivel if nf.actual else None for nf in self.nucleos])
 
     def nucleo(self, sigla: str) -> NucleoFicha:
         for nf in self.nucleos:

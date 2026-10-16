@@ -473,6 +473,9 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 
 .estado-captura { display: flex; flex-direction: column; gap: .9rem; }
 .resumen-captura { margin: 0; font-size: .9rem; color: var(--pico-muted-color); }
+/* Nivel general: promedio de los núcleos, solo como referencia (curso.html y ficha.html). */
+.etiqueta-referencia { display: inline-block; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--pico-muted-color); font-size: .75rem; font-weight: 400; line-height: 1.4; }
+.nivel-general-ficha { margin: 0 0 .75rem; }
 /* Propuestas de nivel por decidir (curso.html). */
 .bandeja-propuestas { margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
 .bandeja-propuestas h2 { margin: 0 0 .35rem; font-size: 1.1rem; color: var(--kimun-tinta); }

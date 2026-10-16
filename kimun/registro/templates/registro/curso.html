@@ -120,6 +120,7 @@
     «Observar» cuando el niño o niña está 2 niveles bajo la referencia y «Revisar» cuando está más de 2 niveles bajo ella.
     La referencia principal es la mediana del curso; la otra es el nivel esperado según su semestre en el curso.
     «Sin datos» o «Datos de hace N días» indican que conviene registrar observaciones recientes (más de {{ dias_datos_recientes }} días sin observaciones aceptadas).
+    Bajo cada nombre, el nivel general es el promedio de sus núcleos: es solo una referencia, porque el nivel se decide por núcleo.
   </p>
   <div class="overflow-auto">
     <table class="tabla-curso">
@@ -138,6 +139,7 @@
               <small>
                 {% if fila.semestre %}Semestre {{ fila.semestre }}{% else %}Sin semestres configurados{% endif %}{% if fila.nivel_esperado %} · se espera {{ fila.nivel_esperado }}{% endif %}
               </small>
+              <small class="nivel-general">Nivel general {{ fila.texto_nivel_general }} <span class="etiqueta-referencia">referencia</span></small>
             </th>
             {% for celda in fila.celdas %}
               <td>
