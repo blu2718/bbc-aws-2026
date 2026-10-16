@@ -159,7 +159,8 @@ Ordenado por impacto en la demo:
 | 4 | Desborde «procesando»: `.procesando p { white-space: normal }` | `fix(suceso)` | hecho |
 | 5a | Task 13: avisos en `.tarjeta` con `.lista-enlaces` y píldora «Por atender»; aviso con `.aviso-proteccion` (borde rojo, pasos numerados `.pasos`), la nota en `.cita-nota`, el formulario de resolver en tarjeta con «No es una vulneración» como botón de borde; protocolo con `.encabezado-pagina`, formulario en tarjeta; resguardo en el suceso como caja roja suave | `style(proteccion)` | hecho, tests `test_proteccion` y `test_protocolo` pasan |
 | 5b | Vista del jardín: `.encabezado-pagina` con el protocolo como botón de borde, sugerencias y tabla en `.tarjeta`, explicación en `<details class="como-leer">`, estilos en línea movidos a `registro.css` (`body.pagina-tabla`) | `style(jardin)` | hecho, `test_jardin` pasa |
-| 5c | Curso, bandeja, informe, inicio | | pendiente |
+| 5c | Tabla del curso: acciones como botones (una primaria), cada sección en `.tarjeta`, resúmenes como `.aviso`/`.mensaje-ok`, explicaciones en `como-leer`, estilos en línea movidos a `registro.css`. Orden de secciones sin cambiar: `test_frecuencia` corta el HTML entre `titulo-frecuencia` y `titulo-tabla` | `style(curso)` | hecho, tests de vistas, frecuencia, propuestas, metas y bordes pasan |
+| 5d | Bandeja, informe, inicio, revisión, metas | | pendiente |
 | 6 | Títulos de revisión | | pendiente |
 
 Pantallas para mirar primero: registrar y suceso (celular), tabla del curso, vista del jardín, aviso de protección.
