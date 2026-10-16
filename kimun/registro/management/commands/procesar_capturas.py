@@ -10,6 +10,7 @@ con Transcribe (requiere `KIMUN_BUCKET`).
 La lógica está en `registro/procesamiento.py`. Los tests pasan clientes falsos de
 Bedrock y Transcribe con `call_command(..., cliente=..., transcriptor=...)`.
 """
+import math
 import time
 
 from django.core.management.base import BaseCommand, CommandError
@@ -40,8 +41,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, una_vez, intervalo, reintentar, **opciones):
-        if intervalo <= 0:
-            raise CommandError("--intervalo debe ser mayor que 0.")
+        if not math.isfinite(intervalo) or intervalo <= 0:
+            raise CommandError("--intervalo debe ser finito y mayor que 0.")
         # Un solo cliente para todo el proceso. boto3 se importa recién en la primera llamada.
         cliente = opciones.get("cliente") or ClienteBedrock()
         transcriptor = opciones.get("transcriptor") or ClienteTranscribe()

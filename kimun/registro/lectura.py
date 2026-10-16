@@ -126,12 +126,17 @@ def texto_para_separar(captura, cliente=None, transcriptor=None, ninos=None):
         return captura.texto_original or captura.texto_extraido
     if captura.texto_extraido.strip():
         borrar_archivo(captura)  # por si el borrado anterior falló
-        return captura.texto_extraido
-    if captura.tipo == Captura.Tipo.FOTO:
-        return _texto_de_foto(captura, cliente)
-    if captura.tipo == Captura.Tipo.AUDIO:
-        return _texto_de_audio(captura, transcriptor, ninos)
-    raise ArchivoInvalido(f"Tipo de captura desconocido: {captura.tipo!r}.")
+        texto = captura.texto_extraido
+    elif captura.tipo == Captura.Tipo.FOTO:
+        texto = _texto_de_foto(captura, cliente)
+    elif captura.tipo == Captura.Tipo.AUDIO:
+        texto = _texto_de_audio(captura, transcriptor, ninos)
+    else:
+        raise ArchivoInvalido(f"Tipo de captura desconocido: {captura.tipo!r}.")
+    # La nota que acompaña al archivo y las respuestas a la pregunta también
+    # son evidencia. Combinarlas al leer, sin alterar la transcripción guardada,
+    # evita duplicarlas en cada reintento.
+    return "\n\n".join(parte for parte in (texto, captura.texto_original.strip()) if parte)
 
 
 __all__ = [

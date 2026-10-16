@@ -95,7 +95,7 @@ def curso(request, curso_id):
         "tabla": tabla,
         "quincena": quincena,
         "es_quincena_actual": quincena == actual,
-        "quincena_anterior": quincena.anterior(),
+        "quincena_anterior": quincena.anterior() if quincena.inicio > date.min else None,
         "quincena_siguiente": None if quincena == actual else quincena.siguiente(),
         "cobertura_quincena": cobertura,
         "nucleos_sin_observaciones": [c.nucleo for c in cobertura if c.sin_observaciones],

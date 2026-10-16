@@ -39,7 +39,9 @@
     Quincena del {{ quincena.inicio|date:"j" }} al {{ quincena.fin|date:"j \d\e F \d\e Y" }}{% if es_quincena_actual %} (actual){% endif %}
   </h2>
   <nav class="navegacion-quincena" aria-label="Quincenas">
-    <a href="?quincena={{ quincena_anterior.inicio|date:'Y-m-d' }}">← Quincena anterior ({{ quincena_anterior.inicio|date:"j" }} al {{ quincena_anterior.fin|date:"j \d\e F" }})</a>
+    {% if quincena_anterior %}
+      <a href="?quincena={{ quincena_anterior.inicio|date:'Y-m-d' }}">← Quincena anterior ({{ quincena_anterior.inicio|date:"j" }} al {{ quincena_anterior.fin|date:"j \d\e F" }})</a>
+    {% endif %}
     {% if quincena_siguiente %}
       <a href="?quincena={{ quincena_siguiente.inicio|date:'Y-m-d' }}">Quincena siguiente ({{ quincena_siguiente.inicio|date:"j" }} al {{ quincena_siguiente.fin|date:"j \d\e F" }}) →</a>
       <a href="{{ request.path }}">Volver a la quincena actual</a>

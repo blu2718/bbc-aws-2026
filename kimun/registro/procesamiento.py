@@ -247,7 +247,10 @@ def procesar_si_pendiente(captura, cliente=None):
 def reintentar_desde_la_pagina(captura):
     """Devuelve a pendiente una captura con error o atascada en procesando. True si cambió."""
     if esta_atascada(captura):
-        return _procesables().filter(pk=captura.pk, estado=Captura.Estado.PROCESANDO).update(
+        return _procesables().filter(
+            pk=captura.pk, estado=Captura.Estado.PROCESANDO,
+            actualizada=captura.actualizada, intentos=captura.intentos,
+        ).update(
             estado=Captura.Estado.PENDIENTE, actualizada=timezone.now()
         ) == 1
     return reintentar(captura)

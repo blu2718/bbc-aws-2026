@@ -2,6 +2,7 @@ from datetime import date
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.test import override_settings
 
 from registro.models import (
     Captura,
@@ -14,6 +15,13 @@ from registro.models import (
     Observacion,
     Rubrica,
 )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _passwords_de_prueba(django_test_environment):
+    """Las contraseñas ficticias no necesitan el costo del hasher de producción."""
+    with override_settings(PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]):
+        yield
 
 
 def _usuario(nombre):

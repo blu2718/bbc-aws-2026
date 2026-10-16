@@ -56,7 +56,7 @@ def _recientes(curso, usuario):
 @require_http_methods(["GET", "POST"])
 def registrar(request, curso_id):
     curso = get_object_or_404(cursos_donde_registra(request.user).select_related("jardin"), pk=curso_id)
-    form = RegistroForm(request.POST or None, request.FILES or None)
+    form = RegistroForm(request.POST if request.method == "POST" else None, request.FILES or None)
     if request.method == "POST" and form.is_valid():
         captura = form.guardar(curso, request.user)
         return redirect("captura", captura_id=captura.pk)
