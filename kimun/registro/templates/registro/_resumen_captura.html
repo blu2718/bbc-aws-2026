@@ -7,23 +7,23 @@ actualizan solas y este resumen quedaría desfasado.
 {% with r=resumen %}
   <section class="resumen-nota" aria-labelledby="titulo-resumen-{{ captura.pk }}" role="status">
     <h2 id="titulo-resumen-{{ captura.pk }}">
-      De esta nota saqué {{ r.observaciones }} observaci{{ r.observaciones|pluralize:"ón,ones" }}{% if r.nucleos %} en {{ r.nucleos|length }} núcleo{{ r.nucleos|length|pluralize }}{% endif %}
+      De esta nota saqué <span class="cifra">{{ r.observaciones }}</span> observaci{{ r.observaciones|pluralize:"ón,ones" }}{% if r.nucleos %} en <span class="cifra">{{ r.nucleos|length }}</span> núcleo{{ r.nucleos|length|pluralize }}{% endif %}
     </h2>
     <ul class="resumen-nota-lista">
       {% for l in r.lineas %}
         <li>
           {% if l.obs.nino %}
-            <a href="#obs-{{ l.obs.pk }}"><span class="avatar avatar-chico" aria-hidden="true" style="--fondo-avatar: {{ l.obs.nino.nombre|color_avatar }}">{{ l.obs.nino.nombre|iniciales }}</span>{{ l.obs.nino.nombre }}</a>
+            <a href="#obs-{{ l.obs.pk }}"><span class="avatar avatar-resumen" aria-hidden="true" style="--fondo-avatar: {{ l.obs.nino.nombre|color_avatar }}">{{ l.obs.nino.nombre|iniciales }}</span>{{ l.obs.nino.nombre }}</a>
           {% else %}
-            <a href="#obs-{{ l.obs.pk }}" class="sin-asignar"><span class="avatar avatar-chico" aria-hidden="true">?</span>«{{ l.obs.nombre_detectado|default:"sin nombre" }}»: elegir a quién corresponde</a>
+            <a href="#obs-{{ l.obs.pk }}" class="sin-asignar"><span class="avatar avatar-resumen" aria-hidden="true">?</span>«{{ l.obs.nombre_detectado|default:"sin nombre" }}»: elegir a quién corresponde</a>
           {% endif %}
-          <small>{% for n in l.nucleos %}{{ n.nombre }}{% if not forloop.last %} · {% endif %}{% empty %}Sin núcleo identificado{% endfor %}</small>
+<small class="chips-nucleo">{% for n in l.nucleos %}<span class="chip-nucleo nucleo-{{ n.sigla }}">{{ n.nombre }}</span>{% empty %}Sin núcleo identificado{% endfor %}</small>
         </li>
       {% endfor %}
       {% if r.del_curso %}
         <li>
-          <a href="#curso-{{ captura.pk }}-titulo"><span class="avatar avatar-chico avatar-curso" aria-hidden="true">✱</span>Todo el curso ({{ r.del_curso }} niño{{ r.del_curso|pluralize:"s" }})</a>
-          <small>{% for n in r.nucleos_del_curso %}{{ n.nombre }}{% if not forloop.last %} · {% endif %}{% empty %}Sin núcleo identificado{% endfor %}</small>
+          <a href="#curso-{{ captura.pk }}-titulo"><span class="avatar avatar-resumen avatar-curso" aria-hidden="true">✱</span>Todo el curso ({{ r.del_curso }} niño{{ r.del_curso|pluralize:"s" }})</a>
+          <small class="chips-nucleo">{% for n in r.nucleos_del_curso %}<span class="chip-nucleo nucleo-{{ n.sigla }}">{{ n.nombre }}</span>{% empty %}Sin núcleo identificado{% endfor %}</small>
         </li>
       {% endif %}
       {% if r.grupales %}

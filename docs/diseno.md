@@ -103,6 +103,7 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 | Botones | `button`, `[role=button]` (primario celeste), `.secondary` (gris), `.secondary.outline` (borde); `.botones-enlace a` / `a.principal` cuando el `<a>` no puede llevar atributos | Uno primario por bloque |
 | Botón ícono | `.boton-icono` | Círculo de 2,75 rem (área táctil de 44 px) |
 | Chips de estado | `.chip-estado` + `.chip-<estado>` (pendiente/solicitada amarillo, procesando/preparando celeste con punto que late, procesada/lista/aceptada verde, error/en_resguardo rojo) | Segunda pasada. Punto de color + texto; el latido se apaga con movimiento reducido |
+| Chip de núcleo | `.chip-nucleo.nucleo-<SIGLA>` | Punto `--nucleo` + nombre en tinta sobre `--nucleo-suave` |
 | Etiquetas de estado | `.estado-obs` (+ `.estado-pendiente`, `.estado-aceptada`), `.efecto-*`, `.apoyo`, `.etiqueta-referencia`, `.etiqueta-provisoria`, `.etiqueta-sin-evidencia` | Píldoras con texto |
 | Señales | `.senal` + `.senal-aviso` / `.senal-alerta` | Caja con borde izquierdo de color y texto |
 | Alertas | `.aviso` (amarilla), `.aviso-error` (roja), `.aviso-proteccion` (roja, Task 13), `.mensajes` (celeste) | |
@@ -152,6 +153,11 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   otras dos son recordatorio, sin aspecto de botón. Enviar pasa a azul con flecha blanca (la acción principal
   de la app, 7,3:1); en celular los botones de la barra miden 48 px y el texto 17 px (sin zoom en iOS). Los
   registros recientes muestran su estado como chip.
+- **«De esta nota saqué…»** pasa de caja celeste a tarjeta blanca con borde superior celeste (es el resultado
+  de la nota, no un aviso). Las cifras del título van en Fredoka sobre celeste suave (`.cifra`). Cada niño es
+  una fila con avatar de 2,6 rem, nombre en tinta y negrita y una flecha «↓» que dice que lleva a su tarjeta
+  más abajo; los núcleos son chips del color del núcleo. Si un niño sale en dos observaciones aparece dos
+  veces, como antes: agruparlo pedía tocar `pantallas.resumen_captura`.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -251,6 +257,7 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 |---|---|---|---|
 | 0 | `git merge origin/main`: conflictos en aviso, curso, informe y protocolo, todos de texto o clases; se conservaron ambos lados. La compactación de `.tabla-curso` que main traía en `<style>` se movió a `registro.css` | merge | hecho; tests de instrumentos, historial, informe, vistas, protección, protocolo, revisión y frecuencia pasan (211) |
 | 1 | Gráfico de flor, nivel general y escalones por núcleo; Fredoka y colores por núcleo | `style(ficha): flor` | hecho; `test_ficha`, `test_perfil`, `test_vistas`, `test_instrumentos` pasan |
+| 3 | Resumen de la nota: tarjeta, cifras destacadas, una fila por niño con avatar grande y chips de núcleo | `style(resumen)` | hecho; `test_registrar`, `test_capturas`, `test_revision`, `test_vistas` pasan |
 | 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
 
 ## Cómo seguir

@@ -604,14 +604,26 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .bandeja-lista a { display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem; border-radius: .7rem; background: #fff; text-decoration: none; color: inherit; }
 .bandeja-lista a:hover, .bandeja-lista a:focus-visible { background: var(--kimun-celeste-suave); }
 .bandeja-lista small { display: block; color: var(--pico-muted-color); }
-/* "De esta nota saqué…" (_resumen_captura.html). */
-.resumen-nota { padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
-.resumen-nota h2 { margin: 0 0 .5rem; font-size: 1.05rem; color: var(--kimun-tinta); }
-.resumen-nota-lista { display: grid; gap: .45rem; margin: 0 0 .5rem; padding: 0; }
-.resumen-nota-lista li { list-style: none; margin: 0; }
-.resumen-nota-lista a { display: inline-flex; align-items: center; gap: .45rem; font-weight: 600; }
-.resumen-nota-lista small { display: block; margin-left: 2.55rem; color: var(--pico-muted-color); font-size: .82rem; }
-.resumen-nota .ayuda { margin: 0; }
+/* "De esta nota saqué…" (_resumen_captura.html): cada niño es una fila con su avatar grande, su nombre y
+   los núcleos como chips del color de cada núcleo. Las cifras del título en Fredoka. */
+.resumen-nota { padding: 1rem 1.1rem; border: 1px solid var(--kimun-celeste-borde); border-top: .3rem solid var(--kimun-celeste); border-radius: var(--kimun-radio); background: #fff; box-shadow: var(--kimun-sombra); }
+.resumen-nota h2 { margin: 0 0 .75rem; font-size: 1.15rem; line-height: 1.35; color: var(--kimun-tinta); }
+.resumen-nota .cifra { display: inline-block; min-width: 1.6em; padding: 0 .3em; border-radius: .5em; background: var(--kimun-celeste-suave); color: var(--kimun-azul); font-size: 1.35em; line-height: 1.2; text-align: center; }
+.resumen-nota-lista { display: grid; gap: 0; margin: 0 0 .6rem; padding: 0; }
+.resumen-nota-lista li { list-style: none; margin: 0; padding: .55rem 0; border-top: 1px solid var(--kimun-linea); }
+.resumen-nota-lista li:first-child { border-top: 0; padding-top: 0; }
+.resumen-nota-lista a { display: inline-flex; align-items: center; gap: .65rem; color: var(--kimun-tinta); font-size: 1.05rem; font-weight: 700; text-decoration: none; }
+.resumen-nota-lista a:hover, .resumen-nota-lista a:focus-visible { color: var(--kimun-azul); text-decoration: underline; }
+/* Lleva a su tarjeta, más abajo en la misma página. */
+.resumen-nota-lista a::after { content: "↓"; margin-left: -.2rem; color: var(--kimun-azul); font-weight: 400; }
+.resumen-nota-lista a.sin-asignar { color: var(--kimun-aviso-texto); font-weight: 600; }
+.avatar-resumen { width: 2.6rem; height: 2.6rem; font-size: .9rem; }
+.resumen-nota-lista small { display: flex; flex-wrap: wrap; gap: .3rem; margin: .3rem 0 0 3.25rem; color: var(--pico-muted-color); font-size: .8rem; }
+/* Chip de núcleo: punto del color del núcleo y su nombre en tinta (el color nunca va solo). */
+.chip-nucleo { display: inline-flex; align-items: center; gap: .35rem; padding: .1rem .55rem; border-radius: 999px; background: var(--nucleo-suave); color: var(--kimun-tinta); font-weight: 600; }
+.chip-nucleo::before { content: ""; flex: none; width: .5rem; height: .5rem; border-radius: 50%; background: var(--nucleo); }
+.resumen-nota .ayuda { margin: 0; padding-top: .6rem; border-top: 1px solid var(--kimun-linea); }
+
 .procesando { padding: .85rem 1rem; border: 1px dashed var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: #fff; }
 /* Pico pone white-space: nowrap a todo [aria-busy=true]: el texto largo desbordaba la página en celular. */
 .procesando p { margin: 0; white-space: normal; }
