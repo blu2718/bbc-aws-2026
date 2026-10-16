@@ -1,7 +1,7 @@
 {% comment %}
 Resultado de una captura (diseno-interfaz.jpg, pantalla II): una tarjeta por niño o niña y las notas sobre el curso.
-Mientras está pendiente, HTMX pide `captura_procesar` al cargar y reemplaza este bloque con el resultado.
-Con `esperar` (otro proceso la está ordenando) vuelve a preguntar en 2 segundos.
+Mientras está pendiente o procesando, HTMX pide `captura_estado` cada 2 segundos (3 en audio) y reemplaza
+este bloque. La ordena `procesar_capturas` en segundo plano: la página nunca espera a Bedrock.
 {% endcomment %}
 <div id="estado-captura" class="estado-captura">
   {% if captura.estado == "procesada" %}
@@ -67,23 +67,16 @@ Con `esperar` (otro proceso la está ordenando) vuelve a preguntar en 2 segundos
     </div>
 
   {% else %}
-    {# Un audio lo transcribe el proceso de fondo (Transcribe tarda más que el timeout de la página): aquí solo se espera y se vuelve a preguntar. #}
+    {# Todo lo ordena el proceso de fondo (Bedrock y Transcribe tardan más que el timeout de la página): aquí solo se vuelve a preguntar. #}
     <div class="procesando" role="status" aria-live="polite"
-         {% if puede_registrar %}hx-post="{% url 'captura_procesar' captura.pk %}" hx-trigger="load{% if esperar %} delay:{% if captura.tipo == 'audio' %}3{% else %}2{% endif %}s{% endif %}" hx-target="#estado-captura" hx-swap="outerHTML"{% endif %}>
+         hx-get="{% url 'captura_estado' captura.pk %}" hx-trigger="load delay:{% if captura.tipo == 'audio' %}3{% else %}2{% endif %}s" hx-target="#estado-captura" hx-swap="outerHTML">
       {% if captura.tipo == "audio" %}
         <p aria-busy="true">Transcribiendo el audio y ordenando el registro. Suele tardar entre 15 y 30 segundos…</p>
       {% else %}
         <p aria-busy="true">Ordenando el registro: separo lo que pasó con cada niño y lo relaciono con sus OA…</p>
       {% endif %}
     </div>
-    {% if puede_registrar %}
-      <noscript>
-        <form method="post" action="{% url 'captura_procesar' captura.pk %}">
-          {% csrf_token %}
-          <button type="submit">Ordenar ahora</button>
-        </form>
-      </noscript>
-    {% endif %}
+    <noscript><p><a href="{% url 'captura' captura.pk %}">Actualizar</a></p></noscript>
   {% endif %}
   {% include "registro/_perfiles_mencionados.html" %}
 </div>

@@ -40,6 +40,7 @@ Recibe `del_curso` ([pantallas.TarjetaSuceso]) y `captura`.
         <form method="post" action="{% url 'captura_aceptar_todas' captura.pk %}">
           {% csrf_token %}
           <input type="hidden" name="vista" value="suceso">
+          <input type="hidden" name="alcance" value="curso">
           <button type="submit">Aceptar para todo el curso</button>
         </form>
         <a role="button" class="secondary outline" href="{% url 'revision' captura.curso_id %}#captura-{{ captura.pk }}">Revisar niño por niño</a>

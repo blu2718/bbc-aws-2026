@@ -22,6 +22,7 @@ from .forms import FijarNivelForm, etiqueta_nivel
 from .grafico import Evolucion, evolucion_del_nino
 from .models import DescriptorNivel, NivelValidado, Nino, Nucleo, Observacion, PropuestaNivel, Rubrica
 from .permisos import puede_validar
+from .propuestas import niveles_completos
 
 AVISOS_DATOS = {
     EstadoDatos.SIN_DATOS: "Sin observaciones aceptadas en este núcleo",
@@ -64,6 +65,7 @@ class NucleoFicha:
     validacion_propuesta: NivelValidado | None = None
     texto_validado_propuesta: str = ""
     error_propuesta: str = ""
+    rubrica_completa: bool = True                 # sin ella no se pueden pedir propuestas
 
     @property
     def pasos_sugeridos(self) -> str:
@@ -233,5 +235,6 @@ def armar_ficha(nino, usuario, hoy=None, formularios=None, formularios_propuesta
             propuesta=propuesta, texto_propuesto=texto_propuesto, evidencia_propuesta=evidencia_propuesta,
             form_propuesta=form_propuesta, validacion_propuesta=validacion_propuesta,
             texto_validado_propuesta=texto_validado, error_propuesta=errores_propuesta.get(nucleo.sigla, ""),
+            rubrica_completa=niveles_completos(del_nucleo, nivel_maximo),
         ))
     return Ficha(nino=nino, nucleos=resultado, puede_validar=valida)

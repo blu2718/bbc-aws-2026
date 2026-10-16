@@ -186,7 +186,8 @@ def descartar_observacion(request, obs_id):
 @require_POST
 def aceptar_todas_captura(request, captura_id):
     captura = get_object_or_404(Captura.objects.filter(curso__in=cursos_que_valida(request.user)), pk=captura_id)
-    aceptadas, sin_nino = aceptar_todas(captura)
+    # La tarjeta "Todo el curso" acepta solo esas observaciones; la revisión, todas las de la captura.
+    aceptadas, sin_nino = aceptar_todas(captura, solo_del_curso=request.POST.get("alcance") == "curso")
     texto = "Se aceptó 1 observación." if aceptadas == 1 else f"Se aceptaron {aceptadas} observaciones."
     if sin_nino == 1:
         texto += " 1 queda pendiente porque no tiene niño o niña asignado."

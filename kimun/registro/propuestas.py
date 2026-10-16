@@ -15,7 +15,10 @@ from django.db import connection, OperationalError, transaction
 from django.db.models import F, Q
 from django.utils import timezone
 
-from .models import DescriptorNivel, Manifestacion, Nino, NivelValidado, Nucleo, Observacion, PropuestaNivel, Rubrica, validar_nivel
+from .models import (
+    DescriptorNivel, Manifestacion, NivelEducativo, Nino, NivelValidado, Nucleo, Observacion, PropuestaNivel, Rubrica,
+    validar_nivel,
+)
 from .ia.bedrock import ClienteBedrock
 from .ia.propuesta import ErrorConfiguracionPropuesta, ErrorPropuesta, VERSION_PROMPT, leer_prompt, proponer
 
@@ -42,6 +45,18 @@ class GeneracionPropuesta:
     respuesta: dict = field(repr=False)
     modelo: str
     uso: dict
+
+
+def niveles_completos(niveles, maximo):
+    """Si hay un descriptor para cada nivel del 1 al máximo de la rúbrica."""
+    return bool(maximo) and set(range(1, maximo + 1)) <= set(niveles)
+
+
+def rubrica_completa(nivel_educativo, nucleo):
+    """Si el núcleo tiene rúbrica para proponer niveles. Sin ella la propuesta fallaría siempre."""
+    maximo = Rubrica.objects.filter(nivel_educativo=nivel_educativo).values_list("cantidad_niveles", flat=True).first()
+    niveles = DescriptorNivel.objects.filter(nivel_educativo=nivel_educativo, nucleo=nucleo).values_list("nivel", flat=True)
+    return niveles_completos(niveles, maximo)
 
 
 def _capturar_entrada(nino, nucleo, version_prompt):
@@ -82,7 +97,9 @@ def _capturar_entrada(nino, nucleo, version_prompt):
         "evidencia": evidencia,
         "oas": list(nucleo.oas.filter(nivel_educativo=educativo).order_by("numero").values("id", "numero", "texto")),
     }
-    if provisoria:
+    # La trayectoria NT1/NT2 es del Programa de Transición. En sala cuna y medio, la
+    # rúbrica provisoria se apoya en los OA del nivel, que ya van en "oas".
+    if provisoria and educativo == NivelEducativo.TRANSICION:
         entrada["trayectoria"] = {"inicio_nt1": nucleo.esperado_inicio_nt1, "continuidad": nucleo.continuidad_basica}
         entrada["manifestaciones"] = list(Manifestacion.objects.filter(
             oa__nucleo=nucleo, oa__nivel_educativo=educativo,

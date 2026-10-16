@@ -10,7 +10,7 @@ urlpatterns = [
     # Registrar un suceso y ver cómo quedó ordenado (pantallas I y II de diseno-interfaz.jpg)
     path("cursos/<int:curso_id>/registrar/", views_registro.registrar, name="registrar"),
     path("capturas/<int:captura_id>/", views_registro.captura, name="captura"),
-    path("capturas/<int:captura_id>/procesar/", views_registro.procesar, name="captura_procesar"),
+    path("capturas/<int:captura_id>/estado/", views_registro.estado, name="captura_estado"),
     path("capturas/<int:captura_id>/procesar/reintentar/", views_registro.reintentar, name="captura_reintentar_suceso"),
     path("capturas/<int:captura_id>/contexto/", views_registro.agregar_contexto, name="captura_contexto"),
     # Registro de capturas: nota escrita (Task 5), foto (Task 8) y audio (Task 9).

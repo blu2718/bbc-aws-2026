@@ -152,7 +152,7 @@ def test_cambios_invalidan_una_propuesta_lista(propuesta, observar_en, descripto
         descriptor.conducta = "Conducta actualizada"
         descriptor.save()
     elif cambio == "prompt":
-        opciones["version_prompt"] = "propuesta-v2"
+        opciones["version_prompt"] = "otra-version-del-prompt"
     else:
         propuesta.nino.alias = ["Pedrito"]
         propuesta.nino.save()

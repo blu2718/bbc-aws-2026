@@ -15,8 +15,9 @@ Puedes proponer el mismo nivel o uno diferente si la evidencia lo respalda.
 Si rubrica.origen es integra, usa sus niveles, nombres, descripciones y conductas.
 Sus ejemplos ilustran la rúbrica y NO son evidencia del niño: no los cites como
 observaciones. No apliques un mapeo provisorio por autonomía a esa rúbrica oficial.
-Si rubrica.origen es provisoria, usa su mapeo de niveles, trayectoria y conductas
-del programa NT1/NT2. Reconoce esa procedencia en la justificación.
+Si rubrica.origen es provisoria, usa su mapeo de niveles. En Transición viene con
+la trayectoria y las conductas del programa NT1/NT2; en sala cuna y nivel medio,
+con los OA del nivel (rubrica.oas_del_nivel). Reconoce esa procedencia en la justificación.
 
 Devuelve exclusivamente el uso de la herramienta proponer_nivel:
 - evidencia_suficiente: booleano.

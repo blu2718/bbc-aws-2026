@@ -1,13 +1,18 @@
 """Sala cuna (0 a 2 años) y nivel medio (2 a 4 años): OA de las Bases Curriculares, demo y procesamiento."""
+import json
 from io import StringIO
 
 import pytest
 from django.core.management import call_command
+from django.urls import reverse
 from django.utils import timezone
 
 from registro.curriculo import cargar_curriculo, leer_curriculo, leer_curriculo_de
-from registro.models import Captura, Curso, NivelEducativo, Nino, Nucleo, ObjetivoAprendizaje
-from registro.procesamiento import procesar_si_pendiente
+from registro.models import (
+    Captura, Curso, DescriptorNivel, NivelEducativo, Nino, Nucleo, ObjetivoAprendizaje, Observacion, PropuestaNivel,
+)
+from registro.propuestas import generar_propuesta, rubrica_completa
+from registro import procesamiento
 from registro.tests.test_capturas import ClienteFalso, cruda
 
 # Tabla de contexto/hallazgos-bases-curriculares.md, en el orden IA, CC, CM, LV, LA, EEN, CES, PM.
@@ -74,9 +79,66 @@ def test_una_nota_de_sala_cuna_se_separa_con_los_oa_de_sala_cuna(db, jardin, edu
     cliente = ClienteFalso({"observaciones": [cruda("Gael", "Gael balbuceó mirando a la tía.", nucleos=["LV"],
                                                     oas=["OA 1 LV"])]})
 
-    procesar_si_pendiente(captura, cliente)
+    assert procesamiento.tomar(captura.pk)
+    captura.refresh_from_db()
+    procesamiento.procesar(captura, cliente=cliente)
 
     assert "balbuceos" in cliente.llamadas[0]["system"]  # el catálogo enviado es el de sala cuna
     obs = captura.observaciones.get()
     assert obs.nino.nombre == "Gael Pino"
     assert obs.oas.get().nivel_educativo == NivelEducativo.SALA_CUNA
+
+
+# --- Propuestas de nivel con la rúbrica provisoria de sala cuna y medio ----------------------------
+
+
+@pytest.fixture
+def curso_medio(db, jardin, educadora):
+    cargar_curriculo(leer_curriculo())
+    cargar_curriculo(leer_curriculo_de(NivelEducativo.MEDIO), nivel_educativo=NivelEducativo.MEDIO)
+    return Curso.objects.create(jardin=jardin, nombre="Medio A", nivel_educativo=NivelEducativo.MEDIO,
+                                educadora=educadora)
+
+
+def test_sala_cuna_y_medio_reciben_rubrica_provisoria_sobre_sus_oa(curso_medio):
+    for nucleo in Nucleo.objects.all():
+        descriptores = DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.MEDIO, nucleo=nucleo)
+        assert sorted(descriptores.values_list("nivel", flat=True)) == list(range(1, 9))
+        assert all(d.provisorio and "OA del núcleo" in d.descripcion for d in descriptores)
+        assert rubrica_completa(NivelEducativo.MEDIO, nucleo)
+
+
+def test_una_propuesta_de_medio_usa_los_oa_del_nivel_y_no_la_trayectoria_nt1(curso_medio):
+    nino = Nino.objects.create(curso=curso_medio, nombre="Gael Pino", fecha_ingreso=timezone.localdate())
+    lv = Nucleo.objects.get(sigla="LV")
+    captura = Captura.objects.create(curso=curso_medio, autora=curso_medio.educadora, tipo=Captura.Tipo.TEXTO,
+                                     texto_original="x")
+    obs = Observacion.objects.create(captura=captura, nino=nino, fecha=timezone.localdate(), cita="Gael nombró 3 objetos.",
+                                     estado=Observacion.Estado.ACEPTADA)
+    obs.nucleos.set([lv])
+    cliente = ClienteFalso({"nivel": 2, "evidencia_suficiente": True, "observaciones_citadas": [obs.pk],
+                            "conductas_observadas": ["Nombra objetos"], "justificacion": "Rúbrica provisoria."})
+
+    generacion = generar_propuesta(nino, lv, cliente=cliente)
+
+    assert generacion.respuesta["nivel"] == 2
+    rubrica = json.loads(cliente.llamadas[0]["mensaje"])["rubrica"]
+    assert rubrica["origen"] == "provisoria" and "trayectoria" not in rubrica
+    assert [oa["oa"] for oa in rubrica["oas_del_nivel"]] == [f"OA {i} LV" for i in range(1, 9)]
+
+
+def test_sin_rubrica_completa_no_se_encolan_propuestas_que_fallarian(client, jardin, educadora, nucleos):
+    curso = Curso.objects.create(jardin=jardin, nombre="Medio B", nivel_educativo=NivelEducativo.MEDIO,
+                                 educadora=educadora)  # sin currículo cargado: sin descriptores
+    nino = Nino.objects.create(curso=curso, nombre="Gael Pino", fecha_ingreso=timezone.localdate())
+    captura = Captura.objects.create(curso=curso, autora=educadora, tipo=Captura.Tipo.TEXTO, texto_original="x")
+    obs = Observacion.objects.create(captura=captura, nino=nino, fecha=timezone.localdate(), cita="Gael saltó.")
+    obs.nucleos.set([nucleos[0]])
+    client.force_login(educadora)
+
+    client.post(reverse("observacion_aceptar", args=[obs.pk]))
+    html = client.post(reverse("solicitar_propuesta", args=[nino.pk, nucleos[0].sigla]), follow=True).content.decode()
+
+    assert not PropuestaNivel.objects.exists()
+    assert "aún no tiene una rúbrica completa" in html
+    assert reverse("solicitar_propuesta", args=[nino.pk, nucleos[0].sigla]) not in html
