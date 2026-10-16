@@ -641,6 +641,28 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 
 .lista-cursos li { margin-bottom: .5rem; }
 .lista-cursos .acciones { display: inline; }
+
+/* Salas del jardín (_salas_jardin.html): una tarjeta por sala, en grilla desde la tableta. */
+.panel-salas-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
+.panel-salas-cabecera h2 { margin: 0; }
+.panel-salas-cabecera [role="button"] { margin: 0; }
+.lista-salas { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); padding: 0; margin: .75rem 0 1.5rem; }
+.lista-salas > li { list-style: none; margin: 0; }
+.tarjeta-sala { height: 100%; margin: 0; display: flex; flex-direction: column; gap: .5rem; padding: 1rem; }
+.tarjeta-sala > header { margin: 0 0 .25rem; padding: 0 0 .5rem; }
+.tarjeta-sala h3 { margin: 0; font-size: 1.15rem; }
+.tarjeta-sala header p, .equipo-sala { margin: 0; color: var(--pico-muted-color); font-size: .9rem; }
+.tarjeta-sala > footer { margin: auto 0 0; padding: .5rem 0 0; font-size: .9rem; }
+.tarjeta-sala .senal-aviso { padding: .3rem .5rem; border-radius: .25rem; background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); border-left: .25rem solid var(--kimun-aviso-borde); font-weight: 600; }
+.atencion-sala { margin: 0; padding: .4rem .6rem .4rem 1.4rem; border-radius: .25rem; background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); border-left: .25rem solid var(--kimun-aviso-borde); font-weight: 600; font-size: .9rem; }
+.atencion-sala li { margin: 0; }
+.indicadores-sala { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem .75rem; margin: 0; }
+.indicadores-sala div { margin: 0; }
+.indicadores-sala dt { font-size: .78rem; font-weight: 400; color: var(--pico-muted-color); }
+.indicadores-sala dd { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.tarjeta-sala .ayuda { margin: 0; }
+/* Otras salas en el menú lateral */
+.menu-otras-salas small { color: var(--pico-muted-color); }
 .tarjeta-login { max-width: 24rem; margin: 2rem auto; }
 .tarjeta-login > header { text-align: center; }
 .tarjeta-login img { border-radius: 1.5rem; margin-bottom: .5rem; }

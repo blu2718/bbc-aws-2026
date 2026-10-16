@@ -16,6 +16,7 @@
     {% if puede_registrar %}<a role="button" href="{% url 'registrar' curso.pk %}">Registrar un suceso</a>{% endif %}
     {% if ficha.puede_validar %}<a role="button" class="secondary outline" href="{% url 'informe_familia' ficha.nino.pk %}">Informe para la familia</a>{% endif %}
     {% if ficha.puede_validar %}<a role="button" class="secondary outline" href="{% url 'metas' curso.pk %}">Editar metas del curso</a>{% endif %}
+    {% if puede_editar_lista %}<a role="button" class="secondary outline" href="{% url 'nino_editar' ficha.nino.pk %}">Editar sus datos</a>{% endif %}
   </p>
 </header>
 

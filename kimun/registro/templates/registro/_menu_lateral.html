@@ -31,8 +31,19 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
             {% if propuestas_por_decidir %}<li><a href="{% url 'curso' curso.pk %}#propuestas">Propuestas de nivel por decidir ({{ propuestas_por_decidir }})</a></li>{% endif %}
             <li><a href="{% url 'metas' curso.pk %}">Metas del curso</a></li>
           {% endif %}
+          {% if puede_editar_lista %}<li><a href="{% url 'ninos_sala' curso.pk %}">Niños y niñas de la sala</a></li>{% endif %}
+          {% for j in jardines %}<li><a href="{% url 'jardin' j.pk %}">Salas de {{ j.nombre }}</a></li>{% endfor %}
         </ul>
       </nav>
+
+      {% if otras_salas %}
+        <nav class="menu-seccion menu-otras-salas" aria-labelledby="titulo-otras-salas">
+          <h2 id="titulo-otras-salas">Cambiar de sala</h2>
+          <ul class="menu-secciones">
+            {% for c in otras_salas %}<li><a href="{% url 'curso' c.pk %}">{{ c.nombre }}{% if c.jardin_id != curso.jardin_id %}<small> · {{ c.jardin.nombre }}</small>{% endif %}</a></li>{% endfor %}
+          </ul>
+        </nav>
+      {% endif %}
 
       {% if presentes %}
         <section class="menu-seccion" aria-labelledby="titulo-presentes">
@@ -82,9 +93,10 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
         </ul>
         <p class="menu-ayuda" data-sin-resultados hidden>No hay niños ni niñas con ese nombre.</p>
       </section>
-    {% elif cursos %}
+    {% elif cursos or jardines %}
       <nav aria-label="Mis cursos">
         <ul class="menu-secciones">
+          {% for j in jardines %}<li><a href="{% url 'jardin' j.pk %}">Salas de {{ j.nombre }}</a></li>{% endfor %}
           {% for c in cursos %}<li><a href="{% url 'curso' c.pk %}">{{ c.nombre }}<small> · {{ c.jardin.nombre }}</small></a></li>{% endfor %}
         </ul>
       </nav>

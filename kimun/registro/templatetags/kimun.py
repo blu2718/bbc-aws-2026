@@ -12,7 +12,7 @@ from ..frecuencia import FrecuenciaCurso, frecuencia_del_curso
 from ..iconos import icono_nucleo
 from ..models import PropuestaNivel
 from ..pantallas import para_tener_presentes, texto_edad
-from ..permisos import cursos_de, cursos_donde_registra, puede_validar
+from ..permisos import cursos_de, cursos_donde_registra, jardines_que_dirige, puede_editar_lista, puede_validar
 
 register = template.Library()
 
@@ -61,6 +61,7 @@ def menu_lateral(context):
         "user": usuario,
         "csrf_token": context.get("csrf_token"),
         "cursos_por_revisar": context.get("cursos_por_revisar", []),
+        "jardines": list(jardines_que_dirige(usuario)),
     }
     if curso is None:
         visibles = list(cursos_de(usuario).select_related("jardin")[:2])
@@ -81,6 +82,9 @@ def menu_lateral(context):
         presentes=para_tener_presentes(tabla, frecuencia, ver_pendientes=valida),
         puede_validar=valida,
         puede_registrar=cursos_donde_registra(usuario).filter(pk=curso.pk).exists(),
+        puede_editar_lista=puede_editar_lista(usuario, curso),
+        # Quien está en varias salas (o la directora) cambia de sala desde el menú.
+        otras_salas=list(cursos_de(usuario).exclude(pk=curso.pk).select_related("jardin")),
         # Solo la educadora decide niveles: la bandeja está en la vista del curso.
         propuestas_por_decidir=PropuestaNivel.objects.filter(
             nino__curso=curso, estado=PropuestaNivel.Estado.LISTA,

@@ -31,10 +31,12 @@ from .permisos import (
     jardines_que_dirige,
     ninos_de,
     ninos_que_valida,
+    puede_editar_lista,
     puede_validar,
 )
 from .pantallas import historial_del_nino, propuestas_por_decidir, texto_edad
 from .radar import radar_de_la_ficha
+from .salas import panel_del_jardin
 from .revision import resumen_pendientes
 from .views_instrumentos import resultados_de_la_ficha
 
@@ -69,9 +71,12 @@ def inicio(request):
 
 @login_required
 def jardin(request, jardin_id):
-    """Resumen del jardín para su directora: promedio de cada sala por núcleo y alertas (Task 12)."""
+    """Resumen del jardín para su directora: el estado de cada sala (`salas.panel_del_jardin`) y el
+    promedio de cada sala por núcleo con sus alertas (Task 12)."""
     jardin = get_object_or_404(jardines_que_dirige(request.user), pk=jardin_id)
-    return render(request, "registro/jardin.html", {"jardin": jardin, "resumen": resumen_del_jardin(jardin)})
+    return render(request, "registro/jardin.html", {
+        "jardin": jardin, "panel": panel_del_jardin(jardin), "resumen": resumen_del_jardin(jardin),
+    })
 
 
 def _quincena_pedida(valor, hoy):
@@ -107,6 +112,7 @@ def curso(request, curso_id):
         "dias_datos_recientes": DIAS_DATOS_RECIENTES,
         "puede_validar": valida,
         "es_directora": curso.jardin.directora_id == request.user.pk,
+        "puede_editar_lista": puede_editar_lista(request.user, curso),
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=curso.pk).exists(),
         "pendientes_por_revisar": resumen_pendientes(curso)["individuales"] if valida else 0,
         # Solo la educadora decide niveles: las demás no ven la bandeja.
@@ -128,6 +134,7 @@ def _pagina_ficha(request, nino, formularios=None, formularios_propuesta=None, e
         "esperado": esperado,
         "historial": historial_del_nino(nino),
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=nino.curso_id).exists(),
+        "puede_editar_lista": puede_editar_lista(request.user, nino.curso),
         # Instrumentos estandarizados (Task 14): None si quien mira no debe verlos (asistentes).
         "instrumentos": resultados_de_la_ficha(nino, request.user),
         "obs_con_cambios": set(RegistroCambio.objects.filter(

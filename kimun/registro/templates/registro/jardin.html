@@ -20,6 +20,8 @@
 </hgroup>
 <p><a href="{% url 'protocolo_jardin' jardin.pk %}">Protocolo de protección de derechos{% if not jardin.protocolo_proteccion %} (por cargar){% endif %}</a></p>
 
+{% include "registro/_salas_jardin.html" %}
+
 {# --- Alertas --- #}
 <section aria-labelledby="titulo-alertas">
   <h2 id="titulo-alertas">Sugerencias de revisión</h2>

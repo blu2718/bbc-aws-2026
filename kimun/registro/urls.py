@@ -2,6 +2,7 @@ from django.urls import path
 
 from . import (
     views, views_captura, views_instrumentos, views_propuestas, views_proteccion, views_registro, views_revision,
+    views_salas,
 )
 
 urlpatterns = [
@@ -57,4 +58,10 @@ urlpatterns = [
     path("avisos/<int:aviso_id>/", views_proteccion.aviso, name="aviso"),
     path("avisos/<int:aviso_id>/resolver/", views_proteccion.resolver_aviso, name="aviso_resolver"),
     path("jardines/<int:jardin_id>/protocolo/", views_proteccion.protocolo_jardin, name="protocolo_jardin"),
+    # Salas del jardín: la directora las crea y les asigna el equipo; ella y la educadora mantienen la lista de niños.
+    path("jardines/<int:jardin_id>/salas/nueva/", views_salas.sala_nueva, name="sala_nueva"),
+    path("cursos/<int:curso_id>/editar/", views_salas.sala_editar, name="sala_editar"),
+    path("cursos/<int:curso_id>/ninos/", views_salas.ninos_sala, name="ninos_sala"),
+    path("cursos/<int:curso_id>/ninos/nuevo/", views_salas.nino_nuevo, name="nino_nuevo"),
+    path("ninos/<int:nino_id>/editar/", views_salas.nino_editar, name="nino_editar"),
 ]
