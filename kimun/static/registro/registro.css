@@ -474,6 +474,34 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 
 .estado-captura { display: flex; flex-direction: column; gap: .9rem; }
 .resumen-captura { margin: 0; font-size: .9rem; color: var(--pico-muted-color); }
+/* Informe para la familia (informe_familia.html): una página al imprimir. */
+.informe-acciones { margin-bottom: 1rem; }
+.informe-acciones button { margin: 0 0 .5rem; }
+.informe { max-width: 48rem; margin: 0 auto; padding: 1.25rem 1.4rem; border: 1px solid var(--kimun-linea); border-radius: var(--kimun-radio); background: #fff; box-shadow: var(--kimun-sombra); }
+.informe-cabecera { display: flex; gap: .85rem; align-items: center; margin-bottom: .75rem; }
+.informe-cabecera img { border-radius: .7rem; }
+.informe-cabecera h1 { margin: 0; font-size: 1.5rem; }
+.informe-cabecera p { margin: 0; color: var(--pico-muted-color); font-size: .9rem; }
+.informe-intro { font-size: .95rem; }
+.informe-nucleo { padding: .5rem 0; border-top: 1px solid var(--kimun-linea); break-inside: avoid; }
+.informe-nucleo h2 { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: .25rem 0; font-size: 1.05rem; color: var(--kimun-tinta); }
+.informe-nivel { margin-left: auto; font-size: .85rem; font-weight: 600; color: var(--kimun-azul); }
+.informe-nucleo p, .informe-nucleo li { margin-bottom: .2rem; font-size: .92rem; }
+.informe-nucleo ul { margin: 0 0 .3rem; }
+.informe-subtitulo { margin: .35rem 0 .1rem; font-weight: 600; font-size: .85rem !important; color: var(--kimun-azul); }
+.informe-pie { margin-top: .75rem; padding-top: .5rem; border-top: 1px solid var(--kimun-linea); font-size: .85rem; color: var(--pico-muted-color); }
+.informe-pie p { margin: 0 0 .2rem; }
+@media print {
+  @page { size: A4; margin: 12mm; }
+  .barra-app, .menu-lateral, .saltar-al-contenido, .no-imprimir, .mensajes { display: none !important; }
+  body, main.container { padding: 0 !important; margin: 0 !important; max-width: none !important; background: #fff !important; }
+  .informe { max-width: none; padding: 0; border: 0; box-shadow: none; }
+  .informe-cabecera h1 { font-size: 16pt; }
+  .informe-nucleo { padding: 3pt 0; }
+  .informe-nucleo p, .informe-nucleo li { font-size: 9.5pt; line-height: 1.3; }
+  .informe-nucleo h2 { font-size: 11pt; }
+  .informe-intro, .informe-pie { font-size: 9pt; }
+}
 /* Nivel de apoyo de cada observación en la ficha (_nucleo_ficha.html). Siempre con texto, no solo color. */
 .apoyo { display: inline-block; margin-left: .35rem; padding: 0 .5rem; border-radius: 999px; font-size: .78rem; font-weight: 600; background: var(--kimun-gris-suave); color: var(--kimun-gris-oscuro); }
 .apoyo-autonomo { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }

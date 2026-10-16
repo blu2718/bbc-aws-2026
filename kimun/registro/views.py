@@ -20,6 +20,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from .alertas import DIAS_DATOS_RECIENTES, resumen_del_jardin, tabla_del_curso
 from .cobertura import cobertura_quincena_del_curso, quincena_de
 from .ficha import armar_ficha, descriptores_del_nucleo
+from .informe import armar_informe
 from .frecuencia import frecuencia_del_curso
 from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, etiqueta_nivel, nombres_comunes
 from .models import DescriptorNivel, Nucleo, Rubrica, texto_nivel
@@ -140,6 +141,17 @@ def _parcial_nucleo(request, nino, sigla, mensaje="", formularios=None, formular
 def ficha(request, nino_id):
     nino = get_object_or_404(ninos_de(request.user).select_related("curso__jardin"), pk=nino_id)
     return _pagina_ficha(request, nino)
+
+
+@login_required
+def informe_familia(request, nino_id):
+    """Informe imprimible para la familia. Lo arma solo la educadora, con lo que ella validó (informe.py)."""
+    nino = get_object_or_404(ninos_que_valida(request.user).select_related("curso__jardin"), pk=nino_id)
+    hoy = timezone.localdate()
+    informe = armar_informe(armar_ficha(nino, request.user, hoy=hoy))
+    return render(request, "registro/informe_familia.html", {
+        "informe": informe, "curso": nino.curso, "hoy": hoy, "edad": texto_edad(nino.fecha_nacimiento, hoy),
+    })
 
 
 @login_required

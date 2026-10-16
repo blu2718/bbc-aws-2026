@@ -266,7 +266,16 @@
     });
   }
 
+  /* --- Informe para la familia: imprimir o guardar en PDF --- */
+
+  function iniciarImprimir() {
+    document.querySelectorAll("[data-imprimir]").forEach(function (boton) {
+      boton.addEventListener("click", function () { window.print(); });
+    });
+  }
+
   function iniciar() {
+    iniciarImprimir();
     iniciarMenu();
     iniciarBuscador();
     iniciarDetalles();
