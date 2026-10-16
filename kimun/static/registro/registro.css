@@ -598,14 +598,25 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 /* Nivel general: promedio de los núcleos, solo como referencia (curso.html y ficha.html). */
 .etiqueta-referencia { display: inline-block; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--pico-muted-color); font-size: .75rem; font-weight: 400; line-height: 1.4; }
 /* Propuestas de nivel por decidir (curso.html). */
-.bandeja-propuestas { margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
-.bandeja-propuestas h2 { margin: 0 0 .35rem; font-size: 1.1rem; color: var(--kimun-tinta); }
-.bandeja-propuestas .ayuda { margin: 0 0 .5rem; }
-.bandeja-lista { display: grid; gap: .4rem; margin: 0 0 .5rem; padding: 0; }
+/* Bandeja de propuestas: lo pendiente de decidir. Amarillo de «pendiente» en el borde y la cifra; cada fila
+   termina en «Decidir» para que se lea como tarea, no como información. */
+.bandeja-propuestas { margin-bottom: 1.25rem; padding: 1rem 1.1rem; border: 1px solid var(--kimun-aviso-linea); border-left: .4rem solid var(--kimun-aviso-borde); border-radius: var(--kimun-radio); background: var(--kimun-aviso-claro); box-shadow: var(--kimun-sombra); }
+.bandeja-propuestas h2 { display: flex; align-items: center; gap: .6rem; margin: 0 0 .4rem; font-size: 1.2rem; color: var(--kimun-tinta); }
+.bandeja-cuenta { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 2.2rem; height: 2.2rem; padding: 0 .5rem; border-radius: 999px; background: var(--kimun-aviso-fondo); box-shadow: inset 0 0 0 2px var(--kimun-aviso-borde); color: var(--kimun-aviso-texto); font-size: 1.15rem; }
+.bandeja-propuestas .ayuda { margin: 0 0 .6rem; }
+.bandeja-lista { display: grid; gap: .45rem; margin: 0 0 .5rem; padding: 0; }
 .bandeja-lista li { list-style: none; margin: 0; }
-.bandeja-lista a { display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem; border-radius: .7rem; background: #fff; text-decoration: none; color: inherit; }
-.bandeja-lista a:hover, .bandeja-lista a:focus-visible { background: var(--kimun-celeste-suave); }
-.bandeja-lista small { display: block; color: var(--pico-muted-color); }
+.bandeja-lista a { display: flex; align-items: center; gap: .65rem; padding: .6rem .7rem; border: 1px solid var(--kimun-linea); border-radius: .8rem; background: #fff; text-decoration: none; color: var(--kimun-tinta); }
+.bandeja-lista a:hover, .bandeja-lista a:focus-visible { border-color: var(--kimun-aviso-borde); background: #fff; }
+.bandeja-texto { flex: 1; min-width: 0; }
+.bandeja-texto .chip-nucleo { margin-left: .15rem; font-size: .78rem; vertical-align: .1em; }
+.bandeja-lista small { display: block; margin-top: .15rem; color: var(--kimun-texto-tenue); }
+.bandeja-lista small strong { color: var(--kimun-azul); }
+.bandeja-decidir { flex: none; padding: .3rem .75rem; border-radius: var(--kimun-radio); background: var(--kimun-celeste); color: var(--kimun-tinta); font-size: .85rem; font-weight: 600; }
+.bandeja-lista a:hover .bandeja-decidir, .bandeja-lista a:focus-visible .bandeja-decidir { background: var(--kimun-celeste-hover); }
+.bandeja-preparando { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; }
+/* En celular, «Decidir» se reduce a una flecha. Es decorativo (aria-hidden): el enlace ya nombra niño y núcleo. */
+@media (max-width: 479px) { .bandeja-decidir { padding: .15rem .6rem; font-size: 0; } .bandeja-decidir::before { content: "›"; font-size: 1.4rem; line-height: 1; } }
 /* "De esta nota saqué…" (_resumen_captura.html): cada niño es una fila con su avatar grande, su nombre y
    los núcleos como chips del color de cada núcleo. Las cifras del título en Fredoka. */
 .resumen-nota { padding: 1rem 1.1rem; border: 1px solid var(--kimun-celeste-borde); border-top: .3rem solid var(--kimun-celeste); border-radius: var(--kimun-radio); background: #fff; box-shadow: var(--kimun-sombra); }
