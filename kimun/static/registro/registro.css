@@ -1083,3 +1083,10 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .tabla-cambios { font-size: .9rem; }
 .tabla-cambios td:last-child { color: var(--kimun-ok); font-weight: 600; }
 .huella { margin: 0; }
+
+/* Transición corta cuando una acción de la educadora reemplaza una tarjeta (aceptar, descartar, editar una
+   observación; fijar o decidir un nivel). HTMX pone .htmx-added al contenido nuevo y la saca al asentarse:
+   la opacidad sube en 0,2 s. No se aplica a lo que se actualiza solo (polling): parpadearía cada 3 s. */
+article[id^="obs-"], .nucleo-ficha { transition: opacity .2s ease-out; }
+article[id^="obs-"].htmx-added, .nucleo-ficha.htmx-added { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { article[id^="obs-"], .nucleo-ficha { transition: none; } }

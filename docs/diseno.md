@@ -193,6 +193,10 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   `.cita-nota` en la cita, el estado como `.chip-estado` (por revisar amarillo, leyendo celeste, confirmado
   verde, descartado gris) y la verificación de integridad como píldora verde. El historial de cambios usa la
   misma línea de tiempo que la ficha; el motivo va en caja celeste y el valor «Después» en verde.
+- **Movimiento:** una sola transición, la que responde a una acción: cuando HTMX reemplaza la tarjeta de una
+  observación o el detalle de un núcleo, el contenido nuevo aparece con 0,2 s de opacidad (`.htmx-added`). No
+  se aplica a lo que se actualiza solo cada 3 s (estado del registro, propuestas en preparación): parpadearía.
+  Además, solo late el punto de los chips «procesando/en preparación». Todo se apaga con movimiento reducido.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -208,6 +212,11 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   un script propio (no versionado) que recorre las pantallas por rol y tamaño, guarda capturas e informa errores de
   consola y desbordes horizontales.
 - `run`: receta para levantar el servidor y manejarlo con un navegador sin cabeza.
+- Segunda pasada: `frontend-design` (una sola audacia por pantalla: la flor en la ficha, la cifra en la bandeja,
+  la tarjeta roja en el jardín; lo demás quieto), `dataviz` (forma, color por trabajo, paleta de núcleos
+  validada con `validate_palette.js`, segunda pista además del color, escala visible, tabla equivalente) y
+  Playwright (librería de `@playwright/cli` con el Chromium ya instalado) para capturas y para medir que las
+  etiquetas de la flor no se salgan ni se pisen.
 
 ## Diagnóstico (16-oct, capturas en `/tmp/kimun-capturas/antes/`)
 
@@ -263,7 +272,7 @@ Ordenado por impacto en la demo:
 Capturas: antes en `/tmp/kimun-capturas/antes/`, después (con el merge) en `/tmp/kimun-capturas/despues/`
 (`<celular|escritorio>-<rol>-<pantalla>.png`; `informe.json` lista errores de consola y desbordes: ninguno).
 
-Pantallas para mirar primero (las de la demo):
+Pantallas para mirar primero (primera pasada; para la segunda ver la tabla de arriba):
 1. Registrar en celular (`celular-educadora-registrar.png`) y arrastrar una foto en escritorio
    (`escritorio-educadora-registrar-arrastre.png`).
 2. Aviso de protección (`celular-educadora-aviso.png`) y avisos.
@@ -289,13 +298,14 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 |---|---|---|---|
 | 0 | `git merge origin/main`: conflictos en aviso, curso, informe y protocolo, todos de texto o clases; se conservaron ambos lados. La compactación de `.tabla-curso` que main traía en `<style>` se movió a `registro.css` | merge | hecho; tests de instrumentos, historial, informe, vistas, protección, protocolo, revisión y frecuencia pasan (211) |
 | 1 | Gráfico de flor, nivel general y escalones por núcleo; Fredoka y colores por núcleo | `style(ficha): flor` | hecho; `test_ficha`, `test_perfil`, `test_vistas`, `test_instrumentos` pasan |
+| 1b | Flor compacta: etiquetas cortas de dos líneas (nombre + nivel), núcleo más bajo marcado, figura al borde de la tarjeta | `style(ficha): etiquetas` | hecho; probado con Playwright a 390 px (Matías y Pedro); `test_ficha`, `test_perfil`, `test_vistas`, `test_revision` pasan |
+| 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
 | 3 | Resumen de la nota: tarjeta, cifras destacadas, una fila por niño con avatar grande y chips de núcleo | `style(resumen)` | hecho; `test_registrar`, `test_capturas`, `test_revision`, `test_vistas` pasan |
 | 4 | Ficha: detalle por núcleo con su color e ícono, subtítulos de tarjeta, «Qué observar después» en verde | `style(ficha): detalle` | hecho; `test_ficha`, `test_fijar_nivel`, `test_perfil`, `test_propuestas_decision`, `test_propuestas_solicitud` pasan |
 | 5 | Bandeja de propuestas como tarea pendiente: amarillo, cifra grande, «Decidir» por fila | `style(curso): bandeja` | hecho; `test_frecuencia`, `test_revision`, `test_vistas`, `test_metas`, `test_propuestas_*`, `test_bordes_integracion` pasan |
 | 6 | Jardín: tarjeta de alertas roja con cifra, filas con botón a la sala, celda de alerta destacada, tabla sin deslizar en celular | `style(jardin)` | hecho; `test_jardin`, `test_vistas`, `test_frecuencia`, `test_permisos` pasan |
 | 7 | Task 14: encabezados, tarjetas, chips de estado e historial de cambios como línea de tiempo | `style(instrumentos)` | hecho; `test_instrumentos`, `test_vistas_instrumentos`, `test_historial`, `test_ficha`, `test_revision` pasan |
-| 1b | Flor compacta: etiquetas cortas de dos líneas (nombre + nivel), núcleo más bajo marcado, figura al borde de la tarjeta | `style(ficha): etiquetas` | hecho; probado con Playwright a 390 px (Matías y Pedro); `test_ficha`, `test_perfil`, `test_vistas`, `test_revision` pasan |
-| 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
+| 8 | Transición corta (0,2 s de opacidad) al reemplazar una tarjeta por una acción (aceptar, descartar, editar, fijar o decidir nivel); no en el polling | `style(htmx)` | hecho; `test_revision`, `test_fijar_nivel` pasan |
 
 ## Cómo seguir
 
@@ -310,6 +320,14 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 2. Antes de agregar estilos, buscar en `registro.css` una clase que ya sirva (tabla de componentes de arriba).
 3. Colores: solo variables `--kimun-*`. Si falta un tono, agregarlo a `:root` con su contraste en un comentario.
 4. Nada de `<style>` en las plantillas: todo en `registro.css`, en la sección de su pantalla.
+4b. Segunda pasada, mismo estilo:
+   - Títulos (`h1`, `h2`) y cifras grandes en `--kimun-fuente-titulos` (Fredoka); párrafos nunca.
+   - Algo de un núcleo (ícono, barra, chip, borde) lleva la clase `.nucleo-<SIGLA>` y usa `--nucleo` para la
+     marca, `--nucleo-suave` para el fondo y `--nucleo-texto` si es texto de color. Siempre con el nombre.
+   - Estados con `.chip-estado.chip-<estado>`; si aparece un estado nuevo, sumarlo a la familia de color que
+     corresponda (pendiente amarillo, en proceso celeste, listo verde, error rojo).
+   - Lo pendiente de decidir en amarillo con cifra; lo que pide revisar en rojo, solo eso; el avance en verde.
+   - Una sola cosa llamativa por pantalla. Movimiento solo como respuesta a una acción.
 5. No cambiar ids, `name` de formularios, atributos `hx-*` ni URLs: las vistas y los tests dependen de ellos.
 6. Probar en 390×844 y en escritorio, y correr los tests de las vistas de las plantillas tocadas
    (`.venv/bin/pytest registro/tests/test_<vista>.py`).
