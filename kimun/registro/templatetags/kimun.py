@@ -68,12 +68,18 @@ _SECCIONES = {
 }
 
 
+def _ordenadas(cursos):
+    """Por jardín, nivel educativo (sala cuna, medio, transición) y nombre."""
+    orden = [valor for valor, _ in NivelEducativo.choices]
+    return sorted(cursos, key=lambda c: (
+        c.jardin.nombre, orden.index(c.nivel_educativo) if c.nivel_educativo in orden else len(orden), c.nombre,
+    ))
+
+
 def salas_del_selector(usuario, curso, resolver_match=None):
     """[SalaDelSelector] con las salas que ve la usuaria: la educadora y las asistentes, las suyas;
     la directora, todas las de su jardín. Ordenadas por jardín, nivel educativo y nombre."""
-    salas = list(cursos_de(usuario).select_related("jardin"))
-    orden = [valor for valor, _ in NivelEducativo.choices]
-    salas.sort(key=lambda c: (c.jardin.nombre, orden.index(c.nivel_educativo) if c.nivel_educativo in orden else 9, c.nombre))
+    salas = _ordenadas(cursos_de(usuario).select_related("jardin"))
     seccion = getattr(resolver_match, "url_name", None)
     permitidas = set(_SECCIONES[seccion](usuario).values_list("pk", flat=True)) if seccion in _SECCIONES else set()
     return [
@@ -102,9 +108,11 @@ def menu_lateral(context):
         "jardines": list(jardines_que_dirige(usuario)),
     }
     if curso is None:
-        visibles = list(cursos_de(usuario).select_related("jardin")[:2])
+        visibles = _ordenadas(cursos_de(usuario).select_related("jardin"))
         if len(visibles) != 1:
-            datos["cursos"] = cursos_de(usuario).select_related("jardin")
+            datos["cursos"] = visibles
+            # El nombre del jardín solo hace falta si las salas son de más de uno.
+            datos["varios_jardines"] = len({c.jardin_id for c in visibles}) > 1
             return datos
         curso = visibles[0]
     tabla = context.get("tabla")

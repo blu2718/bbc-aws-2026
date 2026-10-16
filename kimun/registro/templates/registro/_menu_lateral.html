@@ -119,12 +119,25 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
         <p class="menu-ayuda" data-sin-resultados hidden>No hay niños ni niñas con ese nombre.</p>
       </section>
     {% elif cursos or jardines %}
-      <nav aria-label="Mis cursos">
-        <ul class="menu-secciones">
-          {% for j in jardines %}<li><a href="{% url 'jardin' j.pk %}">Salas de {{ j.nombre }}</a></li>{% endfor %}
-          {% for c in cursos %}<li><a href="{% url 'curso' c.pk %}">{{ c.nombre }}<small> · {{ c.jardin.nombre }}</small></a></li>{% endfor %}
-        </ul>
-      </nav>
+      {% if jardines %}
+        <nav aria-label="Jardines">
+          <ul class="menu-secciones">
+            {% for j in jardines %}<li><a href="{% url 'jardin' j.pk %}">Salas de {{ j.nombre }}</a></li>{% endfor %}
+          </ul>
+        </nav>
+      {% endif %}
+      {% if cursos %}
+        {# Mismo formato que el selector de sala: nombre y nivel educativo, agrupadas por jardín si son de varios. #}
+        <nav class="menu-seccion" aria-labelledby="titulo-mis-salas">
+          <h2 id="titulo-mis-salas">Salas</h2>
+          <ul class="selector-sala-lista">
+            {% for c in cursos %}
+              {% if varios_jardines %}{% ifchanged c.jardin_id %}<li class="selector-sala-jardin">{{ c.jardin.nombre }}</li>{% endifchanged %}{% endif %}
+              <li><a href="{% url 'curso' c.pk %}"><span>{{ c.nombre }}</span><small>{{ c.get_nivel_educativo_display }}</small></a></li>
+            {% endfor %}
+          </ul>
+        </nav>
+      {% endif %}
     {% endif %}
 
     <footer class="menu-pie">

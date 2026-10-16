@@ -84,6 +84,15 @@ def test_la_directora_elige_entre_todas_las_salas_del_jardin(client, dos_salas, 
     assert f'href="{reverse("curso", args=[b.pk])}"' in html
 
 
+def test_en_la_pagina_del_jardin_el_menu_lista_las_salas_sin_repetir_el_jardin(client, dos_salas, directora_del_jardin):
+    a, b = dos_salas
+    client.force_login(directora_del_jardin)
+    html = client.get(reverse("jardin", args=[a.jardin_id])).content.decode()
+    menu = html[html.index('id="titulo-mis-salas"'):html.index("menu-pie")]
+    assert f'href="{reverse("curso", args=[a.pk])}"' in menu and f'href="{reverse("curso", args=[b.pk])}"' in menu
+    assert a.jardin.nombre not in menu
+
+
 def test_quien_esta_en_una_sola_sala_no_ve_las_otras(client, dos_salas, educadora):
     a, b = dos_salas
     client.force_login(educadora)

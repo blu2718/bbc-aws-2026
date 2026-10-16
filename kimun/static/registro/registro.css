@@ -945,12 +945,16 @@ p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .selector-sala[open] .selector-sala-accion::after { transform: rotate(-135deg) translateY(-2px); }
 @media (prefers-reduced-motion: reduce) { .selector-sala-accion::after { transition: none; } }
 .menu-lateral .selector-sala nav { padding: 0 .5rem .5rem; }
-.selector-sala-lista { display: grid; gap: .3rem; margin: 0; padding: 0; }
-.selector-sala-lista li { list-style: none; margin: 0; padding: 0; }
+/* Pico da a los ul y li de un <nav> margen negativo y relleno: aquí van alineados con el resto del menú. */
+.menu-lateral nav ul.selector-sala-lista { display: grid; gap: .3rem; margin: 0; padding: 0; }
+.menu-lateral nav .selector-sala-lista li { display: block; list-style: none; margin: 0; padding: 0; }
+.menu-lateral nav .selector-sala-lista a { margin: 0; }
 .selector-sala-jardin { padding: .4rem .35rem 0; font-size: .75rem; font-weight: 600; color: var(--pico-muted-color); }
 .selector-sala-lista a { display: flex; flex-direction: column; margin: 0; padding: .5rem .7rem; border-radius: .7rem; background: var(--pico-background-color); color: var(--kimun-tinta); font-weight: 600; text-decoration: none; }
 .selector-sala-lista a small { font-weight: 400; font-size: .78rem; color: var(--pico-muted-color); }
 .selector-sala-lista a:hover, .selector-sala-lista a:focus-visible { background: var(--kimun-celeste-medio); }
+/* Fuera del bloque (menú sin sala elegida, p. ej. en la página del jardín): mismo estilo que las secciones. */
+.menu-seccion > .selector-sala-lista a { background: var(--kimun-celeste-suave); }
 .selector-sala-lista a.actual { outline: 2px solid var(--kimun-celeste-borde); outline-offset: -2px; }
 .tarjeta-login { max-width: 24rem; margin: 2rem auto; }
 .tarjeta-login > header { text-align: center; }
