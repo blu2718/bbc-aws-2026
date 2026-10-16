@@ -104,6 +104,18 @@ Resources:
             Status: Enabled
             AbortIncompleteMultipartUpload:
               DaysAfterInitiation: 7
+          # Respaldo de la limpieza que hace la app (registro/ia/transcripcion.py): si el worker se
+          # corta a mitad o Transcribe escribe la salida despues de que la app dejo de esperar, la
+          # copia del audio y su transcripcion no quedan mas de un dia. La app solo las necesita
+          # unos minutos. No toca originales/AAAA/ (capturas por procesar) ni originales/hojas/.
+          - Id: kimun-borrar-audios-de-transcribe
+            Status: Enabled
+            Prefix: originales/capturas/
+            ExpirationInDays: 1
+          - Id: kimun-borrar-transcripciones
+            Status: Enabled
+            Prefix: transcripciones/
+            ExpirationInDays: 1
       Tags:
         - Key: Name
           Value: !Sub kimun-mvp-${AWS::AccountId}

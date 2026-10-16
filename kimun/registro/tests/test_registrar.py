@@ -362,3 +362,55 @@ def test_no_se_agrega_contexto_si_ya_hay_observaciones_aceptadas(client, curso, 
 
     captura.refresh_from_db()
     assert captura.estado == Captura.Estado.PROCESADA and "Contexto agregado" not in captura.texto_original
+
+
+# --- Dos personas responden la pregunta a la vez (rama fixes) ----------------------------
+
+
+@pytest.fixture
+def nota_con_pregunta(client, curso, educadora, pedro, con_bedrock_falso):
+    con_bedrock_falso({"observaciones": [cruda("Pedro", "Pedro se peleó.")], "pregunta": "¿Con quién se peleó?"})
+    client.force_login(educadora)
+    _registrar(client, curso, texto="Pedro se peleó.")
+    captura = Captura.objects.get()
+    _ordenar(client, captura, con_bedrock_falso)
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PROCESADA and captura.pregunta
+    return captura
+
+
+@pytest.fixture
+def ambas_vieron_la_pregunta(monkeypatch):
+    """Las dos cargaron la página cuando la nota estaba procesada: la comprobación previa pasa para ambas."""
+    from registro import views_registro
+
+    monkeypatch.setattr(views_registro, "puede_agregar_contexto", lambda captura: True)
+
+
+def test_si_dos_responden_a_la_vez_solo_cuenta_la_primera(client, nota_con_pregunta, asistente_del_curso,
+                                                         ambas_vieron_la_pregunta):
+    captura = nota_con_pregunta
+    client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "Con Rubí."})
+
+    client.force_login(asistente_del_curso)
+    respuesta = client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "Con Emilio."}, follow=True)
+
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PENDIENTE
+    assert captura.texto_original.count("Contexto agregado") == 1 and "Con Rubí." in captura.texto_original
+    assert "Otra persona acaba de sumar contexto" in respuesta.content.decode()
+
+
+def test_si_aceptan_una_observacion_mientras_se_responde_no_se_toca_la_nota(client, nota_con_pregunta,
+                                                                          ambas_vieron_la_pregunta):
+    captura = nota_con_pregunta
+    texto_antes = captura.texto_original
+    captura.observaciones.update(estado=Observacion.Estado.ACEPTADA)
+
+    respuesta = client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "En el patio."}, follow=True)
+
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PROCESADA and captura.pregunta
+    assert captura.texto_original == texto_antes
+    assert captura.observaciones.filter(estado=Observacion.Estado.ACEPTADA).count() == 1
+    assert "ya no se le puede sumar contexto" in respuesta.content.decode()

@@ -273,6 +273,52 @@ def test_una_consulta_limitada_se_reintenta():
     assert _transcribir(cliente) == TEXTO
 
 
+class EndpointConnectionError(ConnectionError):
+    """Como el de botocore: hereda de una clase llamada ConnectionError y no trae `response`."""
+
+
+class HTTPClientError(Exception):
+    pass
+
+
+class ReadTimeoutError(HTTPClientError):
+    """Como el de botocore: hereda de HTTPClientError."""
+
+
+@pytest.mark.parametrize("error", [EndpointConnectionError("sin red"), ReadTimeoutError("lento")])
+def test_un_corte_de_red_al_consultar_se_reintenta(error):
+    """Antes se trataba como definitivo: la captura quedaba en error y el trabajo seguía en Transcribe."""
+    transcribe, s3 = TranscribeFalso(estados=[error, "COMPLETED"]), S3Falso()
+    cliente, _ = _cliente(transcribe, s3)
+    assert _transcribir(cliente) == TEXTO
+    assert transcribe.consultas == 2
+    assert set(s3.borrados) == {*s3.subidos, transcribe.trabajos[0]["OutputKey"]}
+
+
+def test_un_corte_de_red_que_no_se_arregla_respeta_el_tiempo_maximo():
+    transcribe, s3 = TranscribeFalso(estados=[EndpointConnectionError("sin red")]), S3Falso()
+    cliente, reloj = _cliente(transcribe, s3, tiempo_maximo=30.0)
+    with pytest.raises(ErrorTranscripcion, match="no terminó en 30 s"):
+        _transcribir(cliente)
+    assert reloj.ahora == 30.0
+    (clave_audio,) = s3.subidos
+    assert clave_audio in s3.borrados
+
+
+def test_un_ctrl_c_o_sigterm_mientras_espera_igual_borra_el_audio_y_la_salida():
+    """procesar_capturas convierte SIGTERM en KeyboardInterrupt: el finally alcanza a limpiar el bucket."""
+    transcribe, s3 = TranscribeFalso(estados=["IN_PROGRESS"]), S3Falso()
+    cliente, _ = _cliente(transcribe, s3)
+
+    def interrumpir(_segundos):
+        raise KeyboardInterrupt
+
+    cliente._dormir = interrumpir
+    with pytest.raises(KeyboardInterrupt):
+        _transcribir(cliente)
+    assert set(s3.borrados) == {*s3.subidos, transcribe.trabajos[0]["OutputKey"]}
+
+
 def test_un_error_al_consultar_que_no_es_transitorio_corta():
     transcribe = TranscribeFalso(estados=[ErrorAws("AccessDeniedException")])
     cliente, _ = _cliente(transcribe)

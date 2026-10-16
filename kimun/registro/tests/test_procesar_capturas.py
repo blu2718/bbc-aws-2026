@@ -399,3 +399,121 @@ def test_una_fecha_relativa_del_modelo_se_respeta(curso, educadora, ninos, oas):
     ayer = timezone.localdate(captura.creada) - timedelta(days=1)
     _procesar(_respuesta(_obs("Pedro", fecha=ayer.isoformat())))
     assert captura.observaciones.get().fecha == ayer
+
+
+# --- El worker no se cae ni pisa estados nuevos (rama fixes) --------------------------------
+
+
+class _ClienteQueHaceAlgo(ClienteFalso):
+    """Bedrock falso que, antes de responder, ejecuta `durante` (lo que pasa en la web mientras tanto)."""
+
+    def __init__(self, durante, *respuestas):
+        super().__init__(*respuestas)
+        self.durante = durante
+
+    def invocar_herramienta(self, *args, **kwargs):
+        self.durante()
+        return super().invocar_herramienta(*args, **kwargs)
+
+
+def test_un_error_en_una_vuelta_no_tumba_al_worker(curso, educadora, ninos, oas, monkeypatch, caplog):
+    """Base bloqueada, una consulta que falla fuera de procesar(): se registra y el bucle sigue."""
+    from django.db import OperationalError
+
+    captura = _captura(curso, educadora)
+    real = comando.procesar_pendientes
+    vueltas = []
+
+    def primera_falla(**kwargs):
+        vueltas.append(1)
+        if len(vueltas) == 1:
+            raise OperationalError("database is locked")
+        return real(**kwargs)
+
+    def dormir(_segundos):
+        if len(vueltas) >= 2:
+            raise KeyboardInterrupt
+
+    monkeypatch.setattr(comando, "procesar_pendientes", primera_falla)
+    monkeypatch.setattr(comando.time, "sleep", dormir)
+    with caplog.at_level(logging.ERROR, logger=comando.__name__):
+        call_command("procesar_capturas", verbosity=0, catalogo=CATALOGO, cliente=ClienteFalso(_respuesta(_obs("Pedro"))))
+
+    assert len(vueltas) == 2
+    assert _estado(captura) == PROCESADA
+    assert "database is locked" in caplog.text
+
+
+def test_si_borran_la_captura_mientras_se_procesa_el_worker_sigue_con_la_siguiente(curso, educadora, ninos, oas):
+    borrada = _captura(curso, educadora, "primera")
+    siguiente = _captura(curso, educadora, "segunda")
+    cliente = _ClienteQueHaceAlgo(
+        lambda: Captura.objects.filter(pk=borrada.pk).delete(),
+        _respuesta(_obs("Pedro")), _respuesta(_obs("Emilio")),
+    )
+    # La segunda llamada también ejecuta `durante`, pero la primera captura ya no existe.
+    call_command("procesar_capturas", una_vez=True, verbosity=0, catalogo=CATALOGO, cliente=cliente)
+
+    assert not Captura.objects.filter(pk=borrada.pk).exists()
+    assert _estado(siguiente) == PROCESADA
+    assert siguiente.observaciones.get().nino == ninos["Emilio"]
+
+
+def test_si_la_devuelven_a_la_cola_mientras_se_procesa_no_se_pisa_ni_se_crean_observaciones(curso, educadora, ninos, oas):
+    """Por ejemplo, con contexto nuevo: lo leído con el texto viejo se descarta."""
+    captura = _captura(curso, educadora)
+    tomada = tomar_siguiente()
+    cliente = _ClienteQueHaceAlgo(
+        lambda: Captura.objects.filter(pk=captura.pk).update(estado=PENDIENTE), _respuesta(_obs("Pedro")),
+    )
+
+    assert procesar(tomada, cliente=cliente, catalogo=CATALOGO) is None
+
+    assert _estado(captura) == PENDIENTE
+    assert not captura.observaciones.exists()
+
+
+def test_un_error_de_una_captura_que_ya_no_esta_en_proceso_no_la_pisa(curso, educadora, ninos, oas):
+    captura = _captura(curso, educadora)
+    tomada = tomar_siguiente()
+    cliente = _ClienteQueHaceAlgo(
+        lambda: Captura.objects.filter(pk=captura.pk).update(estado=PENDIENTE), ErrorBedrock("throttling"),
+    )
+
+    assert procesar(tomada, cliente=cliente, catalogo=CATALOGO) is None
+    assert _estado(captura) == PENDIENTE and captura.error == ""
+
+
+def test_una_captura_que_se_interrumpe_muchas_veces_queda_en_error(curso, educadora, ninos, oas):
+    from registro.procesamiento import MAX_INTENTOS_AUTOMATICOS, recuperar_atascadas, reintentar_errores
+
+    hace_rato = timezone.now() - UMBRAL_PROCESANDO_ATASCADA - timedelta(seconds=1)
+    agotada = _captura(curso, educadora, "agotada", estado=PROCESANDO, intentos=MAX_INTENTOS_AUTOMATICOS)
+    con_margen = _captura(curso, educadora, "con margen", estado=PROCESANDO, intentos=MAX_INTENTOS_AUTOMATICOS - 1)
+    Captura.objects.filter(pk__in=[agotada.pk, con_margen.pk]).update(actualizada=hace_rato)
+
+    assert recuperar_atascadas() == 1
+
+    assert _estado(con_margen) == PENDIENTE
+    assert _estado(agotada) == ERROR and "Puedes reintentar" in agotada.error
+    # A mano (--reintentar) se recupera igual.
+    Captura.objects.filter(pk=agotada.pk).update(estado=PROCESANDO, actualizada=hace_rato)
+    assert reintentar_errores() >= 1
+    assert _estado(agotada) == PENDIENTE
+
+
+def test_sigterm_detiene_el_bucle_como_ctrl_c_y_se_restaura_el_manejador(curso, educadora, ninos, oas, monkeypatch, capsys):
+    """`systemctl restart` manda SIGTERM: el bucle se detiene limpio (los finally borran lo subido a S3)."""
+    import signal
+
+    antes = signal.getsignal(signal.SIGTERM)
+
+    def dormir(_segundos):
+        # Lo que haría el sistema operativo: llamar al manejador instalado para SIGTERM.
+        signal.getsignal(signal.SIGTERM)(signal.SIGTERM, None)
+
+    monkeypatch.setattr(comando.time, "sleep", dormir)
+    call_command("procesar_capturas", catalogo=CATALOGO, cliente=ClienteFalso())
+
+    assert "Detenido." in capsys.readouterr().out
+    assert signal.getsignal(signal.SIGTERM) is antes

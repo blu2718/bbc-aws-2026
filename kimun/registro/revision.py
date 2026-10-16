@@ -152,14 +152,56 @@ def _destinos(obs):
 def aceptar(obs):
     """Acepta y solicita propuestas en la misma transacción; repetir no duplica trabajos."""
     Observacion.objects.filter(pk=obs.pk).update(actualizada=F("actualizada"))
-    if _aceptar(obs):
-        for nino, nucleo in _destinos(obs):
-            solicitar_propuesta(nino, nucleo, reintentar=True)
+    if not _aceptar(obs):
+        return False  # ya no estaba pendiente (se aceptó o se descartó en otra pantalla)
+    for nino, nucleo in _destinos(obs):
+        solicitar_propuesta(nino, nucleo, reintentar=True)
+    return True
+
+
+MENSAJE_YA_NO_PENDIENTE = "Esta observación ya se revisó (quizás desde otra pantalla): no se cambió."
 
 
 def descartar(obs):
-    obs.estado = Observacion.Estado.DESCARTADA
-    obs.save(update_fields=["estado", "actualizada"])
+    """Descarta la observación si sigue pendiente. True si la descartó.
+
+    Condicional, como `_aceptar`: si mientras tanto se aceptó (otra pestaña, "Aceptar todas"),
+    no se toca. Una aceptada solo se retira con `resultados.retirar_observacion`, que deja historial.
+    """
+    descartada = Observacion.objects.filter(pk=obs.pk, estado=Observacion.Estado.PENDIENTE).update(
+        estado=Observacion.Estado.DESCARTADA, actualizada=timezone.now(),
+    )
+    refrescar(obs)
+    return bool(descartada)
+
+
+def asignar_nino(obs, nino):
+    """Asigna la observación a `nino` si sigue pendiente. True si la cambió."""
+    asignada = Observacion.objects.filter(pk=obs.pk, estado=Observacion.Estado.PENDIENTE).update(
+        nino=nino, grupal=False, actualizada=timezone.now(),
+    )
+    refrescar(obs)
+    return bool(asignada)
+
+
+def refrescar(obs):
+    """Relee la observación. False si ya no existe (sumar contexto a la nota borra sus pendientes)."""
+    try:
+        obs.refresh_from_db()
+    except Observacion.DoesNotExist:
+        return False
+    return True
+
+
+def bloquear_pendiente(obs):
+    """Dentro de una transacción, toma la observación para editarla si sigue pendiente. True si se puede.
+
+    El update toma el bloqueo de escritura: una aceptación simultánea espera a que termine la
+    edición y acepta la versión editada, en vez de que la edición pise una ya aceptada.
+    """
+    return Observacion.objects.filter(pk=obs.pk, estado=Observacion.Estado.PENDIENTE).update(
+        actualizada=timezone.now(),
+    ) == 1
 
 
 @transaction.atomic

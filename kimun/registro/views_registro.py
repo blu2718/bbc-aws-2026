@@ -175,10 +175,40 @@ def agregar_contexto(request, captura_id):
     elif not puede_agregar_contexto(captura):
         messages.error(request, "A esta nota ya no se le puede sumar contexto: regístralo como una nota nueva.")
     else:
-        with transaction.atomic():
-            captura.observaciones.filter(estado=Observacion.Estado.PENDIENTE).delete()
-            captura.texto_original = f"{captura.texto_original}\n\nContexto agregado: {contexto}".strip()
-            captura.pregunta = ""
-            captura.estado = Captura.Estado.PENDIENTE
-            captura.save(update_fields=["texto_original", "pregunta", "estado", "actualizada"])
+        error = _sumar_contexto(captura, contexto)
+        if error:
+            messages.error(request, error)
     return redirect("captura", captura_id=captura.pk)
+
+
+class _NoSePuedeSumar(Exception):
+    pass
+
+
+def _sumar_contexto(captura, contexto):
+    """Suma el contexto y devuelve la nota a la cola. Devuelve el error para mostrar, o "".
+
+    La educadora y la asistente pueden responder la misma pregunta a la vez, y la educadora
+    puede aceptar una observación mientras tanto. Por eso la captura se "toma" con una
+    actualización condicional (`procesada` → `pendiente`): solo la primera respuesta pasa, y
+    las comprobaciones y el texto se hacen con los datos releídos dentro de la transacción,
+    no con los que se leyeron al cargar la página.
+    """
+    try:
+        with transaction.atomic():
+            tomada = Captura.objects.filter(pk=captura.pk, estado=Captura.Estado.PROCESADA).update(
+                estado=Captura.Estado.PENDIENTE, pregunta="", actualizada=timezone.now()
+            )
+            if not tomada:
+                raise _NoSePuedeSumar("Otra persona acaba de sumar contexto a esta nota y se está volviendo a "
+                                      "ordenar. Revisa el resultado; si falta algo, regístralo como una nota nueva.")
+            fresca = Captura.objects.get(pk=captura.pk)
+            if (AvisoProteccion.objects.filter(captura=fresca).exists()
+                    or fresca.observaciones.filter(estado=Observacion.Estado.ACEPTADA).exists()):
+                raise _NoSePuedeSumar("A esta nota ya no se le puede sumar contexto: regístralo como una nota nueva.")
+            fresca.observaciones.filter(estado=Observacion.Estado.PENDIENTE).delete()
+            texto = f"{fresca.texto_original}\n\nContexto agregado: {contexto}".strip()
+            Captura.objects.filter(pk=captura.pk).update(texto_original=texto)
+    except _NoSePuedeSumar as error:
+        return str(error)
+    return ""
