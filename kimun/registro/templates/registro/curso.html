@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load kimun %}
 {% block titulo %}{{ curso.nombre }}{% endblock %}
 {% block head %}
 <style>
@@ -31,6 +32,38 @@
       · <a href="{% url 'metas' curso.pk %}">Editar metas del curso</a>
     {% endif %}
   </p>
+{% endif %}
+
+{# --- Propuestas de nivel por decidir (solo la educadora: es quien valida) --- #}
+{% if bandeja.por_decidir or bandeja.en_preparacion %}
+  <section id="propuestas" class="bandeja-propuestas" aria-labelledby="titulo-propuestas">
+    <h2 id="titulo-propuestas">Propuestas de nivel por decidir{% if bandeja.por_decidir %} ({{ bandeja.por_decidir|length }}){% endif %}</h2>
+    {% if bandeja.por_decidir %}
+      <p class="ayuda">Kimün las preparó con las observaciones aceptadas. Son sugerencias: el nivel cambia solo si lo aceptas o fijas otro en la ficha.</p>
+      <ul class="bandeja-lista">
+        {% for item in bandeja.por_decidir %}
+          {% with p=item.propuesta %}
+            <li>
+              <a href="{% url 'ficha' p.nino.pk %}#nucleo-{{ p.nucleo.sigla }}">
+                <span class="avatar avatar-chico" aria-hidden="true" style="--fondo-avatar: {{ p.nino.nombre|color_avatar }}">{{ p.nino.nombre|iniciales }}</span>
+                <span>
+                  <strong>{{ p.nino.nombre }}</strong> · {{ p.nucleo.nombre }}
+                  <small>
+                    {% if item.texto_propuesto %}Actual {{ item.texto_actual }} → propuesto <strong>{{ item.texto_propuesto }}</strong>
+                    {% else %}Faltan observaciones para proponer un nivel (actual {{ item.texto_actual }}){% endif %}
+                    {% if p.rubrica_provisoria %} · rúbrica provisoria{% endif %}
+                  </small>
+                </span>
+              </a>
+            </li>
+          {% endwith %}
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% if bandeja.en_preparacion %}
+      <p class="ayuda" role="status">{{ bandeja.en_preparacion }} propuesta{{ bandeja.en_preparacion|pluralize }} en preparación. Aparecerá{{ bandeja.en_preparacion|pluralize:"n" }} aquí cuando esté{{ bandeja.en_preparacion|pluralize:"n" }} lista{{ bandeja.en_preparacion|pluralize }}.</p>
+    {% endif %}
+  </section>
 {% endif %}
 
 {# --- Resumen de la quincena --- #}

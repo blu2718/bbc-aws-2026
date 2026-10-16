@@ -28,6 +28,7 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
           <li><a href="{% url 'curso' curso.pk %}">Tabla del curso</a></li>
           {% if puede_validar %}
             <li><a href="{% url 'revision' curso.pk %}">Revisar observaciones{% for c in cursos_por_revisar %}{% if c.pk == curso.pk and c.pendientes %} ({{ c.pendientes }}){% endif %}{% endfor %}</a></li>
+            {% if propuestas_por_decidir %}<li><a href="{% url 'curso' curso.pk %}#propuestas">Propuestas de nivel por decidir ({{ propuestas_por_decidir }})</a></li>{% endif %}
             <li><a href="{% url 'metas' curso.pk %}">Metas del curso</a></li>
           {% endif %}
         </ul>

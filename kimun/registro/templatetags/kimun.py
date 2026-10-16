@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from ..alertas import TablaCurso, tabla_del_curso
 from ..iconos import icono_nucleo
+from ..models import PropuestaNivel
 from ..pantallas import para_tener_presentes, texto_edad
 from ..permisos import cursos_de, cursos_donde_registra, puede_validar
 
@@ -68,11 +69,16 @@ def menu_lateral(context):
     tabla = context.get("tabla")
     if not isinstance(tabla, TablaCurso):
         tabla = tabla_del_curso(curso)
+    valida = puede_validar(usuario, curso)
     datos.update(
         curso=curso,
         ninos=[fila.nino for fila in tabla.filas],
         presentes=para_tener_presentes(tabla),
-        puede_validar=puede_validar(usuario, curso),
+        puede_validar=valida,
         puede_registrar=cursos_donde_registra(usuario).filter(pk=curso.pk).exists(),
+        # Solo la educadora decide niveles: la bandeja está en la vista del curso.
+        propuestas_por_decidir=PropuestaNivel.objects.filter(
+            nino__curso=curso, estado=PropuestaNivel.Estado.LISTA,
+        ).count() if valida else 0,
     )
     return datos

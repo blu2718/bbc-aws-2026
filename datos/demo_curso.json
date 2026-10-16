@@ -165,6 +165,12 @@
       "texto": "Sofía pidió ayuda para abrocharse la chaqueta antes de salir y el último botón lo intentó sola hasta lograrlo. Josefa se acercó a mostrarle cómo lo hacía ella."
     }
   ],
+  "_nota_propuestas_solicitadas": "Propuestas de nivel que quedan solicitadas, sin resultado, para que en la demo las genere el proceso de fondo (procesar_propuestas) con Bedrock real y aparezcan en la bandeja del curso. Son niños y núcleos con varias observaciones aceptadas. Solo se piden si ese niño y núcleo nunca tuvo una propuesta.",
+  "propuestas_solicitadas": [
+    {"nino": "Matías Lagos", "nucleo": "LV"},
+    {"nino": "Benjamín Soto", "nucleo": "IA"},
+    {"nino": "Gaspar Núñez", "nucleo": "PM"}
+  ],
   "_nota_otros_cursos": "Otras dos salas de Transición del mismo jardín, para la vista de la directora (Task 12). Cada una tiene su educadora (Integra: 1 por sala) y no trae observaciones. B queda en promedio cerca de 6 en todos los núcleos; C cerca de 5, salvo Lenguaje Verbal y Pensamiento Matemático, donde queda cerca de 3: ahí C queda 2 o más niveles bajo el promedio de A y B y la directora ve la sugerencia de revisión.",
   "otros_cursos": [
     {

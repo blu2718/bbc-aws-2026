@@ -200,6 +200,62 @@ def ninos_mencionados(texto, ninos, hoy):
     return encontrados
 
 
+# --- Propuestas de nivel por decidir (vista del curso) -----------------------------------------
+
+
+@dataclass(frozen=True)
+class PropuestaPorDecidir:
+    propuesta: object       # PropuestaNivel en estado "lista"
+    texto_actual: str       # nivel validado actual: "3 · Desarrollando"
+    texto_propuesto: str    # "" si la evidencia no alcanzó para proponer
+
+
+@dataclass(frozen=True)
+class BandejaPropuestas:
+    por_decidir: list       # [PropuestaPorDecidir], de la más antigua a la más reciente
+    en_preparacion: int     # solicitadas o procesando: las está generando el proceso de fondo
+
+
+def propuestas_por_decidir(curso, tabla=None):
+    """Las propuestas listas del curso, para que la educadora no tenga que abrir cada ficha.
+
+    Solo hay una lista por niño y núcleo (pedir otra deja la anterior obsoleta).
+    No se comprueba aquí si siguen vigentes: la ficha lo hace al decidir. Usa la
+    `tabla` del curso, si se pasa, para el nivel actual; si no, lo consulta.
+    """
+    from .models import PropuestaNivel
+
+    propuestas = list(
+        PropuestaNivel.objects.filter(nino__curso=curso, estado=PropuestaNivel.Estado.LISTA)
+        .select_related("nino", "nucleo").order_by("creada", "pk")
+    )
+    en_preparacion = PropuestaNivel.objects.filter(
+        nino__curso=curso, estado__in=[PropuestaNivel.Estado.SOLICITADA, PropuestaNivel.Estado.PROCESANDO],
+    ).count()
+    if not propuestas:
+        return BandejaPropuestas([], en_preparacion)
+    nombres = DescriptorNivel.nombres_por_nucleo(curso.nivel_educativo)
+    if tabla is not None:
+        actuales = {(f.nino.pk, c.nucleo.pk): c.texto_nivel for f in tabla.filas for c in f.celdas}
+    else:
+        actuales = {}
+        filas = (
+            NivelValidado.objects.filter(nino__curso=curso)
+            .order_by("nino_id", "nucleo_id", "-fecha", "-creado", "-id")
+            .values_list("nino_id", "nucleo_id", "nivel", "nucleo__sigla")
+        )
+        for nino_id, nucleo_id, nivel, sigla in filas:
+            actuales.setdefault((nino_id, nucleo_id), texto_nivel(nivel, nombres.get(sigla, {}).get(nivel, "")))
+    por_decidir = []
+    for p in propuestas:
+        propuesto = ""
+        if p.nivel is not None:
+            nombre = "" if p.rubrica_provisoria else nombres.get(p.nucleo.sigla, {}).get(p.nivel, "")
+            propuesto = texto_nivel(p.nivel, nombre)
+        por_decidir.append(PropuestaPorDecidir(p, actuales.get((p.nino_id, p.nucleo_id), SIN_NIVEL), propuesto))
+    return BandejaPropuestas(por_decidir, en_preparacion)
+
+
 # --- Pantalla III: el menú lateral -----------------------------------------------------------
 
 
