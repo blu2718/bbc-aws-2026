@@ -6,13 +6,22 @@
 
 <div class="aviso-proteccion" role="note">
   <h2>Qué hacer</h2>
+  {% if protocolo.del_jardin %}
+    <p class="ayuda">Según {{ protocolo.fuente }}, cargado por {{ protocolo.del_jardin.actualizado_por.get_full_name|default:protocolo.del_jardin.actualizado_por.username }} el {{ protocolo.del_jardin.actualizado|date:"j \d\e F \d\e Y" }}.</p>
+  {% endif %}
   <ol>
     {% for paso in protocolo.pasos %}
-      <li><strong>{{ paso.titulo }}.</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>
+      <li><strong>{{ paso.titulo }}{% if paso.texto %}.{% endif %}</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>
     {% endfor %}
   </ol>
-  {% if protocolo.provisorio %}
-    <p class="ayuda">Pasos provisorios mientras llega el protocolo de Integra{% if protocolo.fuente %}. Fuente: {{ protocolo.fuente }}{% endif %}</p>
+  {% if referencia %}
+    <details>
+      <summary>Pasos de referencia (provisorios, JUNJI)</summary>
+      <ol>{% for paso in referencia.pasos %}<li><strong>{{ paso.titulo }}.</strong>{% if paso.texto %} {{ paso.texto }}{% endif %}</li>{% endfor %}</ol>
+    </details>
+  {% elif protocolo.provisorio %}
+    <p class="ayuda">Pasos provisorios: el jardín todavía no carga su protocolo{% if protocolo.fuente %}. Fuente: {{ protocolo.fuente }}{% endif %}.
+      {% if es_directora %}<a href="{% url 'protocolo_jardin' aviso.captura.curso.jardin_id %}">Cargar el protocolo del jardín</a>{% endif %}</p>
   {% endif %}
   <p class="ayuda">Kimün no detecta ni califica nada: solo avisa. Esta nota no se usa para evaluar y no aparece en la ficha, la tabla del curso ni la vista del jardín.</p>
 </div>

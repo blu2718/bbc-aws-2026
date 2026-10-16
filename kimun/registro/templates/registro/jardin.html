@@ -18,6 +18,7 @@
   <h1>{{ jardin.nombre }}</h1>
   <p>Resumen para la directora</p>
 </hgroup>
+<p><a href="{% url 'protocolo_jardin' jardin.pk %}">Protocolo de protección de derechos{% if not jardin.protocolo_proteccion %} (por cargar){% endif %}</a></p>
 
 {# --- Alertas --- #}
 <section aria-labelledby="titulo-alertas">

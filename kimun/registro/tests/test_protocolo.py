@@ -68,3 +68,69 @@ def test_si_el_protocolo_dice_solo_directora_la_educadora_no_ve_el_aviso(
     assert client.get(reverse("aviso", args=[aviso.pk])).status_code == 404
     client.force_login(directora_del_jardin)
     assert client.get(reverse("aviso", args=[aviso.pk])).status_code == 200
+
+
+# --- Protocolo del jardín, que carga la directora ---------------------------------------
+
+from registro.models import ProtocoloJardin  # noqa: E402
+
+PASOS_JARDIN = "1. Avisar a la directora, Ana Pérez, al anexo 123\n\n- No interrogar al niño\n• Registrar en la ficha de buen trato"
+
+
+def test_la_directora_carga_el_protocolo_de_su_jardin(client, jardin, directora_del_jardin):
+    client.force_login(directora_del_jardin)
+    url = reverse("protocolo_jardin", args=[jardin.pk])
+    assert "todavía no carga su protocolo" in client.get(url).content.decode()
+    respuesta = client.post(url, {"nombre_documento": "Protocolo 2026", "pasos": PASOS_JARDIN}, follow=True)
+    assert "Protocolo guardado." in respuesta.content.decode()
+    p = ProtocoloJardin.objects.get(jardin=jardin)
+    assert p.actualizado_por == directora_del_jardin
+    assert p.lista_de_pasos() == ["Avisar a la directora, Ana Pérez, al anexo 123", "No interrogar al niño", "Registrar en la ficha de buen trato"]
+    # Se puede actualizar; sigue habiendo uno solo.
+    client.post(url, {"nombre_documento": "Protocolo 2027", "pasos": "Un paso"})
+    assert ProtocoloJardin.objects.get(jardin=jardin).nombre_documento == "Protocolo 2027"
+
+
+@pytest.mark.parametrize("quien", ["educadora", "asistente_del_curso", "otra_educadora"])
+def test_solo_la_directora_carga_el_protocolo(client, request, jardin, curso, directora_del_jardin, quien):
+    client.force_login(request.getfixturevalue(quien))
+    url = reverse("protocolo_jardin", args=[jardin.pk])
+    assert client.get(url).status_code == 404
+    assert client.post(url, {"pasos": "Un paso"}).status_code == 404
+    assert not ProtocoloJardin.objects.exists()
+
+
+@pytest.mark.parametrize("pasos, error", [("  \n \n", "al menos un paso"), ("\n".join(f"Paso {i}" for i in range(21)), "20 pasos")])
+def test_el_protocolo_del_jardin_se_valida(client, jardin, directora_del_jardin, pasos, error):
+    client.force_login(directora_del_jardin)
+    respuesta = client.post(reverse("protocolo_jardin", args=[jardin.pk]), {"pasos": pasos})
+    assert respuesta.status_code == 400 and error in respuesta.content.decode()
+
+
+def test_el_aviso_sigue_el_protocolo_del_jardin_y_deja_los_provisorios_como_referencia(
+    client, aviso, jardin, educadora, directora_del_jardin
+):
+    ProtocoloJardin.objects.create(jardin=jardin, nombre_documento="Protocolo 2026", pasos=PASOS_JARDIN,
+                                   actualizado_por=directora_del_jardin)
+    client.force_login(educadora)
+    html = client.get(reverse("aviso", args=[aviso.pk])).content.decode()
+    assert "Según Protocolo 2026" in html and "Avisar a la directora, Ana Pérez, al anexo 123" in html
+    assert html.index("Avisar a la directora, Ana Pérez") < html.index("Pasos de referencia (provisorios, JUNJI)")
+    assert "el jardín todavía no carga su protocolo" not in html
+
+
+def test_sin_protocolo_del_jardin_el_aviso_usa_los_provisorios_y_la_directora_ve_como_cargarlo(
+    client, aviso, jardin, educadora, directora_del_jardin
+):
+    client.force_login(educadora)
+    html = client.get(reverse("aviso", args=[aviso.pk])).content.decode()
+    assert "el jardín todavía no carga su protocolo" in html and "No interrogues al niño o niña" in html
+    assert reverse("protocolo_jardin", args=[jardin.pk]) not in html
+    client.force_login(directora_del_jardin)
+    assert reverse("protocolo_jardin", args=[jardin.pk]) in client.get(reverse("aviso", args=[aviso.pk])).content.decode()
+
+
+def test_el_resumen_del_jardin_enlaza_al_protocolo(client, jardin, directora_del_jardin):
+    client.force_login(directora_del_jardin)
+    html = client.get(reverse("jardin", args=[jardin.pk])).content.decode()
+    assert reverse("protocolo_jardin", args=[jardin.pk]) in html and "(por cargar)" in html

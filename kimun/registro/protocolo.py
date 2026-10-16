@@ -1,8 +1,10 @@
 """Protocolo de protección de derechos que muestra el aviso (PLAN.md, Task 13).
 
-Los pasos, su fuente y quién recibe el aviso viven en `datos/protocolo_proteccion.json`,
-no en el código: cuando Integra entregue su protocolo (pregunta 9), se reemplaza ese
-archivo. Hoy es provisorio, a partir de los protocolos públicos de la JUNJI.
+Cada jardín debe tener su propio protocolo (Circular 860 de la Superintendencia de
+Educación). Su directora lo carga en la app (`ProtocoloJardin`) y el aviso muestra esos
+pasos. Mientras no lo cargue, el aviso muestra los pasos provisorios de
+`datos/protocolo_proteccion.json` (paráfrasis del protocolo público de la JUNJI), que
+también quedan como referencia junto al del jardín. Quién recibe el aviso sale del archivo.
 
 Si el archivo falta o está mal formado, la app no se cae: usa pasos mínimos
 (informar a la directora y no interrogar al niño) y avisa en el log.
@@ -32,6 +34,7 @@ class Protocolo:
     fuente: str
     provisorio: bool
     destinatarios: tuple
+    del_jardin: object = None  # el ProtocoloJardin, si los pasos vienen del jardín
 
 
 PROTOCOLO_MINIMO = Protocolo(
@@ -72,3 +75,18 @@ def leer_protocolo(ruta=None):
     except (OSError, ValueError) as error:
         logger.error("No se pudo leer el protocolo de protección (%s): %s. Se usan los pasos mínimos.", ruta, error)
         return PROTOCOLO_MINIMO
+
+
+def protocolo_para(jardin):
+    """(protocolo a seguir, pasos provisorios de referencia o None).
+
+    Si la directora cargó el protocolo del jardín, se sigue ese y los provisorios quedan
+    como referencia. Si no, se siguen los provisorios.
+    """
+    provisorio = leer_protocolo()
+    del_jardin = getattr(jardin, "protocolo_proteccion", None) if jardin is not None else None
+    pasos = tuple(Paso(p) for p in del_jardin.lista_de_pasos()) if del_jardin is not None else ()
+    if not pasos:
+        return provisorio, None
+    fuente = del_jardin.nombre_documento or f"Protocolo de {jardin.nombre}"
+    return Protocolo(pasos, fuente, False, provisorio.destinatarios, del_jardin), provisorio

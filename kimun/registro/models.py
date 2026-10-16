@@ -571,6 +571,36 @@ class AvisoProteccion(models.Model):
         return f"Aviso #{self.pk} ({self.get_estado_display()})"
 
 
+class ProtocoloJardin(models.Model):
+    """Protocolo de protección de derechos del jardín, que carga su directora (Task 13).
+
+    Cada jardín debe tener el suyo en su reglamento interno (Circular 860 de la
+    Superintendencia de Educación). Si existe, el aviso de protección muestra estos pasos;
+    si no, los provisorios de `datos/protocolo_proteccion.json`.
+    """
+
+    jardin = models.OneToOneField(Jardin, on_delete=models.CASCADE, related_name="protocolo_proteccion")
+    nombre_documento = models.CharField(
+        max_length=200, blank=True, help_text='Por ejemplo "Protocolo de actuación ante vulneración de derechos, 2026".',
+    )
+    pasos = models.TextField(help_text="Un paso por línea, en el orden en que se siguen.")
+    actualizado_por = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="protocolos_actualizados",
+    )
+    actualizado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "protocolo del jardín"
+        verbose_name_plural = "protocolos de los jardines"
+
+    def __str__(self):
+        return f"Protocolo de {self.jardin}"
+
+    def lista_de_pasos(self):
+        """Los pasos sin líneas vacías ni la numeración o viñeta con que se hayan pegado."""
+        return [re.sub(r"^\s*(\d+[.)]|[-•*])\s*", "", linea).strip() for linea in self.pasos.splitlines() if linea.strip()]
+
+
 # --- Niveles -------------------------------------------------------------------
 
 

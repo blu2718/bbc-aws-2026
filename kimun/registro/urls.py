@@ -43,4 +43,5 @@ urlpatterns = [
     path("avisos/", views_proteccion.avisos, name="avisos"),
     path("avisos/<int:aviso_id>/", views_proteccion.aviso, name="aviso"),
     path("avisos/<int:aviso_id>/resolver/", views_proteccion.resolver_aviso, name="aviso_resolver"),
+    path("jardines/<int:jardin_id>/protocolo/", views_proteccion.protocolo_jardin, name="protocolo_jardin"),
 ]

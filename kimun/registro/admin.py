@@ -138,3 +138,8 @@ class AvisoProteccionAdmin(admin.ModelAdmin):
     list_display = ["id", "estado", "senal", "creado", "resuelto_por", "resuelto_en"]
     list_filter = ["estado", "senal"]
     readonly_fields = ["captura", "creado"]
+
+
+@admin.register(models.ProtocoloJardin)
+class ProtocoloJardinAdmin(admin.ModelAdmin):
+    list_display = ["jardin", "nombre_documento", "actualizado_por", "actualizado"]

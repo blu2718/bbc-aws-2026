@@ -6,26 +6,44 @@ Lo ven solo la educadora del curso y la directora del jardín (`avisos_que_ve`);
 resto, 404. El texto de la nota se muestra tal cual, sin resumirlo ni reescribirlo, y nunca
 se escribe en los registros del servidor.
 
+Los pasos del aviso son los del protocolo del jardín, que carga su directora en
+`protocolo_jardin`; si no lo ha cargado, los provisorios (ver `registro/protocolo.py`).
+
 Cada aviso se resuelve de una de dos formas, con usuaria y fecha:
 - "Informé a la directora / activé el protocolo": la captura sigue en resguardo.
 - "No es una vulneración", con un motivo: la captura vuelve a la cola y se procesa como cualquier otra.
 """
+from django import forms
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
-from .models import AvisoProteccion, Captura
-from .permisos import avisos_que_ve
-from .protocolo import leer_protocolo
+from .models import AvisoProteccion, Captura, ProtocoloJardin
+from .permisos import avisos_que_ve, jardines_que_dirige
+from .protocolo import leer_protocolo, protocolo_para
 
 LARGO_MOTIVO = 500
 
 
+MAX_PASOS = 20
+
+
 def _avisos(usuario):
-    return avisos_que_ve(usuario).select_related("captura__curso__jardin", "captura__autora", "resuelto_por")
+    return avisos_que_ve(usuario).select_related(
+        "captura__curso__jardin__protocolo_proteccion__actualizado_por", "captura__autora", "resuelto_por",
+    )
+
+
+def _contexto_aviso(aviso, usuario, **extra):
+    jardin = aviso.captura.curso.jardin
+    protocolo, referencia = protocolo_para(jardin)
+    return {
+        "aviso": aviso, "protocolo": protocolo, "referencia": referencia,
+        "es_directora": jardin.directora_id == usuario.pk, **extra,
+    }
 
 
 @login_required
@@ -41,9 +59,8 @@ def avisos(request):
 @login_required
 @require_GET
 def aviso(request, aviso_id):
-    return render(request, "registro/aviso.html", {
-        "aviso": get_object_or_404(_avisos(request.user), pk=aviso_id), "protocolo": leer_protocolo(),
-    })
+    aviso = get_object_or_404(_avisos(request.user), pk=aviso_id)
+    return render(request, "registro/aviso.html", _contexto_aviso(aviso, request.user))
 
 
 @login_required
@@ -56,10 +73,9 @@ def resolver_aviso(request, aviso_id):
         messages.error(request, "Este aviso ya se resolvió.")
         return redirect("aviso", aviso_id=aviso.pk)
     if accion == "no_es" and not motivo:
-        return render(request, "registro/aviso.html", {
-            "aviso": aviso, "protocolo": leer_protocolo(),
-            "error_motivo": "Escribe brevemente por qué no es una vulneración.",
-        }, status=400)
+        return render(request, "registro/aviso.html", _contexto_aviso(
+            aviso, request.user, error_motivo="Escribe brevemente por qué no es una vulneración.",
+        ), status=400)
     if accion not in ("protocolo", "no_es"):
         return redirect("aviso", aviso_id=aviso.pk)
 
@@ -79,3 +95,47 @@ def resolver_aviso(request, aviso_id):
     else:
         messages.success(request, "Quedó registrado. La nota se ordenará como cualquier otra.")
     return redirect("avisos")
+
+
+class ProtocoloJardinForm(forms.ModelForm):
+    class Meta:
+        model = ProtocoloJardin
+        fields = ["nombre_documento", "pasos"]
+        labels = {
+            "nombre_documento": "Nombre del documento (opcional)",
+            "pasos": "Pasos del protocolo, uno por línea",
+        }
+        widgets = {
+            "pasos": forms.Textarea(attrs={"rows": 10, "aria-describedby": "ayuda-pasos", "maxlength": 5000}),
+        }
+        error_messages = {"pasos": {"required": "Escribe al menos un paso."}}
+
+    def clean_pasos(self):
+        pasos = self.cleaned_data["pasos"]
+        lista = ProtocoloJardin(pasos=pasos).lista_de_pasos()
+        if not lista:
+            raise forms.ValidationError("Escribe al menos un paso.")
+        if len(lista) > MAX_PASOS:
+            raise forms.ValidationError(f"Resume el protocolo en {MAX_PASOS} pasos como máximo.")
+        if any(len(p) > 500 for p in lista):
+            raise forms.ValidationError("Cada paso puede tener hasta 500 caracteres.")
+        return pasos
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def protocolo_jardin(request, jardin_id):
+    """La directora carga o actualiza el protocolo de su jardín. Solo ella; para el resto, 404."""
+    jardin = get_object_or_404(jardines_que_dirige(request.user), pk=jardin_id)
+    actual = ProtocoloJardin.objects.filter(jardin=jardin).first()
+    form = ProtocoloJardinForm(request.POST or None, instance=actual)
+    if request.method == "POST" and form.is_valid():
+        protocolo = form.save(commit=False)
+        protocolo.jardin = jardin
+        protocolo.actualizado_por = request.user
+        protocolo.save()
+        messages.success(request, "Protocolo guardado. Los avisos de protección del jardín mostrarán estos pasos.")
+        return redirect("protocolo_jardin", jardin_id=jardin.pk)
+    return render(request, "registro/protocolo_jardin.html", {
+        "jardin": jardin, "form": form, "actual": actual, "provisorio": leer_protocolo(),
+    }, status=400 if form.errors else 200)
