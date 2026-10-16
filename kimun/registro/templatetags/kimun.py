@@ -4,15 +4,21 @@
     {{ nino.nombre|iniciales }}  {{ nino.nombre|color_avatar }}  {{ nino|edad }}  {{ nucleo.sigla|icono_nucleo }}
     {% menu_lateral %}
 """
+from dataclasses import dataclass
+
 from django import template
+from django.urls import reverse
 from django.utils import timezone
 
 from ..alertas import TablaCurso, tabla_del_curso
 from ..frecuencia import FrecuenciaCurso, frecuencia_del_curso
 from ..iconos import icono_nucleo
-from ..models import PropuestaNivel
+from ..models import NivelEducativo, PropuestaNivel
 from ..pantallas import para_tener_presentes, texto_edad
-from ..permisos import cursos_de, cursos_donde_registra, jardines_que_dirige, puede_editar_lista, puede_validar
+from ..permisos import (
+    cursos_con_lista_editable, cursos_de, cursos_donde_registra, cursos_que_valida, jardines_que_dirige,
+    puede_editar_lista, puede_validar,
+)
 
 register = template.Library()
 
@@ -42,6 +48,38 @@ def edad(nino):
 def filtro_icono_nucleo(sigla):
     """URL del icono del núcleo ("" si no tiene). Se usa como máscara: ver `registro/iconos.py`."""
     return icono_nucleo(sigla)
+
+
+@dataclass(frozen=True)
+class SalaDelSelector:
+    curso: object
+    url: str
+    actual: bool
+
+
+# Secciones de una sala que existen en todas: al cambiar de sala se queda en la misma, si la
+# usuaria puede verla en la otra; si no (o si está en la ficha de un niño), va a la tabla de la sala.
+_SECCIONES = {
+    "registrar": cursos_donde_registra,
+    "revision": cursos_que_valida,
+    "metas": cursos_que_valida,
+    "ninos_sala": cursos_con_lista_editable,
+    "curso": cursos_de,
+}
+
+
+def salas_del_selector(usuario, curso, resolver_match=None):
+    """[SalaDelSelector] con las salas que ve la usuaria: la educadora y las asistentes, las suyas;
+    la directora, todas las de su jardín. Ordenadas por jardín, nivel educativo y nombre."""
+    salas = list(cursos_de(usuario).select_related("jardin"))
+    orden = [valor for valor, _ in NivelEducativo.choices]
+    salas.sort(key=lambda c: (c.jardin.nombre, orden.index(c.nivel_educativo) if c.nivel_educativo in orden else 9, c.nombre))
+    seccion = getattr(resolver_match, "url_name", None)
+    permitidas = set(_SECCIONES[seccion](usuario).values_list("pk", flat=True)) if seccion in _SECCIONES else set()
+    return [
+        SalaDelSelector(c, reverse(seccion if c.pk in permitidas else "curso", args=[c.pk]), c.pk == curso.pk)
+        for c in salas
+    ]
 
 
 @register.inclusion_tag("registro/_menu_lateral.html", takes_context=True)
@@ -83,8 +121,8 @@ def menu_lateral(context):
         puede_validar=valida,
         puede_registrar=cursos_donde_registra(usuario).filter(pk=curso.pk).exists(),
         puede_editar_lista=puede_editar_lista(usuario, curso),
-        # Quien está en varias salas (o la directora) cambia de sala desde el menú.
-        otras_salas=list(cursos_de(usuario).exclude(pk=curso.pk).select_related("jardin")),
+        # Selector de sala, arriba del menú: las salas que ve, cada una en la misma sección si se puede.
+        salas=salas_del_selector(usuario, curso, getattr(request, "resolver_match", None)),
         # Solo la educadora decide niveles: la bandeja está en la vista del curso.
         propuestas_por_decidir=PropuestaNivel.objects.filter(
             nino__curso=curso, estado=PropuestaNivel.Estado.LISTA,

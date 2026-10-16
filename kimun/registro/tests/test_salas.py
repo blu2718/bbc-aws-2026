@@ -58,16 +58,37 @@ def test_una_asistente_en_dos_salas_cambia_de_sala_desde_el_menu(client, dos_sal
     a, b = dos_salas
     b.asistentes.add(asistente_del_curso)
     client.force_login(asistente_del_curso)
-    html = client.get(reverse("curso", args=[a.pk])).content.decode()
-    assert "Cambiar de sala" in html and reverse("curso", args=[b.pk]) in html
+    html = client.get(reverse("registrar", args=[a.pk])).content.decode()
+    assert 'class="selector-sala"' in html and 'aria-label="Cambiar de sala"' in html
+    # Se queda en la misma sección (registrar) al cambiar de sala.
+    assert f'href="{reverse("registrar", args=[b.pk])}"' in html
     assert client.get(reverse("curso", args=[b.pk])).status_code == 200
+
+
+def test_el_selector_lleva_a_la_misma_seccion_solo_si_se_puede(client, dos_salas, educadora, equipo):
+    """La educadora de A también es asistente en B: desde su revisión, B va a la tabla (en B no revisa)."""
+    a, b = dos_salas
+    b.asistentes.add(educadora)
+    client.force_login(educadora)
+    html = client.get(reverse("revision", args=[a.pk])).content.decode()
+    assert f'href="{reverse("revision", args=[a.pk])}" aria-current="page"' in html
+    assert f'href="{reverse("curso", args=[b.pk])}"' in html
+    assert reverse("revision", args=[b.pk]) not in html
+
+
+def test_la_directora_elige_entre_todas_las_salas_del_jardin(client, dos_salas, directora_del_jardin):
+    a, b = dos_salas
+    client.force_login(directora_del_jardin)
+    html = client.get(reverse("curso", args=[a.pk])).content.decode()
+    assert html.count('class="selector-sala-lista"') == 1
+    assert f'href="{reverse("curso", args=[b.pk])}"' in html
 
 
 def test_quien_esta_en_una_sola_sala_no_ve_las_otras(client, dos_salas, educadora):
     a, b = dos_salas
     client.force_login(educadora)
     html = client.get(reverse("curso", args=[a.pk])).content.decode()
-    assert "Cambiar de sala" not in html and "Transición B" not in html
+    assert "selector-sala-unica" in html and 'aria-label="Cambiar de sala"' not in html and "Transición B" not in html
     assert client.get(reverse("curso", args=[b.pk])).status_code == 404
 
 
