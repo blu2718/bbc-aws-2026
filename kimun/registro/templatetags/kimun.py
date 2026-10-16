@@ -1,13 +1,14 @@
 """Etiquetas de plantilla de la interfaz: avatar, edad y menú lateral (diseno-interfaz.jpg).
 
     {% load kimun %}
-    {{ nino.nombre|iniciales }}  {{ nino.nombre|color_avatar }}  {{ nino|edad }}
+    {{ nino.nombre|iniciales }}  {{ nino.nombre|color_avatar }}  {{ nino|edad }}  {{ nucleo.sigla|icono_nucleo }}
     {% menu_lateral %}
 """
 from django import template
 from django.utils import timezone
 
 from ..alertas import TablaCurso, tabla_del_curso
+from ..iconos import icono_nucleo
 from ..pantallas import para_tener_presentes, texto_edad
 from ..permisos import cursos_de, cursos_donde_registra, puede_validar
 
@@ -33,6 +34,12 @@ def color_avatar(nombre):
 @register.filter
 def edad(nino):
     return texto_edad(getattr(nino, "fecha_nacimiento", None), timezone.localdate())
+
+
+@register.filter(name="icono_nucleo")
+def filtro_icono_nucleo(sigla):
+    """URL del icono del núcleo ("" si no tiene). Se usa como máscara: ver `registro/iconos.py`."""
+    return icono_nucleo(sigla)
 
 
 @register.inclusion_tag("registro/_menu_lateral.html", takes_context=True)

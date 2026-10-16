@@ -2,12 +2,14 @@
 from datetime import date, timedelta
 
 import pytest
+from django.contrib.staticfiles import finders
 from django.urls import reverse
 from django.utils import timezone
 
 from registro.models import Efecto, MetaSemestre, NivelValidado, Nino, Semestre
 from registro.pantallas import texto_edad
-from registro.radar import EjeRadar, svg_radar
+from registro.radar import PETALOS, EjeRadar, svg_radar
+from registro.iconos import ARCHIVOS, icono_nucleo
 
 
 @pytest.mark.parametrize("nacimiento, hoy, esperado", [
@@ -41,6 +43,25 @@ def test_las_etiquetas_llevan_el_nombre_completo_del_nucleo():
     for fila in ("Comprensión", "del Entorno", "Sociocultural", "nivel 4"):
         assert f">{fila}</tspan>" in svg
     assert ">CES<" not in svg
+
+
+def test_cada_nucleo_lleva_su_icono_del_color_del_petalo():
+    """El PNG es una silueta clara: se usa como máscara de un cuadrado del color del borde del pétalo."""
+    ejes = [EjeRadar(s, s, 2, "2", icono=icono_nucleo(s)) for s in ("IA", "LV", "PM", "CES")]
+    ejes.append(EjeRadar("X", "Núcleo nuevo sin icono", 1, "1"))
+    svg = svg_radar(ejes, nivel_maximo=8)
+    assert svg.count('class="radar-icono"') == 4 and svg.count("<mask ") == 4
+    for i, (sigla, (_, borde)) in enumerate(zip(("IA", "LV", "PM", "CES"), PETALOS)):
+        assert f'href="{icono_nucleo(sigla)}"' in svg
+        assert f'fill="{borde}" mask="url(#radar-icono-{i})"' in svg
+    assert "radar-icono-4" not in svg
+
+
+def test_los_ocho_nucleos_tienen_icono_en_los_estaticos():
+    for sigla, archivo in ARCHIVOS.items():
+        assert finders.find(f"registro/img/nucleos/{archivo}"), sigla
+        assert icono_nucleo(sigla).endswith(f"registro/img/nucleos/{archivo}")
+    assert icono_nucleo("OTRO") == ""
 
 
 def test_el_grafico_escapa_el_texto_y_necesita_tres_nucleos():
@@ -77,7 +98,9 @@ def test_el_menu_muestra_el_curso_los_ninos_para_tener_presentes_y_la_lista(clie
     assert curso.nombre in menu and curso.jardin.nombre in menu
     presentes = menu[menu.index("Para tener presentes"):menu.index('id="titulo-ninos"')]
     assert "Matías Lagos" in presentes and "Pedro Salinas" not in presentes
-    assert "Revisar en Lenguaje Verbal" in presentes
+    # Solo el icono del núcleo, en rojo; el nombre queda para lectores de pantalla y el tooltip.
+    assert 'class="icono-nucleo senal-icono-alerta" role="img" aria-label="Revisar: Lenguaje Verbal"' in presentes
+    assert icono_nucleo("LV") in presentes and "Revisar en" not in presentes
     assert 'data-buscador' in menu and "Niños y niñas (4)" in menu
     for nino in curso_con_rezago.values():
         assert f'href="{reverse("ficha", args=[nino.pk])}"' in menu
@@ -103,6 +126,7 @@ def test_el_perfil_muestra_edad_grafico_e_historial(client, curso, educadora, cu
 
     assert texto_edad(date(2020, 5, 14), timezone.localdate()) in html
     assert 'class="radar"' in html and "Nivel en cada núcleo (3)" in html
+    assert html.count('class="radar-icono"') == 3 and icono_nucleo("PM") in html
     historial = html[html.index('id="titulo-historial"'):html.index('id="titulo-detalle"')]
     assert "Clasificó hojas por color." in historial and "Muestra avance" in historial
     assert f'href="{reverse("captura", args=[obs.captura_id])}"' in historial

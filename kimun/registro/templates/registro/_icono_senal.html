@@ -1,0 +1,4 @@
+{% load kimun %}{% comment %}
+Una señal del menú lateral ("Para tener presentes"): el icono del núcleo pintado de rojo (alerta) o naranjo (aviso).
+El PNG se usa como máscara (registro/iconos.py). Sin icono, la sigla. Recibe `nucleo`, `tipo` y `accion`.
+{% endcomment %}{% with icono=nucleo.sigla|icono_nucleo %}{% if icono %}<span class="icono-nucleo senal-icono-{{ tipo }}" role="img" aria-label="{{ accion }}: {{ nucleo.nombre }}" title="{{ accion }}: {{ nucleo.nombre }}" style="-webkit-mask-image: url('{{ icono }}'); mask-image: url('{{ icono }}')"></span>{% else %}<abbr class="senal-menu senal-menu-{{ tipo }}" title="{{ accion }}: {{ nucleo.nombre }}">{{ nucleo.sigla }}</abbr>{% endif %}{% endwith %}
