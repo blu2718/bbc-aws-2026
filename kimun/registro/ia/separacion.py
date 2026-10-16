@@ -402,11 +402,28 @@ def _pregunta(entrada):
 
 
 def _senal_vulneracion(entrada):
-    """La señal si el modelo marcó una posible vulneración; None si no la marcó."""
-    if not isinstance(entrada, dict) or not _como_bool(entrada.get("posible_vulneracion")):
+    """La señal si el modelo marcó una posible vulneración; None si no la marcó.
+
+    Ante la duda se marca (PLAN.md, Task 13): también si la marca viene dentro del objeto
+    completo serializado en `observaciones` (forma que `_extraer_observaciones` acepta), o
+    si trae una señal válida sin decir explícitamente que no.
+    """
+    if not isinstance(entrada, dict):
         return None
-    senal = entrada.get("senal")
-    return senal if senal in SENALES_VULNERACION else "otra"
+    anidada = entrada.get("observaciones")
+    if isinstance(anidada, str):
+        try:
+            anidada = json.loads(anidada)
+        except ValueError:
+            anidada = None
+    for candidata in (entrada, anidada):
+        if not isinstance(candidata, dict):
+            continue
+        senal = candidata.get("senal")
+        marcada = _como_bool(candidata.get("posible_vulneracion"))
+        if marcada or (senal in SENALES_VULNERACION and candidata.get("posible_vulneracion") is not False):
+            return senal if senal in SENALES_VULNERACION else "otra"
+    return None
 
 
 class Separacion(NamedTuple):

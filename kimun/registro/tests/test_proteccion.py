@@ -83,6 +83,17 @@ def test_una_senal_desconocida_queda_como_otra():
     assert resultado.senal == "otra"
 
 
+def test_ante_la_duda_se_marca_aunque_la_marca_venga_anidada_o_sin_el_booleano():
+    import json
+
+    anidada = {"observaciones": json.dumps(MARCADA | {"observaciones": [_obs_normal()]}), "pregunta": None}
+    assert separar_completo(NOTA, "2026-10-15", [], CATALOGO, cliente=ClienteFalso(anidada)).senal == "relato"
+    sin_booleano = {"observaciones": [_obs_normal()], "pregunta": None, "senal": "fisico"}
+    assert separar_completo(NOTA, "2026-10-15", [], CATALOGO, cliente=ClienteFalso(sin_booleano)).senal == "fisico"
+    # Una respuesta normal sigue sin marcarse.
+    assert separar_completo(NOTA, "2026-10-15", [], CATALOGO, cliente=ClienteFalso(_normal(_obs_normal()))).senal is None
+
+
 def test_sin_el_campo_la_nota_se_separa_normal():
     respuesta = {"observaciones": [_obs_normal()], "pregunta": None}
     resultado = separar_completo("Pedro contó hasta 10", "2026-10-15", ["Pedro Salinas"], CATALOGO, cliente=ClienteFalso(respuesta))
