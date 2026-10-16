@@ -431,13 +431,22 @@ dialog.menu-lateral > article > footer.menu-pie {
 .pagina-conversacion main { display: flex; flex-direction: column; min-height: calc(100dvh - 4.25rem); padding-bottom: 0; }
 .conversacion { display: flex; flex-direction: column; gap: 1rem; flex: 1; width: 100%; max-width: 42rem; margin-inline: auto; }
 
-.registro-pregunta { margin-block: auto; padding: 1.5rem 0 1rem; text-align: center; }
-.registro-pregunta img { border-radius: 1.4rem; box-shadow: var(--kimun-sombra); margin-bottom: 1rem; }
-.registro-pregunta h1 { margin-bottom: .5rem; color: var(--kimun-tinta); font-size: clamp(1.7rem, 7vw, 2.3rem); }
+.registro-pregunta { margin-block: auto; padding: 1.25rem 0 .75rem; text-align: center; }
+.registro-pregunta img { width: 72px; height: 72px; border-radius: 1.2rem; box-shadow: var(--kimun-sombra); margin-bottom: .75rem; }
+.registro-pregunta h1 { margin-bottom: .5rem; color: var(--kimun-tinta); font-size: clamp(1.75rem, 7.5vw, 2.4rem); line-height: 1.15; }
 .registro-pregunta p { max-width: 30rem; margin: 0 auto .5rem; color: var(--pico-muted-color); }
-.registro-curso { font-size: .85rem; }
+.registro-curso { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .35rem .5rem; margin-bottom: 1rem !important; font-size: .85rem; }
+/* Curso en el que se registra: lo primero que se confirma en sala. */
+.chip-curso { padding: .2rem .7rem; border-radius: 999px; background: var(--kimun-celeste); color: var(--kimun-tinta); font-weight: 600; }
+/* Las tres formas de registrar: recordatorio, no navegación (solo la foto es un control). */
+.formas-registrar { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; margin: .9rem 0 0; padding: 0; }
+.formas-registrar li { list-style: none; margin: 0; }
+.formas-registrar li, .formas-registrar label { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; color: var(--kimun-tinta); }
+.formas-registrar > li { padding: .3rem .7rem; border-radius: 999px; background: var(--kimun-celeste-suave); }
+.formas-registrar label { margin: 0; cursor: pointer; text-decoration: underline; text-decoration-color: var(--kimun-celeste-hover); text-underline-offset: .2em; }
+.formas-registrar svg { flex: none; color: var(--kimun-azul); }
 
-.recientes h2 { font-size: .9rem; margin: 0 0 .4rem; color: var(--pico-muted-color); font-weight: 600; }
+.recientes h2 { font-size: .9rem; margin: 0 0 .4rem; color: var(--pico-muted-color); font-weight: 600; font-family: inherit; }
 .recientes ul { display: grid; gap: .4rem; margin: 0; padding: 0; }
 .recientes li { list-style: none; margin: 0; }
 .recientes a {
@@ -451,7 +460,21 @@ dialog.menu-lateral > article > footer.menu-pie {
 }
 .recientes a:hover, .recientes a:focus-visible { border-color: var(--kimun-celeste-borde); background: var(--kimun-celeste-suave); }
 .reciente-texto { display: block; }
-.recientes small { display: block; color: var(--pico-muted-color); font-size: .78rem; }
+.recientes small { display: block; margin-top: .15rem; color: var(--pico-muted-color); font-size: .78rem; }
+
+/* Chips de estado de un registro o propuesta: color de su señal y siempre el texto. */
+.chip-estado {
+  display: inline-flex; align-items: center; gap: .3rem; padding: .05rem .55rem; border-radius: 999px;
+  background: var(--kimun-gris-suave); color: var(--kimun-gris-oscuro); font-size: .75rem; font-weight: 600; white-space: nowrap;
+}
+.chip-estado::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; }
+.chip-pendiente, .chip-solicitada { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso); }
+.chip-procesando, .chip-preparando { background: var(--kimun-celeste-suave); color: var(--kimun-azul); }
+.chip-procesando::before, .chip-preparando::before { animation: chip-latido 1.2s ease-in-out infinite; }
+.chip-procesada, .chip-lista, .chip-aceptada { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
+.chip-error, .chip-en_resguardo { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); }
+@keyframes chip-latido { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .chip-estado::before { animation: none !important; } }
 
 .composer {
   position: sticky;
@@ -467,7 +490,7 @@ dialog.menu-lateral > article > footer.menu-pie {
   align-items: flex-end;
   gap: .3rem;
   padding: .35rem;
-  border: 1.5px solid var(--kimun-celeste-borde);
+  border: 2px solid var(--kimun-celeste);
   border-radius: 1.75rem;
   background: #fff;
   box-shadow: var(--kimun-sombra);
@@ -492,7 +515,14 @@ dialog.menu-lateral > article > footer.menu-pie {
 .boton-adjuntar:hover, .boton-microfono:hover { background: var(--kimun-celeste-medio); color: var(--kimun-tinta); }
 input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); outline-offset: 2px; }
 .boton-microfono[aria-pressed=true] { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta); }
-.boton-enviar { border: 0; background: var(--kimun-celeste); color: var(--kimun-tinta); }
+.boton-enviar { border: 0; background: var(--kimun-azul); color: #fff; }  /* la acción principal de la app: 7,3:1 */
+.boton-enviar:hover, .boton-enviar:focus-visible { background: var(--kimun-azul-hover); color: #fff; }
+@media (max-width: 575px) {
+  /* En sala, con una mano: botones de 48 px y texto de 17 px (iOS no hace zoom sobre 16 px o más). */
+  .composer-barra .boton-icono { width: 3rem; height: 3rem; }
+  .composer-barra textarea { min-height: 3rem; font-size: 1.0625rem; }
+  .recientes ul { gap: .35rem; }
+}
 .composer-estado { min-height: 0; margin: 0 .5rem .35rem; font-size: .85rem; color: var(--pico-muted-color); }
 .composer-estado:empty { display: none; }
 .composer-adjunto {

@@ -5,10 +5,16 @@
 {% block contenido %}
 <section class="conversacion" aria-labelledby="titulo-registrar">
   <div class="registro-pregunta">
+    <p class="registro-curso"><span class="chip-curso">{{ curso.nombre }}</span> {{ curso.jardin.nombre }}</p>
     <img src="{% static 'registro/img/logo.svg' %}" alt="" width="88" height="88">
     <h1 id="titulo-registrar">¿Qué quieres registrar?</h1>
     <p>Cuenta lo que pasó con uno, dos o más niños, o con todo el curso. Puedes escribirlo, grabar un audio o adjuntar la foto del cuaderno o de un post-it.</p>
-    <p class="registro-curso">{{ curso.nombre }} · {{ curso.jardin.nombre }}</p>
+    {# Las tres formas de registrar, como recordatorio. La foto se adjunta también desde aquí (mismo input que el «+»). #}
+    <ul class="formas-registrar">
+      <li><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>Escribe abajo</li>
+      <li><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Graba un audio</li>
+      <li><label for="registro-foto"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path d="M4 8h3l2-3h6l2 3h3v11H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/></svg>Foto del cuaderno</label></li>
+    </ul>
   </div>
 
   {% if recientes %}
@@ -19,7 +25,7 @@
           <li>
             <a href="{% url 'captura' c.pk %}">
               <span class="reciente-texto">{% if c.estado == "en_resguardo" %}En resguardo{% elif c.texto_original %}{{ c.texto_original|truncatechars:70 }}{% elif c.tipo == "foto" %}Foto{% else %}Audio{% endif %}</span>
-              <small>{{ c.get_tipo_display }} · {{ c.creada|date:"j M, H:i" }}{% if c.autora_id != user.pk %} · {{ c.autora.get_full_name|default:c.autora.username }}{% endif %} · {{ c.get_estado_display }}</small>
+              <small>{{ c.get_tipo_display }} · {{ c.creada|date:"j M, H:i" }}{% if c.autora_id != user.pk %} · {{ c.autora.get_full_name|default:c.autora.username }}{% endif %} <span class="chip-estado chip-{{ c.estado }}">{{ c.get_estado_display }}</span></small>
             </a>
           </li>
         {% endfor %}

@@ -102,6 +102,7 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 | Caja suave | `.bandeja-propuestas`, `.resumen-nota`, `.pregunta-kimun` | Fondo celeste claro, sin sombra |
 | Botones | `button`, `[role=button]` (primario celeste), `.secondary` (gris), `.secondary.outline` (borde); `.botones-enlace a` / `a.principal` cuando el `<a>` no puede llevar atributos | Uno primario por bloque |
 | Botón ícono | `.boton-icono` | Círculo de 2,75 rem (área táctil de 44 px) |
+| Chips de estado | `.chip-estado` + `.chip-<estado>` (pendiente/solicitada amarillo, procesando/preparando celeste con punto que late, procesada/lista/aceptada verde, error/en_resguardo rojo) | Segunda pasada. Punto de color + texto; el latido se apaga con movimiento reducido |
 | Etiquetas de estado | `.estado-obs` (+ `.estado-pendiente`, `.estado-aceptada`), `.efecto-*`, `.apoyo`, `.etiqueta-referencia`, `.etiqueta-provisoria`, `.etiqueta-sin-evidencia` | Píldoras con texto |
 | Señales | `.senal` + `.senal-aviso` / `.senal-alerta` | Caja con borde izquierdo de color y texto |
 | Alertas | `.aviso` (amarilla), `.aviso-error` (roja), `.aviso-proteccion` (roja, Task 13), `.mensajes` (celeste) | |
@@ -145,6 +146,12 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   accesible del gráfico, con `caption` y encabezados), los escalones van `aria-hidden` porque el nivel está en
   texto. En celular cada fila se apila (nombre arriba, nivel y mediana abajo): ya no hay scroll lateral.
   `--nivel-max` vale 8 por defecto y `kimun.js` lo ajusta al número de anillos de la flor.
+- **Registrar en celular.** Lo primero es el curso (`.chip-curso`, celeste) para confirmar dónde se registra;
+  logo más chico (72 px) para que la barra quede a mano; bajo el título, las tres formas de registrar
+  (`.formas-registrar`): «Foto del cuaderno» es otro `<label for="registro-foto">`, mismo input que el «+»; las
+  otras dos son recordatorio, sin aspecto de botón. Enviar pasa a azul con flecha blanca (la acción principal
+  de la app, 7,3:1); en celular los botones de la barra miden 48 px y el texto 17 px (sin zoom en iOS). Los
+  registros recientes muestran su estado como chip.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -244,6 +251,7 @@ Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa er
 |---|---|---|---|
 | 0 | `git merge origin/main`: conflictos en aviso, curso, informe y protocolo, todos de texto o clases; se conservaron ambos lados. La compactación de `.tabla-curso` que main traía en `<style>` se movió a `registro.css` | merge | hecho; tests de instrumentos, historial, informe, vistas, protección, protocolo, revisión y frecuencia pasan (211) |
 | 1 | Gráfico de flor, nivel general y escalones por núcleo; Fredoka y colores por núcleo | `style(ficha): flor` | hecho; `test_ficha`, `test_perfil`, `test_vistas`, `test_instrumentos` pasan |
+| 2 | Registrar (celular): curso primero, formas de registrar, enviar en azul, botones de 48 px, chips de estado | `style(registrar)` | hecho; `test_registrar`, `test_captura`, `test_capturas`, `test_proteccion`, `test_vistas` pasan |
 
 ## Cómo seguir
 
