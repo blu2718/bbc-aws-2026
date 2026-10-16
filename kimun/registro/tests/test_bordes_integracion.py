@@ -158,7 +158,7 @@ def test_la_migracion_crea_rubricas_y_descriptores_provisorios_faltantes(db, jar
 def test_la_migracion_acorta_el_nivel_1_provisorio_sin_pisar_los_editados(rubrica, nucleos):
     from django.apps import apps
 
-    migracion = importlib.import_module("registro.migrations.0010_rubrica_provisoria_nivel_1_corto")
+    migracion = importlib.import_module("registro.migrations.0013_rubrica_provisoria_nivel_1_corto")
     ia, lv, pm = nucleos
     for nucleo in nucleos:
         nucleo.esperado_inicio_nt1 = f"Al iniciar NT1, en {nucleo.nombre}…"

@@ -42,7 +42,7 @@ def alargar(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("registro", "0009_rubricas_provisorias_por_nivel"),
+        ("registro", "0012_instrumentos_e_historial"),
     ]
 
     operations = [
