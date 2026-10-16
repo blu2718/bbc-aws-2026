@@ -3,10 +3,12 @@
 La rúbrica de Integra (`datos/rubrica_integra.json`) se carga después del
 currículo y reemplaza a la provisoria en los núcleos que trae (hoy, IA).
 
-El curso trae niveles históricos validados y unas 40 observaciones aceptadas
+El curso trae niveles históricos validados y unas 80 observaciones aceptadas
 (Task 2), para que la tabla muestre todos los estados: un niño bajo sus pares
 en lenguaje, avisos, datos desactualizados, núcleos sin datos y OA sin
-evidencia. Las fechas de las observaciones se cuentan hacia atrás desde el día
+evidencia. Las de las últimas dos semanas hacen que "Para tener presentes"
+muestre un niño con muy pocas observaciones, dos con pocas y uno con varias
+pendientes de revisar (`frecuencia.py`). Las fechas de las observaciones se cuentan hacia atrás desde el día
 de la carga (o desde --hoy).
 
 Para la vista de la directora (Task 12), el jardín tiene una directora y dos
@@ -189,7 +191,7 @@ class Command(BaseCommand):
                 )
 
     def _observaciones(self, curso, observaciones, ninos, educadora, usuarias, hoy):
-        """Observaciones ya aceptadas, cada una con su captura de texto.
+        """Observaciones aceptadas (o pendientes, si traen "estado"), cada una con su captura de texto.
 
         La fecha es `hoy - hace_dias`, para que los avisos de 14 días y la
         quincena se vean igual cualquier día que se cargue la demo. Cada
@@ -223,6 +225,9 @@ class Command(BaseCommand):
             efecto = o.get("efecto") or (Efecto.AVANCE if o.get("apoyo") == Apoyo.AUTONOMO else Efecto.SIN_DATO)
             if efecto not in Efecto.values or (grupal and efecto != Efecto.SIN_DATO):
                 raise CommandError(f"Efecto inválido en la demo: «{efecto}» en «{o['cita'][:40]}».")
+            estado = o.get("estado", Observacion.Estado.ACEPTADA)
+            if estado not in (Observacion.Estado.ACEPTADA, Observacion.Estado.PENDIENTE) or (grupal and estado != Observacion.Estado.ACEPTADA):
+                raise CommandError(f"Estado inválido en la demo: «{estado}» en «{o['cita'][:40]}».")
             if "autora" in o and o["autora"] not in usuarias:
                 raise CommandError(f"Autora desconocida en la demo: «{o['autora']}».")
             # Un OA implica su núcleo.
@@ -246,7 +251,7 @@ class Command(BaseCommand):
                     "apoyo": o.get("apoyo", "sin_dato"),
                     "efecto": efecto,
                     "grupal": grupal,
-                    "estado": Observacion.Estado.ACEPTADA,
+                    "estado": estado,
                 },
             )
             observacion.nucleos.set(etiquetas)

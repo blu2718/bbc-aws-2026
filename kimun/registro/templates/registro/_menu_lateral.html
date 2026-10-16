@@ -37,7 +37,7 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
       {% if presentes %}
         <section class="menu-seccion" aria-labelledby="titulo-presentes">
           <h2 id="titulo-presentes">Para tener presentes</h2>
-          <p class="menu-ayuda">Con más señales de revisión en la tabla del curso. Son sugerencias, no diagnósticos.
+          <p class="menu-ayuda">Con más señales de revisión en la tabla del curso o con pocas observaciones frente al resto. Son sugerencias, no diagnósticos.
             Núcleos <strong class="senal-icono-alerta">en rojo, para revisar</strong>; <strong class="senal-icono-aviso">en naranjo, para observar</strong>.</p>
           <ul class="lista-ninos">
             {% for p in presentes %}
@@ -51,6 +51,9 @@ Es un <dialog>: kimun.js lo abre con el botón del menú; Esc, el botón "Cerrar
                       {% for n in p.revisar %}{% include "registro/_icono_senal.html" with nucleo=n tipo="alerta" accion="Revisar" %}{% endfor %}
                       {% for n in p.observar %}{% include "registro/_icono_senal.html" with nucleo=n tipo="aviso" accion="Observar" %}{% endfor %}
                     </span>
+                    {# Frecuencia de observación (registro/frecuencia.py): texto, porque no es de un núcleo. #}
+                    {% if p.pocas_observaciones %}<span class="senal-texto-menu senal-menu-{{ p.frecuencia.gravedad.value }}" title="{{ p.frecuencia.texto }}">{{ p.frecuencia.texto_corto }}</span>{% endif %}
+                    {% if p.muchas_pendientes %}<span class="senal-texto-menu senal-menu-aviso">{{ p.frecuencia.texto_pendientes }}</span>{% endif %}
                   </span>
                 </a>
               </li>

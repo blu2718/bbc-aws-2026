@@ -71,6 +71,7 @@ Por qué se demoraban (15-10-2026) y cómo evitarlo:
 | `kimun/registro/curriculo.py`, `kimun/registro/rubrica.py` | Carga del currículo de Transición y rúbrica provisoria 8×8 |
 | `kimun/registro/alertas.py` | Semestre de permanencia, nivel esperado, brechas con pares y con lo esperado, datos desactualizados y distribución del curso, y comparación de las salas del jardín por núcleo (funciones puras; `tabla_del_curso` y `resumen_del_jardin` son las únicas que consultan) |
 | `kimun/registro/cobertura.py` | Cobertura de evidencia por OA de cada niño y resumen de la quincena del curso |
+| `kimun/registro/frecuencia.py` | Observaciones por niño frente a la mediana del curso: pocas en 7 días (naranjo), muy pocas en 14 días (rojo) y muchas pendientes de revisar. Se muestran en "Para tener presentes" del menú lateral y en la tabla del curso (`calcular_frecuencia` es pura; `frecuencia_del_curso` consulta) |
 | `kimun/registro/ficha.py` | Datos de la ficha del niño por núcleo: rúbrica del nivel actual y del siguiente, evolución, cobertura por OA, observaciones y situación frente al curso (sale de `alertas.tabla_del_curso`) |
 | `kimun/registro/forms.py` | `FijarNivelForm` (niveles del 1 al máximo de la rúbrica) y `MetasForm` (nivel esperado por semestre de permanencia) |
 | `kimun/registro/revision.py`, `kimun/registro/views_revision.py` | Revisión de observaciones pendientes (Task 6): agrupar por captura, aceptar, editar, descartar, asignar niño y "aceptar todas". Solo la educadora del curso; las vistas responden a HTMX y también sin JavaScript |

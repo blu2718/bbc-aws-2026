@@ -112,6 +112,56 @@
   </div>
 </section>
 
+{# --- Observaciones por niño (registro/frecuencia.py) --- #}
+<section aria-labelledby="titulo-frecuencia">
+  <h2 id="titulo-frecuencia">Observaciones por niño o niña</h2>
+  <p>
+    En los últimos {{ frecuencia.aviso.dias }} días: mediana del curso de {{ frecuencia.aviso.texto_mediana }} observaciones por niño o niña
+    (promedio {{ frecuencia.texto_promedio_semana }}). En los últimos {{ frecuencia.alerta.dias }} días: mediana de {{ frecuencia.alerta.texto_mediana }}.
+    Cuentan las aceptadas y las pendientes de revisión, sin las grupales ni las de todo el curso.
+  </p>
+  <p>
+    «Pocas observaciones» cuando un niño o niña tiene dos tercios o menos de la mediana en {{ frecuencia.aviso.dias }} días,
+    y «Muy pocas observaciones» cuando tiene un tercio o menos en {{ frecuencia.alerta.dias }} días.
+    {% if not frecuencia.aviso.compara and not frecuencia.alerta.compara %}Por ahora el curso tiene muy pocas observaciones recientes para comparar.{% endif %}
+  </p>
+  {% if frecuencia.con_senal %}
+    <p role="status"><strong>{{ frecuencia.con_senal|length }} niño{{ frecuencia.con_senal|length|pluralize }} con pocas observaciones:</strong>
+      {% for f in frecuencia.con_senal %}<a href="{% url 'ficha' f.nino.pk %}">{{ f.nino.nombre }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}.
+      Sugerencia: tenerlos presentes al observar en los próximos días.
+    </p>
+  {% endif %}
+  <div class="overflow-auto">
+    <table>
+      <caption>Observaciones de cada niño o niña en los últimos {{ frecuencia.aviso.dias }} y {{ frecuencia.alerta.dias }} días, y pendientes de revisión</caption>
+      <thead>
+        <tr>
+          <th scope="col">Niño o niña</th>
+          <th scope="col">{{ frecuencia.aviso.dias }} días</th>
+          <th scope="col">{{ frecuencia.alerta.dias }} días</th>
+          <th scope="col">Pendientes</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in frecuencia.filas %}
+          <tr>
+            <th scope="row">
+              <a href="{% url 'ficha' f.nino.pk %}">{{ f.nino.nombre }}</a>
+              {% if f.texto %}<span class="senal senal-{{ f.gravedad.value }}">{{ f.texto }}</span>{% endif %}
+              {% if puede_validar and f.texto_pendientes %}<span class="senal senal-aviso">{{ f.texto_pendientes }}</span>{% endif %}
+            </th>
+            <td>{{ f.semana }}</td>
+            <td>{{ f.dos_semanas }}</td>
+            <td>{{ f.pendientes }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="4">Este curso todavía no tiene niños ni niñas.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+
 {# --- Tabla del curso --- #}
 <section aria-labelledby="titulo-tabla">
   <h2 id="titulo-tabla">Niveles por núcleo</h2>
