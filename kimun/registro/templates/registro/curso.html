@@ -9,7 +9,10 @@
   .senal-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); font-weight: 600; }
   .datos { display: block; margin-top: .25rem; font-size: .75rem; color: var(--pico-muted-color); }
   .tabla-curso th[scope="row"] { position: sticky; left: 0; background: var(--pico-background-color); z-index: 1; }
-  .tabla-curso td, .tabla-curso th { vertical-align: top; min-width: 7rem; }
+  /* Letra y celdas más compactas: los 8 núcleos caben sin scroll horizontal desde ~1024 px. */
+  .tabla-curso { font-size: .9rem; }
+  .tabla-curso td, .tabla-curso th { vertical-align: top; min-width: 4.5rem; padding-inline: .4rem; }
+  .tabla-curso th[scope="row"] { min-width: 7.5rem; }
   .tabla-curso th[scope="row"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
   .sin-observaciones th, .sin-observaciones td { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); }
   .distribucion td.mayoria { font-weight: 700; text-decoration: underline; }
