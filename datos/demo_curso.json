@@ -154,6 +154,17 @@
     {"nino": null, "grupal": true, "hace_dias": 5, "nucleos": [], "oas": [], "apoyo": "sin_dato",
      "cita": "Esta semana bajó la asistencia por los resfríos: el martes vinieron 9 niños."}
   ],
+  "_nota_capturas_pendientes": "Notas escritas que quedan pendientes, sin ordenar, para que en la demo las ordene el proceso de fondo con Bedrock real: no se escriben aquí resultados de IA. La primera nombra a tres niños; la segunda dice solo «Sofía», que en el curso es ambiguo (hay dos), así que queda una observación sin asignar. Volver a cargar no las duplica ni las vuelve a pendiente si ya se ordenaron.",
+  "capturas_pendientes": [
+    {
+      "autora": "educadora",
+      "texto": "En el patio Rubí y Gaspar armaron juntos una torre con 12 bloques. Gaspar los contó en voz alta sin equivocarse y Rubí propuso poner los más grandes abajo para que no se cayera. Cuando se derrumbó, Tomás se rió y Rubí le dijo que no le gustaba que se riera, sin gritar, y volvieron a armarla los tres."
+    },
+    {
+      "autora": "asistente",
+      "texto": "Sofía pidió ayuda para abrocharse la chaqueta antes de salir y el último botón lo intentó sola hasta lograrlo. Josefa se acercó a mostrarle cómo lo hacía ella."
+    }
+  ],
   "_nota_otros_cursos": "Otras dos salas de Transición del mismo jardín, para la vista de la directora (Task 12). Cada una tiene su educadora (Integra: 1 por sala) y no trae observaciones. B queda en promedio cerca de 6 en todos los núcleos; C cerca de 5, salvo Lenguaje Verbal y Pensamiento Matemático, donde queda cerca de 3: ahí C queda 2 o más niveles bajo el promedio de A y B y la directora ve la sugerencia de revisión.",
   "otros_cursos": [
     {

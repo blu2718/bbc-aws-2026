@@ -22,7 +22,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from . import procesamiento
 from .forms_registro import RegistroForm
 from .models import Captura, Observacion
-from .pantallas import ninos_mencionados, observaciones_para_tarjetas, tarjetas_suceso
+from .pantallas import ninos_mencionados, observaciones_para_tarjetas, resumen_captura, tarjetas_suceso
 from .permisos import cursos_de, cursos_donde_registra, puede_validar
 
 RECIENTES = 3
@@ -68,14 +68,20 @@ def _contexto_captura(request, captura):
     ).order_by("grupal", "nino__nombre", "fecha", "id")
     tarjetas = tarjetas_suceso(observaciones, timezone.localdate())
     del_curso = [t for t in tarjetas if t.obs.nombre_detectado == procesamiento.NOMBRE_TODO_EL_CURSO and not t.obs.grupal]
+    individuales = [t for t in tarjetas if not t.obs.grupal and t not in del_curso]
+    grupales = [t for t in tarjetas if t.obs.grupal]
     return {
         "captura": captura,
         "curso": curso,
-        "tarjetas": [t for t in tarjetas if not t.obs.grupal and t not in del_curso],
+        "tarjetas": individuales,
         # Lo que hizo todo el curso: una observación por niño, que se muestra junta en una sola tarjeta.
         "del_curso": del_curso,
         "del_curso_pendientes": sum(1 for t in del_curso if t.obs.estado == Observacion.Estado.PENDIENTE),
-        "grupales": [t for t in tarjetas if t.obs.grupal],
+        "grupales": grupales,
+        # "De esta nota saqué…": a quién corresponde cada observación y en qué núcleos, con enlaces a las tarjetas.
+        "resumen": resumen_captura(individuales, del_curso, grupales),
+        # La revisión agrupa por captura solo las observaciones individuales (incluidas las de todo el curso).
+        "hay_pendientes": any(t.obs.estado == Observacion.Estado.PENDIENTE for t in tarjetas if not t.obs.grupal),
         "puede_agregar_contexto": puede_agregar_contexto(captura),
         "puede_validar": puede_validar(request.user, curso),
         "puede_registrar": cursos_donde_registra(request.user).filter(pk=curso.pk).exists(),

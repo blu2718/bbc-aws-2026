@@ -125,6 +125,50 @@ def tarjetas_suceso(observaciones, hoy):
     return tarjetas
 
 
+@dataclass(frozen=True)
+class LineaResumen:
+    """Una línea del resumen de la nota: a quién corresponde una observación y en qué núcleos."""
+
+    obs: Observacion
+    nucleos: list  # [Nucleo]
+
+
+@dataclass(frozen=True)
+class ResumenCaptura:
+    """"De esta nota saqué N observaciones, para estos niños, en estos núcleos".
+
+    No muestra el estado de cada observación (pendiente o aceptada) porque las
+    tarjetas se actualizan solas con HTMX y el resumen quedaría desfasado.
+    """
+
+    lineas: list            # [LineaResumen], una por niño (asignado o no), en el orden de las tarjetas
+    del_curso: int          # niños que reciben lo que hizo todo el curso
+    nucleos_del_curso: list  # núcleos de lo que hizo todo el curso
+    grupales: int           # notas de contexto del curso
+    nucleos: list           # todos los núcleos distintos, en el orden de Nucleo
+
+    @property
+    def observaciones(self):
+        return len(self.lineas) + self.del_curso
+
+    @property
+    def vacio(self):
+        return not (self.lineas or self.del_curso or self.grupales)
+
+
+def resumen_captura(tarjetas, del_curso, grupales):
+    """`ResumenCaptura` a partir de las tarjetas que ya arma la pantalla II. Pura."""
+    lineas = [LineaResumen(t.obs, [n.nucleo for n in t.nucleos]) for t in tarjetas]
+    nucleos_del_curso = [n.nucleo for n in del_curso[0].nucleos] if del_curso else []
+    vistos = {}
+    for nucleo in [n for linea in lineas for n in linea.nucleos] + nucleos_del_curso:
+        vistos.setdefault(nucleo.pk, nucleo)
+    return ResumenCaptura(
+        lineas=lineas, del_curso=len(del_curso), nucleos_del_curso=nucleos_del_curso, grupales=len(grupales),
+        nucleos=sorted(vistos.values(), key=lambda n: (n.orden, n.sigla)),
+    )
+
+
 def observaciones_para_tarjetas(queryset):
     """Las relaciones que usan las tarjetas, para no consultar por cada una."""
     return queryset.select_related("captura__curso", "captura__autora", "nino").prefetch_related(

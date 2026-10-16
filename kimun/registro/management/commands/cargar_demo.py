@@ -118,6 +118,7 @@ class Command(BaseCommand):
         usuarias = {u.username: u for u in [educadora, *asistentes]}
         hoy = opciones["hoy"] or timezone.localdate()
         aceptadas = self._observaciones(curso, demo.get("observaciones", []), ninos, educadora, usuarias, hoy)
+        self._capturas_pendientes(curso, demo.get("capturas_pendientes", []), educadora, usuarias)
 
         nombres = ", ".join(u.username for u in todas)
         resumen_otros = "".join(f"; {c} con {c.ninos.count()} niños" for c in otros)
@@ -250,6 +251,22 @@ class Command(BaseCommand):
         return Observacion.objects.filter(
             nino__curso=curso, estado=Observacion.Estado.ACEPTADA, grupal=False
         ).count()
+
+    def _capturas_pendientes(self, curso, capturas, educadora, usuarias):
+        """Notas escritas que quedan pendientes para que las ordene `procesar_capturas` con Bedrock real.
+
+        No se escriben resultados de IA: solo el texto, como lo escribiría la educadora.
+        Se identifican por su texto. Si ya existen (en cualquier estado, por ejemplo ya
+        ordenadas en una demo anterior), no se tocan: volver a cargar no las duplica ni
+        las devuelve a pendiente.
+        """
+        for c in capturas:
+            if "autora" in c and c["autora"] not in usuarias:
+                raise CommandError(f"Autora desconocida en la demo: «{c['autora']}».")
+            Captura.objects.get_or_create(
+                curso=curso, tipo=Captura.Tipo.TEXTO, texto_original=c["texto"],
+                defaults={"autora": usuarias.get(c.get("autora"), educadora), "estado": Captura.Estado.PENDIENTE},
+            )
 
     def _usuaria(self, datos, cambiar_password):
         User = get_user_model()

@@ -1,0 +1,44 @@
+{% comment %}
+"De esta nota saqué…" (pantallas.resumen_captura): a quién corresponde cada observación y en qué núcleos,
+con un enlace a su tarjeta, más abajo. No muestra si cada una está pendiente o aceptada: las tarjetas se
+actualizan solas y este resumen quedaría desfasado.
+{% endcomment %}
+{% load kimun %}
+{% with r=resumen %}
+  <section class="resumen-nota" aria-labelledby="titulo-resumen-{{ captura.pk }}" role="status">
+    <h2 id="titulo-resumen-{{ captura.pk }}">
+      De esta nota saqué {{ r.observaciones }} observaci{{ r.observaciones|pluralize:"ón,ones" }}{% if r.nucleos %} en {{ r.nucleos|length }} núcleo{{ r.nucleos|length|pluralize }}{% endif %}
+    </h2>
+    <ul class="resumen-nota-lista">
+      {% for l in r.lineas %}
+        <li>
+          {% if l.obs.nino %}
+            <a href="#obs-{{ l.obs.pk }}"><span class="avatar avatar-chico" aria-hidden="true" style="--fondo-avatar: {{ l.obs.nino.nombre|color_avatar }}">{{ l.obs.nino.nombre|iniciales }}</span>{{ l.obs.nino.nombre }}</a>
+          {% else %}
+            <a href="#obs-{{ l.obs.pk }}" class="sin-asignar"><span class="avatar avatar-chico" aria-hidden="true">?</span>«{{ l.obs.nombre_detectado|default:"sin nombre" }}»: elegir a quién corresponde</a>
+          {% endif %}
+          <small>{% for n in l.nucleos %}{{ n.nombre }}{% if not forloop.last %} · {% endif %}{% empty %}Sin núcleo identificado{% endfor %}</small>
+        </li>
+      {% endfor %}
+      {% if r.del_curso %}
+        <li>
+          <a href="#curso-{{ captura.pk }}-titulo"><span class="avatar avatar-chico avatar-curso" aria-hidden="true">✱</span>Todo el curso ({{ r.del_curso }} niño{{ r.del_curso|pluralize:"s" }})</a>
+          <small>{% for n in r.nucleos_del_curso %}{{ n.nombre }}{% if not forloop.last %} · {% endif %}{% empty %}Sin núcleo identificado{% endfor %}</small>
+        </li>
+      {% endif %}
+      {% if r.grupales %}
+        <li><a href="#titulo-grupales-{{ captura.pk }}">{{ r.grupales }} nota{{ r.grupales|pluralize }} de contexto del curso</a> <small>No se usa{{ r.grupales|pluralize:",n" }} para evaluar</small></li>
+      {% endif %}
+    </ul>
+    <p class="ayuda">
+      {% if not hay_pendientes %}
+        Ya se revisaron.
+      {% elif puede_validar %}
+        Revísalas antes de que cuenten en la ficha.
+        <a href="{% url 'revision' curso.pk %}#captura-{{ captura.pk }}">Ver en la revisión del curso</a>
+      {% else %}
+        La educadora las revisará antes de que cuenten en la ficha.
+      {% endif %}
+    </p>
+  </section>
+{% endwith %}
