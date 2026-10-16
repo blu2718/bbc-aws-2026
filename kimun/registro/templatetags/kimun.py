@@ -8,6 +8,7 @@ from django import template
 from django.utils import timezone
 
 from ..alertas import TablaCurso, tabla_del_curso
+from ..frecuencia import FrecuenciaCurso, frecuencia_del_curso
 from ..iconos import icono_nucleo
 from ..pantallas import para_tener_presentes, texto_edad
 from ..permisos import cursos_de, cursos_donde_registra, puede_validar
@@ -48,7 +49,8 @@ def menu_lateral(context):
 
     Usa el `curso` de la página. Si la página no tiene uno y la usuaria ve un solo
     curso, usa ese; si ve varios, muestra la lista de cursos. Reutiliza la `tabla`
-    de la vista del curso cuando está, para no calcularla dos veces.
+    y la `frecuencia` de la vista del curso cuando están, para no calcularlas dos
+    veces. Las muchas observaciones pendientes solo se muestran a quien revisa.
     """
     request = context["request"]
     usuario = request.user
@@ -68,11 +70,15 @@ def menu_lateral(context):
     tabla = context.get("tabla")
     if not isinstance(tabla, TablaCurso):
         tabla = tabla_del_curso(curso)
+    frecuencia = context.get("frecuencia")
+    if not isinstance(frecuencia, FrecuenciaCurso):
+        frecuencia = frecuencia_del_curso(curso, hoy=tabla.hoy, ninos=[fila.nino for fila in tabla.filas])
+    valida = puede_validar(usuario, curso)
     datos.update(
         curso=curso,
         ninos=[fila.nino for fila in tabla.filas],
-        presentes=para_tener_presentes(tabla),
-        puede_validar=puede_validar(usuario, curso),
+        presentes=para_tener_presentes(tabla, frecuencia, ver_pendientes=valida),
+        puede_validar=valida,
         puede_registrar=cursos_donde_registra(usuario).filter(pk=curso.pk).exists(),
     )
     return datos

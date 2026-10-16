@@ -11,6 +11,8 @@ from django.urls import reverse
 
 from registro.alertas import EstadoDatos, Gravedad, resumen_del_jardin, tabla_del_curso
 from registro.cobertura import cobertura_del_nino, cobertura_quincena_del_curso, oas_sin_evidencia, quincena_de
+from registro.frecuencia import frecuencia_del_curso
+from registro.pantallas import para_tener_presentes
 from registro.management.commands.cargar_demo import RUTA_DEMO
 from registro.models import (
     Captura,
@@ -207,9 +209,9 @@ def _celda(tabla, nombre, sigla):
     return fila.celdas[[n.sigla for n in tabla.nucleos].index(sigla)]
 
 
-def test_demo_trae_unas_40_observaciones_aceptadas_con_nucleos_y_oa(cargada):
+def test_demo_trae_unas_80_observaciones_aceptadas_con_nucleos_y_oa(cargada):
     individuales = Observacion.objects.filter(estado=Observacion.Estado.ACEPTADA, grupal=False)
-    assert 35 <= individuales.count() <= 45
+    assert 75 <= individuales.count() <= 85
     assert all(o.nucleos.exists() and o.oas.exists() for o in individuales)
     # Cada OA etiquetado va con su núcleo.
     for o in individuales:
@@ -264,6 +266,21 @@ def test_demo_la_quincena_actual_tiene_nucleos_sin_observaciones(cargada):
     cobertura = cobertura_quincena_del_curso(_curso_a(), quincena_de(HOY))
     assert any(c.sin_observaciones for c in cobertura)
     assert any(not c.sin_observaciones for c in cobertura)
+
+
+def test_demo_muestra_ninos_con_pocas_observaciones_y_con_pendientes(cargada):
+    curso = _curso_a()
+    frecuencia = frecuencia_del_curso(curso, hoy=HOY)
+    assert (frecuencia.aviso.mediana, frecuencia.alerta.mediana) == (3, 5)
+    senales = {f.nino.nombre: f.gravedad for f in frecuencia.con_senal}
+    assert senales == {"Agustín Pérez": Gravedad.ALERTA, "Emilio Vargas": Gravedad.AVISO, "Matías Lagos": Gravedad.AVISO}
+    assert [f.nino.nombre for f in frecuencia.con_pendientes] == ["Tomás Herrera"]
+    assert Observacion.objects.filter(nino__nombre="Tomás Herrera", estado=Observacion.Estado.PENDIENTE).count() == 3
+
+    presentes = {p.nino.nombre: p for p in para_tener_presentes(tabla_del_curso(curso, hoy=HOY), frecuencia, ver_pendientes=True)}
+    for nombre in ("Agustín Pérez", "Emilio Vargas", "Matías Lagos", "Tomás Herrera"):
+        assert nombre in presentes, nombre
+    assert presentes["Matías Lagos"].revisar and presentes["Matías Lagos"].pocas_observaciones
 
 
 def test_las_observaciones_de_ia_no_copian_los_ejemplos_de_integra(cargada):

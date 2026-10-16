@@ -1,6 +1,7 @@
 """Vistas de la app. Toda consulta de un curso o niño pasa por `permisos.py`.
 
-- `curso`: tabla del curso con nivel esperado, brechas, distribución y quincena (Task 2).
+- `curso`: tabla del curso con nivel esperado, brechas, distribución y quincena (Task 2), y cuántas veces
+  se observa a cada niño frente al curso (`frecuencia.py`).
 - `jardin`: resumen del jardín para la directora, que compara salas del mismo nivel educativo (Task 12).
 - `ficha`, `fijar_nivel` y `metas`: ficha del niño, validación manual y tabla de metas (Task 3).
   La ficha es también el perfil de la pantalla IV de diseno-interfaz.jpg.
@@ -19,6 +20,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 from .alertas import DIAS_DATOS_RECIENTES, resumen_del_jardin, tabla_del_curso
 from .cobertura import cobertura_quincena_del_curso, quincena_de
 from .ficha import armar_ficha, descriptores_del_nucleo
+from .frecuencia import frecuencia_del_curso
 from .forms import SEMESTRES_CON_META, FijarNivelForm, MetasForm, etiqueta_nivel, nombres_comunes
 from .models import DescriptorNivel, Nucleo, Rubrica, texto_nivel
 from .permisos import (
@@ -98,6 +100,7 @@ def curso(request, curso_id):
         "quincena_anterior": quincena.anterior() if quincena.inicio > date.min else None,
         "quincena_siguiente": None if quincena == actual else quincena.siguiente(),
         "cobertura_quincena": cobertura,
+        "frecuencia": frecuencia_del_curso(curso, hoy=hoy, ninos=[fila.nino for fila in tabla.filas]),
         "nucleos_sin_observaciones": [c.nucleo for c in cobertura if c.sin_observaciones],
         "dias_datos_recientes": DIAS_DATOS_RECIENTES,
         "puede_validar": valida,

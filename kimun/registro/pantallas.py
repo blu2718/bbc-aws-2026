@@ -4,7 +4,8 @@
   la edad del niño, los núcleos y OA identificados, su nivel actual, el efecto
   y una sugerencia de qué observar después (de la rúbrica, no generada con IA).
 - Pantalla III (menú lateral): `para_tener_presentes`, los niños con más
-  señales de revisión de la tabla del curso (`alertas.tabla_del_curso`).
+  señales de revisión de la tabla del curso (`alertas.tabla_del_curso`), con
+  pocas observaciones o con muchas pendientes (`frecuencia.py`).
 - Pantalla IV (perfil): `historial_del_nino`, sus sucesos aceptados y los
   niveles que validó la educadora, del más reciente al más antiguo.
 
@@ -23,7 +24,7 @@ from .forms import etiqueta_nivel
 from .models import DescriptorNivel, NivelValidado, Nucleo, Observacion, Rubrica, texto_nivel
 
 SIN_NIVEL = "Sin nivel validado"
-LIMITE_PRESENTES = 5
+LIMITE_PRESENTES = 8  # alcanza para las señales por núcleo y las de frecuencia de un curso típico
 
 
 def texto_edad(fecha_nacimiento, hoy):
@@ -164,22 +165,48 @@ class NinoPresente:
     nino: object
     revisar: list   # núcleos con alerta ("Revisar")
     observar: list  # núcleos con aviso ("Observar")
+    frecuencia: object = None  # frecuencia.FrecuenciaNino, si tiene pocas observaciones o muchas pendientes
+    ver_pendientes: bool = False
+
+    @property
+    def pocas_observaciones(self):
+        return self.frecuencia is not None and self.frecuencia.gravedad != Gravedad.NORMAL
+
+    @property
+    def muchas_pendientes(self):
+        return self.ver_pendientes and self.frecuencia is not None and self.frecuencia.pendientes_gravedad != Gravedad.NORMAL
+
+    @property
+    def alertas(self):
+        return len(self.revisar) + (self.pocas_observaciones and self.frecuencia.gravedad == Gravedad.ALERTA)
+
+    @property
+    def avisos(self):
+        aviso = self.pocas_observaciones and self.frecuencia.gravedad == Gravedad.AVISO
+        return len(self.observar) + aviso + self.muchas_pendientes
 
 
-def para_tener_presentes(tabla, limite=LIMITE_PRESENTES):
-    """Los niños con más señales de revisión en la tabla del curso: primero alertas, luego avisos."""
-    filas = sorted(
-        (f for f in tabla.filas if f.alertas or f.avisos),
-        key=lambda f: (-f.alertas, -f.avisos, f.nino.nombre),
-    )
-    return [
-        NinoPresente(
+def para_tener_presentes(tabla, frecuencia=None, ver_pendientes=False, limite=LIMITE_PRESENTES):
+    """Los niños con más señales en el curso: primero alertas, luego avisos.
+
+    Cuentan las señales de cada núcleo de la tabla del curso, las pocas
+    observaciones de `frecuencia` (`frecuencia.frecuencia_del_curso`) y, si
+    `ver_pendientes` (quien revisa), las muchas observaciones pendientes.
+    """
+    por_nino = {fr.nino.pk: fr for fr in frecuencia.filas} if frecuencia else {}
+    presentes = []
+    for f in tabla.filas:
+        p = NinoPresente(
             nino=f.nino,
             revisar=[c.nucleo for c in f.celdas if c.gravedad == Gravedad.ALERTA],
             observar=[c.nucleo for c in f.celdas if c.gravedad == Gravedad.AVISO],
+            frecuencia=por_nino.get(f.nino.pk),
+            ver_pendientes=ver_pendientes,
         )
-        for f in filas[:limite]
-    ]
+        if p.alertas or p.avisos:
+            presentes.append(p)
+    presentes.sort(key=lambda p: (-p.alertas, -p.avisos, p.nino.nombre))
+    return presentes[:limite]
 
 
 # --- Pantalla IV: el perfil ------------------------------------------------------------------
