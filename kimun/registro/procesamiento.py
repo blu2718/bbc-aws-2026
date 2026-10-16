@@ -12,8 +12,12 @@ Lo usa `manage.py procesar_capturas`:
    una transacción.
 3. Si la lectura o `separar()` fallan, la captura queda en `error` con el motivo (en el
    log y en el admin; a quien registró se le muestra un mensaje genérico); `reintentar()`
-   la devuelve a `pendiente` para que se vuelva a tomar. `reintentar_errores()` además
-   recupera las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA).
+   la devuelve a `pendiente` para que se vuelva a tomar. `recuperar_atascadas()` devuelve
+   a pendiente las que quedaron atascadas en `procesando` (UMBRAL_PROCESANDO_ATASCADA);
+   el worker la llama en cada vuelta.
+
+Solo el proceso de fondo llama a Bedrock y Transcribe: la página de la captura consulta
+el estado (`views_registro.estado`), porque una foto puede tardar más que los timeouts web.
 
 Las fotos y los audios no se conservan: apenas se leen, el texto queda en
 `texto_extraido` y el archivo se borra. Un reintento después de leerlos usa ese texto y
@@ -29,7 +33,7 @@ from django.utils import timezone
 
 from .coincidencia import emparejar
 from .curriculo import leer_curriculo, leer_curriculo_de
-from .ia import ClienteBedrock, ErrorSeparacion, ErrorTranscripcion, separar_con_pregunta
+from .ia import ErrorSeparacion, ErrorTranscripcion, separar_con_pregunta
 from .ia.separacion import normalizar_codigo_oa
 # frases_del_curso y prefijo_vocabulario se usan también en `preparar_vocabularios`.
 from .lectura import ArchivoInvalido, frases_del_curso, prefijo_vocabulario, texto_para_separar  # noqa: F401
@@ -89,23 +93,28 @@ def reintentar(captura):
     ) == 1
 
 
-def reintentar_errores():
-    """Devuelve a pendiente las capturas procesables con error y las atascadas en procesando.
+def recuperar_atascadas():
+    """Devuelve a pendiente las capturas atascadas en procesando. Devuelve cuántas.
 
     Una captura queda atascada si el proceso murió a mitad (reinicio del servicio, OOM):
     lleva más de UMBRAL_PROCESANDO_ATASCADA en "procesando". Las que están en proceso
-    hace menos que eso no se tocan. Devuelve cuántas volvieron a pendiente.
+    hace menos que eso no se tocan. `procesar_capturas` la llama en cada vuelta.
     """
     ahora = timezone.now()
-    errores = _procesables().filter(estado=Captura.Estado.ERROR).update(
-        estado=Captura.Estado.PENDIENTE, actualizada=ahora
-    )
     atascadas = _procesables().filter(
         estado=Captura.Estado.PROCESANDO, actualizada__lt=ahora - UMBRAL_PROCESANDO_ATASCADA
     ).update(estado=Captura.Estado.PENDIENTE, actualizada=ahora)
     if atascadas:
         logger.warning("%s capturas atascadas en procesando vuelven a pendiente", atascadas)
-    return errores + atascadas
+    return atascadas
+
+
+def reintentar_errores():
+    """Devuelve a pendiente las capturas procesables con error y las atascadas en procesando. Devuelve cuántas."""
+    errores = _procesables().filter(estado=Captura.Estado.ERROR).update(
+        estado=Captura.Estado.PENDIENTE, actualizada=timezone.now()
+    )
+    return errores + recuperar_atascadas()
 
 
 def _marcar_error(captura, motivo):
@@ -228,20 +237,6 @@ def procesar_pendientes(cliente=None, catalogo=None, transcriptor=None):
         catalogo = leer_curriculo()
     while (captura := tomar_siguiente()) is not None:
         yield captura, procesar(captura, cliente=cliente, catalogo=catalogo, transcriptor=transcriptor)
-
-
-def procesar_si_pendiente(captura, cliente=None):
-    """Toma y procesa la captura si está pendiente y nadie más la tomó. True si la procesó esta llamada.
-
-    La usa la página de la captura (pantalla II de diseno-interfaz.jpg), que espera ahí
-    el resultado de Bedrock. Los audios no se toman aquí: Transcribe tarda más que el
-    timeout de la página y los procesa el proceso de fondo.
-    """
-    if captura.tipo == Captura.Tipo.AUDIO or not tomar(captura.pk):
-        return False
-    captura.refresh_from_db()
-    procesar(captura, cliente=cliente or ClienteBedrock())
-    return True
 
 
 def reintentar_desde_la_pagina(captura):

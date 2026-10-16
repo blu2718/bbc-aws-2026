@@ -5,7 +5,7 @@ from pathlib import Path
 from .bedrock import ClienteBedrock, ErrorBedrock
 from .seudonimo import Seudonimizador
 
-VERSION_PROMPT = "propuesta-v1"
+VERSION_PROMPT = "propuesta-v2"
 RUTA_PROMPT = Path(__file__).resolve().parent / "prompts" / "propuesta.md"
 CAMPOS = {"nivel", "evidencia_suficiente", "observaciones_citadas", "conductas_observadas", "justificacion"}
 APOYOS = {"autonomo", "con_ayuda", "parcial", "no_lo_realiza", "sin_dato"}
@@ -78,7 +78,14 @@ def construir_contexto(datos):
     nucleo = datos.get("nucleo", {})
     if not isinstance(nucleo, dict) or not _texto(nucleo.get("sigla")) or not _texto(nucleo.get("nombre")):
         raise ErrorConfiguracionPropuesta("Falta el núcleo de la propuesta.")
-    if provisoria:
+    if provisoria and datos.get("nivel_educativo", "transicion") != "transicion":
+        # Sala cuna y medio: el mapeo provisorio se apoya en los OA del nivel (no hay conductas NT1/NT2).
+        oas_del_nivel = [{"oa": f"OA {oa['numero']} {nucleo['sigla']}", "texto": oa["texto"]}
+                         for oa in datos.get("oas", []) if isinstance(oa, dict) and _texto(oa.get("texto"))]
+        if not oas_del_nivel:
+            raise ErrorConfiguracionPropuesta("Faltan los OA del nivel para la rúbrica provisoria.")
+        rubrica.update(oas_del_nivel=oas_del_nivel)
+    elif provisoria:
         trayectoria = datos.get("trayectoria", {})
         if not isinstance(trayectoria, dict) or not _texto(trayectoria.get("inicio_nt1")):
             raise ErrorConfiguracionPropuesta("Falta la trayectoria inicial de la rúbrica provisoria.")

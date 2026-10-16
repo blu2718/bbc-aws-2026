@@ -10,6 +10,11 @@ def _hasher_rapido(settings):
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
 
 
+@pytest.fixture(autouse=True)
+def _rubrica_completa(rubrica, descriptores):
+    """IA con rúbrica completa, como en Transición: sin ella no se encolan propuestas (fallarían siempre)."""
+
+
 def test_solicitar_dos_veces_reutiliza_y_responde_parcial(client, nino, nucleos, educadora):
     client.force_login(educadora)
     url = reverse("solicitar_propuesta", args=[nino.pk, "IA"])

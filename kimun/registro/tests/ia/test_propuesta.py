@@ -71,6 +71,26 @@ def test_provisoria_envia_trayectoria_conductas_y_mapeo(entrada, identidades, re
     assert len(rubrica["niveles"]) == 8
 
 
+@pytest.mark.parametrize("nivel_educativo", ["sala_cuna", "medio"])
+def test_provisoria_de_sala_cuna_y_medio_envia_los_oa_del_nivel(entrada, identidades, respuesta, cliente_falso,
+                                                                nivel_educativo):
+    """Sin conductas NT1/NT2 ni trayectoria: la rúbrica provisoria se apoya en los OA del nivel."""
+    entrada["nivel_educativo"] = nivel_educativo
+    for d in entrada["descriptores"]:
+        d["provisorio"] = True
+        d["conducta"] = ""
+    cliente = cliente_falso(respuesta)
+    proponer(entrada, identidades, cliente=cliente)
+    rubrica = json.loads(cliente.llamadas[0]["mensaje"])["rubrica"]
+    assert rubrica["origen"] == "provisoria"
+    assert rubrica["oas_del_nivel"] == [{"oa": "OA 1 IA", "texto": "Objetivo"}]
+    assert "trayectoria" not in rubrica and "conductas_programa" not in rubrica
+
+    entrada["oas"] = []
+    with pytest.raises(ErrorConfiguracionPropuesta, match="OA del nivel"):
+        proponer(entrada, identidades, cliente=cliente_falso())
+
+
 def test_sin_observaciones_no_invoca_ni_requiere_rubrica(identidades, cliente_falso):
     cliente = cliente_falso()
     resultado = proponer({"evidencia": []}, identidades, cliente=cliente)

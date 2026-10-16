@@ -11,13 +11,24 @@ from .ficha import armar_ficha, descriptores_del_nucleo
 from .forms import FijarNivelForm
 from .permisos import ninos_que_valida
 from .propuestas import solicitar_propuesta as encolar
-from .propuestas import resolver_propuesta
+from .propuestas import resolver_propuesta, rubrica_completa
 from .views import _es_htmx, _pagina_ficha, _parcial_nucleo
+
+MENSAJE_SIN_RUBRICA = "Este núcleo aún no tiene una rúbrica completa para su nivel educativo: no se pueden proponer niveles."
+
+
+def _encolar_si_hay_rubrica(nino, nucleo, **opciones):
+    """(propuesta, creada), o (None, False) si la rúbrica del núcleo está incompleta y la propuesta fallaría."""
+    if not rubrica_completa(nino.curso.nivel_educativo, nucleo):
+        return None, False
+    return encolar(nino, nucleo, **opciones)
 
 
 def _respuesta(request, nino, nucleo, propuesta, creada):
     mensaje = "Se solicitó una propuesta de nivel." if creada else "La propuesta ya está solicitada o disponible."
-    if propuesta.estado == PropuestaNivel.Estado.ERROR:
+    if propuesta is None:
+        mensaje = MENSAJE_SIN_RUBRICA
+    elif propuesta.estado == PropuestaNivel.Estado.ERROR:
         mensaje = "La propuesta tiene un error. Usa Reintentar propuesta para volver a solicitarla."
     if _es_htmx(request):
         return _parcial_nucleo(request, nino, nucleo.sigla, mensaje=mensaje)
@@ -30,7 +41,7 @@ def _respuesta(request, nino, nucleo, propuesta, creada):
 def solicitar_propuesta(request, nino_id, sigla):
     nino = get_object_or_404(ninos_que_valida(request.user).select_related("curso__jardin"), pk=nino_id)
     nucleo = get_object_or_404(Nucleo, sigla=sigla)
-    propuesta, creada = encolar(nino, nucleo)
+    propuesta, creada = _encolar_si_hay_rubrica(nino, nucleo)
     return _respuesta(request, nino, nucleo, propuesta, creada)
 
 
@@ -40,7 +51,7 @@ def reintentar_propuesta(request, propuesta_id):
     anterior = get_object_or_404(PropuestaNivel.objects.select_related("nino__curso__jardin", "nucleo").filter(
         nino__in=ninos_que_valida(request.user), estado=PropuestaNivel.Estado.ERROR,
     ), pk=propuesta_id)
-    propuesta, creada = encolar(anterior.nino, anterior.nucleo, reintentar=True)
+    propuesta, creada = _encolar_si_hay_rubrica(anterior.nino, anterior.nucleo, reintentar=True)
     return _respuesta(request, anterior.nino, anterior.nucleo, propuesta, creada)
 
 

@@ -127,6 +127,9 @@ def texto_para_separar(captura, cliente=None, transcriptor=None, ninos=None):
     if captura.texto_extraido.strip():
         borrar_archivo(captura)  # por si el borrado anterior falló
         texto = captura.texto_extraido
+    elif captura.tipo in (Captura.Tipo.FOTO, Captura.Tipo.AUDIO) and not captura.archivo and captura.texto_original.strip():
+        # El archivo ya se leyó sin texto legible y se borró: queda la nota escrita (y el contexto agregado).
+        texto = ""
     elif captura.tipo == Captura.Tipo.FOTO:
         texto = _texto_de_foto(captura, cliente)
     elif captura.tipo == Captura.Tipo.AUDIO:

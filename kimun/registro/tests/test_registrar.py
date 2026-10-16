@@ -6,7 +6,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.urls import reverse
 from django.utils import timezone
 
-from registro import views_registro
+from registro import procesamiento
 from registro.models import Captura, Jardin, NivelValidado, Nino, Observacion
 from registro.pantallas import texto_edad
 from registro.tests.test_capturas import JPEG, ClienteFalso, cruda
@@ -27,20 +27,26 @@ def pedro(curso, nucleos):
 
 
 @pytest.fixture
-def con_bedrock_falso(monkeypatch):
-    """Reemplaza a Bedrock en las vistas; devuelve una función para fijar sus respuestas."""
+def con_bedrock_falso():
+    """Bedrock falso para el proceso de fondo; devuelve una función para fijar sus respuestas."""
     cliente = ClienteFalso()
-    monkeypatch.setattr(views_registro, "crear_cliente", lambda: cliente)
 
     def responder(*respuestas):
         cliente.respuestas.extend(respuestas)
         return cliente
 
+    responder.cliente = cliente
     return responder
 
 
 def _registrar(client, curso, **datos):
     return client.post(reverse("registrar", args=[curso.pk]), datos)
+
+
+def _ordenar(client, captura, bedrock):
+    """Lo que hace `procesar_capturas` en segundo plano y, después, la consulta de estado de la página."""
+    list(procesamiento.procesar_pendientes(cliente=bedrock.cliente))
+    return client.get(reverse("captura_estado", args=[captura.pk]), headers=HTMX)
 
 
 # --- Pantalla I: registrar ------------------------------------------------------------------
@@ -129,9 +135,9 @@ def test_la_pagina_procesa_la_captura_y_muestra_una_tarjeta_por_nino(client, cur
 
     pagina = client.get(reverse("captura", args=[captura.pk])).content.decode()
     assert "Pedro clasificó hojas por color y Mateo lo ayudó." in pagina  # la burbuja
-    assert f'hx-post="{reverse("captura_procesar", args=[captura.pk])}"' in pagina
+    assert f'hx-get="{reverse("captura_estado", args=[captura.pk])}"' in pagina
 
-    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    html = _ordenar(client, captura, con_bedrock_falso).content.decode()
     assert "Pedro Salinas" in html
     assert f"Edad: {texto_edad(pedro.fecha_nacimiento, timezone.localdate())}" in html
     assert "Pensamiento Matemático</strong>: nivel 3" in html
@@ -148,7 +154,7 @@ def test_la_asistente_ve_el_resultado_sin_acciones(client, curso, asistente_del_
     _registrar(client, curso, texto="Pedro clasificó hojas.")
     captura = Captura.objects.get()
 
-    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    html = _ordenar(client, captura, con_bedrock_falso).content.decode()
     assert "Pedro Salinas" in html
     assert "La educadora la revisará antes de que cuente en la ficha." in html
     assert reverse("observacion_aceptar", args=[captura.observaciones.get().pk]) not in html
@@ -159,7 +165,7 @@ def test_aceptar_desde_la_tarjeta_del_suceso_devuelve_la_tarjeta(client, curso, 
     client.force_login(educadora)
     _registrar(client, curso, texto="Pedro clasificó hojas.")
     captura = Captura.objects.get()
-    client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX)
+    _ordenar(client, captura, con_bedrock_falso)
     obs = captura.observaciones.get()
 
     html = client.post(reverse("observacion_aceptar", args=[obs.pk]), {"vista": "suceso"}, headers=HTMX).content.decode()
@@ -181,7 +187,7 @@ def test_un_error_de_bedrock_se_muestra_con_reintentar(client, curso, educadora,
     _registrar(client, curso, texto="Pedro clasificó hojas.")
     captura = Captura.objects.get()
 
-    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    html = _ordenar(client, captura, con_bedrock_falso).content.decode()
     # Sin credenciales se explica que falta la conexión con la IA; el detalle técnico queda en el log y en el admin.
     assert "Kimün no está conectado a la IA en este servidor." in html
     assert "Unable to locate credentials" not in html
@@ -190,27 +196,41 @@ def test_un_error_de_bedrock_se_muestra_con_reintentar(client, curso, educadora,
     html = client.post(reverse("captura_reintentar_suceso", args=[captura.pk]), headers=HTMX).content.decode()
     captura.refresh_from_db()
     assert captura.estado == Captura.Estado.PENDIENTE
-    assert f'hx-post="{reverse("captura_procesar", args=[captura.pk])}"' in html
+    assert f'hx-get="{reverse("captura_estado", args=[captura.pk])}"' in html
 
 
 def test_permisos_de_la_captura(client, curso, educadora, asistente_del_curso, directora_del_jardin, otra_educadora,
                                 django_user_model, con_bedrock_falso):
     con_bedrock_falso({"observaciones": []})
     captura = Captura.objects.create(curso=curso, autora=asistente_del_curso, tipo=Captura.Tipo.TEXTO, texto_original="x")
-    url, procesar = reverse("captura", args=[captura.pk]), reverse("captura_procesar", args=[captura.pk])
+    url, estado = reverse("captura", args=[captura.pk]), reverse("captura_estado", args=[captura.pk])
 
     for quien in (educadora, asistente_del_curso, directora_del_jardin):
         client.force_login(quien)
         assert client.get(url).status_code == 200
-    # La directora registra en su jardín (Task 12): también dispara el procesamiento.
-    assert client.post(procesar, headers=HTMX).status_code == 200
+        assert client.get(estado, headers=HTMX).status_code == 200
 
     otra_directora = django_user_model.objects.create_user("elena", password="clave-de-prueba-123")
     Jardin.objects.create(nombre="Otro jardín", directora=otra_directora)
     for quien in (otra_educadora, otra_directora):
         client.force_login(quien)
         assert client.get(url).status_code == 404
-        assert client.post(procesar, headers=HTMX).status_code == 404
+        assert client.get(estado, headers=HTMX).status_code == 404
+
+
+def test_la_pagina_consulta_el_estado_sin_llamar_a_bedrock(client, curso, educadora, con_bedrock_falso):
+    """La petición web nunca espera a Bedrock: una foto puede tardar más que los timeouts de CloudFront y Gunicorn."""
+    client.force_login(educadora)
+    _registrar(client, curso, texto="Pedro clasificó hojas.")
+    captura = Captura.objects.get()
+
+    html = client.get(reverse("captura_estado", args=[captura.pk]), headers=HTMX).content.decode()
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PENDIENTE and con_bedrock_falso.cliente.llamadas == []
+    assert 'hx-trigger="load delay:2s"' in html and "Ordenando el registro" in html
+    assert client.post(reverse("captura_estado", args=[captura.pk]), headers=HTMX).status_code == 405
+    # Sin HTMX vuelve a la página de la captura.
+    assert client.get(reverse("captura_estado", args=[captura.pk]))["Location"] == reverse("captura", args=[captura.pk])
 
 
 
@@ -225,14 +245,14 @@ def test_un_audio_espera_al_proceso_de_fondo_y_la_pagina_se_actualiza_sola(clien
     _registrar(client, curso, audio=SimpleUploadedFile("grabacion.webm", WEBM, content_type="audio/webm"))
     captura = Captura.objects.get()
     assert captura.tipo == Captura.Tipo.AUDIO
-    url_procesar = reverse("captura_procesar", args=[captura.pk])
+    url_estado = reverse("captura_estado", args=[captura.pk])
 
     pagina = client.get(reverse("captura", args=[captura.pk])).content.decode()
-    assert "Transcribiendo el audio" in pagina and f'hx-post="{url_procesar}"' in pagina
+    assert "Transcribiendo el audio" in pagina and f'hx-get="{url_estado}"' in pagina
     assert "todavía no está conectada" not in pagina
 
     # Mientras el proceso de fondo no termina, la respuesta vuelve a preguntar en unos segundos.
-    html = client.post(url_procesar, headers=HTMX).content.decode()
+    html = client.get(url_estado, headers=HTMX).content.decode()
     captura.refresh_from_db()
     assert captura.estado == Captura.Estado.PENDIENTE
     assert 'hx-trigger="load delay:3s"' in html and "Transcribiendo el audio" in html
@@ -240,7 +260,7 @@ def test_un_audio_espera_al_proceso_de_fondo_y_la_pagina_se_actualiza_sola(clien
     # Cuando el proceso de fondo la dejó procesada, la siguiente pregunta muestra las tarjetas.
     Captura.objects.filter(pk=captura.pk).update(estado=Captura.Estado.PROCESADA, texto_extraido="Pedro clasificó hojas.")
     Observacion.objects.create(captura=captura, nino=pedro, fecha=timezone.localdate(), cita="Pedro clasificó hojas.")
-    html = client.post(url_procesar, headers=HTMX).content.decode()
+    html = client.get(url_estado, headers=HTMX).content.decode()
     assert "Pedro Salinas" in html and "hx-trigger" not in html.split('id="estado-captura"')[1].split("</div>")[0]
 
 
@@ -250,7 +270,7 @@ def test_otro_error_de_bedrock_muestra_el_mensaje_general(client, curso, educado
     _registrar(client, curso, texto="Pedro clasificó hojas.")
     captura = Captura.objects.get()
 
-    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    html = _ordenar(client, captura, con_bedrock_falso).content.decode()
     assert "No se pudo ordenar el registro." in html and "no está conectado a la IA" not in html
 
 
@@ -266,13 +286,23 @@ def test_todo_el_curso_se_muestra_en_una_tarjeta_y_se_acepta_de_una_vez(client, 
     _registrar(client, curso, texto="Todos bailaron.")
     captura = Captura.objects.get()
 
-    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    html = _ordenar(client, captura, con_bedrock_falso).content.decode()
     assert "Todo el curso" in html and "Queda en la ficha de 2 niños" in html
     assert html.count('class="suceso suceso-curso"') == 1 and "Aceptar para todo el curso" in html
+    assert 'name="alcance" value="curso"' in html
 
-    respuesta = client.post(reverse("captura_aceptar_todas", args=[captura.pk]), {"vista": "suceso"})
+    # Una observación individual de la misma nota no se acepta sin revisarla.
+    individual = Observacion.objects.create(captura=captura, nino=pedro, fecha=timezone.localdate(), cita="Pedro mordió.")
+    respuesta = client.post(reverse("captura_aceptar_todas", args=[captura.pk]), {"vista": "suceso", "alcance": "curso"})
     assert respuesta["Location"] == reverse("captura", args=[captura.pk])
     assert captura.observaciones.filter(estado=Observacion.Estado.ACEPTADA).count() == 2
+    individual.refresh_from_db()
+    assert individual.estado == Observacion.Estado.PENDIENTE
+
+    # Desde la revisión, "Aceptar todas las de esta captura" sigue aceptando todas.
+    client.post(reverse("captura_aceptar_todas", args=[captura.pk]))
+    individual.refresh_from_db()
+    assert individual.estado == Observacion.Estado.ACEPTADA
 
 
 def test_responder_la_pregunta_vuelve_a_ordenar_la_nota(client, curso, educadora, pedro, con_bedrock_falso):
@@ -284,7 +314,7 @@ def test_responder_la_pregunta_vuelve_a_ordenar_la_nota(client, curso, educadora
     client.force_login(educadora)
     _registrar(client, curso, texto="Pedro se peleó.")
     captura = Captura.objects.get()
-    html = client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX).content.decode()
+    html = _ordenar(client, captura, con_bedrock_falso).content.decode()
     assert "Kimün necesita un dato más:" in html and "¿Con quién se peleó?" in html
 
     client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "Con Rubí; después le pidió perdón."})
@@ -293,9 +323,31 @@ def test_responder_la_pregunta_vuelve_a_ordenar_la_nota(client, curso, educadora
     assert captura.texto_original.endswith("Contexto agregado: Con Rubí; después le pidió perdón.")
     assert not captura.observaciones.exists()
 
-    client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX)
+    _ordenar(client, captura, con_bedrock_falso)
     assert "Contexto agregado" in cliente.llamadas[-1]["mensaje"]
     assert captura.observaciones.get().efecto == "avance"
+
+
+def test_contexto_a_una_foto_sin_texto_legible_vuelve_a_ordenar_la_nota(client, curso, educadora, pedro,
+                                                                       con_bedrock_falso):
+    """La foto se leyó sin texto y se borró: al responder la pregunta, se ordena con la nota escrita."""
+    cliente = con_bedrock_falso(
+        {"texto": ""},
+        {"observaciones": [cruda("Pedro", "Pedro empujó.")], "pregunta": "¿A quién empujó?"},
+        {"observaciones": [cruda("Pedro", "Pedro empujó a Rubí y le pidió perdón.")], "pregunta": None},
+    )
+    client.force_login(educadora)
+    _registrar(client, curso, foto=SimpleUploadedFile("nota.jpg", JPEG, content_type="image/jpeg"), texto="Pedro empujó.")
+    captura = Captura.objects.get()
+    assert "¿A quién empujó?" in _ordenar(client, captura, con_bedrock_falso).content.decode()
+    captura.refresh_from_db()
+    assert not captura.archivo and captura.texto_extraido == ""
+
+    client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "A Rubí, y le pidió perdón."})
+    _ordenar(client, captura, con_bedrock_falso)
+    captura.refresh_from_db()
+    assert captura.estado == Captura.Estado.PROCESADA, captura.error
+    assert "Contexto agregado: A Rubí" in cliente.llamadas[-1]["mensaje"]
 
 
 def test_no_se_agrega_contexto_si_ya_hay_observaciones_aceptadas(client, curso, educadora, pedro, con_bedrock_falso):
@@ -303,7 +355,7 @@ def test_no_se_agrega_contexto_si_ya_hay_observaciones_aceptadas(client, curso, 
     client.force_login(educadora)
     _registrar(client, curso, texto="Pedro clasificó hojas.")
     captura = Captura.objects.get()
-    client.post(reverse("captura_procesar", args=[captura.pk]), headers=HTMX)
+    _ordenar(client, captura, con_bedrock_falso)
     captura.observaciones.update(estado=Observacion.Estado.ACEPTADA)
 
     client.post(reverse("captura_contexto", args=[captura.pk]), {"contexto": "En el patio."})

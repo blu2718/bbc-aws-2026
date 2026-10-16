@@ -11,7 +11,7 @@ from django.db import connection, transaction
 from django.utils import timezone
 
 from registro.ia.bedrock import ErrorBedrock
-from registro.models import NivelValidado, Observacion, PropuestaNivel
+from registro.models import DescriptorNivel, NivelValidado, Observacion, PropuestaNivel
 from registro.propuestas import (
     procesar_siguiente, recuperar_interrumpidas, solicitar_propuesta, tomar_siguiente,
 )
@@ -21,6 +21,11 @@ from registro.revision import aceptar, aceptar_todas
 @pytest.fixture(autouse=True)
 def _hasher_rapido(settings):
     settings.PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
+
+
+@pytest.fixture(autouse=True)
+def _rubrica_completa(rubrica, descriptores):
+    """IA con rúbrica completa, como en Transición: sin ella no se encolan propuestas (fallarían siempre)."""
 
 
 class ClienteFalso:
@@ -164,6 +169,8 @@ def test_error_deja_diagnostico_en_el_log_sin_textos(obs, descriptores, caplog, 
 
 def test_configuracion_incompleta_se_guarda_como_error(obs):
     aceptar(obs)
+    # La rúbrica quedó incompleta después de encolar (por ejemplo, se borró un descriptor en el panel).
+    DescriptorNivel.objects.filter(nucleo=obs.nucleos.first(), nivel=8).delete()
     propuesta = procesar_siguiente(cliente=ClienteFalso())
     assert propuesta.estado == "error" and "rúbrica" in propuesta.error
 

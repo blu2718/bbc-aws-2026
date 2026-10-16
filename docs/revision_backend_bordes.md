@@ -19,7 +19,9 @@ a AWS, despliegues ni cambios a la base de datos local existente.
    el código actual. Una respuesta lenta puede dejar la pantalla esperando o
    interrumpir el procesamiento. Hacer que la vista consulte el estado y que
    `procesar_capturas` procese también texto/fotos, como ya ocurre con audio.
-   Este cambio de arquitectura queda pendiente; no se midió latencia en AWS.
+   **Resuelto en la rama `fix/bordes-revision`:** la página consulta `captura_estado`
+   (GET, sin Bedrock) y solo el worker procesa, con intervalo de 2 s y recuperación
+   de capturas atascadas en cada vuelta. No se midió latencia en AWS.
 
 2. **P1 — La base local está desactualizada.**
    `manage.py showmigrations --plan` muestra `registro.0001` y `0002` aplicadas,

@@ -1,4 +1,5 @@
 """Casos borde en los límites entre formularios, vistas y procesamiento."""
+import importlib
 from datetime import timedelta
 
 import pytest
@@ -10,7 +11,11 @@ from django.utils import timezone
 
 from registro import lectura, procesamiento
 from registro.forms_registro import LARGO_TEXTO, RegistroForm
-from registro.models import Captura
+from registro.models import (
+    Captura, Curso, DescriptorNivel, NivelEducativo, Nino, ObjetivoAprendizaje, Rubrica,
+)
+from registro.radar import EjeRadar, svg_radar
+from registro.rubrica import NIVELES_PROVISORIOS
 from registro.tests.test_capturas import ClienteFalso, JPEG, WEBM
 
 
@@ -112,6 +117,49 @@ def test_reintento_con_objeto_obsoleto_no_recupera_un_trabajo_recien_tomado(curs
     assert not procesamiento.reintentar_desde_la_pagina(captura)
     captura.refresh_from_db()
     assert captura.estado == Captura.Estado.PROCESANDO
+
+
+def test_un_curso_de_un_nivel_sin_rubrica_no_rompe_sus_paginas(client, jardin, educadora, rubrica):
+    """Un curso de medio creado en el panel antes de cargar su currículo parte con la rúbrica provisoria."""
+    curso = Curso.objects.create(jardin=jardin, nombre="Medio A", nivel_educativo=NivelEducativo.MEDIO,
+                                 educadora=educadora)
+    nino = Nino.objects.create(curso=curso, nombre="Gael Pino", fecha_ingreso=timezone.localdate())
+    assert Rubrica.nivel_maximo(NivelEducativo.MEDIO) == NIVELES_PROVISORIOS
+    client.force_login(educadora)
+    for url in (reverse("curso", args=[curso.pk]), reverse("registrar", args=[curso.pk]),
+                reverse("ficha", args=[nino.pk]), reverse("metas", args=[curso.pk])):
+        assert client.get(url).status_code == 200, url
+
+
+def test_la_migracion_crea_rubricas_y_descriptores_provisorios_faltantes(db, jardin, educadora, nucleos):
+    from django.apps import apps
+
+    migracion = importlib.import_module("registro.migrations.0009_rubricas_provisorias_por_nivel")
+    curso = Curso.objects.create(jardin=jardin, nombre="Sala Cuna A", nivel_educativo=NivelEducativo.SALA_CUNA,
+                                 educadora=educadora)
+    ia, lv, _pm = nucleos
+    ObjetivoAprendizaje.objects.create(nivel_educativo=NivelEducativo.SALA_CUNA, nucleo=lv, numero=1, texto="Balbucear")
+    DescriptorNivel.objects.create(nivel_educativo=NivelEducativo.SALA_CUNA, nucleo=ia, nivel=1, descripcion="Integra",
+                                   provisorio=False)
+    Rubrica.objects.filter(nivel_educativo=curso.nivel_educativo).delete()  # como en una base anterior al fix
+
+    migracion.crear_rubricas(apps, None)
+    migracion.crear_rubricas(apps, None)  # repetirla no duplica
+
+    assert Rubrica.nivel_maximo(NivelEducativo.SALA_CUNA) == NIVELES_PROVISORIOS
+    lv_sala_cuna = DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.SALA_CUNA, nucleo=lv)
+    assert sorted(lv_sala_cuna.values_list("nivel", flat=True)) == list(range(1, NIVELES_PROVISORIOS + 1))
+    assert all(d.provisorio for d in lv_sala_cuna)
+    # No pisa descriptores existentes ni crea en núcleos sin OA en el nivel.
+    assert DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.SALA_CUNA, nucleo=ia).count() == 1
+    assert not DescriptorNivel.objects.filter(nivel_educativo=NivelEducativo.SALA_CUNA, nucleo=_pm).exists()
+
+
+def test_radar_con_mediana_decimal_sobre_el_maximo():
+    """Si la rúbrica se achicó, la mediana del curso puede quedar en x,5 sobre el máximo."""
+    ejes = [EjeRadar("IA", "Identidad", 3, "3", mediana=9.5), EjeRadar("LV", "Lenguaje", 2, "2"),
+            EjeRadar("PM", "Pensamiento", None, "Sin nivel validado")]
+    assert svg_radar(ejes, nivel_maximo=8).startswith("<svg")
 
 
 @pytest.mark.parametrize("intervalo", [float("nan"), float("inf"), -1, 0])
