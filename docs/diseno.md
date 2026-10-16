@@ -36,13 +36,38 @@ Sale del logo de Integra (`docs/marca/logo-integra.jpg`) en versión pastel. Tod
 | `--kimun-ok` / `--kimun-ok-fondo` | `#326412` / `#e3f4d7` | Lo que está bien: aceptada, avance, autónomo |
 | `--integra-*-pastel` | azul `#a0c9e9`, rojo `#f5b0ad`, verde `#b6dd9d`, amarillo `#fcde7e` | Solo la franja decorativa bajo la barra superior |
 
+### Colores por núcleo (segunda pasada)
+
+Un color por núcleo, el mismo en el gráfico de flor, los escalones de nivel, los íconos de núcleo y las etiquetas
+de la ficha. Clases `.nucleo-<SIGLA>` en `registro.css`: definen `--nucleo` (marca: pétalo, barra, ícono; 3:1 o más
+sobre blanco, **nunca texto**) y `--nucleo-suave` (relleno pastel). Los cuatro primeros siguen el logo de Integra,
+como los pétalos de `radar.py`. Validado con `validate_palette.js` de la skill dataviz (todo pasa; separación para
+daltonismo 6,1 entre vecinos, legal solo con segunda pista: por eso el color siempre va con el ícono y el nombre).
+
+| Núcleo | `--nucleo` | `--nucleo-suave` |
+|---|---|---|
+| IA Identidad y Autonomía | `#125a91` azul | `#cde3f3` |
+| CC Convivencia y Ciudadanía | `#b07800` amarillo | `#fbe7b0` |
+| CM Corporalidad y Movimiento | `#2b6115` verde | `#d4e8c6` |
+| LV Lenguaje Verbal | `#e0453c` rojo | `#fbd5d2` |
+| LA Lenguajes Artísticos | `#5944a8` violeta | `#e2dcf5` |
+| EEN Exploración del Entorno Natural | `#00978a` turquesa | `#c8eeea` |
+| CES Comprensión del Entorno Sociocultural | `#a9480c` tierra | `#f7dcc8` |
+| PM Pensamiento Matemático | `#b5559a` fucsia | `#f5d8ec` |
+
+Si se agrega un núcleo (Integra tendrá 10), sumar su clase con un tono nuevo y volver a correr el validador con
+los vecinos en el orden de la flor.
+
 La página va siempre en tema claro (`<html data-theme="light">` en `base.html`): los colores de las señales están
 medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por si se activa a futuro.
 
 ### Tipografía, tamaños y espaciado
 
-- Familia: la del sistema que trae Pico (`system-ui`, Segoe UI, Roboto, Noto Sans…). No se carga ninguna fuente
-  externa (rápido en celulares y sin CDN).
+- Texto: la familia del sistema que trae Pico (`system-ui`, Segoe UI, Roboto, Noto Sans…).
+- Títulos y cifras (segunda pasada): **Fredoka** 600, redonda como el logo (`--kimun-fuente-titulos`). Se usa en
+  `h1`, `h2`, la marca y las cifras grandes (nivel general, contadores). Va en el repo, sin CDN:
+  `kimun/static/vendor/fonts/fredoka-latin*.woff2` (30 KB, SIL OFL en `OFL.txt`). Si no carga, siguen
+  `ui-rounded`, Nunito, Varela Round y al final `system-ui`. Nunca en párrafos: el texto largo queda en la del sistema.
 - Escala: la de Pico (base 16 px en celular, crece a 17–21 px en pantallas anchas). Dentro de las tarjetas:
   título de tarjeta 1,05–1,2 rem, texto 1 rem, ayudas `.ayuda` 0,85 rem, etiquetas 0,75–0,85 rem.
 - Peso: 700 para la marca y títulos de tarjeta, 600 para etiquetas y enlaces del menú.
@@ -86,6 +111,9 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
 | Composer | `.composer`, `.composer-barra`, `.composer-adjunto` | Barra de registrar (pantalla I) |
 | Burbuja | `.burbuja`, `.burbuja-pie` | Nota registrada (pantalla II) |
 | Historial | `.historial`, `.evento` | Línea de tiempo del perfil |
+| Gráfico de flor | `figure.radar-figura[data-flor][data-siglas]`, `svg.radar`, `.radar-escala`, `.flor-compacta` | SVG de `radar.py`; `kimun.js` (`iniciarFlor`) lo pinta por núcleo, agrega la escala y el modo compacto |
+| Nivel general | `.nivel-general-ficha`, `.nivel-general-numero` | Cifra grande en Fredoka sobre celeste suave |
+| Escalones de nivel | `.tabla-niveles`, `.escalones` (`--nivel`, `--mediana`, `--nivel-max`), `.escalones-pasos` | Un paso por nivel, lleno hasta el actual con `--nucleo`; raya oscura = mediana del curso |
 
 ## Decisiones de diseño
 
@@ -103,6 +131,20 @@ medidos sobre blanco. Las variables de modo oscuro de `registro.css` quedan por 
   queda de borde y separado, porque es la acción menos frecuente y pide un motivo.
 - Tablas: la explicación (que los tests y la directora necesitan) no se borra: se pliega en «Cómo leer esta
   tabla» para que lo primero que se vea sea la tabla y las sugerencias.
+- **Gráfico de flor (segunda pasada).** El SVG lo arma `radar.py` en el servidor y los tests lo revisan; no se
+  tocó (regla: solo plantillas, CSS y JS). Se mejoró «con lo mismo»: `kimun.js` le pone a cada pétalo, punto e
+  ícono la clase de su núcleo (orden de `data-siglas`, el mismo de los pétalos) y el CSS cambia relleno y borde;
+  agrega los números de la escala (niveles impares, sobre los anillos, con halo blanco) y marca el anillo
+  máximo. Bajo 480 px de ancho de la figura pasa a **modo compacto**: recorta el `viewBox` a la flor, oculta los
+  nombres (a ~9 px no se leían) y lleva cada ícono a la punta de su pétalo; los nombres y niveles están en la
+  tabla de al lado, con el mismo ícono y color. Sin JS se ve el SVG original. Al pasar o enfocar una fila de la
+  tabla se destaca su pétalo. La flor no se mueve sola.
+- **Nivel general** como cifra grande (Fredoka 2,6 rem, azul) en una caja celeste suave sobre la flor: es lo
+  primero que se lee. Sigue con la etiqueta «referencia» y la explicación.
+- **Resumen por núcleo** pasó de tabla plana a escalones de progreso: sigue siendo `<table>` (equivalente
+  accesible del gráfico, con `caption` y encabezados), los escalones van `aria-hidden` porque el nivel está en
+  texto. En celular cada fila se apila (nombre arriba, nivel y mediana abajo): ya no hay scroll lateral.
+  `--nivel-max` vale 8 por defecto y `kimun.js` lo ajusta al número de anillos de la flor.
 - La interfaz nueva (registrar, suceso, menú, perfil) es la referencia de estilo: las pantallas más antiguas
   (curso, jardín, Task 13, informe) se llevan a sus tarjetas y etiquetas.
 
@@ -185,13 +227,23 @@ Pendiente:
 - Pantallas nuevas de la Task 14 (instrumento nuevo, resultado, editar, historial de cambios, corregir
   observación) llegaron con el merge y no se revisaron: usan clases propias (`.tabla-instrumento`,
   `.lista-cambios`…) sin tarjetas. Siguiente paso natural: `.encabezado-pagina` y `.tarjeta` como en metas.
-- Ficha: «Resumen por núcleo» se desplaza a lo ancho en celular.
 - Botones de archivo en inglés («Choose File») según el idioma del navegador: cambiarlo pide tocar los
   `<input type=file>` del formulario, se dejó.
 - «Tus últimas notas» (`_capturas_recientes.html`, página antigua de capturar) sigue como lista simple.
 - El orden de las secciones de la tabla del curso no se cambió: `test_frecuencia.py` corta el HTML entre
   `titulo-frecuencia` y `titulo-tabla`. Para poner «Niveles por núcleo» primero hay que ajustar ese test.
 - Nada quedó bloqueado por tener que tocar vistas, modelos, URLs ni formularios.
+
+## Segunda pasada (16-oct, mañana): más carácter visual
+
+Capturas antes y después en `/tmp/kimun-capturas/v2/{antes,despues}/` (`<celular|escritorio>-<rol>-<pantalla>.png`;
+`ficha-matias` es un niño con niveles distintos entre núcleos, mejor para ver la flor). Script propio de
+Playwright (no versionado) que recorre las pantallas, guarda capturas y avisa errores de consola y desbordes.
+
+| # | Pantalla | Commit | Estado |
+|---|---|---|---|
+| 0 | `git merge origin/main`: conflictos en aviso, curso, informe y protocolo, todos de texto o clases; se conservaron ambos lados. La compactación de `.tabla-curso` que main traía en `<style>` se movió a `registro.css` | merge | hecho; tests de instrumentos, historial, informe, vistas, protección, protocolo, revisión y frecuencia pasan (211) |
+| 1 | Gráfico de flor, nivel general y escalones por núcleo; Fredoka y colores por núcleo | `style(ficha): flor` | hecho; `test_ficha`, `test_perfil`, `test_vistas`, `test_instrumentos` pasan |
 
 ## Cómo seguir
 

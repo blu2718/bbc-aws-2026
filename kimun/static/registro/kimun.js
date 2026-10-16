@@ -307,6 +307,109 @@
     });
   }
 
+  /* --- Gráfico de flor de la ficha (registro/radar.py) ---
+     El SVG llega armado del servidor; aquí solo se le suma lo que ayuda a leerlo de un vistazo:
+     el color de cada núcleo (el mismo de los escalones de la tabla), los números de la escala en los
+     anillos y, en pantallas angostas, una versión compacta: sin los nombres (están en la tabla de al
+     lado) y con el ícono de cada núcleo en la punta de su pétalo. Sin JS se ve el SVG original. */
+
+  const SVG_NS = "http://www.w3.org/2000/svg";
+  const ANCHO_COMPACTO = 480;
+
+  function iniciarFlor(figura) {
+    const svg = figura.querySelector("svg.radar");
+    if (!svg) return;
+    const anillos = svg.querySelectorAll(".radar-anillo");
+    const petalos = Array.from(svg.querySelectorAll(".radar-petalo"));
+    if (!anillos.length || !petalos.length) return;
+    const siglas = (figura.dataset.siglas || "").split(" ");
+    const total = petalos.length;
+    const cx = parseFloat(anillos[0].getAttribute("cx"));
+    const cy = parseFloat(anillos[0].getAttribute("cy"));
+    const radioMax = parseFloat(anillos[anillos.length - 1].getAttribute("r"));
+    const angulo = function (i) { return -Math.PI / 2 + 2 * Math.PI * i / total; };
+    const indiceDe = function (x, y) {
+      const a = Math.atan2(y - cy, x - cx) + Math.PI / 2;
+      return ((Math.round(a / (2 * Math.PI / total)) % total) + total) % total;
+    };
+    const pintar = function (el, i) { if (siglas[i]) el.classList.add("nucleo-" + siglas[i]); };
+
+    // Un anillo por nivel, del 1 al máximo: los escalones de la tabla usan el mismo máximo.
+    const seccion = figura.closest("[data-niveles]");
+    if (seccion) seccion.style.setProperty("--nivel-max", anillos.length);
+    anillos[anillos.length - 1].classList.add("radar-anillo-max");
+
+    petalos.forEach(function (p, i) { pintar(p, i); p.dataset.sigla = siglas[i] || ""; });
+    svg.querySelectorAll(".radar-punto").forEach(function (c) {
+      pintar(c, indiceDe(parseFloat(c.getAttribute("cx")), parseFloat(c.getAttribute("cy"))));
+    });
+
+    // Íconos: el número de la máscara (radar-icono-N) es el del pétalo.
+    const iconos = [];
+    svg.querySelectorAll("rect.radar-icono").forEach(function (rect) {
+      const id = (rect.getAttribute("mask") || "").match(/#([^)]+)/);
+      const mascara = id ? svg.querySelector("#" + id[1]) : null;
+      const i = id ? parseInt(id[1].split("-").pop(), 10) : 0;
+      pintar(rect, i);
+      const lado = parseFloat(rect.getAttribute("width"));
+      const r = radioMax + lado * 0.9;
+      iconos.push({
+        piezas: [rect, mascara, mascara && mascara.querySelector("image")],
+        original: [rect.getAttribute("x"), rect.getAttribute("y")],
+        compacta: [(cx + r * Math.cos(angulo(i)) - lado / 2).toFixed(1), (cy + r * Math.sin(angulo(i)) - lado / 2).toFixed(1)],
+      });
+    });
+
+    // Escala: el número de cada nivel sobre su anillo, entre el primer y el segundo pétalo.
+    const escala = document.createElementNS(SVG_NS, "g");
+    escala.setAttribute("class", "radar-escala");
+    escala.setAttribute("aria-hidden", "true");
+    const entre = angulo(0) + Math.PI / total;
+    anillos.forEach(function (anillo, i) {
+      const nivel = i + 1;
+      if (nivel % 2 === 0) return;  // solo los impares: todos juntos se montan
+      const r = parseFloat(anillo.getAttribute("r"));
+      const texto = document.createElementNS(SVG_NS, "text");
+      texto.setAttribute("x", (cx + r * Math.cos(entre)).toFixed(1));
+      texto.setAttribute("y", (cy + r * Math.sin(entre) + 4).toFixed(1));
+      texto.setAttribute("text-anchor", "middle");
+      texto.textContent = nivel;
+      escala.appendChild(texto);
+    });
+    svg.appendChild(escala);
+
+    // Modo compacto: se recorta el dibujo a la flor y los íconos pasan a la punta de los pétalos.
+    const vistaOriginal = svg.getAttribute("viewBox");
+    const margen = 34;
+    const vistaCompacta = [cx - radioMax - margen, cy - radioMax - margen, 2 * (radioMax + margen), 2 * (radioMax + margen)].join(" ");
+    let compacta = null;
+    const ajustar = function () {
+      const ahora = figura.clientWidth < ANCHO_COMPACTO;
+      if (ahora === compacta) return;
+      compacta = ahora;
+      figura.classList.toggle("flor-compacta", compacta);
+      svg.setAttribute("viewBox", compacta ? vistaCompacta : vistaOriginal);
+      iconos.forEach(function (icono) {
+        const xy = compacta ? icono.compacta : icono.original;
+        icono.piezas.forEach(function (el) { if (el) { el.setAttribute("x", xy[0]); el.setAttribute("y", xy[1]); } });
+      });
+    };
+    ajustar();
+    if ("ResizeObserver" in window) new ResizeObserver(ajustar).observe(figura);
+
+    // Al pasar por una fila de la tabla, se destaca su pétalo.
+    const seccionTabla = seccion || document;
+    seccionTabla.querySelectorAll("tr[data-sigla]").forEach(function (fila) {
+      const petalo = petalos.find(function (p) { return p.dataset.sigla === fila.dataset.sigla; });
+      if (!petalo) return;
+      const marcar = function (si) { svg.classList.toggle("con-resaltado", si); petalo.classList.toggle("resaltado", si); };
+      fila.addEventListener("mouseenter", function () { marcar(true); });
+      fila.addEventListener("mouseleave", function () { marcar(false); });
+      fila.addEventListener("focusin", function () { marcar(true); });
+      fila.addEventListener("focusout", function () { marcar(false); });
+    });
+  }
+
   /* --- Informe para la familia: imprimir o guardar en PDF --- */
 
   function iniciarImprimir() {
@@ -321,6 +424,7 @@
     iniciarBuscador();
     iniciarDetalles();
     document.querySelectorAll("[data-composer]").forEach(iniciarComposer);
+    document.querySelectorAll("[data-flor]").forEach(iniciarFlor);
   }
 
   if (document.readyState === "loading") {

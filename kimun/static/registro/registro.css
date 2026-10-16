@@ -166,6 +166,42 @@
   --pico-secondary-inverse: #fff;
 }
 
+/* --- Segunda pasada: tipografía y colores por núcleo (docs/diseno.md) ---------------------------- */
+
+/* Fredoka (SIL OFL, static/vendor/fonts/OFL.txt): redonda como el logo, solo para títulos y cifras.
+   Va en el repo, sin CDN; si no carga, siguen las redondeadas del sistema y luego las de Pico. */
+@font-face {
+  font-family: "Fredoka"; font-style: normal; font-weight: 500 600; font-display: swap;
+  src: url("../vendor/fonts/fredoka-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Fredoka"; font-style: normal; font-weight: 500 600; font-display: swap;
+  src: url("../vendor/fonts/fredoka-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+:root {
+  --kimun-fuente-titulos: "Fredoka", ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", system-ui, sans-serif;
+
+  /* Un color por núcleo, el mismo en el gráfico de flor, las barras de nivel y las etiquetas.
+     Los cuatro primeros siguen los colores del logo de Integra (como los pétalos de radar.py).
+     `--nucleo` es para marcas (pétalos, barras, íconos): 3:1 o más sobre blanco, nunca para texto.
+     `--nucleo-suave` es su relleno pastel. Validado con la skill dataviz (validate_palette.js):
+     separación para daltonismo 6,1 entre vecinos, por eso el color nunca va solo (ícono y nombre). */
+  --nucleo: var(--kimun-azul); --nucleo-suave: var(--kimun-celeste-suave);
+}
+.nucleo-IA  { --nucleo: #125a91; --nucleo-suave: #cde3f3; }  /* azul */
+.nucleo-CC  { --nucleo: #b07800; --nucleo-suave: #fbe7b0; }  /* amarillo */
+.nucleo-CM  { --nucleo: #2b6115; --nucleo-suave: #d4e8c6; }  /* verde */
+.nucleo-LV  { --nucleo: #e0453c; --nucleo-suave: #fbd5d2; }  /* rojo */
+.nucleo-LA  { --nucleo: #5944a8; --nucleo-suave: #e2dcf5; }  /* violeta */
+.nucleo-EEN { --nucleo: #00978a; --nucleo-suave: #c8eeea; }  /* turquesa */
+.nucleo-CES { --nucleo: #a9480c; --nucleo-suave: #f7dcc8; }  /* tierra */
+.nucleo-PM  { --nucleo: #b5559a; --nucleo-suave: #f5d8ec; }  /* fucsia */
+
+h1, h2, .marca, .titulo-display { font-family: var(--kimun-fuente-titulos); font-weight: 600; letter-spacing: .005em; }
+h1 { color: var(--kimun-tinta); }
+
 /* Formas suaves, como el logo. */
 :root { --pico-border-radius: var(--kimun-radio); }
 article { box-shadow: var(--kimun-sombra); }
@@ -529,7 +565,6 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .apoyo-autonomo { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
 /* Nivel general: promedio de los núcleos, solo como referencia (curso.html y ficha.html). */
 .etiqueta-referencia { display: inline-block; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--pico-muted-color); font-size: .75rem; font-weight: 400; line-height: 1.4; }
-.nivel-general-ficha { margin: 0 0 .75rem; }
 /* Propuestas de nivel por decidir (curso.html). */
 .bandeja-propuestas { margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
 .bandeja-propuestas h2 { margin: 0 0 .35rem; font-size: 1.1rem; color: var(--kimun-tinta); }
@@ -665,16 +700,75 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
 .form-no-es { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--kimun-linea); }
 .tarjeta form button:last-of-type { margin-bottom: .25rem; }
-.radar-figura { margin: 0 auto 1rem; padding: .5rem 0; border-radius: 1.5rem; background: radial-gradient(circle at 50% 48%, var(--kimun-celeste-claro) 0, #fff 70%); text-align: center; }
-.radar { color: var(--kimun-texto-tenue); }
+/* Gráfico de flor (radar.py arma el SVG; kimun.js le suma color por núcleo, escala y modo compacto). */
+.seccion-niveles { --nivel-max: 8; }
+.niveles-cuerpo { display: grid; gap: 1rem 1.75rem; align-items: start; }
+.niveles-cuerpo > nav { display: block; }  /* Pico pone los <nav> en fila */
+@media (min-width: 1024px) {
+  .niveles-cuerpo { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+}
+.nivel-general-ficha {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .6rem; margin: 0 0 1rem;
+  padding: .75rem 1rem; border-radius: var(--kimun-radio); background: var(--kimun-celeste-suave);
+}
+.nivel-general-rotulo { font-weight: 600; color: var(--kimun-tinta); }
+.nivel-general-numero { font-family: var(--kimun-fuente-titulos); font-size: 2.6rem; font-weight: 600; line-height: 1; color: var(--kimun-azul); }
+.nivel-general-ficha .ayuda { flex-basis: 100%; margin: .2rem 0 0; }
+.radar-figura { margin: 0 auto; padding: .5rem 0 .75rem; border-radius: 1.5rem; background: radial-gradient(circle at 50% 48%, var(--kimun-celeste-claro) 0, #fff 70%); text-align: center; }
+.radar { display: block; margin: 0 auto; color: var(--kimun-tinta); }
 .radar .radar-etiqueta { font-weight: 500; }
 .radar .radar-nivel { fill: var(--kimun-azul); }
-.radar-figura figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem; font-size: .85rem; color: var(--kimun-texto-tenue); }
-.leyenda { display: inline-flex; align-items: center; gap: .4rem; }
+.radar .radar-anillo { stroke: var(--kimun-tinta); stroke-opacity: .16; }
+.radar .radar-anillo-max { stroke-opacity: .32; }
+.radar .radar-petalo[class*="nucleo-"] { fill: var(--nucleo-suave); stroke: var(--nucleo); }
+.radar .radar-punto[class*="nucleo-"], .radar .radar-icono[class*="nucleo-"] { fill: var(--nucleo); }
+.radar .radar-petalo { transition: opacity .15s ease; }
+.radar.con-resaltado .radar-petalo:not(.resaltado) { opacity: .35; }
+.radar .radar-petalo.resaltado { stroke-width: 3; }
+.radar-escala text { font-size: 11px; font-weight: 600; fill: var(--kimun-texto-tenue); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+.flor-compacta .radar .radar-etiqueta { display: none; }
+.radar-figura figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem; padding: 0 .75rem; font-size: .85rem; color: var(--kimun-texto-tenue); }
+.leyenda { display: inline-flex; align-items: center; gap: .4rem; text-align: left; }
 .leyenda::before { content: ""; display: inline-block; flex: none; }
-.leyenda-nino::before { width: 1.6rem; height: .8rem; border-radius: 999px; background: linear-gradient(90deg, #cde3f3, #fdeaaa, #d5ebc6, #fad2d1); border: 1.5px solid #125a91; }
+.leyenda-nino::before { width: 1rem; height: 1rem; border-radius: 50%; background: conic-gradient(#125a91 0 12.5%, #b07800 0 25%, #2b6115 0 37.5%, #e0453c 0 50%, #5944a8 0 62.5%, #00978a 0 75%, #a9480c 0 87.5%, #b5559a 0); }
 .leyenda-mediana::before { width: .7rem; height: .7rem; border-radius: 50%; background: #fff; border: 2px solid #4a5160; }
 .leyenda-esperado::before { width: 1.6rem; height: 0; border-top: 3px dotted #b36b00; }
+.leyenda-escala::before { width: 1rem; height: 1rem; border-radius: 50%; border: 1px dashed var(--kimun-texto-tenue); box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px var(--kimun-linea); }
+
+/* Escalones de nivel por núcleo (tabla «Resumen por núcleo»): un paso por nivel de la rúbrica,
+   llenos hasta el nivel actual con el color del núcleo; la raya oscura es la mediana del curso. */
+.tabla-niveles { width: 100%; margin-bottom: 0; }
+.tabla-niveles caption { padding-bottom: .4rem; text-align: left; font-size: .85rem; color: var(--pico-muted-color); }
+.tabla-niveles th, .tabla-niveles td { --pico-background-color: #fff; padding: .55rem .4rem; vertical-align: middle; }
+.tabla-niveles thead th { font-size: .8rem; font-weight: 600; color: var(--kimun-texto-tenue); }
+.tabla-niveles th[scope="row"] a { display: inline-flex; align-items: center; gap: .5rem; color: var(--kimun-tinta); font-weight: 600; text-decoration: none; }
+.tabla-niveles th[scope="row"] a:hover, .tabla-niveles th[scope="row"] a:focus-visible { color: var(--kimun-azul); text-decoration: underline; }
+.tabla-niveles th[scope="row"] .icono-nucleo { width: 1.6rem; height: 1.6rem; color: var(--nucleo); }
+.nivel-texto { font-weight: 600; white-space: nowrap; }
+.escalones { position: relative; display: block; width: 100%; max-width: 13rem; height: .8rem; margin-top: .35rem; }
+.escalones-pasos {
+  --paso: calc(100% / var(--nivel-max));
+  display: block; height: 100%; border-radius: .25rem;
+  background: linear-gradient(90deg, var(--nucleo) 0 calc(var(--paso) * var(--nivel)), var(--nucleo-suave) 0);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(var(--paso) - 3px), transparent 0 var(--paso));
+  mask: repeating-linear-gradient(90deg, #000 0 calc(var(--paso) - 3px), transparent 0 var(--paso));
+}
+.escalones[style*="--mediana"]::after {
+  content: ""; position: absolute; top: -.2rem; bottom: -.2rem; width: 3px; border-radius: 2px;
+  left: calc(100% / var(--nivel-max) * var(--mediana) - 3px); background: #4a5160; box-shadow: 0 0 0 1.5px #fff;
+}
+.tabla-niveles tbody tr:hover th, .tabla-niveles tbody tr:hover td { background: var(--kimun-celeste-claro); }
+.leyenda-escalones { margin: .5rem 0 0; font-size: .8rem; color: var(--kimun-texto-tenue); }
+@media (max-width: 575px) {
+  /* En celular cada núcleo es una fila de dos líneas: nombre arriba; nivel y mediana abajo. Sin scroll lateral. */
+  .tabla-niveles thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabla-niveles tr { display: grid; grid-template-columns: 1fr auto; column-gap: .75rem; padding: .5rem 0; border-bottom: 1px solid var(--kimun-linea); }
+  .tabla-niveles th, .tabla-niveles td { padding: 0; border: 0; }
+  .tabla-niveles th[scope="row"] { grid-column: 1 / -1; margin-bottom: .2rem; }
+  .tabla-niveles td.celda-mediana { align-self: end; font-size: .8rem; color: var(--kimun-texto-tenue); text-align: right; white-space: nowrap; }
+  .radar-figura figcaption { flex-direction: column; align-items: flex-start; padding-inline: 1rem; }
+  .tabla-niveles td.celda-mediana::before { content: "Mediana del curso "; }
+}
 
 .historial { margin: 0; padding: 0 0 0 .25rem; border-left: 2px solid var(--kimun-celeste-borde); }
 .historial .evento { position: relative; list-style: none; margin: 0; padding: .1rem 0 1rem 1.1rem; }
