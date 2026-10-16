@@ -320,6 +320,18 @@ def test_volver_a_cargar_conserva_un_nivel_fijado_a_mano(cargada):
     assert benjamin.nivel_actual(ia).nivel == 4
 
 
+def test_volver_a_cargar_respeta_una_observacion_retirada_y_su_historial(cargada):
+    """Pisarla la devolvía a la ficha y dejaba el historial sin calzar ("se modificó por fuera de la app")."""
+    from registro.historial import verificar
+    from registro.resultados import retirar_observacion
+
+    obs = Observacion.objects.filter(nino__curso=_curso_a(), estado=Observacion.Estado.ACEPTADA, grupal=False).first()
+    retirar_observacion(obs, _curso_a().educadora, "Era de otro niño")
+    call_command("cargar_demo", verbosity=0, hoy=HOY + timedelta(days=1))
+    obs.refresh_from_db()
+    assert obs.estado == Observacion.Estado.DESCARTADA and verificar(obs).ok
+
+
 # --- Datos de demo de la Task 12 (vista de la directora) ----------------------------------
 
 ALERTAS_DEMO = [

@@ -157,9 +157,20 @@ class Integridad:
         return "El historial no calza: " + " ".join(self.problemas)
 
 
+# Estados por los que pasa una hoja mientras el proceso de fondo la lee (o si la lectura falla
+# y se reintenta). Esos pasos no se registran: no son cambios del dato, y compararlos haría que
+# la pantalla avise "se modificó por fuera de la app" mientras la hoja se lee.
+_ESTADOS_DE_LECTURA = {
+    ResultadoInstrumento.Estado.POR_LEER, ResultadoInstrumento.Estado.LEYENDO, ResultadoInstrumento.Estado.ERROR,
+}
+
+
 def _comparable(instantanea_):
     """Sin el nombre del niño, que es solo para leer el historial: renombrarlo no es adulterar el dato."""
-    return {k: v for k, v in (instantanea_ or {}).items() if k != "nino"}
+    comparable = {k: v for k, v in (instantanea_ or {}).items() if k != "nino"}
+    if comparable.get("origen") is not None and comparable.get("estado") in _ESTADOS_DE_LECTURA:
+        comparable["estado"] = "lectura"  # solo los resultados tienen "origen"
+    return comparable
 
 
 def verificar(objeto):

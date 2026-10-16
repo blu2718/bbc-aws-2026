@@ -248,6 +248,13 @@ class Command(BaseCommand):
                     "estado": Captura.Estado.PROCESADA,
                 },
             )
+            existente = Observacion.objects.filter(captura=captura).first()
+            if existente and RegistroCambio.objects.filter(
+                objeto_tipo=RegistroCambio.Objeto.OBSERVACION, objeto_id=existente.pk,
+            ).exists():
+                # La educadora la corrigió o la retiró: se respeta, y pisarla dejaría el
+                # historial sin calzar (la ficha mostraría "se modificó por fuera de la app").
+                continue
             observacion, _ = Observacion.objects.update_or_create(
                 captura=captura,
                 defaults={

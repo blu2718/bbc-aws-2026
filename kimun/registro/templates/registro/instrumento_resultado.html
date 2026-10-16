@@ -30,6 +30,18 @@
       </div>
     {% endif %}
   </div>
+  {% if puede_editar %}
+    {# Si no se va a reintentar, descartarlo borra la hoja que quedó guardada. #}
+    <details class="descartar">
+      <summary>Descartar este intento{% if resultado.archivo %} y borrar la hoja{% endif %}</summary>
+      <form method="post" action="{% url 'resultado_instrumento_descartar' resultado.pk %}">
+        {% csrf_token %}
+        <label for="motivo-descartar">Motivo (queda en el historial)</label>
+        <textarea id="motivo-descartar" name="motivo" rows="2" maxlength="500" required placeholder="Por ejemplo: la ingresé a mano"></textarea>
+        <button type="submit" class="secondary">Descartar</button>
+      </form>
+    </details>
+  {% endif %}
 {% else %}
   {% if resumen.avisos and resultado.estado != "descartado" %}
     <div class="aviso" role="status">

@@ -233,3 +233,43 @@ def test_solo_la_educadora_corrige_observaciones(client, asistente_del_curso, di
         assert client.get(reverse("observacion_corregir", args=[aceptada.pk])).status_code == 404
         assert client.post(reverse("observacion_retirar", args=[aceptada.pk]), {"motivo": "x"}).status_code == 404
         assert client.get(reverse("observacion_historial", args=[aceptada.pk])).status_code == 200
+
+
+def test_un_formulario_con_errores_no_da_un_falso_aviso_de_adulteracion(client, educadora, aceptada):
+    """`is_valid()` copia los cambios a la instancia: el historial se verifica contra lo guardado."""
+    client.force_login(educadora)
+    url = reverse("observacion_corregir", args=[aceptada.pk])
+    client.post(url, _datos_obs(aceptada, cita="ordenó los bloques por color", motivo="Faltaba el criterio"))
+    aceptada.refresh_from_db()
+    pagina = client.post(url, _datos_obs(aceptada, cita="otra cita"))  # sin motivo: vuelve con errores
+    assert pagina.status_code == 200
+    html = pagina.content.decode()
+    assert "Historial íntegro" in html and "no calza" not in html
+
+
+def test_corregir_o_retirar_pide_una_propuesta_nueva(client, educadora, aceptada, descriptores, nino):
+    from registro.models import PropuestaNivel
+
+    client.force_login(educadora)
+    client.post(reverse("observacion_retirar", args=[aceptada.pk]), {"motivo": "Era de Emilio"})
+    assert PropuestaNivel.objects.filter(nino=nino, nucleo__sigla="IA", estado=PropuestaNivel.Estado.SOLICITADA).exists()
+
+
+def test_un_resultado_que_no_se_pudo_leer_se_puede_descartar_y_borra_la_hoja(
+    client, educadora, catalogo, nino, django_capture_on_commit_callbacks,
+):
+    from django.core.files.base import ContentFile
+
+    r = ResultadoInstrumento(nino=nino, estado=ResultadoInstrumento.Estado.ERROR, registrado_por=educadora,
+                             error="No se pudo leer la hoja.")
+    r.archivo.save("hoja.jpg", ContentFile(JPEG), save=False)
+    r.save()
+    nombre = r.archivo.name
+    client.force_login(educadora)
+    pagina = client.get(reverse("resultado_instrumento", args=[r.pk])).content.decode()
+    assert "Descartar este intento y borrar la hoja" in pagina
+    with django_capture_on_commit_callbacks(execute=True):
+        client.post(reverse("resultado_instrumento_descartar", args=[r.pk]), {"motivo": "La ingresé a mano"})
+    r.refresh_from_db()
+    assert r.estado == ResultadoInstrumento.Estado.DESCARTADO and not r.archivo
+    assert not r.archivo.storage.exists(nombre)
