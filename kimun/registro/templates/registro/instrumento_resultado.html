@@ -3,14 +3,14 @@
 {% block contenido %}
 <p class="volver"><a href="{% url 'ficha' nino.pk %}#titulo-instrumentos">← {{ nino.nombre }}</a></p>
 
-<header>
-  <h1>{% if resultado.instrumento %}{{ resultado.instrumento.nombre }}{% else %}Resultado de un instrumento{% endif %}</h1>
+<header class="encabezado-pagina">
+  <h1 class="titulo-largo">{% if resultado.instrumento %}{{ resultado.instrumento.nombre }}{% else %}Resultado de un instrumento{% endif %}</h1>
   <p>
     {{ nino.nombre }}
     {% if resultado.fecha_aplicacion %} · aplicado el <time datetime="{{ resultado.fecha_aplicacion|date:'Y-m-d' }}">{{ resultado.fecha_aplicacion|date:"j M Y" }}</time>{% endif %}
     {% if resumen.edad %} · a los {{ resumen.edad }}{% endif %}
     <br>{{ resultado.get_origen_display }}{% if resultado.aplicado_por %} · {{ resultado.aplicado_por }}{% endif %}
-    · <span class="etiqueta-referencia">{{ resultado.get_estado_display }}</span>
+    · <span class="chip-estado chip-{{ resultado.estado }}">{{ resultado.get_estado_display }}</span>
     {% if resultado.instrumento.provisorio %} <span class="etiqueta-referencia">estructura provisoria</span>{% endif %}
   </p>
   {% if resultado.instrumento.definicion.nota_ficha %}<p class="ayuda">{{ resultado.instrumento.definicion.nota_ficha }}</p>{% endif %}

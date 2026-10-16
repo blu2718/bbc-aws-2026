@@ -1,42 +1,46 @@
 {% extends "base.html" %}
 {% load kimun %}
 {% block titulo %}Niños y niñas · {{ curso.nombre }}{% endblock %}
+{# Tabla con el estilo de las demás (registro.css, .pagina-tabla). #}
+{% block clase_pagina %}pagina-tabla{% endblock %}
 {% block contenido %}
 <p class="volver">
   <a href="{% url 'curso' curso.pk %}">← {{ curso.nombre }}</a>
   {% if puede_administrar %} · <a href="{% url 'jardin' curso.jardin_id %}">{{ curso.jardin.nombre }}</a>{% endif %}
 </p>
-<hgroup>
-  <h1>Niños y niñas de {{ curso.nombre }}</h1>
+<header class="encabezado-pagina">
+  <h1 class="titulo-largo">Niños y niñas de {{ curso.nombre }}</h1>
   <p>{{ curso.get_nivel_educativo_display }} · {{ ninos|length }} en la lista · Educadora: {{ curso.educadora.get_full_name|default:curso.educadora.username }}</p>
-</hgroup>
+  <p class="acciones">
+    <a role="button" href="{% url 'nino_nuevo' curso.pk %}">Agregar un niño o niña</a>
+    {% if puede_administrar %}<a role="button" class="secondary outline" href="{% url 'sala_editar' curso.pk %}">Editar la sala y su equipo</a>{% endif %}
+  </p>
+</header>
 
-<p>
-  <a role="button" href="{% url 'nino_nuevo' curso.pk %}">Agregar un niño o niña</a>
-  {% if puede_administrar %}<a role="button" class="secondary outline" href="{% url 'sala_editar' curso.pk %}">Editar la sala y su equipo</a>{% endif %}
-</p>
-<p class="ayuda">Los apodos ayudan a reconocer a cada niño en las notas y a ocultar su nombre en el informe para la familia de otros niños.</p>
-
-{% if ninos %}
-  <div class="overflow-auto">
-    <table>
-      <caption class="visualmente-oculto">Niños y niñas de la sala</caption>
-      <thead>
-        <tr><th scope="col">Nombre</th><th scope="col">Apodos</th><th scope="col">Ingreso</th><th scope="col"><span class="visualmente-oculto">Acciones</span></th></tr>
-      </thead>
-      <tbody>
-        {% for nino in ninos %}
-          <tr>
-            <th scope="row"><a href="{% url 'ficha' nino.pk %}">{{ nino.nombre }}</a></th>
-            <td>{{ nino.alias|join:", "|default:"–" }}</td>
-            <td><time datetime="{{ nino.fecha_ingreso|date:'Y-m-d' }}">{{ nino.fecha_ingreso|date:"d-m-Y" }}</time></td>
-            <td><a href="{% url 'nino_editar' nino.pk %}" aria-label="Editar los datos de {{ nino.nombre }}">Editar</a></td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-{% else %}
-  <p role="status">La sala todavía no tiene niños ni niñas.</p>
-{% endif %}
+<section class="tarjeta" aria-labelledby="titulo-lista">
+  <h2 id="titulo-lista">Lista de la sala</h2>
+  <p class="ayuda">Los apodos ayudan a reconocer a cada niño en las notas y a ocultar su nombre en el informe para la familia de otros niños.</p>
+  {% if ninos %}
+    <div class="overflow-auto">
+      <table class="tabla-ninos">
+        <caption class="visualmente-oculto">Niños y niñas de la sala</caption>
+        <thead>
+          <tr><th scope="col">Nombre</th><th scope="col">Apodos</th><th scope="col">Ingreso</th><th scope="col"><span class="visualmente-oculto">Acciones</span></th></tr>
+        </thead>
+        <tbody>
+          {% for nino in ninos %}
+            <tr>
+              <th scope="row"><a href="{% url 'ficha' nino.pk %}">{{ nino.nombre }}</a></th>
+              <td>{{ nino.alias|join:", "|default:"–" }}</td>
+              <td><time datetime="{{ nino.fecha_ingreso|date:'Y-m-d' }}">{{ nino.fecha_ingreso|date:"d-m-Y" }}</time></td>
+              <td class="botones-enlace"><a href="{% url 'nino_editar' nino.pk %}" aria-label="Editar los datos de {{ nino.nombre }}">Editar</a></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="aviso" role="status">La sala todavía no tiene niños ni niñas.</p>
+  {% endif %}
+</section>
 {% endblock %}

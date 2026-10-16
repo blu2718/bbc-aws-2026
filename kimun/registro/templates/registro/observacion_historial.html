@@ -4,9 +4,11 @@
 {% if obs.nino_id %}
   <p class="volver"><a href="{% url 'ficha' obs.nino_id %}#titulo-historial">← {{ obs.nino.nombre }}</a></p>
 {% endif %}
-<h1>Historial de una observación</h1>
-<blockquote>{{ obs.cita }}</blockquote>
-<p>{{ obs.fecha|date:"j M Y" }} · {{ obs.get_estado_display }}</p>
+<header class="encabezado-pagina">
+  <h1>Historial de una observación</h1>
+  <p>{{ obs.fecha|date:"j M Y" }} · <span class="chip-estado chip-{{ obs.estado }}">{{ obs.get_estado_display }}</span></p>
+</header>
+<blockquote class="cita-nota">{{ obs.cita }}</blockquote>
 {% if puede_editar and obs.estado == "aceptada" %}<p><a role="button" class="secondary outline" href="{% url 'observacion_corregir' obs.pk %}">Corregir</a></p>{% endif %}
 {% include "registro/_historial_cambios.html" %}
 {% endblock %}

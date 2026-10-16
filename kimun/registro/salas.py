@@ -61,15 +61,17 @@ class EstadoSala:
 
     @property
     def atencion(self):
-        """Lo que la sala tiene pendiente, en texto, para mostrar arriba de su tarjeta."""
-        textos = []
+        """Lo que la sala tiene pendiente, para mostrar arriba de su tarjeta: [(estado, texto)].
+        El estado elige el color del chip (docs/diseno.md): los avisos de protección en rojo, lo
+        pendiente de decidir en amarillo."""
+        pendientes = []
         if self.avisos:
-            textos.append(f"{self.avisos} aviso{'s' if self.avisos != 1 else ''} de protección por atender")
+            pendientes.append(("error", f"{self.avisos} aviso{'s' if self.avisos != 1 else ''} de protección por atender"))
         if self.por_revisar:
-            textos.append(f"{self.por_revisar} observaci{'ones' if self.por_revisar != 1 else 'ón'} por revisar")
+            pendientes.append(("pendiente", f"{self.por_revisar} observaci{'ones' if self.por_revisar != 1 else 'ón'} por revisar"))
         if self.propuestas:
-            textos.append(f"{self.propuestas} propuesta{'s' if self.propuestas != 1 else ''} de nivel por decidir")
-        return textos
+            pendientes.append(("pendiente", f"{self.propuestas} propuesta{'s' if self.propuestas != 1 else ''} de nivel por decidir"))
+        return pendientes
 
 
 @dataclass(frozen=True)

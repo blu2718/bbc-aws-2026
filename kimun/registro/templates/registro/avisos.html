@@ -1,30 +1,32 @@
 {% extends "base.html" %}
 {% block titulo %}Avisos de protección{% endblock %}
 {% block contenido %}
-<h1>Avisos de protección</h1>
-<p>Notas que podrían describir una situación de vulneración de derechos. Kimün no las usa para evaluar. Solo las ven la educadora del curso y la directora del jardín.</p>
+<header class="encabezado-pagina">
+  <h1>Avisos de protección</h1>
+  <p>Notas que podrían describir una situación de vulneración de derechos. Kimün no las usa para evaluar. Solo las ven la educadora del curso y la directora del jardín.</p>
+</header>
 
-<section aria-labelledby="titulo-pendientes">
+<section class="tarjeta" aria-labelledby="titulo-pendientes">
   <h2 id="titulo-pendientes">Por atender</h2>
   {% if pendientes %}
-    <ul>
+    <ul class="lista-enlaces">
       {% for a in pendientes %}
         {# Sin texto de la nota ni nombres en el listado: el detalle está en la página del aviso. #}
-        <li><a href="{% url 'aviso' a.pk %}">{{ a.captura.curso.nombre }} · {{ a.creado|date:"j \d\e F, H:i" }}</a></li>
+        <li><a href="{% url 'aviso' a.pk %}"><span class="estado-obs estado-alerta">Por atender</span> {{ a.captura.curso.nombre }} · {{ a.creado|date:"j \d\e F, H:i" }}</a></li>
       {% endfor %}
     </ul>
   {% else %}
-    <p>No hay avisos por atender.</p>
+    <p class="mensaje-ok">No hay avisos por atender.</p>
   {% endif %}
 </section>
 
 {% if resueltos %}
-  <section aria-labelledby="titulo-resueltos">
+  <section class="tarjeta" aria-labelledby="titulo-resueltos">
     <h2 id="titulo-resueltos">Atendidos</h2>
-    <ul>
+    <ul class="lista-enlaces">
       {% for a in resueltos %}
-        <li><a href="{% url 'aviso' a.pk %}">{{ a.captura.curso.nombre }} · {{ a.creado|date:"j \d\e F" }}</a>
-          · {{ a.get_estado_display }} ({{ a.resuelto_por.get_full_name|default:a.resuelto_por.username }}, {{ a.resuelto_en|date:"j \d\e F, H:i" }})</li>
+        <li><a href="{% url 'aviso' a.pk %}">{{ a.captura.curso.nombre }} · {{ a.creado|date:"j \d\e F" }}
+          <small>{{ a.get_estado_display }} ({{ a.resuelto_por.get_full_name|default:a.resuelto_por.username }}, {{ a.resuelto_en|date:"j \d\e F, H:i" }})</small></a></li>
       {% endfor %}
     </ul>
   </section>

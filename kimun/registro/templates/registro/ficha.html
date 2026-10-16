@@ -20,41 +20,50 @@
   </p>
 </header>
 
-<section class="perfil-seccion" aria-labelledby="titulo-habilidades">
+<section class="perfil-seccion seccion-niveles" aria-labelledby="titulo-habilidades" data-niveles>
   <h2 id="titulo-habilidades">Nivel en cada núcleo ({{ ficha.nucleos|length }})</h2>
   <p class="nivel-general-ficha">
-    Nivel general: <strong>{{ ficha.texto_nivel_general }}</strong> <span class="etiqueta-referencia">referencia</span>
-    <br><small class="ayuda">Promedio de sus núcleos. El nivel se decide en cada núcleo.</small>
+    <span class="nivel-general-rotulo">Nivel general</span>
+    <strong class="nivel-general-numero">{{ ficha.texto_nivel_general }}</strong>
+    <span class="etiqueta-referencia">referencia</span>
+    <small class="ayuda">Promedio de sus núcleos. El nivel se decide en cada núcleo.</small>
   </p>
-  {% if radar %}
-    <figure class="radar-figura">
-      {{ radar }}
-      <figcaption>
-        <span class="leyenda leyenda-nino">Cada pétalo es un núcleo: más largo, más alto el nivel de {{ ficha.nino.nombre.split.0 }}</span>
-        <span class="leyenda leyenda-mediana">Mediana del curso</span>
-        {% if esperado %}<span class="leyenda leyenda-esperado">Nivel esperado ({{ esperado }})</span>{% endif %}
-      </figcaption>
-    </figure>
-  {% endif %}
-  <nav aria-label="Núcleos">
-    <div class="overflow-auto">
-      <table>
+  <div class="niveles-cuerpo">
+    {% if radar %}
+      {# kimun.js usa data-siglas (en el orden de los pétalos) para pintar cada pétalo del color de su núcleo y data-esperado para marcar el núcleo más bajo. #}
+      <figure class="radar-figura" data-flor data-esperado="{{ esperado|default_if_none:'' }}" data-siglas="{% for nf in ficha.nucleos %}{{ nf.nucleo.sigla }}{% if not forloop.last %} {% endif %}{% endfor %}">
+        {{ radar }}
+        <figcaption>
+          <span class="leyenda leyenda-nino">Cada pétalo es un núcleo: más largo, más alto el nivel de {{ ficha.nino.nombre.split.0 }}</span>
+          <span class="leyenda leyenda-escala">Cada anillo es un nivel de la rúbrica, del centro hacia afuera</span>
+          <span class="leyenda leyenda-mediana">Mediana del curso</span>
+          {% if esperado %}<span class="leyenda leyenda-esperado">Nivel esperado ({{ esperado }})</span>{% endif %}
+        </figcaption>
+      </figure>
+    {% endif %}
+    <nav aria-label="Núcleos">
+      <table class="tabla-niveles">
         <caption>Resumen por núcleo</caption>
         <thead>
           <tr><th scope="col">Núcleo</th><th scope="col">Nivel actual</th><th scope="col">Mediana del curso</th></tr>
         </thead>
         <tbody>
           {% for nf in ficha.nucleos %}
-            <tr>
-              <th scope="row"><a href="#nucleo-{{ nf.nucleo.sigla }}" data-abrir-detalle="{{ nf.nucleo.sigla }}">{{ nf.nucleo.nombre }}</a></th>
-              <td>{{ nf.texto_actual }}</td>
-              <td>{{ nf.situacion.texto_mediana|default:"–" }}</td>
+            <tr class="nucleo-{{ nf.nucleo.sigla }}" data-sigla="{{ nf.nucleo.sigla }}">
+              <th scope="row"><a href="#nucleo-{{ nf.nucleo.sigla }}" data-abrir-detalle="{{ nf.nucleo.sigla }}">{% with icono=nf.nucleo.sigla|icono_nucleo %}{% if icono %}<span class="icono-nucleo" aria-hidden="true" style="-webkit-mask-image: url('{{ icono }}'); mask-image: url('{{ icono }}')"></span>{% endif %}{% endwith %}{{ nf.nucleo.nombre }}</a></th>
+              <td>
+                <span class="nivel-texto">{{ nf.texto_actual }}</span>
+                {# Escalones: --nivel y --mediana con punto decimal (stringformat no usa la coma del idioma). #}
+                {% if nf.actual %}<span class="escalones" aria-hidden="true" style="--nivel: {{ nf.actual.nivel|stringformat:'s' }};{% if nf.situacion and nf.situacion.mediana_curso is not None %} --mediana: {{ nf.situacion.mediana_curso|stringformat:'g' }};{% endif %}"><span class="escalones-pasos"></span></span>{% endif %}
+              </td>
+              <td class="celda-mediana">{{ nf.situacion.texto_mediana|default:"–" }}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
-    </div>
-  </nav>
+      <p class="leyenda-escalones">Cada escalón es un nivel de la rúbrica. La raya oscura marca la mediana del curso.</p>
+    </nav>
+  </div>
 </section>
 
 <section class="perfil-seccion" aria-labelledby="titulo-historial">
@@ -92,8 +101,8 @@
   <h2 id="titulo-detalle">Detalle por núcleo</h2>
   <p class="ayuda">La rúbrica del nivel actual y del siguiente, la evolución, la evidencia por OA y las observaciones{% if ficha.puede_validar %}, y el formulario para fijar el nivel{% endif %}.</p>
   {% for nf in ficha.nucleos %}
-    <details class="detalle-nucleo" data-detalle="{{ nf.nucleo.sigla }}"{% if nf.form.is_bound %} open{% endif %}>
-      <summary>{{ nf.nucleo.nombre }} · {{ nf.texto_actual }}</summary>
+    <details class="detalle-nucleo nucleo-{{ nf.nucleo.sigla }}" data-detalle="{{ nf.nucleo.sigla }}"{% if nf.form.is_bound %} open{% endif %}>
+      <summary>{% with icono=nf.nucleo.sigla|icono_nucleo %}{% if icono %}<span class="icono-nucleo" aria-hidden="true" style="-webkit-mask-image: url('{{ icono }}'); mask-image: url('{{ icono }}')"></span>{% endif %}{% endwith %}{{ nf.nucleo.nombre }} · {{ nf.texto_actual }}</summary>
       {% include "registro/_nucleo_ficha.html" with nf=nf %}
     </details>
   {% endfor %}

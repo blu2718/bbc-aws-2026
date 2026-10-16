@@ -62,6 +62,8 @@
   --kimun-alerta-borde: #cc3833; /* 4,2:1 sobre su fondo */
   --kimun-alerta-linea: #f5bebc;
   --kimun-ok-fondo: #e3f4d7;     /* texto verde 6,1:1 */
+  --kimun-ok-claro: #f5fbf0;     /* fondo de «Qué observar después»: texto verde 6,7:1 */
+  --kimun-ok-linea: #bfdfa8;
 }
 
 /* Variables de Pico con la paleta del logo. Modo claro: automático y forzado. */
@@ -82,7 +84,9 @@
   }
 }
 
-[data-theme="light"] {
+/* Mismo selector que Pico (especificidad 0,2,0) y cargado después: así gana. Con solo [data-theme="light"]
+   (0,1,0) ganaba Pico y los botones salían en su azul #0172ad en vez del celeste de Kimün. */
+:root:not([data-theme=dark]), [data-theme="light"] {
   --pico-background-color: var(--kimun-fondo);
   --pico-primary: var(--kimun-azul);
   --pico-primary-background: var(--kimun-celeste);
@@ -151,8 +155,12 @@
 }
 
 /* Botones secundarios (por ejemplo "Cerrar sesión") en el gris de Integra:
-   texto blanco sobre #606060, 6,3:1. */
-:root {
+   texto blanco sobre #606060, 6,3:1. Mismo selector que Pico para ganarle (ver arriba). */
+:root:not([data-theme=dark]), [data-theme="light"] {
+  --pico-secondary: var(--kimun-gris);
+  --pico-secondary-hover: var(--kimun-gris-oscuro);
+  --pico-secondary-underline: rgba(96, 96, 96, .5);
+  --pico-secondary-focus: rgba(96, 96, 96, .3);
   --pico-secondary-background: var(--kimun-gris);
   --pico-secondary-border: var(--kimun-gris);
   --pico-secondary-hover-background: var(--kimun-gris-oscuro);
@@ -160,30 +168,48 @@
   --pico-secondary-inverse: #fff;
 }
 
+/* --- Segunda pasada: tipografía y colores por núcleo (docs/diseno.md) ---------------------------- */
+
+/* Fredoka (SIL OFL, static/vendor/fonts/OFL.txt): redonda como el logo, solo para títulos y cifras.
+   Va en el repo, sin CDN; si no carga, siguen las redondeadas del sistema y luego las de Pico. */
+@font-face {
+  font-family: "Fredoka"; font-style: normal; font-weight: 500 600; font-display: swap;
+  src: url("../vendor/fonts/fredoka-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Fredoka"; font-style: normal; font-weight: 500 600; font-display: swap;
+  src: url("../vendor/fonts/fredoka-latin-ext.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+:root {
+  --kimun-fuente-titulos: "Fredoka", ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", system-ui, sans-serif;
+
+  /* Un color por núcleo, el mismo en el gráfico de flor, las barras de nivel y las etiquetas.
+     Los cuatro primeros siguen los colores del logo de Integra (como los pétalos de radar.py).
+     `--nucleo` es para marcas (pétalos, barras, íconos): 3:1 o más sobre blanco, nunca para texto.
+     `--nucleo-suave` es su relleno pastel. Validado con la skill dataviz (validate_palette.js):
+     separación para daltonismo 6,1 entre vecinos, por eso el color nunca va solo (ícono y nombre). */
+  --nucleo: var(--kimun-azul); --nucleo-suave: var(--kimun-celeste-suave);
+}
+/* `--nucleo-texto`: versión oscura para texto (el «nivel N» de la flor), 5,5:1 o más sobre blanco y celeste claro. */
+.nucleo-IA  { --nucleo: #125a91; --nucleo-suave: #cde3f3; --nucleo-texto: #125a91; }  /* azul */
+.nucleo-CC  { --nucleo: #b07800; --nucleo-suave: #fbe7b0; --nucleo-texto: #7a5300; }  /* amarillo */
+.nucleo-CM  { --nucleo: #2b6115; --nucleo-suave: #d4e8c6; --nucleo-texto: #2b6115; }  /* verde */
+.nucleo-LV  { --nucleo: #e0453c; --nucleo-suave: #fbd5d2; --nucleo-texto: #b02a22; }  /* rojo */
+.nucleo-LA  { --nucleo: #5944a8; --nucleo-suave: #e2dcf5; --nucleo-texto: #5944a8; }  /* violeta */
+.nucleo-EEN { --nucleo: #00978a; --nucleo-suave: #c8eeea; --nucleo-texto: #00695f; }  /* turquesa */
+.nucleo-CES { --nucleo: #a9480c; --nucleo-suave: #f7dcc8; --nucleo-texto: #a9480c; }  /* tierra */
+.nucleo-PM  { --nucleo: #b5559a; --nucleo-suave: #f5d8ec; --nucleo-texto: #8e3a78; }  /* fucsia */
+
+h1, h2, .marca, .titulo-display { font-family: var(--kimun-fuente-titulos); font-weight: 600; letter-spacing: .005em; }
+h1 { color: var(--kimun-tinta); }
+
 /* Formas suaves, como el logo. */
 :root { --pico-border-radius: var(--kimun-radio); }
+/* Las casillas quedan cuadradas: con el radio de 0,75 rem se veían redondas, como opciones de radio. */
+[type="checkbox"]:not([role="switch"]) { --pico-border-radius: .3rem; }
 article { box-shadow: var(--kimun-sombra); }
-
-/* --- Barra superior ------------------------------------------------------------------------ */
-
-body > header {
-  padding-block: 0;
-  margin-bottom: var(--pico-spacing);
-  background: var(--kimun-celeste-suave);
-  border-bottom: 1px solid var(--kimun-celeste-borde);
-  border-radius: 0 0 var(--kimun-radio) var(--kimun-radio);
-}
-body > header li { padding-block: .4rem; }
-body > header form, body > header button { margin: 0; }
-
-.marca {
-  display: inline-flex;
-  align-items: center;
-  gap: .55rem;
-  color: var(--kimun-tinta);
-  text-decoration: none;
-}
-.marca img { border-radius: .6rem; }
 
 /* ===== Interfaz de diseno-interfaz.jpg: barra, menú lateral, registrar, suceso y perfil ===== */
 
@@ -239,8 +265,34 @@ fieldset { min-width: 0; }
     var(--integra-azul-pastel) 0 25%, var(--integra-rojo-pastel) 25% 50%,
     var(--integra-verde-pastel) 50% 75%, var(--integra-amarillo-pastel) 75% 100%);
 }
+/* La barra se alinea con el contenido: mismos anchos que .container de Pico. */
 .barra-app > nav { max-width: 64rem; margin-inline: auto; padding-inline: .75rem; }
+@media (min-width: 576px) { .barra-app > nav { max-width: calc(510px + 1.5rem); } }
+@media (min-width: 768px) { .barra-app > nav { max-width: calc(700px + 1.5rem); } }
+@media (min-width: 1024px) { .barra-app > nav { max-width: calc(950px + 1.5rem); } }
+@media (min-width: 1280px) { .barra-app > nav { max-width: calc(1200px + 1.5rem); } }
+@media (min-width: 1536px) { .barra-app > nav { max-width: calc(1450px + 1.5rem); } }
 .barra-app li { padding-block: .4rem; }
+/* Contadores (avisos, por revisar) como píldoras que no se montan sobre la marca. */
+.barra-app nav > ul:last-child { gap: .4rem; flex-wrap: nowrap; }
+.barra-app nav > ul:last-child li { padding-inline: 0; }
+#contador-avisos a, #contador-pendientes a {
+  display: inline-block; margin: 0; padding: .3rem .7rem;
+  border-radius: 999px; font-size: .85rem; line-height: 1.2; white-space: nowrap; text-decoration: none;
+}
+#contador-avisos a { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); }
+#contador-pendientes a { background: var(--kimun-celeste-suave); color: var(--kimun-tinta); }
+#contador-avisos a:hover { background: var(--kimun-alerta-linea); }
+#contador-pendientes a:hover { background: var(--kimun-celeste-medio); }
+#contador-pendientes { display: flex; flex-wrap: wrap; gap: .3rem; }
+/* En celular las píldoras van una sobre otra, más chicas, para no montarse sobre la marca. */
+@media (max-width: 479px) {
+  .barra-app nav > ul:last-child { flex-direction: column; align-items: flex-end; gap: .2rem; margin-block: .25rem; }
+  .barra-app nav > ul:last-child li { padding-block: 0; }
+  #contador-avisos a, #contador-pendientes a { padding: .15rem .55rem; font-size: .75rem; }
+  .barra-app .marca { gap: .4rem; font-size: 1.05rem; }
+  .barra-app .marca img { width: 32px; height: 32px; }
+}
 .marca {
   display: inline-flex;
   align-items: center;
@@ -251,7 +303,6 @@ fieldset { min-width: 0; }
   text-decoration: none;
 }
 .marca img { border-radius: .65rem; }
-#contador-pendientes a { font-size: .9rem; }
 
 .boton-icono {
   display: inline-flex;
@@ -385,13 +436,22 @@ dialog.menu-lateral > article > footer.menu-pie {
 .pagina-conversacion main { display: flex; flex-direction: column; min-height: calc(100dvh - 4.25rem); padding-bottom: 0; }
 .conversacion { display: flex; flex-direction: column; gap: 1rem; flex: 1; width: 100%; max-width: 42rem; margin-inline: auto; }
 
-.registro-pregunta { margin-block: auto; padding: 1.5rem 0 1rem; text-align: center; }
-.registro-pregunta img { border-radius: 1.4rem; box-shadow: var(--kimun-sombra); margin-bottom: 1rem; }
-.registro-pregunta h1 { margin-bottom: .5rem; color: var(--kimun-tinta); font-size: clamp(1.7rem, 7vw, 2.3rem); }
+.registro-pregunta { margin-block: auto; padding: 1.25rem 0 .75rem; text-align: center; }
+.registro-pregunta img { width: 72px; height: 72px; border-radius: 1.2rem; box-shadow: var(--kimun-sombra); margin-bottom: .75rem; }
+.registro-pregunta h1 { margin-bottom: .5rem; color: var(--kimun-tinta); font-size: clamp(1.75rem, 7.5vw, 2.4rem); line-height: 1.15; }
 .registro-pregunta p { max-width: 30rem; margin: 0 auto .5rem; color: var(--pico-muted-color); }
-.registro-curso { font-size: .85rem; }
+.registro-curso { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: .35rem .5rem; margin-bottom: 1rem !important; font-size: .85rem; }
+/* Curso en el que se registra: lo primero que se confirma en sala. */
+.chip-curso { padding: .2rem .7rem; border-radius: 999px; background: var(--kimun-celeste); color: var(--kimun-tinta); font-weight: 600; }
+/* Las tres formas de registrar: recordatorio, no navegación (solo la foto es un control). */
+.formas-registrar { display: flex; flex-wrap: wrap; justify-content: center; gap: .4rem; margin: .9rem 0 0; padding: 0; }
+.formas-registrar li { list-style: none; margin: 0; }
+.formas-registrar li, .formas-registrar label { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; color: var(--kimun-tinta); }
+.formas-registrar > li { padding: .3rem .7rem; border-radius: 999px; background: var(--kimun-celeste-suave); }
+.formas-registrar label { margin: 0; cursor: pointer; text-decoration: underline; text-decoration-color: var(--kimun-celeste-hover); text-underline-offset: .2em; }
+.formas-registrar svg { flex: none; color: var(--kimun-azul); }
 
-.recientes h2 { font-size: .9rem; margin: 0 0 .4rem; color: var(--pico-muted-color); font-weight: 600; }
+.recientes h2 { font-size: .9rem; margin: 0 0 .4rem; color: var(--pico-muted-color); font-weight: 600; font-family: inherit; }
 .recientes ul { display: grid; gap: .4rem; margin: 0; padding: 0; }
 .recientes li { list-style: none; margin: 0; }
 .recientes a {
@@ -405,7 +465,21 @@ dialog.menu-lateral > article > footer.menu-pie {
 }
 .recientes a:hover, .recientes a:focus-visible { border-color: var(--kimun-celeste-borde); background: var(--kimun-celeste-suave); }
 .reciente-texto { display: block; }
-.recientes small { display: block; color: var(--pico-muted-color); font-size: .78rem; }
+.recientes small { display: block; margin-top: .15rem; color: var(--pico-muted-color); font-size: .78rem; }
+
+/* Chips de estado de un registro o propuesta: color de su señal y siempre el texto. */
+.chip-estado {
+  display: inline-flex; align-items: center; gap: .3rem; padding: .05rem .55rem; border-radius: 999px;
+  background: var(--kimun-gris-suave); color: var(--kimun-gris-oscuro); font-size: .75rem; font-weight: 600; white-space: nowrap;
+}
+.chip-estado::before { content: ""; width: .45rem; height: .45rem; border-radius: 50%; background: currentColor; }
+.chip-pendiente, .chip-solicitada, .chip-por_revisar { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso); }
+.chip-procesando, .chip-preparando, .chip-leyendo { background: var(--kimun-celeste-suave); color: var(--kimun-azul); }
+.chip-procesando::before, .chip-preparando::before, .chip-leyendo::before { animation: chip-latido 1.2s ease-in-out infinite; }
+.chip-procesada, .chip-lista, .chip-aceptada, .chip-confirmado { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
+.chip-error, .chip-en_resguardo { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); }
+@keyframes chip-latido { 50% { opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .chip-estado::before { animation: none !important; } }
 
 .composer {
   position: sticky;
@@ -421,12 +495,14 @@ dialog.menu-lateral > article > footer.menu-pie {
   align-items: flex-end;
   gap: .3rem;
   padding: .35rem;
-  border: 1.5px solid var(--kimun-celeste-borde);
+  border: 2px solid var(--kimun-celeste);
   border-radius: 1.75rem;
   background: #fff;
   box-shadow: var(--kimun-sombra);
 }
 .composer-barra:focus-within { border-color: var(--kimun-azul); box-shadow: 0 0 0 3px var(--pico-primary-focus); }
+/* Mientras se arrastra una foto sobre la barra (kimun.js). */
+.composer-barra.composer-soltar { border-style: dashed; border-color: var(--kimun-azul); background: var(--kimun-celeste-suave); }
 .composer-barra textarea {
   flex: 1;
   min-height: 2.75rem;
@@ -444,7 +520,14 @@ dialog.menu-lateral > article > footer.menu-pie {
 .boton-adjuntar:hover, .boton-microfono:hover { background: var(--kimun-celeste-medio); color: var(--kimun-tinta); }
 input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); outline-offset: 2px; }
 .boton-microfono[aria-pressed=true] { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta); }
-.boton-enviar { border: 0; background: var(--kimun-celeste); color: var(--kimun-tinta); }
+.boton-enviar { border: 0; background: var(--kimun-azul); color: #fff; }  /* la acción principal de la app: 7,3:1 */
+.boton-enviar:hover, .boton-enviar:focus-visible { background: var(--kimun-azul-hover); color: #fff; }
+@media (max-width: 575px) {
+  /* En sala, con una mano: botones de 48 px y texto de 17 px (iOS no hace zoom sobre 16 px o más). */
+  .composer-barra .boton-icono { width: 3rem; height: 3rem; }
+  .composer-barra textarea { min-height: 3rem; font-size: 1.0625rem; }
+  .recientes ul { gap: .35rem; }
+}
 .composer-estado { min-height: 0; margin: 0 .5rem .35rem; font-size: .85rem; color: var(--pico-muted-color); }
 .composer-estado:empty { display: none; }
 .composer-adjunto {
@@ -483,7 +566,10 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .resumen-captura { margin: 0; font-size: .9rem; color: var(--pico-muted-color); }
 /* Informe para la familia (informe_familia.html): una página al imprimir. */
 .informe-acciones { margin-bottom: 1rem; }
-.informe-acciones button { margin: 0 0 .5rem; }
+.informe-barra { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1rem; max-width: 48rem; margin: 0 auto; }
+.informe-barra button { width: auto; margin: 0; }
+.informe-barra .ayuda { flex: 1 1 18rem; margin: 0; }
+.informe-acciones .volver { max-width: 48rem; margin-inline: auto; }
 .informe { max-width: 48rem; margin: 0 auto; padding: 1.25rem 1.4rem; border: 1px solid var(--kimun-linea); border-radius: var(--kimun-radio); background: #fff; box-shadow: var(--kimun-sombra); }
 .informe-cabecera { display: flex; gap: .85rem; align-items: center; margin-bottom: .75rem; }
 .informe-cabecera img { border-radius: .7rem; }
@@ -492,7 +578,7 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .informe-intro { font-size: .95rem; }
 .informe-nucleo { padding: .5rem 0; border-top: 1px solid var(--kimun-linea); break-inside: avoid; }
 .informe-nucleo h2 { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; margin: .25rem 0; font-size: 1.05rem; color: var(--kimun-tinta); }
-.informe-nivel { margin-left: auto; font-size: .85rem; font-weight: 600; color: var(--kimun-azul); }
+.informe-nivel { margin-left: auto; padding: .05rem .55rem; border-radius: 999px; background: var(--kimun-celeste-suave); font-size: .8rem; font-weight: 600; color: var(--kimun-azul); white-space: nowrap; }
 .informe-nucleo p, .informe-nucleo li { margin-bottom: .2rem; font-size: .92rem; }
 .informe-nucleo ul { margin: 0 0 .3rem; }
 .informe-subtitulo { margin: .35rem 0 .1rem; font-weight: 600; font-size: .85rem !important; color: var(--kimun-azul); }
@@ -514,26 +600,49 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .apoyo-autonomo { background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
 /* Nivel general: promedio de los núcleos, solo como referencia (curso.html y ficha.html). */
 .etiqueta-referencia { display: inline-block; padding: 0 .4rem; border: 1px solid currentColor; border-radius: 999px; color: var(--pico-muted-color); font-size: .75rem; font-weight: 400; line-height: 1.4; }
-.nivel-general-ficha { margin: 0 0 .75rem; }
 /* Propuestas de nivel por decidir (curso.html). */
-.bandeja-propuestas { margin-bottom: 1.25rem; padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
-.bandeja-propuestas h2 { margin: 0 0 .35rem; font-size: 1.1rem; color: var(--kimun-tinta); }
-.bandeja-propuestas .ayuda { margin: 0 0 .5rem; }
-.bandeja-lista { display: grid; gap: .4rem; margin: 0 0 .5rem; padding: 0; }
+/* Bandeja de propuestas: lo pendiente de decidir. Amarillo de «pendiente» en el borde y la cifra; cada fila
+   termina en «Decidir» para que se lea como tarea, no como información. */
+.bandeja-propuestas { margin-bottom: 1.25rem; padding: 1rem 1.1rem; border: 1px solid var(--kimun-aviso-linea); border-left: .4rem solid var(--kimun-aviso-borde); border-radius: var(--kimun-radio); background: var(--kimun-aviso-claro); box-shadow: var(--kimun-sombra); }
+.bandeja-propuestas h2 { display: flex; align-items: center; gap: .6rem; margin: 0 0 .4rem; font-size: 1.2rem; color: var(--kimun-tinta); }
+.bandeja-cuenta { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 2.2rem; height: 2.2rem; padding: 0 .5rem; border-radius: 999px; background: var(--kimun-aviso-fondo); box-shadow: inset 0 0 0 2px var(--kimun-aviso-borde); color: var(--kimun-aviso-texto); font-size: 1.15rem; }
+.bandeja-propuestas .ayuda { margin: 0 0 .6rem; }
+.bandeja-lista { display: grid; gap: .45rem; margin: 0 0 .5rem; padding: 0; }
 .bandeja-lista li { list-style: none; margin: 0; }
-.bandeja-lista a { display: flex; align-items: center; gap: .6rem; padding: .45rem .6rem; border-radius: .7rem; background: #fff; text-decoration: none; color: inherit; }
-.bandeja-lista a:hover, .bandeja-lista a:focus-visible { background: var(--kimun-celeste-suave); }
-.bandeja-lista small { display: block; color: var(--pico-muted-color); }
-/* "De esta nota saqué…" (_resumen_captura.html). */
-.resumen-nota { padding: .85rem 1rem; border: 1px solid var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: var(--kimun-celeste-claro); }
-.resumen-nota h2 { margin: 0 0 .5rem; font-size: 1.05rem; color: var(--kimun-tinta); }
-.resumen-nota-lista { display: grid; gap: .45rem; margin: 0 0 .5rem; padding: 0; }
-.resumen-nota-lista li { list-style: none; margin: 0; }
-.resumen-nota-lista a { display: inline-flex; align-items: center; gap: .45rem; font-weight: 600; }
-.resumen-nota-lista small { display: block; margin-left: 2.55rem; color: var(--pico-muted-color); font-size: .82rem; }
-.resumen-nota .ayuda { margin: 0; }
+.bandeja-lista a { display: flex; align-items: center; gap: .65rem; padding: .6rem .7rem; border: 1px solid var(--kimun-linea); border-radius: .8rem; background: #fff; text-decoration: none; color: var(--kimun-tinta); }
+.bandeja-lista a:hover, .bandeja-lista a:focus-visible { border-color: var(--kimun-aviso-borde); background: #fff; }
+.bandeja-texto { flex: 1; min-width: 0; }
+.bandeja-texto .chip-nucleo { margin-left: .15rem; font-size: .78rem; vertical-align: .1em; }
+.bandeja-lista small { display: block; margin-top: .15rem; color: var(--kimun-texto-tenue); }
+.bandeja-lista small strong { color: var(--kimun-azul); }
+.bandeja-decidir { flex: none; padding: .3rem .75rem; border-radius: var(--kimun-radio); background: var(--kimun-celeste); color: var(--kimun-tinta); font-size: .85rem; font-weight: 600; }
+.bandeja-lista a:hover .bandeja-decidir, .bandeja-lista a:focus-visible .bandeja-decidir { background: var(--kimun-celeste-hover); }
+.bandeja-preparando { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; }
+/* En celular, «Decidir» se reduce a una flecha. Es decorativo (aria-hidden): el enlace ya nombra niño y núcleo. */
+@media (max-width: 479px) { .bandeja-decidir { padding: .15rem .6rem; font-size: 0; } .bandeja-decidir::before { content: "›"; font-size: 1.4rem; line-height: 1; } }
+/* "De esta nota saqué…" (_resumen_captura.html): cada niño es una fila con su avatar grande, su nombre y
+   los núcleos como chips del color de cada núcleo. Las cifras del título en Fredoka. */
+.resumen-nota { padding: 1rem 1.1rem; border: 1px solid var(--kimun-celeste-borde); border-top: .3rem solid var(--kimun-celeste); border-radius: var(--kimun-radio); background: #fff; box-shadow: var(--kimun-sombra); }
+.resumen-nota h2 { margin: 0 0 .75rem; font-size: 1.15rem; line-height: 1.35; color: var(--kimun-tinta); }
+.resumen-nota .cifra { display: inline-block; min-width: 1.6em; padding: 0 .3em; border-radius: .5em; background: var(--kimun-celeste-suave); color: var(--kimun-azul); font-size: 1.35em; line-height: 1.2; text-align: center; }
+.resumen-nota-lista { display: grid; gap: 0; margin: 0 0 .6rem; padding: 0; }
+.resumen-nota-lista li { list-style: none; margin: 0; padding: .55rem 0; border-top: 1px solid var(--kimun-linea); }
+.resumen-nota-lista li:first-child { border-top: 0; padding-top: 0; }
+.resumen-nota-lista a { display: inline-flex; align-items: center; gap: .65rem; color: var(--kimun-tinta); font-size: 1.05rem; font-weight: 700; text-decoration: none; }
+.resumen-nota-lista a:hover, .resumen-nota-lista a:focus-visible { color: var(--kimun-azul); text-decoration: underline; }
+/* Lleva a su tarjeta, más abajo en la misma página. */
+.resumen-nota-lista a::after { content: "↓"; margin-left: -.2rem; color: var(--kimun-azul); font-weight: 400; }
+.resumen-nota-lista a.sin-asignar { color: var(--kimun-aviso-texto); font-weight: 600; }
+.avatar-resumen { width: 2.6rem; height: 2.6rem; font-size: .9rem; }
+.resumen-nota-lista small { display: flex; flex-wrap: wrap; gap: .3rem; margin: .3rem 0 0 3.25rem; color: var(--pico-muted-color); font-size: .8rem; }
+/* Chip de núcleo: punto del color del núcleo y su nombre en tinta (el color nunca va solo). */
+.chip-nucleo { display: inline-flex; align-items: center; gap: .35rem; padding: .1rem .55rem; border-radius: 999px; background: var(--nucleo-suave); color: var(--kimun-tinta); font-weight: 600; }
+.chip-nucleo::before { content: ""; flex: none; width: .5rem; height: .5rem; border-radius: 50%; background: var(--nucleo); }
+.resumen-nota .ayuda { margin: 0; padding-top: .6rem; border-top: 1px solid var(--kimun-linea); }
+
 .procesando { padding: .85rem 1rem; border: 1px dashed var(--kimun-celeste-borde); border-radius: var(--kimun-radio); background: #fff; }
-.procesando p { margin: 0; }
+/* Pico pone white-space: nowrap a todo [aria-busy=true]: el texto largo desbordaba la página en celular. */
+.procesando p { margin: 0; white-space: normal; }
 .aviso { margin: 0; padding: .75rem 1rem; border: 1px solid var(--kimun-aviso-linea); border-radius: .85rem; background: var(--kimun-aviso-claro); color: var(--kimun-aviso-texto); }
 .aviso-error { padding: .75rem 1rem; border: 1px solid var(--kimun-alerta-linea); border-radius: .85rem; background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); }
 .aviso-error p { margin-bottom: .5rem; }
@@ -594,7 +703,8 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .perfil-cabecera p { margin: 0; color: var(--pico-muted-color); }
 .perfil-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; margin-top: .6rem !important; }
 .perfil-acciones [role=button] { margin: 0; padding: .45rem 1rem; }
-.perfil-seccion {
+/* .tarjeta es el mismo bloque fuera del perfil: sección con título sobre fondo blanco. */
+.perfil-seccion, .tarjeta {
   margin-bottom: 1.25rem;
   padding: 1rem 1.1rem;
   border: 1px solid var(--kimun-linea);
@@ -602,17 +712,132 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
   background: #fff;
   box-shadow: var(--kimun-sombra);
 }
-.perfil-seccion > h2 { font-size: 1.2rem; color: var(--kimun-tinta); }
-.radar-figura { margin: 0 auto 1rem; padding: .5rem 0; border-radius: 1.5rem; background: radial-gradient(circle at 50% 48%, var(--kimun-celeste-claro) 0, #fff 70%); text-align: center; }
-.radar { color: var(--kimun-texto-tenue); }
+.perfil-seccion > h2, .tarjeta > h2 { font-size: 1.2rem; color: var(--kimun-tinta); }
+.tarjeta > h2:first-child, .tarjeta > h3:first-child { margin-top: 0; }
+.tarjeta > :last-child { margin-bottom: 0; }
+
+/* --- Piezas comunes de las pantallas ------------------------------------------------------------- */
+
+/* Título de la página con su bajada. */
+.encabezado-pagina { margin-bottom: 1.25rem; }
+.encabezado-pagina h1 { margin-bottom: .35rem; color: var(--kimun-tinta); }
+.encabezado-pagina p { margin: 0 0 .35rem; max-width: 46rem; color: var(--pico-muted-color); }
+.encabezado-pagina .acciones { margin-top: .75rem; }
+/* Títulos largos (una frase): más chicos para que no ocupen media pantalla en celular. */
+.titulo-largo { font-size: clamp(1.35rem, 5.2vw, 1.85rem); line-height: 1.25; color: var(--kimun-tinta); }
+/* Lista de enlaces como filas de tarjeta (avisos, cursos). */
+.lista-enlaces { display: grid; gap: .45rem; margin: 0; padding: 0; }
+.lista-enlaces li { list-style: none; margin: 0; }
+.lista-enlaces a {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .6rem; padding: .6rem .8rem;
+  border: 1px solid var(--kimun-linea); border-radius: .85rem; background: #fff; color: inherit; text-decoration: none;
+}
+.lista-enlaces a:hover, .lista-enlaces a:focus-visible { border-color: var(--kimun-celeste-borde); background: var(--kimun-celeste-suave); }
+.lista-enlaces small { flex-basis: 100%; color: var(--pico-muted-color); font-size: .82rem; }
+.estado-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); font-weight: 600; }
+/* Pasos numerados (protocolo de protección): son una secuencia de verdad. */
+.pasos { margin: .5rem 0 .75rem; padding-left: 1.4rem; }
+.pasos li { margin-bottom: .45rem; padding-left: .2rem; }
+.pasos li::marker { color: var(--kimun-alerta); font-weight: 700; }
+/* Cita de una nota tal como se registró. */
+.cita-nota { margin: .25rem 0 .5rem; padding: .6rem .9rem; border-left: .25rem solid var(--kimun-celeste); background: var(--kimun-celeste-claro); font-style: normal; }
+
+/* --- Protección de derechos (Task 13) ------------------------------------------------------------ */
+
+.aviso-proteccion {
+  margin-bottom: 1.25rem; padding: 1rem 1.1rem; border: 1px solid var(--kimun-alerta-linea);
+  border-left: .3rem solid var(--kimun-alerta-borde); border-radius: var(--kimun-radio);
+  background: #fff; box-shadow: var(--kimun-sombra);
+}
+.aviso-proteccion > h2 { margin: 0 0 .5rem; font-size: 1.2rem; color: var(--kimun-alerta-texto); }
+.aviso-proteccion > p { margin-bottom: .5rem; }
+.aviso-proteccion > :last-child { margin-bottom: 0; }
+.aviso-proteccion details { margin: .25rem 0 .75rem; }
+.estado-captura .aviso-proteccion { margin-bottom: 0; background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); box-shadow: none; }
+.estado-captura .aviso-proteccion a { color: var(--kimun-alerta-texto); font-weight: 600; }
+p.aviso + .tarjeta, p.mensajes + .tarjeta { margin-top: 1rem; }
+.form-no-es { margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--kimun-linea); }
+.tarjeta form button:last-of-type { margin-bottom: .25rem; }
+/* Gráfico de flor (radar.py arma el SVG; kimun.js le suma color por núcleo, escala y modo compacto). */
+.seccion-niveles { --nivel-max: 8; }
+.niveles-cuerpo { display: grid; gap: 1rem 1.75rem; align-items: start; }
+.niveles-cuerpo > nav { display: block; }  /* Pico pone los <nav> en fila */
+@media (min-width: 1024px) {
+  .niveles-cuerpo { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); }
+}
+.nivel-general-ficha {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .6rem; margin: 0 0 1rem;
+  padding: .75rem 1rem; border-radius: var(--kimun-radio); background: var(--kimun-celeste-suave);
+}
+.nivel-general-rotulo { font-weight: 600; color: var(--kimun-tinta); }
+.nivel-general-numero { font-family: var(--kimun-fuente-titulos); font-size: 2.6rem; font-weight: 600; line-height: 1; color: var(--kimun-azul); }
+.nivel-general-ficha .ayuda { flex-basis: 100%; margin: .2rem 0 0; }
+.radar-figura { margin: 0 auto; padding: .5rem 0 .75rem; border-radius: 1.5rem; background: radial-gradient(circle at 50% 48%, var(--kimun-celeste-claro) 0, #fff 70%); text-align: center; }
+.radar { display: block; margin: 0 auto; color: var(--kimun-tinta); }
 .radar .radar-etiqueta { font-weight: 500; }
 .radar .radar-nivel { fill: var(--kimun-azul); }
-.radar-figura figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem; font-size: .85rem; color: var(--kimun-texto-tenue); }
-.leyenda { display: inline-flex; align-items: center; gap: .4rem; }
+.radar .radar-anillo { stroke: var(--kimun-tinta); stroke-opacity: .16; }
+.radar .radar-anillo-max { stroke-opacity: .32; }
+.radar .radar-petalo[class*="nucleo-"] { fill: var(--nucleo-suave); stroke: var(--nucleo); }
+.radar .radar-punto[class*="nucleo-"], .radar .radar-icono[class*="nucleo-"] { fill: var(--nucleo); }
+.radar .radar-petalo { transition: opacity .15s ease; }
+.radar.con-resaltado .radar-petalo:not(.resaltado) { opacity: .35; }
+.radar .radar-petalo.resaltado { stroke-width: 3; }
+.radar-escala text { font-size: 11px; font-weight: 600; fill: var(--kimun-texto-tenue); paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+/* Modo compacto: las etiquetas largas de radar.py se cambian por las cortas de kimun.js (nombre corto + nivel). */
+.flor-compacta .radar .radar-etiqueta { display: none; }
+/* En celular la figura llega al borde de la tarjeta: cada píxel de ancho agranda las etiquetas. */
+.perfil-seccion .radar-figura.flor-compacta { margin-inline: -1.1rem; border-radius: 0; }
+.radar .flor-etiquetas { display: none; }
+.flor-compacta .radar .flor-etiquetas { display: inline; }
+.flor-etiqueta { font-size: 17px; font-weight: 500; fill: var(--kimun-tinta); }
+.flor-etiqueta .flor-nivel { font-weight: 700; fill: var(--nucleo-texto, var(--kimun-azul)); }
+.flor-etiqueta .flor-alerta { fill: var(--kimun-alerta); }
+/* El núcleo más bajo respecto del nivel esperado: etiqueta en negrita, ⚠ y borde del pétalo más grueso. */
+.flor-etiqueta.flor-mas-bajo { font-weight: 700; }
+.radar .radar-petalo.flor-mas-bajo { stroke-width: 4; }
+.radar-figura figcaption { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem 1.1rem; padding: 0 .75rem; font-size: .85rem; color: var(--kimun-texto-tenue); }
+.leyenda { display: inline-flex; align-items: center; gap: .4rem; text-align: left; }
 .leyenda::before { content: ""; display: inline-block; flex: none; }
-.leyenda-nino::before { width: 1.6rem; height: .8rem; border-radius: 999px; background: linear-gradient(90deg, #cde3f3, #fdeaaa, #d5ebc6, #fad2d1); border: 1.5px solid #125a91; }
+.leyenda-nino::before { width: 1rem; height: 1rem; border-radius: 50%; background: conic-gradient(#125a91 0 12.5%, #b07800 0 25%, #2b6115 0 37.5%, #e0453c 0 50%, #5944a8 0 62.5%, #00978a 0 75%, #a9480c 0 87.5%, #b5559a 0); }
 .leyenda-mediana::before { width: .7rem; height: .7rem; border-radius: 50%; background: #fff; border: 2px solid #4a5160; }
 .leyenda-esperado::before { width: 1.6rem; height: 0; border-top: 3px dotted #b36b00; }
+.leyenda-escala::before { width: 1rem; height: 1rem; border-radius: 50%; border: 1px dashed var(--kimun-texto-tenue); box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 4px var(--kimun-linea); }
+
+/* Escalones de nivel por núcleo (tabla «Resumen por núcleo»): un paso por nivel de la rúbrica,
+   llenos hasta el nivel actual con el color del núcleo; la raya oscura es la mediana del curso. */
+.tabla-niveles { width: 100%; margin-bottom: 0; }
+.tabla-niveles caption { padding-bottom: .4rem; text-align: left; font-size: .85rem; color: var(--pico-muted-color); }
+.tabla-niveles th, .tabla-niveles td { --pico-background-color: #fff; padding: .55rem .4rem; vertical-align: middle; }
+.tabla-niveles thead th { font-size: .8rem; font-weight: 600; color: var(--kimun-texto-tenue); }
+.tabla-niveles th[scope="row"] a { display: inline-flex; align-items: center; gap: .5rem; color: var(--kimun-tinta); font-weight: 600; text-decoration: none; }
+.tabla-niveles th[scope="row"] a:hover, .tabla-niveles th[scope="row"] a:focus-visible { color: var(--kimun-azul); text-decoration: underline; }
+.tabla-niveles th[scope="row"] .icono-nucleo { width: 1.6rem; height: 1.6rem; color: var(--nucleo); }
+.nivel-texto { font-weight: 600; white-space: nowrap; }
+.escalones { position: relative; display: block; width: 100%; max-width: 13rem; height: .8rem; margin-top: .35rem; }
+.escalones-pasos {
+  --paso: calc(100% / var(--nivel-max));
+  display: block; height: 100%; border-radius: .25rem;
+  background: linear-gradient(90deg, var(--nucleo) 0 calc(var(--paso) * var(--nivel)), var(--nucleo-suave) 0);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(var(--paso) - 3px), transparent 0 var(--paso));
+  mask: repeating-linear-gradient(90deg, #000 0 calc(var(--paso) - 3px), transparent 0 var(--paso));
+}
+.escalones[style*="--mediana"]::after {
+  content: ""; position: absolute; top: -.2rem; bottom: -.2rem; width: 3px; border-radius: 2px;
+  left: calc(100% / var(--nivel-max) * var(--mediana) - 3px); background: #4a5160; box-shadow: 0 0 0 1.5px #fff;
+}
+.tabla-niveles tbody tr:hover th, .tabla-niveles tbody tr:hover td { background: var(--kimun-celeste-claro); }
+.leyenda-escalones { margin: .5rem 0 0; font-size: .8rem; color: var(--kimun-texto-tenue); }
+@media (max-width: 575px) {
+  /* En celular cada núcleo es una fila de dos líneas: nombre arriba; nivel y mediana abajo. Sin scroll lateral. */
+  .tabla-niveles thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabla-niveles tr { display: grid; grid-template-columns: 1fr auto; column-gap: .75rem; padding: .5rem 0; border-bottom: 1px solid var(--kimun-linea); }
+  .tabla-niveles th, .tabla-niveles td { padding: 0; border: 0; }
+  .tabla-niveles th[scope="row"] { grid-column: 1 / -1; margin-bottom: .2rem; }
+  .tabla-niveles td.celda-mediana { align-self: end; font-size: .8rem; color: var(--kimun-texto-tenue); text-align: right; white-space: nowrap; }
+  .radar-figura figcaption { flex-direction: column; align-items: flex-start; padding-inline: 1rem; }
+  .tabla-niveles td.celda-mediana::before { content: "Mediana del curso "; }
+}
 
 .historial { margin: 0; padding: 0 0 0 .25rem; border-left: 2px solid var(--kimun-celeste-borde); }
 .historial .evento { position: relative; list-style: none; margin: 0; padding: .1rem 0 1rem 1.1rem; }
@@ -635,32 +860,64 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .evento-etiquetas { font-size: .85rem; }
 .nivel-validado { display: inline-block; margin: .15rem .35rem .15rem 0; padding: .05rem .5rem; border-radius: 999px; background: var(--kimun-celeste-suave); }
 
-.detalle-nucleo { margin-bottom: .6rem; padding: .2rem .9rem; border: 1px solid var(--kimun-linea); border-radius: .85rem; background: #fff; }
-.detalle-nucleo > summary { padding: .55rem 0; font-weight: 600; }
+/* Detalle por núcleo: borde izquierdo e ícono del color del núcleo, como en la flor y los escalones. */
+.detalle-nucleo { margin-bottom: .6rem; padding: .2rem .9rem; border: 1px solid var(--kimun-linea); border-left: .3rem solid var(--nucleo); border-radius: .85rem; background: #fff; }
+.detalle-nucleo > summary { display: flex; align-items: center; gap: .55rem; padding: .55rem 0; line-height: 1.35; font-weight: 600; color: var(--kimun-tinta); }
+.detalle-nucleo > summary::after { margin-left: auto; }
+.detalle-nucleo > summary .icono-nucleo { color: var(--nucleo); }
+.detalle-nucleo[open] > summary { border-bottom: 1px solid var(--kimun-linea); margin-bottom: .5rem; }
+/* Dentro del detalle, los subtítulos son de tarjeta, no de página. */
+.nucleo-ficha > hgroup h2 { font-size: 1.3rem; }
+.nucleo-ficha h3 { margin: 1.25rem 0 .4rem; font-size: 1.05rem; font-weight: 700; color: var(--kimun-tinta); }
+@media (max-width: 575px) { .detalle-nucleo { padding-inline: .7rem; } }
 .detalle-nucleo .nucleo-ficha { border-top: 0; padding-top: 0; }
 
-.lista-cursos li { margin-bottom: .5rem; }
-.lista-cursos .acciones { display: inline; }
+.lista-cursos { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); margin: 0; padding: 0; }
+.lista-cursos li { list-style: none; margin: 0; }
+.lista-cursos h2 { margin: 0 0 .15rem; font-size: 1.15rem; color: var(--kimun-tinta); }
+.lista-cursos .acciones [role=button] { padding: .45rem 1rem; font-size: .95rem; }
 
-/* Salas del jardín (_salas_jardin.html): una tarjeta por sala, en grilla desde la tableta. */
-.panel-salas-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; }
-.panel-salas-cabecera h2 { margin: 0; }
-.panel-salas-cabecera [role="button"] { margin: 0; }
-.lista-salas { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); padding: 0; margin: .75rem 0 1.5rem; }
+/* Salas del jardín (_salas_jardin.html): una .tarjeta por sala, en grilla desde la tableta. Va después de la
+   tarjeta de alertas, que es lo llamativo de la pantalla: aquí no hay cifras rojas ni botones primarios. */
+.panel-salas { margin-bottom: 1.25rem; }
+.panel-salas-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem 1rem; margin-bottom: .35rem; }
+.panel-salas-cabecera h2 { margin: 0; font-size: 1.3rem; color: var(--kimun-tinta); }
+.panel-salas-cabecera [role="button"] { margin: 0; padding: .45rem 1rem; font-size: .95rem; }
+.lista-salas { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); padding: 0; margin: .75rem 0 0; }
 .lista-salas > li { list-style: none; margin: 0; }
-.tarjeta-sala { height: 100%; margin: 0; display: flex; flex-direction: column; gap: .5rem; padding: 1rem; }
-.tarjeta-sala > header { margin: 0 0 .25rem; padding: 0 0 .5rem; }
-.tarjeta-sala h3 { margin: 0; font-size: 1.15rem; }
-.tarjeta-sala header p, .equipo-sala { margin: 0; color: var(--pico-muted-color); font-size: .9rem; }
-.tarjeta-sala > footer { margin: auto 0 0; padding: .5rem 0 0; font-size: .9rem; }
-.tarjeta-sala .senal-aviso { padding: .3rem .5rem; border-radius: .25rem; background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); border-left: .25rem solid var(--kimun-aviso-borde); font-weight: 600; }
-.atencion-sala { margin: 0; padding: .4rem .6rem .4rem 1.4rem; border-radius: .25rem; background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); border-left: .25rem solid var(--kimun-aviso-borde); font-weight: 600; font-size: .9rem; }
-.atencion-sala li { margin: 0; }
-.indicadores-sala { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem .75rem; margin: 0; }
-.indicadores-sala div { margin: 0; }
-.indicadores-sala dt { font-size: .78rem; font-weight: 400; color: var(--pico-muted-color); }
-.indicadores-sala dd { margin: 0; font-size: 1.05rem; font-weight: 600; }
+.tarjeta-sala { height: 100%; margin: 0; display: flex; flex-direction: column; gap: .6rem; }
+.tarjeta-sala > header { margin: 0; padding: 0; border: 0; background: none; }
+.tarjeta-sala h3 { margin: 0 0 .1rem; font-size: 1.15rem; }
+.tarjeta-sala h3 a { color: var(--kimun-tinta); }
+.tarjeta-sala header p { margin: 0; color: var(--pico-muted-color); font-size: .9rem; }
+.tarjeta-sala .equipo-sala { margin-top: .15rem; font-size: .85rem; }
+.tarjeta-sala > p, .tarjeta-sala > .aviso { margin: 0; }
+/* Lo pendiente como chips de estado (aviso de protección rojo, por revisar y por decidir amarillo). */
+.atencion-sala { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; }
+.atencion-sala .chip-estado { margin: 0; padding: .15rem .6rem; font-size: .85rem; white-space: normal; }
+/* Cifras arriba en Fredoka y el rótulo debajo: así las cuatro quedan alineadas aunque el rótulo ocupe dos líneas. */
+.indicadores-sala { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem .75rem; margin: 0; padding: .6rem .75rem; border-radius: .6rem; background: var(--kimun-celeste-claro); }
+.indicadores-sala div { display: flex; flex-direction: column-reverse; justify-content: flex-end; margin: 0; }
+.indicadores-sala dt { font-size: .8rem; font-weight: 400; line-height: 1.3; color: var(--pico-muted-color); }
+.indicadores-sala dd { margin: 0; font-family: var(--kimun-fuente-titulos); font-size: 1.5rem; font-weight: 600; line-height: 1.1; color: var(--kimun-tinta); }
+.nucleos-sin-observar { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; font-size: .8rem; }
+.nucleos-sin-observar .ayuda { margin-right: .15rem; font-size: .85rem; }
+/* Solo el punto lleva el color del núcleo: con ocho chips pastel la tarjeta competía con la de alertas. */
+.nucleos-sin-observar abbr { background: var(--kimun-gris-suave); text-decoration: none; cursor: help; }
 .tarjeta-sala .ayuda { margin: 0; }
+.tarjeta-sala > footer { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin: auto 0 0; padding: .6rem 0 0; border-top: 1px solid var(--kimun-linea); }
+.tarjeta-sala > footer a { padding: .4rem .5rem; font-size: .9rem; text-align: center; }
+/* Lista de niños de una sala (ninos_sala.html). */
+.tabla-ninos td, .tabla-ninos th { vertical-align: middle; }
+.tabla-ninos td.botones-enlace { text-align: right; }
+.tabla-ninos td.botones-enlace a { padding: .3rem .75rem; font-size: .9rem; }
+.tabla-ninos time { white-space: nowrap; }
+@media (max-width: 575px) {
+  /* En 390 px la tabla cabe sin deslizar: así «Editar» queda a la vista. */
+  .pagina-tabla .tarjeta .tabla-ninos { font-size: .875rem; }
+  .tabla-ninos td, .tabla-ninos th { padding-inline: .3rem; }
+  .tabla-ninos td.botones-enlace a { padding: .25rem .55rem; font-size: .85rem; }
+}
 /* Otras salas en el menú lateral */
 .menu-otras-salas small { color: var(--pico-muted-color); }
 .tarjeta-login { max-width: 24rem; margin: 2rem auto; }
@@ -698,10 +955,15 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .sin-evidencia td:last-child { color: var(--kimun-aviso); }
 
 /* Qué observar para avanzar (registro/avanzar.py). */
-.para-avanzar { margin: 1rem 0; padding: .75rem 1rem; border: 1px dashed var(--kimun-aviso-linea); border-radius: .85rem; background: var(--kimun-aviso-claro); }
-.para-avanzar h3 { margin-top: 0; }
-.para-avanzar h4 { margin: .9rem 0 .2rem; font-size: 1rem; }
-.para-avanzar-meta { margin-bottom: .4rem; }
+/* «Qué observar después»: el siguiente paso, en verde de avance y con borde lleno (lo demás del detalle es
+   blanco), para que se distinga de un vistazo de la rúbrica actual y de las señales. */
+.para-avanzar { margin: 1.25rem 0; padding: .9rem 1rem; border: 1px solid var(--kimun-ok-linea); border-left: .4rem solid var(--kimun-ok); border-radius: .85rem; background: var(--kimun-ok-claro); }
+.para-avanzar h3 { display: flex; align-items: center; gap: .45rem; margin-top: 0; color: var(--kimun-ok); }
+.para-avanzar h3::before { content: ""; flex: none; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: var(--kimun-ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M5 17h5v-5h4V7h5' fill='none' stroke='%23fff' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 80% no-repeat; }
+.para-avanzar h4 { margin: .9rem 0 .2rem; font-size: 1rem; color: var(--kimun-tinta); }
+.para-avanzar-meta { margin-bottom: .5rem; }
+.para-avanzar ul { padding-left: 1.1rem; }
+.para-avanzar-meta strong { padding: .1rem .55rem; border-radius: 999px; background: var(--kimun-ok-fondo); color: var(--kimun-ok); }
 .para-avanzar .ayuda { margin: .25rem 0 .5rem; }
 .conductas-oa { margin: .4rem 0; }
 .conductas-oa p { margin: 0; font-weight: 600; }
@@ -714,6 +976,13 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 /* --- Revisión de observaciones (Task 6) --- */
 
 .obs { margin-bottom: 1rem; scroll-margin-top: var(--pico-spacing); }
+/* Un grupo por captura en la revisión: título del tamaño de una tarjeta, no de la página. */
+.grupo-revision { margin-bottom: 1.75rem; padding-top: 1rem; border-top: 1px solid var(--kimun-linea); }
+.titulo-grupo { margin: 0 0 .35rem; font-size: 1.1rem; line-height: 1.35; color: var(--kimun-tinta); }
+.titulo-grupo small { display: block; font-size: .85rem; font-weight: 400; color: var(--pico-muted-color); }
+.grupo-revision > form { margin-bottom: 1rem; }
+.grupo-revision > form button { width: auto; }
+.grupo-revision > details { margin-bottom: .75rem; font-size: .95rem; }
 .obs > header { display: flex; flex-wrap: wrap; gap: .25rem .5rem; align-items: baseline; }
 .obs blockquote { margin: .5rem 0; }
 .obs dl { display: grid; grid-template-columns: max-content 1fr; gap: .1rem .75rem; margin: 0 0 .75rem; font-size: .9rem; }
@@ -756,10 +1025,88 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .propuesta-nivel details { margin-block: 1rem; }
 [id^="observacion-"] { scroll-margin-top: var(--pico-spacing); }
 
+/* --- Tablas del curso y del jardín (curso.html, jardin.html: <body class="pagina-tabla">) ---------- */
+
+/* Las señales llevan color y también texto: el color nunca es la única pista. */
+.pagina-tabla .senal { display: block; margin-top: .25rem; padding: .1rem .35rem; border-radius: .25rem; font-size: .8rem; line-height: 1.3; font-weight: normal; }
+.pagina-tabla .senal-aviso { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); border-left: .25rem solid var(--kimun-aviso-borde); }
+.pagina-tabla .senal-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); font-weight: 600; }
+.pagina-tabla .datos { display: block; margin-top: .25rem; font-size: .75rem; color: var(--pico-muted-color); }
+.pagina-tabla .tarjeta table { margin-bottom: 0; font-size: .95rem; }
+.pagina-tabla .tarjeta caption { padding-bottom: .5rem; text-align: left; font-size: .85rem; color: var(--pico-muted-color); }
+.pagina-tabla .tarjeta th, .pagina-tabla .tarjeta td { --pico-background-color: #fff; background: #fff; }
+.pagina-tabla .tarjeta h3 { margin: 1rem 0 .5rem; font-size: 1.05rem; color: var(--kimun-tinta); }
+/* Primera columna fija al desplazar la tabla a lo ancho. */
+.tabla-curso th[scope="row"], .tabla-jardin th[scope="row"] { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 1px 0 0 var(--kimun-linea); }
+.tabla-curso td, .tabla-curso th, .tabla-jardin td, .tabla-jardin th { vertical-align: top; min-width: 7rem; }
+/* Tabla del curso más compacta: los 8 núcleos caben sin scroll horizontal desde ~1024 px (Task 14). */
+.pagina-tabla .tarjeta .tabla-curso { font-size: .9rem; }
+.tabla-curso td, .tabla-curso th { min-width: 4.5rem; padding-inline: .4rem; }
+.tabla-curso th[scope="row"] { min-width: 7.5rem; }
+.tabla-curso th[scope="row"] small, .tabla-jardin th[scope="col"] small { display: block; color: var(--pico-muted-color); font-weight: normal; }
+.tabla-jardin td.celda-alerta { background: var(--kimun-alerta-fondo); color: var(--kimun-alerta-texto); border-left: .25rem solid var(--kimun-alerta-borde); font-size: 1.2rem; font-weight: 700; }
+.pagina-tabla .tarjeta .tabla-jardin td.celda-alerta { background: var(--kimun-alerta-fondo); }
+.tabla-jardin td.celda-alerta .senal { font-size: .8rem; }
+.tabla-jardin td.celda-alerta .senal { border-left: 0; padding-left: 0; background: none; }
+.tabla-jardin td.celda-sin-datos { color: var(--pico-muted-color); font-size: .875rem; }
+.sin-observaciones th, .pagina-tabla .tarjeta .sin-observaciones th, .pagina-tabla .tarjeta .sin-observaciones td { background: var(--kimun-aviso-fondo); color: var(--kimun-aviso-texto); }
+.distribucion td.mayoria { font-weight: 700; text-decoration: underline; }
+.navegacion-quincena { display: flex; gap: .5rem 1rem; flex-wrap: wrap; margin-bottom: .75rem; font-size: .9rem; }
+/* Explicación de cómo leer una tabla: plegada para que la tabla quede a la vista. */
+.como-leer { margin: 0 0 1rem; padding: .5rem .85rem; border-radius: .75rem; background: var(--kimun-celeste-claro); font-size: .9rem; }
+.como-leer summary { color: var(--kimun-azul); font-weight: 600; }
+.como-leer p { margin: .5rem 0 0; }
+/* Sugerencias de revisión de la directora. */
+.lista-sugerencias { display: grid; gap: .5rem; margin: 0; padding: 0; }
+.lista-sugerencias li { list-style: none; margin: 0; }
+.lista-sugerencias .senal { display: block; margin: 0 0 .2rem; padding: .4rem .6rem; font-size: .9rem; }
+/* Con alertas, la tarjeta entera es la señal roja: lo primero que ve la directora (segunda pasada). */
+.tarjeta-alertas { border-color: var(--kimun-alerta-linea); border-top: .35rem solid var(--kimun-alerta-borde); }
+.tarjeta-alertas > h2 { display: flex; align-items: center; gap: .6rem; color: var(--kimun-alerta-texto); }
+.cuenta-alertas { display: inline-flex; align-items: center; justify-content: center; flex: none; min-width: 2.2rem; height: 2.2rem; padding: 0 .5rem; border-radius: 999px; background: var(--kimun-alerta); color: #fff; font-size: 1.15rem; }
+.tarjeta-alertas .lista-sugerencias { gap: .6rem; }
+.tarjeta-alertas .lista-sugerencias li {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .35rem .75rem;
+  padding: .75rem .9rem; border-radius: .85rem; background: var(--kimun-alerta-fondo);
+}
+.sugerencia-icono { color: var(--kimun-alerta); }
+.tarjeta-alertas .lista-sugerencias .senal { margin: 0; padding: 0; border: 0; background: none; font-size: 1rem; line-height: 1.35; }
+.tarjeta-alertas .lista-sugerencias a {
+  padding: .4rem .9rem; border: 1px solid var(--kimun-alerta-borde); border-radius: var(--kimun-radio); background: #fff;
+  color: var(--kimun-alerta-texto); font-size: .9rem; font-weight: 600; text-decoration: none; white-space: nowrap;
+}
+.tarjeta-alertas .lista-sugerencias a:hover, .tarjeta-alertas .lista-sugerencias a:focus-visible { background: var(--kimun-alerta-linea); }
+@media (max-width: 575px) {
+  .tarjeta-alertas .lista-sugerencias li { grid-template-columns: auto 1fr; }
+  .tarjeta-alertas .lista-sugerencias a { grid-column: 2; justify-self: start; }
+}
+.tarjeta > .aviso, .tarjeta > .mensaje-ok { margin-bottom: .75rem; }
+.encabezado-pagina .acciones [role=button] { padding: .45rem 1rem; font-size: .95rem; }
+/* Enlaces con aspecto de botón cuando la plantilla no puede llevar role="button" (curso.html). */
+.botones-enlace a {
+  display: inline-block; padding: .45rem 1rem; border: 1px solid var(--kimun-gris); border-radius: var(--kimun-radio);
+  color: var(--kimun-gris-oscuro); font-size: .95rem; text-decoration: none;
+}
+.botones-enlace a:hover, .botones-enlace a:focus-visible { background: var(--kimun-gris-suave); }
+.botones-enlace a.principal { border-color: var(--kimun-celeste); background: var(--kimun-celeste); color: var(--kimun-tinta); }
+.botones-enlace a.principal:hover, .botones-enlace a.principal:focus-visible { background: var(--kimun-celeste-hover); }
+@media (max-width: 575px) {
+  /* Tres salas caben en 390 px sin deslizar: así la celda roja de la sala C se ve sin buscarla. */
+  .pagina-tabla .tarjeta .tabla-jardin { font-size: .85rem; }
+  .tabla-jardin td, .tabla-jardin th { min-width: 4.4rem; padding-inline: .3rem; }
+  .tabla-jardin th[scope="row"] { min-width: 6rem; }
+  .tabla-jardin td.celda-alerta { font-size: 1.05rem; }
+  .pagina-tabla .tarjeta { padding-inline: .8rem; }
+}
+/* Foco visible en los enlaces con forma de tarjeta o botón. */
+.lista-enlaces a:focus-visible, .botones-enlace a:focus-visible, .bandeja-lista a:focus-visible, .recientes a:focus-visible {
+  outline: 3px solid var(--kimun-azul); outline-offset: 2px;
+}
+
 /* Instrumentos estandarizados e historial de cambios (Task 14). Sin colores de alarma: el resultado se lee en texto. */
 .resultado-principal { font-size: 1.1rem; }
 .resultado-texto { font-weight: 600; }
-.siguiente-paso { padding: .5rem .75rem; border-left: 4px solid var(--kimun-gris-suave); }
+.siguiente-paso { padding: .5rem .75rem; border-left: 4px solid var(--kimun-celeste); background: var(--kimun-celeste-claro); border-radius: 0 .6rem .6rem 0; }
 .tabla-instrumento caption, .resultado-instrumento caption { text-align: left; font-weight: 600; }
 .tabla-formulario input, .tabla-formulario select { margin-bottom: 0; min-width: 6rem; }
 .lista-instrumentos li { margin-bottom: .5rem; }
@@ -767,9 +1114,25 @@ input[data-foto]:focus-visible + label { outline: 3px solid var(--kimun-azul); o
 .cambiar-instrumento select { width: auto; margin-bottom: 0; }
 .cambiar-instrumento button { width: auto; margin-bottom: 0; }
 .descartar { margin-top: 1rem; }
-.integridad-ok { color: var(--kimun-ok); }
-.lista-cambios { padding-left: 1.25rem; }
-.lista-cambios > li { margin-bottom: 1rem; }
-.lista-cambios .motivo { font-style: italic; }
+/* Segunda pasada: mismas piezas que el resto (encabezado, tarjetas, chips); sin rediseño. */
+.integridad-ok { display: inline-block; padding: .2rem .7rem; border-radius: 999px; background: var(--kimun-ok-fondo); color: var(--kimun-ok); font-size: .9rem; font-weight: 600; }
+.lista-instrumentos { display: grid; gap: .45rem; padding: 0; }
+.lista-instrumentos li { list-style: none; margin: 0; padding: .6rem .8rem; border: 1px solid var(--kimun-linea); border-radius: .85rem; }
+.lista-instrumentos a { font-weight: 600; }
+/* Historial de cambios como la línea de tiempo de la ficha. */
+.lista-cambios { margin: 0; padding: 0 0 0 .25rem; border-left: 2px solid var(--kimun-celeste-borde); }
+.lista-cambios > li { position: relative; list-style: none; margin: 0; padding: .1rem 0 1rem 1.1rem; }
+.lista-cambios > li::before { content: ""; position: absolute; top: .4rem; left: -.6rem; width: .85rem; height: .85rem; border: 2px solid #fff; border-radius: 50%; background: var(--kimun-azul); box-shadow: 0 0 0 1px var(--kimun-celeste-borde); }
+.lista-cambios > li > p { margin: .1rem 0; }
+.lista-cambios time { color: var(--kimun-azul); font-size: .85rem; font-weight: 600; }
+.lista-cambios .motivo { padding: .35rem .7rem; border-left: .2rem solid var(--kimun-celeste); background: var(--kimun-celeste-claro); }
 .tabla-cambios { font-size: .9rem; }
+.tabla-cambios td:last-child { color: var(--kimun-ok); font-weight: 600; }
 .huella { margin: 0; }
+
+/* Transición corta cuando una acción de la educadora reemplaza una tarjeta (aceptar, descartar, editar una
+   observación; fijar o decidir un nivel). HTMX pone .htmx-added al contenido nuevo y la saca al asentarse:
+   la opacidad sube en 0,2 s. No se aplica a lo que se actualiza solo (polling): parpadearía cada 3 s. */
+article[id^="obs-"], .nucleo-ficha { transition: opacity .2s ease-out; }
+article[id^="obs-"].htmx-added, .nucleo-ficha.htmx-added { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { article[id^="obs-"], .nucleo-ficha { transition: none; } }

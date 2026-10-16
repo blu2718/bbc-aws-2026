@@ -2,10 +2,18 @@
 {% block titulo %}{% if sala %}Editar {{ sala.nombre }}{% else %}Nueva sala{% endif %} · {{ jardin.nombre }}{% endblock %}
 {% block contenido %}
 <p class="volver"><a href="{% url 'jardin' jardin.pk %}">← {{ jardin.nombre }}</a></p>
-<h1>{% if sala %}Editar {{ sala.nombre }}{% else %}Nueva sala{% endif %}</h1>
-<p>La educadora y las asistentes ven solo las salas en que están; tú ves todas las del jardín.</p>
+<header class="encabezado-pagina">
+  <h1 class="titulo-largo">{% if sala %}Editar {{ sala.nombre }}{% else %}Nueva sala{% endif %}</h1>
+  <p>La educadora y las asistentes ven solo las salas en que están; tú ves todas las del jardín.</p>
+  {% if sala %}
+    <p class="acciones">
+      <a role="button" class="secondary outline" href="{% url 'ninos_sala' sala.pk %}">Niños y niñas de {{ sala.nombre }} ({{ sala.ninos.count }})</a>
+      <a role="button" class="secondary outline" href="{% url 'curso' sala.pk %}">Tabla de la sala</a>
+    </p>
+  {% endif %}
+</header>
 
-<form method="post" novalidate>
+<form class="tarjeta" method="post" novalidate>
   {% csrf_token %}
   {% if form.non_field_errors %}<div class="aviso-error" role="alert">{% for e in form.non_field_errors %}<p>{{ e }}</p>{% endfor %}</div>{% endif %}
   {% include "registro/_campo.html" with campo=form.nombre %}
@@ -30,8 +38,4 @@
 
   <button type="submit">{% if sala %}Guardar cambios{% else %}Crear la sala{% endif %}</button>
 </form>
-
-{% if sala %}
-  <p><a href="{% url 'ninos_sala' sala.pk %}">Niños y niñas de {{ sala.nombre }} ({{ sala.ninos.count }})</a> · <a href="{% url 'curso' sala.pk %}">Tabla de la sala</a></p>
-{% endif %}
 {% endblock %}
